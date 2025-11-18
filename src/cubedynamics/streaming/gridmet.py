@@ -103,6 +103,15 @@ def _open_gridmet_year(
     if "day" in ds.coords:
         ds = ds.rename({"day": "time"})
 
+    # Some of the lightweight test fixtures use CF-friendly variable names like
+    # "precipitation_amount" even when the requested gridMET variable is
+    # "pr".  When the dataset exposes exactly one data variable we can safely
+    # alias it to the requested variable name so downstream logic can always
+    # index ``ds[variable]`` regardless of the source naming convention.
+    if variable not in ds.data_vars and len(ds.data_vars) == 1:
+        (only_var,) = tuple(ds.data_vars)
+        ds = ds.rename({only_var: variable})
+
     return ds
 
 
