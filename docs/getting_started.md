@@ -1,96 +1,68 @@
 # Getting Started
 
-This page walks through installing CubeDynamics, configuring credentials, and
-verifying that streaming climate cubes work in your environment.
+CubeDynamics (`cubedynamics`) runs anywhere `xarray` does—laptops, clusters, or serverless jobs. Use this guide to install the package, import the core helpers, and prepare for streaming climate data once adapters are wired in.
 
-## Install the package
+## Installation
 
-CubeDynamics follows a standard `pyproject.toml` layout inside `src/`.
-
-```bash
-# clone the repo
- git clone https://github.com/CU-ESIIL/climate_cube_math.git
- cd climate_cube_math
-
-# install dependencies in editable mode for development
- python -m pip install -e .
-```
-
-Once the project is on PyPI the install will be as simple as `pip install
-cubedynamics`.
-
-## Configure environment variables
-
-Some streaming backends (Cubo, Microsoft Planetary Computer, Google Earth
-Engine) require API tokens. Store them in environment variables or `.env` files
-and load them before requesting cubes. For example:
+### Install from GitHub today
 
 ```bash
-export CUBO_API_TOKEN="..."
-export PLANETARY_COMPUTER_SUBSCRIPTION="..."
+python -m pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
 ```
 
-The loaders look for these variables automatically when establishing remote
-sessions.
+### Install from PyPI when released
 
-## Verify a streaming request
+```bash
+python -m pip install cubedynamics
+```
 
-Open a Python session or notebook and request a small cube to confirm your setup
-works:
+### Editable installs for development
+
+```bash
+git clone https://github.com/CU-ESIIL/climate_cube_math.git
+cd climate_cube_math
+python -m pip install -e .[dev]
+```
+
+## Import pattern
+
+The `cubedynamics` namespace exposes the primary verbs directly alongside the `pipe` helper:
 
 ```python
 import cubedynamics as cd
-
-aoi = {
-    "min_lon": -105.4,
-    "max_lon": -105.3,
-    "min_lat": 40.0,
-    "max_lat": 40.1,
-}
-
-cube = cd.stream_gridmet_to_cube(
-    aoi,
-    variable="tmmx",
-    dates=("2020-01-01", "2020-12-31"),
-    prefer_streaming=True,
-)
-print(cube)
 ```
 
-If the call succeeds you are ready to work through the [Concepts](concepts.md)
-and [API & Examples](climate_cubes.md) sections.
+Every example in the docs uses this alias so pipe chains read cleanly: `cd.pipe(cube) | cd.anomaly(dim="time")`.
 
-## Pipe syntax (ggplot-style verbs)
-
-CubeDynamics now exposes a ``pipe()`` helper and pipeable verbs under
-``cubedynamics.ops``. Wrap any xarray ``DataArray`` or ``Dataset`` with
-``cd.pipe()`` and compose operations with the ``|`` operator:
+## Minimal example
 
 ```python
 import cubedynamics as cd
+import xarray as xr
 
-cube = ...
+cube = xr.DataArray([1, 2, 3, 4], dims=["time"])
 
 result = (
     cd.pipe(cube)
     | cd.anomaly(dim="time")
-    | cd.month_filter([6, 7, 8])
     | cd.variance(dim="time")
-    | cd.to_netcdf("out.nc")
 ).unwrap()
 ```
 
-Pipeable verbs are factories. You can create your own by following the same
-pattern:
+The `.unwrap()` call runs the pipeline and returns the final `xarray` object.
+
+## Loading streamed climate data
+
+CubeDynamics is built for streaming PRISM, gridMET, NDVI, and related datasets directly into `xarray` cubes. While the adapters are being finalized, design your code around the expectation that loaders will return `DataArray`/`Dataset` objects:
 
 ```python
-def my_custom_op(scale):
-    def _inner(cube):
-        return cube * scale
-    return _inner
-
-result = cd.pipe(cube) | my_custom_op(0.5)
+prism_cube = cd.ops.io.stream_prism_to_cube(aoi, variable="tmean", dates=("2005-01", "2015-12"))
 ```
 
-This keeps the streaming-first philosophy: each verb simply transforms or
-reduces the cube provided by the pipe without forcing eager downloads.
+Once adapters land, swap the placeholder call with the real function and keep the downstream pipe chain unchanged.
+
+## Next steps
+
+- Learn the [pipe syntax](pipe_syntax.md) for building readable cube workflows.
+- Explore [operations references](ops_transforms.md) for available verbs.
+- Review [development practices](development.md) if you plan to contribute new streaming sources or operations.

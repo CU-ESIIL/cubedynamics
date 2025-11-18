@@ -6,16 +6,13 @@ site_url: "https://cu-esiil.github.io/climate_cube_math/"
 nav:
   - Home: index.md
   - Getting Started: getting_started.md
-  - Concepts:
-      - Overview: concepts.md
-      - Cube math primitives: concepts/cube_math.md
-  - API & Examples:
-      - Climate cubes: climate_cubes.md
-      - Correlation cubes: correlation_cubes.md
-      - Streaming PRISM & gridMET: streaming_sources.md
-  - Development:
-      - Contributing: contributing.md
-      - Changelog: updates.md
+  - Pipe Syntax & Verbs: pipe_syntax.md
+  - Operations Reference:
+      - Transforms: ops_transforms.md
+      - Stats: ops_stats.md
+      - IO Functions: ops_io.md
+  - Development: development.md
+  - Changelog: changelog.md
 
 repo_url: https://github.com/CU-ESIIL/climate_cube_math
 edit_uri: edit/main/docs/

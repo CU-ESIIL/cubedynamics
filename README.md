@@ -1,93 +1,66 @@
 # CubeDynamics (`cubedynamics`)
 
-CubeDynamics is a streaming-first climate cube math library for building
-multi-source climate data cubes (PRISM, gridMET, NDVI/Sentinel, etc.) and
-computing correlations, variance, and trends without downloading entire
-collections.
+CubeDynamics is a streaming-first climate cube math library with ggplot-style piping. It brings high-resolution climate archives (PRISM, gridMET, NDVI, and more) directly into your workflows so you can compose anomaly, synchrony, and correlation cubes without mirroring entire datasets.
 
 ## Features
 
-- **Streaming and chunked access** to climate datasets so analyses can begin
-  before downloads finish.
-- **Climate lexcubes** – multi-dimensional cubes of climate statistics for
-  comparing vegetation, weather, and derived metrics over shared axes.
-- **Correlation, synchrony, and variance cubes** that summarize temporal
-  patterns such as drought stress, phenology shifts, and teleconnections.
-- **Notebook-friendly helpers** for Jupyter, VS Code, and workflow runners.
-- **Cloud and big-data ready** primitives that lean on `xarray`, `dask`, and
-  lazy execution.
+- **Streaming PRISM/gridMET/NDVI climate data** for immediate analysis without bulk downloads.
+- **Climate variance, correlation, trend, and synchrony cubes** that run on `xarray` objects and scale from laptops to clusters.
+- **Pipe system** – build readable cube workflows with `pipe(cube) | anomaly() | variance()` syntax inspired by ggplot and dplyr.
+- **Modular verbs under `cubedynamics.ops`** so transforms, stats, and IO live in focused modules.
+- **Cloud-ready architecture** that embraces chunked processing, lazy execution, and storage backends like NetCDF or Zarr.
 
 ## Installation
 
-Once the package is published on PyPI you will be able to install it with:
-
-```bash
-pip install cubedynamics
-```
-
-Until then install directly from GitHub:
+### Install from GitHub (current)
 
 ```bash
 pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
 ```
 
-Developers can work against the repo in editable mode:
+### Install after PyPI release
 
 ```bash
-python -m pip install -e .
+pip install cubedynamics
 ```
 
-## Quickstart
+## Quickstart (new pipe syntax)
 
 ```python
 import cubedynamics as cd
+import xarray as xr
 
-# Example: stream a gridMET cube for a region and compute a variance cube
-cube = cd.stream_gridmet_to_cube(
-    aoi_geojson,
-    variable="pr",
-    dates=("2000-01", "2020-12"),
+# Example cube (placeholder)
+cube = xr.DataArray(
+    [1, 2, 3, 4, 5, 6],
+    dims=["time"],
 )
-var_cube = cd.variance_cube(cube)
-var_cube.to_netcdf("gridmet_variance.nc")
-```
-
-Pipe ggplot-style operations with ``|`` for quick cube math:
-
-```python
-import cubedynamics as cd
-
-cube = ...  # any xarray DataArray or Dataset
 
 result = (
     cd.pipe(cube)
     | cd.anomaly(dim="time")
-    | cd.month_filter([6, 7, 8])
+    | cd.month_filter([6])         # example of a pipeable filter
     | cd.variance(dim="time")
 ).unwrap()
+
+print(result)
 ```
 
-Additional helpers can build NDVI z-score cubes, compute rolling correlation vs
-an anchor pixel, or export “lexcubes” for downstream dashboards. Follow the docs
-for more end-to-end examples while the streaming implementations are finalized.
+## API Overview
 
-## Documentation
+- `pipe`
+- `anomaly`
+- `month_filter`
+- `variance`
+- `correlation_cube` (stub)
+- `to_netcdf`
 
-Full documentation: https://cu-esiil.github.io/climate_cube_math/
+More verbs live under `cubedynamics.ops.transforms`, `cubedynamics.ops.stats`, and `cubedynamics.ops.io`. Each verb returns a callable object that receives the upstream cube when used inside a pipe chain.
 
-The GitHub Pages site hosts the narrative docs, quickstart, concepts, and API
-notes for CubeDynamics. Use `mkdocs serve` to preview changes locally.
+## Philosophy
 
-## Contributing
+- **Streaming-first design** – CubeDynamics emphasizes adapters that yield data as soon as it is available so analyses can begin immediately.
+- **Pipe chaining** – The `Pipe` helper makes cube math declarative: each verb describes *what* to do, and the pipe handles *when* to run it.
+- **xarray-compatible processing** – Every verb consumes/produces `xarray.DataArray` or `xarray.Dataset` objects, making it easy to interoperate with the broader ecosystem.
 
-Contributions are welcome! Open an issue or pull request if you would like to
-add new data sources, improve the streaming primitives, or expand the
-statistical recipes. Please keep tests streaming-first (favor chunked I/O and
-mocked responses when possible) and include documentation updates alongside code
-changes.
-
-## Citation
-
-If you use CubeDynamics in academic work, cite the project using the metadata in
-[`CITATION.cff`](CITATION.cff). A formal publication is planned; until then
-please cite the software release and repository.
+Visit https://cu-esiil.github.io/climate_cube_math/ for full documentation, concepts, and the latest changelog.

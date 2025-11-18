@@ -1,60 +1,44 @@
-# CubeDynamics: Climate Cube Math
+# CubeDynamics
 
-CubeDynamics (`cubedynamics`) is a streaming-first library for assembling
-multi-source climate cubes (PRISM, gridMET, Sentinel-derived NDVI, etc.) and
-computing correlations, variance, synchrony, and trends without bulk
-downloads.
+A streaming-first climate cube math library.
 
-## What is CubeDynamics?
+## What it Does
 
-CubeDynamics packages a set of composable `xarray`-based helpers that turn
-streamed imagery and gridded climate products into **lexcubes**: structured
-space-time cubes filled with statistics that summarize variability, anomalies,
-and cross-sensor relationships. The package is purpose-built for environmental
-researchers who need to analyze climate dynamics on laptops, clusters, or cloud
-workflows without mirroring entire archives.
+- **Streaming climate data ingestion** for PRISM, gridMET, NDVI, and other gridded products.
+- **Multi-dimensional correlation/variance analysis** that works on any `xarray` cube.
+- **Climate-to-ecological synchrony workflows** powered by anomaly, trend, and synchrony verbs.
+- **ggplot-style pipe syntax** so you can express workflows like `pipe(cube) | anomaly() | variance()` with readable intent.
 
-## Key capabilities
-
-- Streaming adapters for PRISM, gridMET, and Sentinel data services
-- Cube math primitives for anomalies, z-scores, variance, rolling correlation,
-  and tail dependence
-- Lexcube generators for comparing NDVI synchrony with precipitation or
-  temperature drivers
-- Built-in hooks for exporting to NetCDF/Zarr and visual QA plots
-- Notebook-friendly APIs that run the same in batch pipelines
-
-## Quickstart
+## Example
 
 ```python
 import cubedynamics as cd
+import xarray as xr
 
-# Stream a gridMET precipitation cube and compute a variance lexcube
-cube = cd.stream_gridmet_to_cube(
-    aoi_geojson,
-    variable="pr",
-    dates=("2000-01", "2020-12"),
+# Example cube (placeholder)
+cube = xr.DataArray(
+    [1, 2, 3, 4, 5, 6],
+    dims=["time"],
 )
-var_cube = cd.variance_cube(cube)
-var_cube.to_netcdf("gridmet_variance.nc")
+
+result = (
+    cd.pipe(cube)
+    | cd.anomaly(dim="time")
+    | cd.month_filter([6])
+    | cd.variance(dim="time")
+).unwrap()
+
+print(result)
 ```
 
-See the [Getting Started](getting_started.md) page for environment setup,
-streaming credentials, and notebook tips.
+## Getting Started
 
-## Use cases
+Read the [Getting Started guide](getting_started.md) for installation commands, dependency notes, and tips for loading streamed cubes.
 
-- **PRISM variance cubes** for drought monitoring and precipitation anomaly
-  mapping.
-- **NDVI synchrony analysis** by correlating vegetation z-score cubes with
-  weather drivers or anchor pixels.
-- **Climate-to-population pipelines** where lexcubes feed resilience, fire, or
-  ecosystem models without full-scene downloads.
-- **Lexcube dashboards** that render CubeDynamics outputs in lightweight
-  notebooks or web visualizations.
+## Concepts
 
-## Learn more
+- **Cubes** – `xarray.DataArray` or `xarray.Dataset` objects that hold climate variables over shared spatial/temporal axes.
+- **Verbs** – functions such as `anomaly`, `month_filter`, or `variance` that transform cubes and can be chained in a pipe.
+- **Pipes** – chaining syntax using `|` to build declarative workflows: `cd.pipe(cube) | cd.anomaly(dim="time") | cd.to_netcdf("out.nc")`.
 
-The navigation links cover concepts, API details, and recipes. Head over to the
-[Concepts overview](concepts.md) to understand the architecture or explore the
-[API & Examples](climate_cubes.md) section for concrete workflows.
+Dive into the rest of the documentation to explore streaming adapters, write custom verbs, and build advanced CubeDynamics pipelines.
