@@ -1,38 +1,60 @@
-# Climate Cube Math
+# CubeDynamics: Climate Cube Math
 
-Welcome!  This microsite and repository exist to demonstrate a single idea:
-turn daily fire perimeters into an intuitive 3D "climate cube" that captures how
-an event evolves through time.  Everything you need lives in two places:
+CubeDynamics (`cubedynamics`) is a streaming-first library for assembling
+multi-source climate cubes (PRISM, gridMET, Sentinel-derived NDVI, etc.) and
+computing correlations, variance, synchrony, and trends without bulk
+downloads.
 
-1. The `cubedynamics` Python package that ships with this repo.
-2. The vignette notebook that walks through the package step by step.
+## What is CubeDynamics?
 
-```bash
-python -m pip install -e .
+CubeDynamics packages a set of composable `xarray`-based helpers that turn
+streamed imagery and gridded climate products into **lexcubes**: structured
+space-time cubes filled with statistics that summarize variability, anomalies,
+and cross-sensor relationships. The package is purpose-built for environmental
+researchers who need to analyze climate dynamics on laptops, clusters, or cloud
+workflows without mirroring entire archives.
+
+## Key capabilities
+
+- Streaming adapters for PRISM, gridMET, and Sentinel data services
+- Cube math primitives for anomalies, z-scores, variance, rolling correlation,
+  and tail dependence
+- Lexcube generators for comparing NDVI synchrony with precipitation or
+  temperature drivers
+- Built-in hooks for exporting to NetCDF/Zarr and visual QA plots
+- Notebook-friendly APIs that run the same in batch pipelines
+
+## Quickstart
+
+```python
+import cubedynamics as cd
+
+# Stream a gridMET precipitation cube and compute a variance lexcube
+cube = cd.stream_gridmet_to_cube(
+    aoi_geojson,
+    variable="pr",
+    dates=("2000-01", "2020-12"),
+)
+var_cube = cd.variance_cube(cube)
+var_cube.to_netcdf("gridmet_variance.nc")
 ```
 
-Once installed you can open the vignette locally or explore it directly on this
-website.  The same notebook powers the tutorial tab in the navigation bar via
-the `mkdocs-jupyter` plugin.
+See the [Getting Started](getting_started.md) page for environment setup,
+streaming credentials, and notebook tips.
 
-## Why keep it small?
+## Use cases
 
-The previous training template included dozens of how-to pages, placeholder
-images, and references to shared infrastructure.  That content was helpful for a
-classroom but made it hard to see the project itself.  By stripping the repo
-back to a package + website we get:
+- **PRISM variance cubes** for drought monitoring and precipitation anomaly
+  mapping.
+- **NDVI synchrony analysis** by correlating vegetation z-score cubes with
+  weather drivers or anchor pixels.
+- **Climate-to-population pipelines** where lexcubes feed resilience, fire, or
+  ecosystem models without full-scene downloads.
+- **Lexcube dashboards** that render CubeDynamics outputs in lightweight
+  notebooks or web visualizations.
 
-- **Clarity** – all of the files in version control tell the project story.
-- **Reproducibility** – the vignette is the canonical way to run the code.
-- **Focus** – editing happens either in `cubedynamics/` or inside `docs/`.
+## Learn more
 
-## What you will find
-
-- **Notebook vignette** – generate a synthetic event, inspect the GeoDataFrame,
-  and render a ruled time hull in a few cells.
-- **API reference** – short docstrings pulled straight from the Python modules
-  so you always know which arguments control smoothing, rotation, or styling.
-
-If you would like to extend the project simply add new modules inside the
-package and mention them from the docs.  Everything else has been removed on
-purpose to keep things lightweight.
+The navigation links cover concepts, API details, and recipes. Head over to the
+[Concepts overview](concepts.md) to understand the architecture or explore the
+[API & Examples](climate_cubes.md) section for concrete workflows.

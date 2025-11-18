@@ -4,10 +4,10 @@ This recipe demonstrates how to load GRIDMET temperature data, compute
 temporal anomalies, and aggregate the results spatially for QA plots.
 
 ```python
-from climate_cube_math.data.gridmet import load_gridmet_cube
-from climate_cube_math.stats.anomalies import temporal_anomaly, zscore_over_time
-from climate_cube_math.stats.spatial import spatial_coarsen_mean
-from climate_cube_math.viz.qa_plots import plot_median_over_space
+from cubedynamics import stream_gridmet_to_cube
+from cubedynamics.stats.anomalies import temporal_anomaly, zscore_over_time
+from cubedynamics.stats.spatial import spatial_coarsen_mean
+from cubedynamics.viz.qa_plots import plot_median_over_space
 
 aoi = {
     "min_lon": -105.4,
@@ -16,7 +16,7 @@ aoi = {
     "max_lat": 40.1,
 }
 
-gridmet = load_gridmet_cube(
+gridmet = stream_gridmet_to_cube(
     variables=["tmax"],
     start="2000-01-01",
     end="2000-12-31",

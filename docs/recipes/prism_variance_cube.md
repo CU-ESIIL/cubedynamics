@@ -5,9 +5,9 @@ records.  This recipe loads monthly precipitation, computes anomalies, and
 spatially coarsens the results for downstream QA plots.
 
 ```python
-from climate_cube_math.data.prism import load_prism_cube
-from climate_cube_math.stats.anomalies import temporal_anomaly, zscore_over_time
-from climate_cube_math.stats.spatial import spatial_coarsen_mean
+from cubedynamics import stream_prism_to_cube
+from cubedynamics.stats.anomalies import temporal_anomaly, zscore_over_time
+from cubedynamics.stats.spatial import spatial_coarsen_mean
 
 aoi = {
     "min_lon": -105.4,
@@ -16,7 +16,7 @@ aoi = {
     "max_lat": 40.1,
 }
 
-prism = load_prism_cube(
+prism = stream_prism_to_cube(
     variables=["ppt"],
     start="2000-01-01",
     end="2005-12-31",

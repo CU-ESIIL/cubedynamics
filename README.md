@@ -1,110 +1,78 @@
-# Climate Cube Math
+# CubeDynamics (`cubedynamics`)
 
-`cubedynamics` provides streaming access to climate data cubes plus reusable
-statistics, vegetation-index helpers, and QA visualizations for understanding
-Sentinel-2, GRIDMET, PRISM, and related datasets.  This repository also
-includes a MkDocs site and reproducible vignette that document the package.
+CubeDynamics is a streaming-first climate cube math library for building
+multi-source climate data cubes (PRISM, gridMET, NDVI/Sentinel, etc.) and
+computing correlations, variance, and trends without downloading entire
+collections.
 
-## Installation
+## Features
 
-You can install the latest library directly from the repository:
-
-```bash
-pip install git+https://github.com/CU-ESIIL/climate_cube_math.git
-```
-
-During development use an editable install from the repo root:
-
-```bash
-python -m pip install -e .
-```
-
-## Quick start
-
-```python
-import cubedynamics as cd
-
-s2 = cd.load_s2_cube(
-    lat=43.89,
-    lon=-102.18,
-    start="2023-06-01",
-    end="2023-09-30",
-    edge_size=512,
-)
-
-ndvi = cd.compute_ndvi_from_s2(s2)
-ndvi_z = cd.zscore_over_time(ndvi)
-```
-
-The same package still ships the ruled time hull helpers used in the training
-materials:
-
-* `cubedynamics.demo.make_demo_event()` builds a small GeoDataFrame that mimics
-  how a fire perimeter evolves through time.
-* `cubedynamics.hulls.plot_ruled_time_hull()` converts that data into a 3D ruled
-  surface so the temporal pattern can be inspected visually.
-
-## Documentation and vignette
-
-The public website is generated from the `docs/` folder using MkDocs Material
-and includes:
-
-1. A concise landing page that explains the project goals.
-2. A rendered copy of `docs/vignette.ipynb` so visitors can step through the
-   example without leaving the site.
-3. An API reference driven by `mkdocstrings` that documents the core
-   `cubedynamics` modules.
-
-To preview the site locally run:
-
-```bash
-mkdocs serve
-```
-
-## Repository layout
-
-```
-code/cubedynamics/   # installable Python package
-  data/              # Sentinel-2, GRIDMET, PRISM loaders
-  indices/           # vegetation index helpers
-  stats/             # anomaly, rolling, correlation utilities
-  viz/               # QA and lexcube visualization helpers
-  utils/             # chunking, reference pixel helpers
-  demo.py            # demo GeoDataFrame generator
-  hulls.py           # ruled time hull plotting helper
-  __init__.py
-
-docs/
-  index.md           # landing page
-  api.md             # mkdocstrings API reference
-  vignette.ipynb     # notebook rendered on the site
-  stylesheets/
-    extra.css        # small cosmetic tweaks for MkDocs Material
-
-.github/workflows/pages.yml  # deploys the docs site to GitHub Pages
-mkdocs.yml                   # MkDocs configuration
-pyproject.toml               # package metadata
-```
-
-With this layout you only need to touch two places when extending the project:
-add or update Python modules inside `code/cubedynamics/` and describe those
-changes through Markdown or notebooks in `docs/`.
+- **Streaming and chunked access** to climate datasets so analyses can begin
+  before downloads finish.
+- **Climate lexcubes** – multi-dimensional cubes of climate statistics for
+  comparing vegetation, weather, and derived metrics over shared axes.
+- **Correlation, synchrony, and variance cubes** that summarize temporal
+  patterns such as drought stress, phenology shifts, and teleconnections.
+- **Notebook-friendly helpers** for Jupyter, VS Code, and workflow runners.
+- **Cloud and big-data ready** primitives that lean on `xarray`, `dask`, and
+  lazy execution.
 
 ## Installation
 
-For the streaming-first package preview install directly from GitHub:
-
-```bash
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
-```
-
-Once published to PyPI the goal is to allow a simple install:
+Once the package is published on PyPI you will be able to install it with:
 
 ```bash
 pip install cubedynamics
 ```
 
-`cubedynamics` follows a streaming-first philosophy that prefers chunked IO over
-full downloads.  The accompanying pytest suite encodes this expectation by
-running streaming markers by default and skipping download-marked tests unless
-explicitly requested.
+Until then install directly from GitHub:
+
+```bash
+pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+```
+
+Developers can work against the repo in editable mode:
+
+```bash
+python -m pip install -e .
+```
+
+## Quickstart
+
+```python
+import cubedynamics as cd
+
+# Example: stream a gridMET cube for a region and compute a variance cube
+cube = cd.stream_gridmet_to_cube(
+    aoi_geojson,
+    variable="pr",
+    dates=("2000-01", "2020-12"),
+)
+var_cube = cd.variance_cube(cube)
+var_cube.to_netcdf("gridmet_variance.nc")
+```
+
+Additional helpers can build NDVI z-score cubes, compute rolling correlation vs
+an anchor pixel, or export “lexcubes” for downstream dashboards. Follow the docs
+for more end-to-end examples while the streaming implementations are finalized.
+
+## Documentation
+
+Full documentation: https://cu-esiil.github.io/climate_cube_math/
+
+The GitHub Pages site hosts the narrative docs, quickstart, concepts, and API
+notes for CubeDynamics. Use `mkdocs serve` to preview changes locally.
+
+## Contributing
+
+Contributions are welcome! Open an issue or pull request if you would like to
+add new data sources, improve the streaming primitives, or expand the
+statistical recipes. Please keep tests streaming-first (favor chunked I/O and
+mocked responses when possible) and include documentation updates alongside code
+changes.
+
+## Citation
+
+If you use CubeDynamics in academic work, cite the project using the metadata in
+[`CITATION.cff`](CITATION.cff). A formal publication is planned; until then
+please cite the software release and repository.

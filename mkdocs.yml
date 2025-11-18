@@ -1,29 +1,23 @@
-site_name: "Climate Cube Math"
-site_description: "Minimal documentation + vignette for the ruled time hull demo"
-site_author: Project Team
-site_url: "https://OWNER.github.io/REPO/"
+site_name: "CubeDynamics: Climate Cube Math"
+site_description: "Streaming-first climate cube math for PRISM, gridMET, and NDVI"
+site_author: CubeDynamics Team
+site_url: "https://cu-esiil.github.io/climate_cube_math/"
 
 nav:
   - Home: index.md
-  - Vignette: vignette.ipynb
+  - Getting Started: getting_started.md
   - Concepts:
-      - What is a climate cube?: concepts/climate_cubes.md
-      - NDVI & z-scores: concepts/ndvi_zscore.md
-      - Rolling correlation & tail dependence: concepts/rolling_stats.md
-      - Climate cube math primitives: concepts/cube_math.md
-      - Climate data backends: concepts/backends.md
-  - Recipes:
-      - Sentinel-2 NDVI z-score cube: recipes/s2_ndvi_zcube.md
-      - Rolling corr vs center pixel: recipes/s2_corr_center.md
-      - Tail dependence vs center pixel: recipes/s2_tail_dep_center.md
-      - Cube math primitives: recipes/cube_math_primitives.md
-      - GRIDMET variance / z-score cube: recipes/gridmet_variance_cube.md
-      - PRISM precipitation variance cube: recipes/prism_variance_cube.md
-  - API:
-      - cubedynamics: api/cubedynamics.md
-      - Legacy demo helpers: api.md
+      - Overview: concepts.md
+      - Cube math primitives: concepts/cube_math.md
+  - API & Examples:
+      - Climate cubes: climate_cubes.md
+      - Correlation cubes: correlation_cubes.md
+      - Streaming PRISM & gridMET: streaming_sources.md
+  - Development:
+      - Contributing: contributing.md
+      - Changelog: updates.md
 
-repo_url: https://github.com/CU-ESIIL/Project_group_OASIS
+repo_url: https://github.com/CU-ESIIL/climate_cube_math
 edit_uri: edit/main/docs/
 
 copyright: 'Copyright \u00a9 2024'
