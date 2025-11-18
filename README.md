@@ -92,16 +92,26 @@ cube = cd.load_gridmet_cube(
 pipe(cube) | v.month_filter([6, 7, 8]) | v.variance(dim="time")
 ```
 
-### Example: Sentinel-2 NDVI z-score cube via pipes
+### Sentinel-2 → NDVI Anomaly (z-score) Cube
 
-The verbs namespace also makes it easy to stream Sentinel-2 Level-2A data with
-[`cubo`](https://github.com/carbonplan/cubo), compute NDVI, and standardize it
-with a z-score transform that highlights anomalies.
+CubeDynamics works on remote-sensing image stacks in addition to climate
+archives. A typical Sentinel-2 workflow is:
+
+1. Stream Level-2A chips with [`cubo`](https://github.com/carbonplan/cubo)
+   using bands B04 (red) and B08 (NIR).
+2. Convert the reflectance cube to NDVI with `v.ndvi_from_s2(...)`.
+3. Standardize NDVI over time with `v.zscore(dim="time")` to highlight
+   greenness anomalies.
+4. Optionally visualize the `(time × y × x)` cube with `v.show_cube_lexcube`
+   and compute QA summaries that track the spatial median.
 
 ```python
+from __future__ import annotations
+
 import warnings
 
 import cubo
+
 from cubedynamics import pipe, verbs as v
 
 LAT = 43.89
@@ -109,6 +119,7 @@ LON = -102.18
 START = "2023-06-01"
 END = "2024-09-30"
 
+# 1. Stream Sentinel-2 reflectance without local downloads
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     s2 = cubo.create(
@@ -123,17 +134,31 @@ with warnings.catch_warnings():
         query={"eo:cloud_cover": {"lt": 40}},
     )
 
-if "band" in s2.dims and s2.dims[0] == "band":
-    s2 = s2.transpose("time", "y", "x", "band")
-
+# 2. Pipe reflectance -> NDVI -> z-scores
 ndvi_z = (
     pipe(s2)
     | v.ndvi_from_s2(nir_band="B08", red_band="B04")
     | v.zscore(dim="time")
-)
+).unwrap()
 
-ndvi_z
+# 3. Optional: visualize and QA in notebooks
+(pipe(ndvi_z) | v.show_cube_lexcube(title="Sentinel-2 NDVI z-score", clim=(-3, 3)))
+median_series = ndvi_z.median(dim=("y", "x"))
+median_series.plot.line(x="time", ylabel="Median NDVI z-score")
+
+# 4. Optional: correlate with a PRISM anomaly cube at each pixel
+corr_cube = (
+    pipe(ndvi_z)
+    | v.correlation_cube(prism_anom_cube, dim="time")
+).unwrap()
+# (where prism_anom_cube came from the PRISM anomaly example above)
 ```
+
+NDVI anomaly cubes capture unusual greenness events (drought stress, rapid
+recovery, disturbance). Because the pipe grammar keeps every cube on the same
+grid, you can compare vegetation anomalies to PRISM precipitation or gridMET
+temperature variance at the exact pixels of interest. The full notebook lives at
+[`notebooks/example_sentinel2_ndvi_zscore.ipynb`](notebooks/example_sentinel2_ndvi_zscore.ipynb).
 
 ### Interactive Lexcube visualization
 

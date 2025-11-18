@@ -44,3 +44,11 @@ ax = plot_median_over_space(
     title="GRIDMET tmax anomalies (median over space)",
 )
 ```
+
+See also:
+
+- [PRISM precipitation anomaly / z-score cube](prism_variance_cube.md) for
+  high-resolution precipitation summaries.
+- [Sentinel-2 NDVI anomaly (z-score) cube](s2_ndvi_zcube.md) for vegetation
+  dynamics that can be compared against the GRIDMET cube with
+  `v.correlation_cube`.

@@ -29,3 +29,11 @@ ppt_anom = temporal_anomaly(ppt, dim="time")
 ppt_z = pipe(ppt_anom) | v.zscore(dim="time")
 ppt_z_coarse = spatial_coarsen_mean(ppt_z, factor_y=2, factor_x=2)
 ```
+
+See also:
+
+- [GRIDMET variance / z-score cube](gridmet_variance_cube.md) for AOI-wide
+  meteorological drivers.
+- [Sentinel-2 NDVI anomaly (z-score) cube](s2_ndvi_zcube.md) for vegetation
+  anomalies that can be correlated with the PRISM cube using
+  `v.correlation_cube`.
