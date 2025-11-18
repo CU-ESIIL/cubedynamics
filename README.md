@@ -12,39 +12,59 @@ CubeDynamics is a streaming-first climate cube math library with ggplot-style pi
 
 ## Installation
 
-### Install from GitHub (current)
+### Install from GitHub (current, recommended)
+
+Install the `cubedynamics` package directly from the `main` branch to get the latest commits:
 
 ```bash
 pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
 ```
 
-### Install after PyPI release
+### Install from PyPI (future)
+
+Once the first release is published to PyPI, installing will be as simple as:
 
 ```bash
 pip install cubedynamics
 ```
 
-## Quickstart (new pipe syntax)
+Until that upload happens the PyPI name is reserved but unavailable.
+
+## Quickstart
+
+This example runs in a fresh Jupyter notebook that only has `numpy`, `xarray`, and `cubedynamics` installed.
 
 ```python
-import cubedynamics as cd
+import numpy as np
 import xarray as xr
+import cubedynamics as cd
 
-# Example cube (placeholder)
+# Create a tiny example climate "cube" as a 1D time series
+time = np.arange(6)
+values = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+
 cube = xr.DataArray(
-    [1, 2, 3, 4, 5, 6],
+    values,
     dims=["time"],
+    coords={"time": time},
+    name="example_variable",
 )
 
 result = (
     cd.pipe(cube)
     | cd.anomaly(dim="time")
-    | cd.month_filter([6])         # example of a pipeable filter
     | cd.variance(dim="time")
 ).unwrap()
 
-print(result)
+print("Variance of anomalies along time:", float(result.values))
 ```
+
+### Using the pipe system
+
+- `cd.pipe(value)` wraps an `xarray` object in a `Pipe` so it can be chained.
+- Each verb is a factory. Calling `cd.anomaly(dim="time")` returns a callable that will run inside the pipe.
+- The `|` operator forwards the wrapped cube through each verb in sequence.
+- `.unwrap()` returns the final `xarray` object so you can inspect the result or continue working outside the pipe.
 
 ## API Overview
 
