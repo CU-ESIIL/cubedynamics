@@ -10,8 +10,23 @@ import cubedynamics as cd
 from cubedynamics.streaming import gridmet as gridmet_mod
 
 
-def test_stream_gridmet_to_cube_default_source_smoke():
+def test_stream_gridmet_to_cube_default_source_smoke(monkeypatch):
     """Calling the helper without `source` should return a time-indexed cube."""
+
+    times = pd.date_range("2000-01-01", periods=2, freq="MS")
+    lat = xr.DataArray([40.0, 39.5], dims="lat")
+    lon = xr.DataArray([-105.5, -105.0], dims="lon")
+
+    def _fake_year(variable: str, year: int, chunks=None) -> xr.Dataset:  # pragma: no cover - test helper
+        data = xr.DataArray(
+            np.arange(times.size * lat.size * lon.size, dtype="float32").reshape(times.size, lat.size, lon.size),
+            coords={"time": times, "lat": lat, "lon": lon},
+            dims=("time", "lat", "lon"),
+            name=variable,
+        )
+        return xr.Dataset({variable: data})
+
+    monkeypatch.setattr(gridmet_mod, "_open_gridmet_year", _fake_year)
 
     boulder_aoi = {
         "type": "Feature",
