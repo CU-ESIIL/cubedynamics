@@ -32,16 +32,17 @@ Until that upload happens the PyPI name is reserved but unavailable.
 
 ## Quickstart
 
-This example runs in a fresh Jupyter notebook that only has `numpy`, `xarray`, and `cubedynamics` installed.
+This example runs in a fresh Jupyter notebook that only has `numpy`, `pandas`, `xarray`, and `cubedynamics` installed.
 
 ```python
 import numpy as np
+import pandas as pd
 import xarray as xr
 import cubedynamics as cd
 
-# Create a tiny example climate "cube" as a 1D time series
-time = np.arange(6)
-values = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+# 1. Create a tiny example "cube" with a datetime coordinate
+time = pd.date_range("2000-01-01", periods=12, freq="MS")
+values = np.arange(12, dtype=float)
 
 cube = xr.DataArray(
     values,
@@ -50,13 +51,15 @@ cube = xr.DataArray(
     name="example_variable",
 )
 
+# 2. Run a pipe chain that computes anomalies, filters months, and gets variance
 result = (
     cd.pipe(cube)
     | cd.anomaly(dim="time")
+    | cd.month_filter([6, 7, 8])
     | cd.variance(dim="time")
 ).unwrap()
 
-print("Variance of anomalies along time:", float(result.values))
+print("Variance of anomalies over JJA:", float(result.values))
 ```
 
 ### Using the pipe system

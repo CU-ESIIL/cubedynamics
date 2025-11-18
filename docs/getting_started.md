@@ -30,12 +30,13 @@ Until then, use the GitHub install above for the working package.
 
 ```python
 import numpy as np
+import pandas as pd
 import xarray as xr
 import cubedynamics as cd
 
-# 1D time series cube – the same pattern works for multi-dimensional data
-time = np.arange(6)
-values = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+# 1D time series cube with a datetime coordinate – works for multi-dimensional data too
+time = pd.date_range("2000-01-01", periods=12, freq="MS")
+values = np.arange(12, dtype=float)
 
 cube = xr.DataArray(
     values,
@@ -47,6 +48,7 @@ cube = xr.DataArray(
 result = (
     cd.pipe(cube)
     | cd.anomaly(dim="time")
+    | cd.month_filter([6, 7, 8])
     | cd.variance(dim="time")
 ).unwrap()
 

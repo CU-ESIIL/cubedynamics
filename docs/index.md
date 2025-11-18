@@ -22,29 +22,32 @@ Open a fresh notebook, install CubeDynamics from GitHub, and run the following:
 
    ```python
    import numpy as np
+   import pandas as pd
    import xarray as xr
    import cubedynamics as cd
-   
-   time = np.arange(6)
-   values = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
-   
+
+   # Build a 12-month time series with a datetime coordinate
+   time = pd.date_range("2000-01-01", periods=12, freq="MS")
+   values = np.arange(12, dtype=float)
+
    cube = xr.DataArray(
        values,
        dims=["time"],
        coords={"time": time},
        name="example_variable",
    )
-   
+
    result = (
        cd.pipe(cube)
        | cd.anomaly(dim="time")
+       | cd.month_filter([6, 7, 8])
        | cd.variance(dim="time")
    ).unwrap()
-   
-   result
+
+   print("Variance of anomalies over JJA:", float(result.values))
    ```
 
-This notebook-safe workflow only depends on `numpy`, `xarray`, and `cubedynamics`. More advanced examples—like streaming PRISM/gridMET data or NDVI synchrony—will live in dedicated notebooks and docs pages as the adapters solidify. See [notebooks/quickstart_cubedynamics.ipynb](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/quickstart_cubedynamics.ipynb) in the repository for the runnable tutorial notebook.
+This notebook-safe workflow only depends on `numpy`, `pandas`, `xarray`, and `cubedynamics`. More advanced examples—like streaming PRISM/gridMET data or NDVI synchrony—will live in dedicated notebooks and docs pages as the adapters solidify. See [notebooks/quickstart_cubedynamics.ipynb](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/quickstart_cubedynamics.ipynb) in the repository for the runnable tutorial notebook.
 
 ## Learn more
 
