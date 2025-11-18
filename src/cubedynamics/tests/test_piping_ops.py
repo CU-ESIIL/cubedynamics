@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
+import cubedynamics.viz as viz
 from cubedynamics import pipe, verbs as v
 
 
@@ -47,3 +48,21 @@ def test_to_netcdf_roundtrip(tmp_path):
     loaded = xr.load_dataarray(path)
     xr.testing.assert_identical(da, loaded)
     xr.testing.assert_identical(da, result)
+
+
+def test_show_cube_lexcube_returns_original_cube(monkeypatch):
+    da = _make_time_series()
+    captured = {}
+
+    def fake_show(cube, **kwargs):
+        captured["cube"] = cube
+        captured["kwargs"] = kwargs
+        return "widget"
+
+    monkeypatch.setattr(viz, "show_cube_lexcube", fake_show)
+
+    result = (pipe(da) | v.show_cube_lexcube(cmap="Blues")).unwrap()
+
+    assert result is da
+    assert captured["cube"] is da
+    assert captured["kwargs"] == {"cmap": "Blues"}
