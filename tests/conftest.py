@@ -2,10 +2,21 @@
 
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import pytest
 import xarray as xr
+
+# Ensure ``src`` is importable even when cubedynamics is not installed in site-packages.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+SRC_PATH = PROJECT_ROOT / "src"
+SRC_STR = str(SRC_PATH)
+if SRC_STR in sys.path:
+    sys.path.remove(SRC_STR)
+sys.path.insert(0, SRC_STR)
 
 try:
     import dask.array as da
