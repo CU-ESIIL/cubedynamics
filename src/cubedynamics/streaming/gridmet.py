@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from typing import Dict, Optional
 import io
+from typing import Any, Dict, Optional
+
 import requests
 import xarray as xr
 from xarray.backends.plugins import list_engines
@@ -21,6 +22,26 @@ def _select_stream_engine() -> Optional[str]:
 
 
 _STREAM_ENGINE = _select_stream_engine()
+
+
+def _prepare_stream_target(buf: io.BytesIO, engine: Optional[str]) -> Any:
+    """Return an object suitable for xr.open_dataset for the chosen engine."""
+
+    if engine == "netcdf4":
+        # The netCDF4 backend cannot consume BytesIO objects directly, but it can
+        # read from a ``bytes`` or ``memoryview`` buffer. ``getbuffer`` avoids an
+        # extra copy while keeping the in-memory constraint intact.
+        return memoryview(buf.getbuffer())
+
+    if engine == "scipy":
+        # SciPy prefers plain bytes. ``getvalue`` makes a copy, but we only fall
+        # back here when h5netcdf/netCDF4 are unavailable.
+        return buf.getvalue()
+
+    # Default to BytesIO for h5netcdf (the validated path) and for any other
+    # engines that support file-like objects.
+    buf.seek(0)
+    return buf
 
 
 def _bbox_from_geojson(aoi_geojson: Dict) -> Dict[str, float]:
@@ -46,10 +67,8 @@ def _open_gridmet_year(
     chunks: Optional[Dict[str, int]] = None,
 ) -> xr.Dataset:
     """
-    Download a single gridMET year to memory and open it with h5netcdf.
-
-    This follows the validated pattern:
-    requests.get(..., stream=True) → BytesIO → xr.open_dataset(engine="h5netcdf")
+    Download a single gridMET year fully in memory and open it with the best
+    available xarray backend (preferring the validated h5netcdf path).
     """
     url = f"{GRIDMET_BASE_URL}/{variable}_{year}.nc"
 
@@ -67,10 +86,16 @@ def _open_gridmet_year(
         "decode_times": True,
         "chunks": chunks,
     }
-    if _STREAM_ENGINE is not None:
-        open_kwargs["engine"] = _STREAM_ENGINE
+    if _STREAM_ENGINE is None:
+        raise RuntimeError(
+            "No suitable xarray IO engine is available. Install 'h5netcdf' or "
+            "'netCDF4' to stream gridMET data."
+        )
 
-    ds = xr.open_dataset(buf, **open_kwargs)
+    open_kwargs["engine"] = _STREAM_ENGINE
+
+    stream_target = _prepare_stream_target(buf, _STREAM_ENGINE)
+    ds = xr.open_dataset(stream_target, **open_kwargs)
 
     # gridMET uses "day" as the time dimension; normalize to "time"
     if "day" in ds.dims:
