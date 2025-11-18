@@ -18,7 +18,7 @@ def zscore_over_time(
     eps = STD_EPS if std_eps is None else std_eps
     mean = da.mean(dim=dim, skipna=True)
     std = da.std(dim=dim, skipna=True)
-    valid_std = std > eps
+    valid_std = (std > eps).broadcast_like(da)
     z = xr.where(valid_std, (da - mean) / std, np.nan)
     # Keep the original dimension ordering so callers don't have to
     # defensively transpose results. xarray broadcasting can sometimes
