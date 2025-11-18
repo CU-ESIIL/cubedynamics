@@ -5,54 +5,29 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cubedynamics"
 version = "0.1.0"
-description = "Streaming climate data cubes and spatiotemporal statistics for Sentinel-2, GRIDMET, PRISM, and more."
+description = "Streaming-first climate cube math and correlation tools"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
-
 authors = [
-  { name = "CU ESIIL", email = "esiil@colorado.edu" },
+    { name = "Ty Tuff" },
 ]
-
-keywords = [
-  "climate",
-  "remote sensing",
-  "xarray",
-  "spatiotemporal",
-  "synchrony",
-  "data cubes",
-]
-
 dependencies = [
-  "numpy",
-  "pandas",
-  "xarray",
-  "dask",
-  "matplotlib",
-  "cubo",
-  "lexcube",
-  "spyndex",
-  "rioxarray",
-  "geopandas",
-  "scipy",
-  "shapely",
-  "pytest",
-  "mkdocs",
-  "mkdocs-material",
-  "mkdocstrings[python]",
-  "mkdocs-git-revision-date-plugin",
-  "mkdocs-jupyter",
+    "numpy",
+    "xarray",
+    "pandas",
+    "rasterio",
+    "pyproj",
+    "requests",
+    "dask",
 ]
 
 [project.urls]
 Homepage = "https://github.com/CU-ESIIL/climate_cube_math"
 Documentation = "https://cu-esiil.github.io/climate_cube_math/"
 Source = "https://github.com/CU-ESIIL/climate_cube_math"
-Issues = "https://github.com/CU-ESIIL/climate_cube_math/issues"
 
 [tool.setuptools]
-package-dir = { "" = "code" }
+package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
-where = ["code"]
-include = ["cubedynamics*"]
+where = ["src"]

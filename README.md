@@ -89,3 +89,22 @@ pyproject.toml               # package metadata
 With this layout you only need to touch two places when extending the project:
 add or update Python modules inside `code/cubedynamics/` and describe those
 changes through Markdown or notebooks in `docs/`.
+
+## Installation
+
+For the streaming-first package preview install directly from GitHub:
+
+```bash
+pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+```
+
+Once published to PyPI the goal is to allow a simple install:
+
+```bash
+pip install cubedynamics
+```
+
+`cubedynamics` follows a streaming-first philosophy that prefers chunked IO over
+full downloads.  The accompanying pytest suite encodes this expectation by
+running streaming markers by default and skipping download-marked tests unless
+explicitly requested.
