@@ -58,6 +58,15 @@ This pipeline is dimension-agnostic—the verbs accept any axes you provide. `pi
 - Read the [Pipe Syntax & Verbs](pipe_syntax.md) page for more callables such as `month_filter`, `to_netcdf`, and how to author your own verbs.
 - Explore future climate streaming examples (PRISM/gridMET/NDVI) as they land in the docs and notebooks.
 - Run the full [CubeDynamics Quickstart notebook](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/quickstart_cubedynamics.ipynb) for a ready-made walkthrough that matches this guide.
+- Walk through the Sentinel-2 NDVI anomaly tutorial in [notebooks/example_sentinel2_ndvi_zscore.ipynb](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/example_sentinel2_ndvi_zscore.ipynb) to see the vegetation workflow that complements the PRISM and gridMET examples.
+
+## Worked examples
+
+Use the recipes below as ready-made pipelines. They all rely on the same pipe + verbs grammar, so you can mix and match cubes (and correlate them) with minimal code changes.
+
+- [PRISM precipitation anomaly / z-score cube](recipes/prism_variance_cube.md)
+- [GRIDMET variance / z-score cube](recipes/gridmet_variance_cube.md)
+- [Sentinel-2 NDVI anomaly (z-score) cube + Lexcube](recipes/s2_ndvi_zcube.md)
 
 ## Streaming a gridMET cube for Boulder, CO
 
