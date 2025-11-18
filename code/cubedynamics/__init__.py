@@ -1,5 +1,7 @@
 """Top-level API for the :mod:`cubedynamics` package."""
 
+from .data.gridmet import load_gridmet_cube
+from .data.prism import load_prism_cube
 from .data.sentinel2 import load_s2_cube
 from .indices.vegetation import compute_ndvi_from_s2
 from .stats.anomalies import (
@@ -17,6 +19,8 @@ from .utils.chunking import coarsen_and_stride
 
 __all__ = [
     "load_s2_cube",
+    "load_gridmet_cube",
+    "load_prism_cube",
     "compute_ndvi_from_s2",
     "zscore_over_time",
     "temporal_anomaly",

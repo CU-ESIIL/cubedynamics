@@ -11,11 +11,14 @@ nav:
       - NDVI & z-scores: concepts/ndvi_zscore.md
       - Rolling correlation & tail dependence: concepts/rolling_stats.md
       - Climate cube math primitives: concepts/cube_math.md
+      - Climate data backends: concepts/backends.md
   - Recipes:
       - Sentinel-2 NDVI z-score cube: recipes/s2_ndvi_zcube.md
       - Rolling corr vs center pixel: recipes/s2_corr_center.md
       - Tail dependence vs center pixel: recipes/s2_tail_dep_center.md
       - Cube math primitives: recipes/cube_math_primitives.md
+      - GRIDMET variance / z-score cube: recipes/gridmet_variance_cube.md
+      - PRISM precipitation variance cube: recipes/prism_variance_cube.md
   - API:
       - cubedynamics: api/cubedynamics.md
       - Legacy demo helpers: api.md

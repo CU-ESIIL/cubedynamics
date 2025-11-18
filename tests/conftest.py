@@ -7,6 +7,11 @@ import pandas as pd
 import pytest
 import xarray as xr
 
+try:
+    import dask.array as da
+except ImportError:  # pragma: no cover
+    da = None
+
 
 @pytest.fixture
 def tiny_cube() -> xr.DataArray:
@@ -33,3 +38,18 @@ def monotone_series() -> xr.DataArray:
     time = pd.date_range("2001-01-01", periods=5, freq="D")
     data = xr.DataArray(np.linspace(1.0, 5.0, num=time.size), coords={"time": time}, dims="time")
     return data
+
+
+def assert_is_lazy_xarray(obj):
+    """Assert that a Dataset/DataArray is backed by dask arrays."""
+
+    if da is None:
+        pytest.skip("dask is not available; cannot assert laziness")
+
+    if isinstance(obj, xr.DataArray):
+        assert isinstance(obj.data, da.Array), "Expected dask-backed DataArray"
+    elif isinstance(obj, xr.Dataset):
+        for name, var in obj.data_vars.items():
+            assert isinstance(var.data, da.Array), f"Variable {name!r} is not dask-backed"
+    else:  # pragma: no cover - defensive
+        raise AssertionError(f"Unsupported type for laziness check: {type(obj)!r}")

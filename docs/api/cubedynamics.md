@@ -7,6 +7,8 @@ using `mkdocstrings`.
 ## Data loading
 
 ::: cubedynamics.data.sentinel2
+::: cubedynamics.data.gridmet
+::: cubedynamics.data.prism
 
 ## Vegetation indices
 
