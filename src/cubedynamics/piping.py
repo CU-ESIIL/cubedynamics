@@ -28,6 +28,19 @@ class Pipe(Generic[T]):
 
         return self.value
 
+    def __repr__(self) -> str:
+        """Return the repr of the wrapped value for plain-text displays."""
+
+        return repr(self.value)
+
+    def _repr_html_(self):
+        """Rich HTML representation for Jupyter notebooks."""
+
+        val = self.value
+        if hasattr(val, "_repr_html_"):
+            return val._repr_html_()
+        return repr(val)
+
     @property
     def v(self) -> T:
         """Convenience alias for :pyattr:`value`."""
