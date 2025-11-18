@@ -4,7 +4,7 @@ CubeDynamics is a streaming-first climate cube math library with ggplot-style pi
 
 ## Features
 
-- **Streaming PRISM/gridMET/Sentinel-2 helpers** (`cd.load_prism_cube`, `cd.load_gridmet_cube`, `cd.load_s2_ndvi_cube`) for immediate analysis without bulk downloads.
+- **Streaming PRISM/gridMET/Sentinel-2 helpers** (`cd.load_prism_cube`, `cd.load_gridmet_cube`, `cd.load_s2_ndvi_cube`, `cd.load_sentinel2_ndvi_cube`) for immediate analysis without bulk downloads.
 - **Climate variance, correlation, trend, and synchrony cubes** that run on `xarray` objects and scale from laptops to clusters.
 - **Pipe + verb system** – build readable cube workflows with `pipe(cube) | v.month_filter(...) | v.variance(...)` syntax inspired by ggplot/dplyr.
 - **Verbs namespace (`cubedynamics.verbs`)** so transforms, stats, IO, and visualization live in focused modules.
@@ -95,10 +95,33 @@ pipe(cube) | v.month_filter([6, 7, 8]) | v.variance(dim="time")
 ### Sentinel-2 → NDVI Anomaly (z-score) Cube
 
 CubeDynamics works on remote-sensing image stacks in addition to climate
-archives. A typical Sentinel-2 workflow is:
+archives. The convenience helper `cd.load_sentinel2_ndvi_cube` streams
+Sentinel-2 Level-2A chips via [`cubo`](https://github.com/carbonplan/cubo),
+computes NDVI from B08 (NIR) and B04 (red), and standardizes the result across
+time. Install `cubo` alongside CubeDynamics to use the helper:
 
-1. Stream Level-2A chips with [`cubo`](https://github.com/carbonplan/cubo)
-   using bands B04 (red) and B08 (NIR).
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+ndvi_z = cd.load_sentinel2_ndvi_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2018-01-01",
+    end="2020-12-31",
+)
+
+pipe(ndvi_z) | v.show_cube_lexcube(title="Sentinel-2 NDVI z-score")
+```
+
+`load_sentinel2_ndvi_cube` returns a `(time, y, x)` NDVI z-score cube ready for
+the rest of the verbs API. Pass ``return_raw=True`` to also receive the raw
+Sentinel-2 reflectance stack and intermediate NDVI cube.
+
+If you prefer to customize every step, the helper simply wraps the manual
+pipeline below:
+
+1. Stream Level-2A chips with `cubo` using bands B04 (red) and B08 (NIR).
 2. Convert the reflectance cube to NDVI with `v.ndvi_from_s2(...)`.
 3. Standardize NDVI over time with `v.zscore(dim="time")` to highlight
    greenness anomalies.
@@ -119,7 +142,6 @@ LON = -102.18
 START = "2023-06-01"
 END = "2024-09-30"
 
-# 1. Stream Sentinel-2 reflectance without local downloads
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     s2 = cubo.create(
@@ -134,19 +156,16 @@ with warnings.catch_warnings():
         query={"eo:cloud_cover": {"lt": 40}},
     )
 
-# 2. Pipe reflectance -> NDVI -> z-scores
 ndvi_z = (
     pipe(s2)
     | v.ndvi_from_s2(nir_band="B08", red_band="B04")
     | v.zscore(dim="time")
 ).unwrap()
 
-# 3. Optional: visualize and QA in notebooks
 (pipe(ndvi_z) | v.show_cube_lexcube(title="Sentinel-2 NDVI z-score", clim=(-3, 3)))
 median_series = ndvi_z.median(dim=("y", "x"))
 median_series.plot.line(x="time", ylabel="Median NDVI z-score")
 
-# 4. Optional: correlate with a PRISM anomaly cube at each pixel
 corr_cube = (
     pipe(ndvi_z)
     | v.correlation_cube(prism_anom_cube, dim="time")
@@ -189,7 +208,7 @@ Lexcube widgets require a live Python environment (Jupyter, Colab, Binder). They
 
 - `pipe` for wrapping any cube before piping.
 - `verbs` (``from cubedynamics import verbs as v``) exposes transforms, statistics, IO, and visualization helpers.
-- Streaming helpers: `cd.load_prism_cube`, `cd.load_gridmet_cube`, `cd.load_s2_cube`, `cd.load_s2_ndvi_cube`.
+- Streaming helpers: `cd.load_prism_cube`, `cd.load_gridmet_cube`, `cd.load_s2_cube`, `cd.load_s2_ndvi_cube`, `cd.load_sentinel2_ndvi_cube`.
 - Vegetation helper: `v.ndvi_from_s2` for direct NDVI calculation on Sentinel-2 cubes.
 - Stats verbs: `v.anomaly`, `v.month_filter`, `v.variance`, `v.zscore`, `v.correlation_cube`, and more under `cubedynamics.ops.*`.
 - IO verbs: `v.to_netcdf`, `v.to_zarr`, etc.

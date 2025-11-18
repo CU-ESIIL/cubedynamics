@@ -28,6 +28,7 @@ from .stats.tails import rolling_tail_dep_vs_center
 from .utils.chunking import coarsen_and_stride
 from .viz.lexcube_viz import show_cube_lexcube
 from .viz.qa_plots import plot_median_over_space
+from .sentinel import load_sentinel2_ndvi_cube
 
 # Streaming-first stubs for the new architecture ---------------------------------
 from .streaming.gridmet import stream_gridmet_to_cube
@@ -50,6 +51,7 @@ __all__ = [
     "load_s2_ndvi_cube",
     "load_gridmet_cube",
     "load_prism_cube",
+    "load_sentinel2_ndvi_cube",
     "compute_ndvi_from_s2",
     "zscore_over_time",
     "temporal_anomaly",

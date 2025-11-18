@@ -66,43 +66,30 @@ cube = cd.load_gridmet_cube(
 ## Sentinel-2 → NDVI anomaly (z-score) cube
 
 Remote-sensing chips stream into the same pipe + verbs grammar, so you can
-combine vegetation signals with climate anomalies. Sentinel-2 Level-2A imagery
-exposes B04 (red) and B08 (NIR) bands, which flow into
-`v.ndvi_from_s2(...)` and `v.zscore(...)` inside a pipe chain.
+combine vegetation signals with climate anomalies. Use
+`cd.load_sentinel2_ndvi_cube` (requires the `cubo` package) for a one-function
+workflow:
 
 ```python
-from __future__ import annotations
-
-import warnings
-
-import cubo
-
+import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    s2 = cubo.create(
-        lat=43.89,
-        lon=-102.18,
-        collection="sentinel-2-l2a",
-        bands=["B04", "B08"],
-        start_date="2023-06-01",
-        end_date="2024-09-30",
-        edge_size=512,
-        resolution=10,
-        query={"eo:cloud_cover": {"lt": 40}},
-    )
+ndvi_z = cd.load_sentinel2_ndvi_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2018-01-01",
+    end="2020-12-31",
+)
 
-ndvi_z = (
-    pipe(s2)
-    | v.ndvi_from_s2(nir_band="B08", red_band="B04")
-    | v.zscore(dim="time")
-).unwrap()
-
-(pipe(ndvi_z) | v.show_cube_lexcube(title="Sentinel-2 NDVI z-score", clim=(-3, 3)))
-median_series = ndvi_z.median(dim=("y", "x"))
-median_series.plot.line(x="time", ylabel="Median NDVI z-score")
+pipe(ndvi_z) | v.show_cube_lexcube(title="Sentinel-2 NDVI z-score")
 ```
+
+The helper streams Sentinel-2 Level-2A imagery via `cubo`, computes NDVI from
+bands B08 (NIR) and B04 (red), and runs `v.zscore(dim="time")` so the returned
+cube is standardized across time. Set ``return_raw=True`` to also grab the raw
+reflectance stack and intermediate NDVI cube. You can still manually reproduce
+the pipeline with `pipe(...) | v.ndvi_from_s2(...) | v.zscore(...)` if you need a
+different stacking order.
 
 The resulting cube highlights unusual greenness events (drought stress,
 disturbance, rapid recovery). Because every cube shares `(time, y, x)` axes, you
