@@ -18,12 +18,12 @@ def _get_band_dataarray(s2: xr.Dataset | xr.DataArray) -> xr.DataArray:
 
 
 def compute_ndvi_from_s2(
-    s2: xr.Dataset,
+    s2: xr.Dataset | xr.DataArray,
     band_nir: str = "B08",
     band_red: str = "B04",
     eps: float = 1e-6,
 ) -> xr.DataArray:
-    """Compute NDVI from a Sentinel-2 Dataset."""
+    """Compute NDVI from a Sentinel-2 Dataset or DataArray."""
 
     arr = _get_band_dataarray(s2)
     nir = arr.sel({BAND_DIM: band_nir})

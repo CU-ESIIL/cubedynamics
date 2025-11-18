@@ -30,8 +30,8 @@ def test_load_s2_cube_smoke() -> None:
         resolution=10,
         cloud_lt=80,
     )
-    assert isinstance(s2, xr.Dataset)
-    for dim in ("time", "y", "x", "band"):
+    assert isinstance(s2, xr.DataArray)
+    for dim in ("time", "band", "y", "x"):
         assert dim in s2.dims
     assert s2.sizes["y"] > 0 and s2.sizes["x"] > 0
     assert s2.sizes["time"] >= 1

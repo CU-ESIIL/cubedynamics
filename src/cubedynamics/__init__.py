@@ -14,7 +14,7 @@ from . import verbs
 # Legacy, fully implemented APIs -------------------------------------------------
 from .data.gridmet import load_gridmet_cube
 from .data.prism import load_prism_cube
-from .data.sentinel2 import load_s2_cube
+from .data.sentinel2 import load_s2_cube, load_s2_ndvi_cube
 from .indices.vegetation import compute_ndvi_from_s2
 from .stats.anomalies import (
     rolling_mean,
@@ -47,6 +47,7 @@ __all__ = [
     "__version__",
     # Legacy surface area ---------------------------------------------------------
     "load_s2_cube",
+    "load_s2_ndvi_cube",
     "load_gridmet_cube",
     "load_prism_cube",
     "compute_ndvi_from_s2",
