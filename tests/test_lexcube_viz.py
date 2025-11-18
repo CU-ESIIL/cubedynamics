@@ -8,7 +8,7 @@ import xarray as xr
 
 pytest.importorskip("lexcube", reason="lexcube is required for these visualization tests")
 
-from climate_cube_math.viz.lexcube_viz import show_cube_lexcube
+from cubedynamics.viz.lexcube_viz import show_cube_lexcube
 
 
 def test_show_cube_lexcube_smoke() -> None:

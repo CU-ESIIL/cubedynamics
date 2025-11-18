@@ -1,18 +1,18 @@
 # Climate cube math primitives: temporal + spatial operators
 
 This recipe shows how to chain the temporal and spatial primitives introduced in
-`climate_cube_math` to build reusable pipelines. The example assumes you already
+`cubedynamics` to build reusable pipelines. The example assumes you already
 have a cube `cube` with dimensions `(time, y, x)`.
 
 ```python
 import xarray as xr
 
-from climate_cube_math.stats.anomalies import (
+from cubedynamics.stats.anomalies import (
     rolling_mean,
     temporal_anomaly,
     temporal_difference,
 )
-from climate_cube_math.stats.spatial import spatial_coarsen_mean
+from cubedynamics.stats.spatial import spatial_coarsen_mean
 
 # 1. Compute anomalies relative to the full time span
 anoms = temporal_anomaly(cube, dim="time")

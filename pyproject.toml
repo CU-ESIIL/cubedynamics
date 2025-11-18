@@ -1,34 +1,58 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "climate-cube-math"
+name = "cubedynamics"
 version = "0.1.0"
-description = "Lightweight helpers for demonstrating ruled hull visualizations of climate events."
+description = "Streaming climate data cubes and spatiotemporal statistics for Sentinel-2, GRIDMET, PRISM, and more."
 readme = "README.md"
-authors = [{ name = "Project Team" }]
-requires-python = ">=3.10"
-dependencies = [
-    "geopandas",
-    "matplotlib",
-    "numpy",
-    "pandas",
-    "scipy",
-    "shapely",
+requires-python = ">=3.9"
+license = { text = "MIT" }
+
+authors = [
+  { name = "CU ESIIL", email = "esiil@colorado.edu" },
 ]
 
-[project.optional-dependencies]
-docs = [
-    "mkdocs>=1.6",
-    "mkdocs-material",
-    "mkdocstrings[python]",
-    "mkdocs-git-revision-date-plugin",
-    "mkdocs-jupyter",
+keywords = [
+  "climate",
+  "remote sensing",
+  "xarray",
+  "spatiotemporal",
+  "synchrony",
+  "data cubes",
+]
+
+dependencies = [
+  "numpy",
+  "pandas",
+  "xarray",
+  "dask",
+  "matplotlib",
+  "cubo",
+  "lexcube",
+  "spyndex",
+  "rioxarray",
+  "geopandas",
+  "scipy",
+  "shapely",
+  "pytest",
+  "mkdocs",
+  "mkdocs-material",
+  "mkdocstrings[python]",
+  "mkdocs-git-revision-date-plugin",
+  "mkdocs-jupyter",
 ]
 
 [project.urls]
-homepage = "https://github.com/CU-ESIIL/Project_group_OASIS"
+Homepage = "https://github.com/CU-ESIIL/climate_cube_math"
+Documentation = "https://cu-esiil.github.io/climate_cube_math/"
+Source = "https://github.com/CU-ESIIL/climate_cube_math"
+Issues = "https://github.com/CU-ESIIL/climate_cube_math/issues"
 
 [tool.setuptools]
-packages = ["climate_cube_math"]
+package-dir = { "" = "code" }
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["cubedynamics*"]

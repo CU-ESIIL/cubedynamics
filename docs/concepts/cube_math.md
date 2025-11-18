@@ -1,6 +1,6 @@
 # Climate cube math primitives
 
-The `climate_cube_math` package collects reusable *cube math* primitives that
+The `cubedynamics` package collects reusable *cube math* primitives that
 operate directly on `xarray` DataArrays without breaking their labeled
 dimensions. These primitives fall into two main groups: temporal operators and
 spatial operators.
@@ -18,7 +18,7 @@ it uses the entire time span, but you can also pass a slice for a specific
 baseline period.
 
 ```python
-from climate_cube_math.stats.anomalies import temporal_anomaly
+from cubedynamics.stats.anomalies import temporal_anomaly
 
 anoms = temporal_anomaly(ndvi_z, dim="time")
 seasonal_anoms = temporal_anomaly(
@@ -34,7 +34,7 @@ Take lagged differences, e.g., month-over-month change. NaNs are inserted for
 the first `lag` entries automatically via `xarray.shift`.
 
 ```python
-from climate_cube_math.stats.anomalies import temporal_difference
+from cubedynamics.stats.anomalies import temporal_difference
 
 diffs = temporal_difference(temp_cube, lag=1, dim="time")
 annual_diffs = temporal_difference(temp_cube, lag=12, dim="time")
@@ -46,7 +46,7 @@ A thin wrapper over `xarray.DataArray.rolling(...).mean()` that defaults to
 `min_periods=window` and preserves long-name metadata.
 
 ```python
-from climate_cube_math.stats.anomalies import rolling_mean
+from cubedynamics.stats.anomalies import rolling_mean
 
 smooth = rolling_mean(diffs, window=3, dim="time")
 ```
@@ -68,7 +68,7 @@ Aggregate over non-overlapping blocks of size `factor_y` × `factor_x` with
 `boundary="trim"` so partial tiles are dropped.
 
 ```python
-from climate_cube_math.stats.spatial import spatial_coarsen_mean
+from cubedynamics.stats.spatial import spatial_coarsen_mean
 
 # Coarsen from 1 km to 4 km resolution by averaging 4×4 neighborhoods
 coarse = spatial_coarsen_mean(temp_cube, factor_y=4, factor_x=4)
@@ -80,7 +80,7 @@ Apply a centered rolling mean (boxcar) kernel over both spatial axes. The
 `kernel_size` must be an odd integer.
 
 ```python
-from climate_cube_math.stats.spatial import spatial_smooth_mean
+from cubedynamics.stats.spatial import spatial_smooth_mean
 
 smooth_map = spatial_smooth_mean(temp_cube.isel(time=0), kernel_size=3)
 ```
@@ -91,7 +91,7 @@ Create boolean masks for threshold-based filtering. The mask carries through the
 input metadata and can be used with `xr.where` or `.where()`.
 
 ```python
-from climate_cube_math.stats.spatial import mask_by_threshold
+from cubedynamics.stats.spatial import mask_by_threshold
 
 # Keep only pixels warmer than 20 °C
 warm_mask = mask_by_threshold(temp_cube, threshold=20.0, direction=">")

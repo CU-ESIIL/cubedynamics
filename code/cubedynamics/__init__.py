@@ -1,4 +1,4 @@
-"""Top-level API for the :mod:`climate_cube_math` package."""
+"""Top-level API for the :mod:`cubedynamics` package."""
 
 from .data.sentinel2 import load_s2_cube
 from .indices.vegetation import compute_ndvi_from_s2

@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from climate_cube_math.config import STD_EPS
-from climate_cube_math.stats.anomalies import (
+from cubedynamics.config import STD_EPS
+from cubedynamics.stats.anomalies import (
     rolling_mean,
     temporal_anomaly,
     temporal_difference,

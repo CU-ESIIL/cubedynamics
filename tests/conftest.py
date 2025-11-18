@@ -1,4 +1,4 @@
-"""Common pytest fixtures for climate_cube_math tests."""
+"""Common pytest fixtures for cubedynamics tests."""
 
 from __future__ import annotations
 

@@ -14,13 +14,13 @@ Steps:
 4. Visualize the difference cube with Lexcube and review QA medians.
 
 ```python
-from climate_cube_math.data.sentinel2 import load_s2_cube
-from climate_cube_math.indices.vegetation import compute_ndvi_from_s2
-from climate_cube_math.stats.anomalies import zscore_over_time
-from climate_cube_math.stats.tails import rolling_tail_dep_vs_center
-from climate_cube_math.utils.chunking import coarsen_and_stride
-from climate_cube_math.viz.lexcube_viz import show_cube_lexcube
-from climate_cube_math.viz.qa_plots import plot_median_over_space
+from cubedynamics.data.sentinel2 import load_s2_cube
+from cubedynamics.indices.vegetation import compute_ndvi_from_s2
+from cubedynamics.stats.anomalies import zscore_over_time
+from cubedynamics.stats.tails import rolling_tail_dep_vs_center
+from cubedynamics.utils.chunking import coarsen_and_stride
+from cubedynamics.viz.lexcube_viz import show_cube_lexcube
+from cubedynamics.viz.qa_plots import plot_median_over_space
 
 s2 = load_s2_cube(
     lat=43.89,

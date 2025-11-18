@@ -4,7 +4,7 @@ Welcome!  This microsite and repository exist to demonstrate a single idea:
 turn daily fire perimeters into an intuitive 3D "climate cube" that captures how
 an event evolves through time.  Everything you need lives in two places:
 
-1. The `climate_cube_math` Python package that ships with this repo.
+1. The `cubedynamics` Python package that ships with this repo.
 2. The vignette notebook that walks through the package step by step.
 
 ```bash
@@ -24,7 +24,7 @@ back to a package + website we get:
 
 - **Clarity** – all of the files in version control tell the project story.
 - **Reproducibility** – the vignette is the canonical way to run the code.
-- **Focus** – editing happens either in `climate_cube_math/` or inside `docs/`.
+- **Focus** – editing happens either in `cubedynamics/` or inside `docs/`.
 
 ## What you will find
 

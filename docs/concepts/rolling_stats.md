@@ -10,9 +10,9 @@ temporal context while remaining responsive to recent dynamics.
 ## Correlation vs a reference pixel
 
 When studying spatial synchrony we often compare every pixel to a single
-reference location. In `climate_cube_math` the default reference is the center
+reference location. In `cubedynamics` the default reference is the center
 pixel in the requested Sentinel-2 chip. The function
-`climate_cube_math.stats.correlation.rolling_corr_vs_center` computes the
+`cubedynamics.stats.correlation.rolling_corr_vs_center` computes the
 Pearson correlation between each pixel and the reference pixel within every
 rolling window. The resulting cube reveals how tightly each pixel's NDVI
 fluctuations track the anchor over time.
@@ -22,7 +22,7 @@ fluctuations track the anchor over time.
 Mean correlation can miss asymmetric extremes. Tail dependence focuses on the
 probability that two pixels jointly experience unusually low (bottom tail) or
 high (top tail) values. The helper
-`climate_cube_math.stats.tails.rolling_tail_dep_vs_center` implements a rolling
+`cubedynamics.stats.tails.rolling_tail_dep_vs_center` implements a rolling
 partial Spearman correlation restricted to the lower or upper tail of the data.
 It returns three cubes: bottom-tail, top-tail, and their difference (bottom -
 top). Large positive differences indicate areas that co-experience stress with
@@ -31,8 +31,8 @@ the center pixel more often than they share unusually high NDVI.
 ## Conceptual snippets
 
 ```python
-from climate_cube_math.stats.correlation import rolling_corr_vs_center
-from climate_cube_math.stats.tails import rolling_tail_dep_vs_center
+from cubedynamics.stats.correlation import rolling_corr_vs_center
+from cubedynamics.stats.tails import rolling_tail_dep_vs_center
 
 corr_cube = rolling_corr_vs_center(ndvi_z, window_days=90, min_t=5)
 

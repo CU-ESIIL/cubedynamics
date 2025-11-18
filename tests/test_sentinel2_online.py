@@ -5,15 +5,15 @@ from __future__ import annotations
 import pytest
 import xarray as xr
 
-from climate_cube_math.indices.vegetation import compute_ndvi_from_s2
-from climate_cube_math.stats.anomalies import zscore_over_time
+from cubedynamics.indices.vegetation import compute_ndvi_from_s2
+from cubedynamics.stats.anomalies import zscore_over_time
 
 pytestmark = pytest.mark.online
 
 
 def _load_s2_cube():
     pytest.importorskip("cubo", reason="cubo client is required for Sentinel-2 online tests")
-    from climate_cube_math.data.sentinel2 import load_s2_cube
+    from cubedynamics.data.sentinel2 import load_s2_cube
 
     return load_s2_cube
 

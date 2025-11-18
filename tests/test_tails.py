@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from climate_cube_math.stats.tails import _rank_1d, partial_tail_spearman
+from cubedynamics.stats.tails import _rank_1d, partial_tail_spearman
 
 
 def test_rank_1d_monotone() -> None:

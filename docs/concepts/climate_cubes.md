@@ -16,14 +16,14 @@ coordinates. By sticking with `xarray`, we get labeled dimensions, lazy loading
 (with `dask`), and robust metadata handling.
 
 This package focuses on *streaming* cubes rather than requiring local
-downloads. Utilities such as `climate_cube_math.data.sentinel2.load_s2_cube`
+downloads. Utilities such as `cubedynamics.data.sentinel2.load_s2_cube`
 wrap remote APIs (e.g., Cubo) so that users can request an area/time window and
 immediately operate on the returned `xarray` cube inside notebooks or scripts.
 
 ## Cube processing layers
 
 The rest of the documentation walks through the primary layers of the
-`climate_cube_math` workflow:
+`cubedynamics` workflow:
 
 1. **Data layer** – load space-time cubes (`load_s2_cube`).
 2. **Indices & anomalies layer** – derive vegetation indices and z-scores
@@ -48,5 +48,5 @@ cube = xr.DataArray(
 )
 ```
 
-Once data are in this form, every operation in `climate_cube_math` simply
+Once data are in this form, every operation in `cubedynamics` simply
 composes transformations on the cube without ever breaking the labeled axes.

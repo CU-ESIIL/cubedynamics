@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import xarray as xr
 
-from climate_cube_math.utils.chunking import coarsen_and_stride
-from climate_cube_math.utils.reference import center_pixel_series
+from cubedynamics.utils.chunking import coarsen_and_stride
+from cubedynamics.utils.reference import center_pixel_series
 
 
 def test_coarsen_and_stride(tiny_cube: xr.DataArray) -> None:

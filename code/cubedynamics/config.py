@@ -1,4 +1,4 @@
-"""Global configuration constants for :mod:`climate_cube_math`."""
+"""Global configuration constants for :mod:`cubedynamics`."""
 
 from __future__ import annotations
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import xarray as xr
 
-from climate_cube_math.stats.spatial import (
+from cubedynamics.stats.spatial import (
     mask_by_threshold,
     spatial_coarsen_mean,
     spatial_smooth_mean,

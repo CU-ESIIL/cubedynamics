@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import xarray as xr
 
-from climate_cube_math.stats.correlation import pearson_corr_stat, rolling_corr_vs_center
+from cubedynamics.stats.correlation import pearson_corr_stat, rolling_corr_vs_center
 
 
 def test_pearson_corr_stat_basic() -> None:

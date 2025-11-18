@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import xarray as xr
 
-from climate_cube_math.stats.rolling import rolling_pairwise_stat_cube
+from cubedynamics.stats.rolling import rolling_pairwise_stat_cube
 
 
 def test_rolling_pairwise_stat_cube_shapes(tiny_cube: xr.DataArray) -> None:

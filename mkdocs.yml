@@ -17,7 +17,7 @@ nav:
       - Tail dependence vs center pixel: recipes/s2_tail_dep_center.md
       - Cube math primitives: recipes/cube_math_primitives.md
   - API:
-      - climate_cube_math: api/climate_cube_math.md
+      - cubedynamics: api/cubedynamics.md
       - Legacy demo helpers: api.md
 
 repo_url: https://github.com/CU-ESIIL/Project_group_OASIS

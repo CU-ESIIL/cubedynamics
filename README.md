@@ -1,26 +1,47 @@
 # Climate Cube Math
 
-This repository is intentionally small: it holds a minimal MkDocs website, a
-Python package, and a vignette notebook that demonstrate how to generate ruled
-surfaces from simplified fire-event polygons.  Everything else that shipped with
-the original training template has been removed so new work can focus on the
-package and the documentation that explains it.
+`cubedynamics` provides streaming access to climate data cubes plus reusable
+statistics, vegetation-index helpers, and QA visualizations for understanding
+Sentinel-2, GRIDMET, PRISM, and related datasets.  This repository also
+includes a MkDocs site and reproducible vignette that document the package.
+
+## Installation
+
+You can install the latest library directly from the repository:
+
+```bash
+pip install git+https://github.com/CU-ESIIL/climate_cube_math.git
+```
+
+During development use an editable install from the repo root:
+
+```bash
+python -m pip install -e .
+```
 
 ## Quick start
 
-```bash
-# create a virtual environment however you like, then install the project
-python -m pip install -e .
+```python
+import cubedynamics as cd
 
-# open the vignette in JupyterLab or VS Code
-jupyter lab docs/vignette.ipynb
+s2 = cd.load_s2_cube(
+    lat=43.89,
+    lon=-102.18,
+    start="2023-06-01",
+    end="2023-09-30",
+    edge_size=512,
+)
+
+ndvi = cd.compute_ndvi_from_s2(s2)
+ndvi_z = cd.zscore_over_time(ndvi)
 ```
 
-The Python package exposes two helpers:
+The same package still ships the ruled time hull helpers used in the training
+materials:
 
-* `climate_cube_math.make_demo_event()` builds a small GeoDataFrame that mimics
+* `cubedynamics.demo.make_demo_event()` builds a small GeoDataFrame that mimics
   how a fire perimeter evolves through time.
-* `climate_cube_math.plot_ruled_time_hull()` converts that data into a 3D ruled
+* `cubedynamics.hulls.plot_ruled_time_hull()` converts that data into a 3D ruled
   surface so the temporal pattern can be inspected visually.
 
 ## Documentation and vignette
@@ -31,8 +52,8 @@ and includes:
 1. A concise landing page that explains the project goals.
 2. A rendered copy of `docs/vignette.ipynb` so visitors can step through the
    example without leaving the site.
-3. An API reference driven by `mkdocstrings` that documents the two helper
-   functions shipped with the package.
+3. An API reference driven by `mkdocstrings` that documents the core
+   `cubedynamics` modules.
 
 To preview the site locally run:
 
@@ -43,7 +64,12 @@ mkdocs serve
 ## Repository layout
 
 ```
-climate_cube_math/   # installable Python package
+code/cubedynamics/   # installable Python package
+  data/              # Sentinel-2, GRIDMET, PRISM loaders
+  indices/           # vegetation index helpers
+  stats/             # anomaly, rolling, correlation utilities
+  viz/               # QA and lexcube visualization helpers
+  utils/             # chunking, reference pixel helpers
   demo.py            # demo GeoDataFrame generator
   hulls.py           # ruled time hull plotting helper
   __init__.py
@@ -61,5 +87,5 @@ pyproject.toml               # package metadata
 ```
 
 With this layout you only need to touch two places when extending the project:
-add or update Python modules inside `climate_cube_math/` and describe those
+add or update Python modules inside `code/cubedynamics/` and describe those
 changes through Markdown or notebooks in `docs/`.
