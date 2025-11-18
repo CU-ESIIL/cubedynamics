@@ -52,6 +52,21 @@ var_cube = cd.variance_cube(cube)
 var_cube.to_netcdf("gridmet_variance.nc")
 ```
 
+Pipe ggplot-style operations with ``|`` for quick cube math:
+
+```python
+import cubedynamics as cd
+
+cube = ...  # any xarray DataArray or Dataset
+
+result = (
+    cd.pipe(cube)
+    | cd.anomaly(dim="time")
+    | cd.month_filter([6, 7, 8])
+    | cd.variance(dim="time")
+).unwrap()
+```
+
 Additional helpers can build NDVI z-score cubes, compute rolling correlation vs
 an anchor pixel, or export “lexcubes” for downstream dashboards. Follow the docs
 for more end-to-end examples while the streaming implementations are finalized.

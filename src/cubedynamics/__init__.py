@@ -8,6 +8,7 @@ Core goals
 """
 
 from .version import __version__
+from .piping import Pipe, pipe
 
 # Legacy, fully implemented APIs -------------------------------------------------
 from .data.gridmet import load_gridmet_cube
@@ -30,7 +31,8 @@ from .viz.qa_plots import plot_median_over_space
 # Streaming-first stubs for the new architecture ---------------------------------
 from .gridmet_streaming import stream_gridmet_to_cube
 from .prism_streaming import stream_prism_to_cube
-from .correlation_cubes import correlation_cube
+from .correlation_cubes import correlation_cube as streaming_correlation_cube
+from .ops import anomaly, month_filter, variance, correlation_cube, to_netcdf
 
 __all__ = [
     "__version__",
@@ -54,5 +56,12 @@ __all__ = [
     # Streaming-first stubs -------------------------------------------------------
     "stream_gridmet_to_cube",
     "stream_prism_to_cube",
+    "Pipe",
+    "pipe",
+    "anomaly",
+    "month_filter",
+    "variance",
     "correlation_cube",
+    "to_netcdf",
+    "streaming_correlation_cube",
 ]

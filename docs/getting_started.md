@@ -59,3 +59,38 @@ print(cube)
 
 If the call succeeds you are ready to work through the [Concepts](concepts.md)
 and [API & Examples](climate_cubes.md) sections.
+
+## Pipe syntax (ggplot-style verbs)
+
+CubeDynamics now exposes a ``pipe()`` helper and pipeable verbs under
+``cubedynamics.ops``. Wrap any xarray ``DataArray`` or ``Dataset`` with
+``cd.pipe()`` and compose operations with the ``|`` operator:
+
+```python
+import cubedynamics as cd
+
+cube = ...
+
+result = (
+    cd.pipe(cube)
+    | cd.anomaly(dim="time")
+    | cd.month_filter([6, 7, 8])
+    | cd.variance(dim="time")
+    | cd.to_netcdf("out.nc")
+).unwrap()
+```
+
+Pipeable verbs are factories. You can create your own by following the same
+pattern:
+
+```python
+def my_custom_op(scale):
+    def _inner(cube):
+        return cube * scale
+    return _inner
+
+result = cd.pipe(cube) | my_custom_op(0.5)
+```
+
+This keeps the streaming-first philosophy: each verb simply transforms or
+reduces the cube provided by the pipe without forcing eager downloads.
