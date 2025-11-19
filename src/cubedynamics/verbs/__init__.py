@@ -14,7 +14,7 @@ from ..ops.transforms import month_filter
 from .custom import apply
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
-from .stats import anomaly, mean, variance, zscore
+from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
 
 
 def show_cube_lexcube(**kwargs):
@@ -61,6 +61,7 @@ __all__ = [
     "month_filter",
     "flatten_space",
     "flatten_cube",
+    "rolling_tail_dep_vs_center",
     "variance",
     "correlation_cube",
     "to_netcdf",

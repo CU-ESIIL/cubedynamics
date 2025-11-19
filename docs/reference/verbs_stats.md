@@ -49,6 +49,26 @@ import xarray as xr
 corr = xr.corr(ndvi_z, climate_anom, dim="time")
 ```
 
-Rolling synchrony functions such as `cubedynamics.rolling_corr_vs_center` and `cubedynamics.rolling_tail_dep_vs_center` live outside the verbs namespace.
+Rolling synchrony functions such as `cubedynamics.rolling_corr_vs_center` remain outside the verbs namespace.
 
 Use these stats alongside transform verbs to build climate–vegetation synchrony analyses.
+
+### `v.rolling_tail_dep_vs_center(window, dim="time", min_periods=5, tail_quantile=0.8)`
+
+Compute a rolling contrast between variability in the upper tail and variability across the full window. The result preserves the input cube shape (e.g., `(time, y, x)`).
+
+```python
+from cubedynamics import pipe, verbs as v
+
+td = (
+    pipe(ndvi_z)
+    | v.rolling_tail_dep_vs_center(
+        window=90,
+        dim="time",
+        min_periods=5,
+        tail_quantile=0.8,
+    )
+)
+```
+
+This verb rolls along ``dim`` and, for each window, compares the variance of values above ``tail_quantile`` to the variance of the entire window. Higher values indicate stronger variability in the tails relative to the center.

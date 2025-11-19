@@ -111,4 +111,56 @@ def zscore(
     return _op
 
 
-__all__ = ["anomaly", "mean", "variance", "zscore"]
+def rolling_tail_dep_vs_center(
+    window: int,
+    *,
+    dim: str = "time",
+    min_periods: int = 5,
+    tail_quantile: float = 0.8,
+):
+    """Return a rolling "tail dependence vs center" contrast along ``dim``.
+
+    For each rolling window this computes the difference between variability in
+    the upper tail (values above ``tail_quantile``) and variability across the
+    full window. The verb preserves the original cube shape.
+
+    Parameters
+    ----------
+    window : int
+        Rolling window size in number of time steps.
+    dim : str, optional
+        Dimension to roll over (default: ``"time"``).
+    min_periods : int, optional
+        Minimum periods in window required to compute the statistic.
+    tail_quantile : float, optional
+        Quantile threshold defining the upper tail (default: ``0.8``).
+    """
+
+    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
+        _ensure_dim(obj, dim)
+
+        window_dim = f"{dim}_window"
+        rolled = obj.rolling({dim: window}, min_periods=min_periods)
+        constructed = rolled.construct(window_dim)
+
+        counts = constructed.count(dim=window_dim)
+        center_var = constructed.var(dim=window_dim, skipna=True, keep_attrs=True)
+
+        q = constructed.quantile(tail_quantile, dim=window_dim)
+        tail_vals = constructed.where(constructed >= q)
+        tail_counts = tail_vals.count(dim=window_dim)
+        tail_var = tail_vals.var(dim=window_dim, skipna=True, keep_attrs=True)
+
+        result = tail_var - center_var
+        valid = (counts >= min_periods) & (tail_counts > 0)
+        result = result.where(valid)
+
+        if isinstance(result, xr.DataArray) and obj.name:
+            result = result.rename(f"{obj.name}_tail_dep_vs_center")
+
+        return result
+
+    return _op
+
+
+__all__ = ["anomaly", "mean", "rolling_tail_dep_vs_center", "variance", "zscore"]
