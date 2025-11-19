@@ -57,7 +57,14 @@ def mean(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True
     Lexcube-ready.
     """
 
-    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
+    def _op(obj: xr.Dataset | xr.DataArray | VirtualCube) -> xr.Dataset | xr.DataArray:
+        if isinstance(obj, VirtualCube):
+            if isinstance(dim, (tuple, list)) and set(dim) == {"y", "x"}:
+                return _mean_virtual_space(obj)
+            if dim == "time":
+                return _mean_virtual_time(obj, keep_dim=keep_dim)
+            raise NotImplementedError(f"Streaming mean for dim={dim} not implemented")
+
         _ensure_dim(obj, dim)
         reduced = obj.mean(dim=dim, skipna=skipna, keep_attrs=True)
         return _expand_dim(reduced, dim, keep_dim)
@@ -132,10 +139,48 @@ def _variance_virtual_time(vc: VirtualCube, *, keep_dim: bool) -> xr.DataArray:
     return _expand_dim(var_da, "time", keep_dim)
 
 
+def _mean_virtual_time(vc: VirtualCube, *, keep_dim: bool) -> xr.DataArray:
+    total = None
+    count = None
+    y_coords = None
+    x_coords = None
+
+    for cube in vc.iter_time_tiles():
+        ordered = cube.transpose(*[d for d in vc.dims if d in cube.dims])
+        data = np.asarray(ordered.data)
+        if "y" in ordered.coords:
+            y_coords = ordered.coords.get("y")
+        if "x" in ordered.coords:
+            x_coords = ordered.coords.get("x")
+
+        for idx in range(data.shape[0]):
+            x = np.asarray(data[idx, ...])
+            mask = np.isfinite(x)
+
+            if total is None:
+                total = np.zeros_like(x, dtype=float)
+                count = np.zeros_like(x, dtype=np.int64)
+
+            total = total + np.where(mask, x, 0.0)
+            count = count + mask.astype(np.int64)
+
+    if total is None or count is None:
+        raise ValueError("VirtualCube produced no tiles during mean computation")
+
+    mean_vals = total / np.maximum(count, 1)
+    mean_da = xr.DataArray(mean_vals, coords={}, dims=("y", "x"), name="mean")
+    if y_coords is not None:
+        mean_da = mean_da.assign_coords(y=y_coords)
+    if x_coords is not None:
+        mean_da = mean_da.assign_coords(x=x_coords)
+
+    return _expand_dim(mean_da, "time", keep_dim)
+
+
 def _variance_virtual_space(vc: VirtualCube) -> xr.DataArray:
     stats: dict[Any, tuple[float, float, int]] = {}
 
-    for cube in vc.iter_tiles():
+    for cube in vc.iter_spatial_tiles():
         ordered = cube.transpose(*[d for d in vc.dims if d in cube.dims])
         times = ordered["time"].values
         data = np.asarray(ordered.data)
@@ -172,6 +217,33 @@ def _variance_virtual_space(vc: VirtualCube) -> xr.DataArray:
     )
 
 
+def _mean_virtual_space(vc: VirtualCube) -> xr.DataArray:
+    totals: dict[Any, float] = {}
+    counts: dict[Any, int] = {}
+
+    for cube in vc.iter_spatial_tiles():
+        ordered = cube.transpose(*[d for d in vc.dims if d in cube.dims])
+        times = ordered["time"].values
+        data = np.asarray(ordered.data)
+
+        for idx, tval in enumerate(times):
+            flat = np.asarray(data[idx, ...]).ravel()
+            mask = np.isfinite(flat)
+            vals = flat[mask]
+            totals[tval] = totals.get(tval, 0.0) + float(vals.sum())
+            counts[tval] = counts.get(tval, 0) + int(mask.sum())
+
+    times_sorted = sorted(totals.keys())
+    means = [totals[t] / max(counts.get(t, 1), 1) for t in times_sorted]
+
+    return xr.DataArray(
+        np.array(means),
+        coords={"time": times_sorted},
+        dims=("time",),
+        name="mean",
+    )
+
+
 def anomaly(dim: str = "time", *, keep_dim: bool = True):
     """Return a pipe verb that subtracts the mean over ``dim``.
 
@@ -202,7 +274,29 @@ def zscore(
     flat series.
     """
 
-    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
+    def _op(obj: xr.Dataset | xr.DataArray | VirtualCube) -> xr.Dataset | xr.DataArray:
+        if isinstance(obj, VirtualCube):
+            if dim != "time":
+                raise NotImplementedError("Streaming z-score is implemented for dim='time' only")
+            mean_da = _mean_virtual_time(obj, keep_dim=False)
+            var_da = _variance_virtual_time(obj, keep_dim=False)
+            std_da = xr.apply_ufunc(np.sqrt, var_da)
+            std_safe = std_da.where(std_da > std_eps, np.nan)
+
+            tiles = []
+            for tile in obj.iter_tiles():
+                mean_broadcast = mean_da.broadcast_like(tile)
+                std_broadcast = std_safe.broadcast_like(tile)
+                z = (tile - mean_broadcast) / std_broadcast
+                name = tile.name or "var"
+                tiles.append(z.rename(f"{name}_zscore"))
+
+            combined = xr.combine_by_coords(tiles)
+            if isinstance(combined, xr.Dataset) and len(combined.data_vars) == 1:
+                only_var = next(iter(combined.data_vars))
+                return combined[only_var]
+            return combined
+
         _ensure_dim(obj, dim)
         mean_op = obj.mean(dim=dim, skipna=skipna, keep_attrs=True)
         std_op = obj.std(dim=dim, skipna=skipna, keep_attrs=True)

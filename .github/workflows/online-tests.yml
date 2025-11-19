@@ -27,4 +27,4 @@ jobs:
         env:
           PYTEST_ADDOPTS: ""
         run: |
-          pytest -m online
+          pytest -m "integration"

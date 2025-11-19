@@ -10,6 +10,9 @@ from climate_cube_math.data.prism import load_prism_cube
 from tests.conftest import assert_is_lazy_xarray
 
 
+pytestmark = [pytest.mark.online, pytest.mark.integration]
+
+
 @pytest.mark.online
 def test_load_prism_cube_streaming_default(recwarn):
     aoi = {

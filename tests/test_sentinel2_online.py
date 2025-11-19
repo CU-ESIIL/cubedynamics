@@ -8,7 +8,7 @@ import xarray as xr
 from cubedynamics import pipe, verbs as v
 from cubedynamics.indices.vegetation import compute_ndvi_from_s2
 
-pytestmark = pytest.mark.online
+pytestmark = [pytest.mark.online, pytest.mark.integration]
 
 
 def _load_s2_cube():

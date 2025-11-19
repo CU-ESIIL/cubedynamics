@@ -7,7 +7,7 @@ import xarray as xr
 
 from cubedynamics import pipe, verbs as v
 
-pytestmark = pytest.mark.online
+pytestmark = [pytest.mark.online, pytest.mark.integration]
 
 
 def _load_s2_ndvi_cube():
@@ -17,7 +17,6 @@ def _load_s2_ndvi_cube():
     return load_s2_ndvi_cube
 
 
-@pytest.mark.online
 def test_load_s2_ndvi_cube_smoke() -> None:
     load_helper = _load_s2_ndvi_cube()
     try:

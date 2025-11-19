@@ -23,9 +23,14 @@ jobs:
           pip install -r requirements.txt
           pip install -e .
 
-      - name: Run offline tests
+      - name: Run unit tests (no integration)
         run: |
-          pytest -m "not online"
+          pytest -m "not integration" --maxfail=1 --disable-warnings -q
+
+      - name: Run integration tests (optional)
+        if: env.RUN_INTEGRATION == '1'
+        run: |
+          pytest -m "integration"
 
   docs:
     runs-on: ubuntu-latest
