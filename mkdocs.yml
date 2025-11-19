@@ -5,25 +5,33 @@ site_url: "https://cu-esiil.github.io/climate_cube_math/"
 
 nav:
   - Home: index.md
-  - Concepts:
-      - What is a cube?: concepts/cubes.md
-      - Pipe syntax & verbs: concepts/pipe_and_verbs.md
-  - Getting Started:
-      - Installation & setup: getting_started/install.md
-      - First cube (PRISM): getting_started/first_prism_cube.md
-      - Semantic variable loaders: semantic_variables.md
+  - Quickstart: getting_started.md
+  - Climate cubes: climate_cubes.md
+  - Semantic variable loaders: semantic_variables.md
+  - Pipe syntax & verbs: pipe_verbs.md
+  - Operations:
+      - Transform verbs: ops_transforms.md
+      - Stats verbs: ops_stats.md
+      - IO verbs: ops_io.md
+  - Visualization: lexcube.md
   - Examples & Recipes:
       - PRISM JJA variance: examples/prism_jja_variance.md
       - gridMET AOI variance: examples/gridmet_aoi_variance.md
       - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md
       - Climate–NDVI correlation cube: examples/climate_ndvi_correlation.md
       - Sentinel-2 tail-dependence vs center pixel: recipes/s2_tail_dep_manual.md
-  - Verbs Reference:
-      - Transform verbs: reference/verbs_transforms.md
-      - Stats verbs: reference/verbs_stats.md
-      - IO verbs: reference/verbs_io.md
-      - Visualization verbs: reference/verbs_viz.md
-      - Models (coming soon): reference/verbs_models.md
+  - Detailed Reference:
+      - Concepts overview: concepts.md
+      - What is a cube?: concepts/cubes.md
+      - Pipe syntax & verbs (original): concepts/pipe_and_verbs.md
+      - Installation & setup: getting_started/install.md
+      - First cube (PRISM): getting_started/first_prism_cube.md
+      - Verbs Reference:
+          - Transform verbs: reference/verbs_transforms.md
+          - Stats verbs: reference/verbs_stats.md
+          - IO verbs: reference/verbs_io.md
+          - Visualization verbs: reference/verbs_viz.md
+          - Models (coming soon): reference/verbs_models.md
   - Related Work & Ecosystem: related/related_work.md
   - Development:
       - Contributing: dev/contributing.md
