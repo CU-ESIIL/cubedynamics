@@ -11,6 +11,7 @@ nav:
   - Getting Started:
       - Installation & setup: getting_started/install.md
       - First cube (PRISM): getting_started/first_prism_cube.md
+      - Semantic variable loaders: semantic_variables.md
   - Examples & Recipes:
       - PRISM JJA variance: examples/prism_jja_variance.md
       - gridMET AOI variance: examples/gridmet_aoi_variance.md

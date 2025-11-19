@@ -28,6 +28,13 @@ from .stats.tails import rolling_tail_dep_vs_center
 from .utils.chunking import coarsen_and_stride
 from .viz.lexcube_viz import show_cube_lexcube
 from .viz.qa_plots import plot_median_over_space
+from .variables import (
+    temperature,
+    temperature_anomaly,
+    temperature_max,
+    temperature_min,
+    ndvi,
+)
 from .sentinel import (
     load_sentinel2_bands_cube,
     load_sentinel2_cube,
@@ -87,4 +94,9 @@ __all__ = [
     "zscore",
     "ndvi_from_s2",
     "streaming_correlation_cube",
+    "temperature",
+    "temperature_min",
+    "temperature_max",
+    "temperature_anomaly",
+    "ndvi",
 ]

@@ -7,6 +7,7 @@ CubeDynamics treats every spatiotemporal grid as a **cube** and lets you compose
 [Get started](getting_started/install.md){ .md-button .md-button--primary }
 [Browse examples](examples/prism_jja_variance.md){ .md-button }
 [Verbs reference](reference/verbs_transforms.md){ .md-button }
+[Semantic loaders](semantic_variables.md){ .md-button }
 
 ![Lexcube NDVI z-score cube](assets/img/lexcube_hero.png){ .cube-image }
 
@@ -19,6 +20,8 @@ CubeDynamics treats every spatiotemporal grid as a **cube** and lets you compose
 ## What is CubeDynamics?
 
 CubeDynamics wraps `xarray.DataArray` and `xarray.Dataset` objects whose dimensions follow the cube pattern `(time, y, x [, band])`. Load data with helpers such as `load_prism_cube`, `load_gridmet_cube`, `load_sentinel2_ndvi_cube` (raw NDVI), or `load_sentinel2_ndvi_zscore_cube` (standardized NDVI), then keep the cube intact as you build analyses. The package leans on lazy loading (Dask) so you can process multi-decade archives from PRISM, gridMET, and Sentinel-2 NDVI chips without downloading everything locally.
+
+If you just want temperature or NDVI without remembering provider variable names, start with the [semantic variable loaders](semantic_variables.md).
 
 CubeDynamics is inspired by tidy data grammars: call `pipe(cube)` once, then stack verbs for transforms, statistics, IO, and visualization. Verbs are tiny factories, which means the same function works for every cube. New loaders, verbs, and models can be added without changing the mental model.
 

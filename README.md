@@ -45,6 +45,56 @@ API shown above matches the documentation and is preferred, though the legacy
 positional form (`load_prism_cube(["ppt"], "2000-01-01", "2000-12-31", aoi)`) is
 still available for backward compatibility.
 
+### Semantic variable loaders
+
+Skip provider-specific variable names with the semantic helpers:
+
+```python
+# Daily mean temperature from the default provider (gridMET)
+temp = cd.temperature(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+)
+
+# Minimum / maximum temperature from explicit providers
+tmin = cd.temperature_min(
+    lat=40.0, lon=-105.25,
+    start="2000-01-01", end="2020-12-31",
+    source="gridmet",
+)
+tmax = cd.temperature_max(
+    lat=40.0, lon=-105.25,
+    start="2000-01-01", end="2020-12-31",
+    source="prism",
+)
+
+# Temperature anomaly cube (mean-centered along time)
+tanom = cd.temperature_anomaly(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+    source="gridmet",
+    kind="mean",
+)
+
+# Sentinel-2 NDVI z-score cube
+ndvi_z = cd.ndvi(
+    lat=40.0,
+    lon=-105.25,
+    start="2018-01-01",
+    end="2020-12-31",
+    source="sentinel2",
+    as_zscore=True,
+)
+```
+
+These helpers delegate to `cd.load_prism_cube`, `cd.load_gridmet_cube`, and
+`cd.load_sentinel2_ndvi_zscore_cube` (or raw Sentinel-2 bands) so advanced users
+can always drop back to the sensor-specific loaders when they need full control.
+
 ### Pipe ergonomics
 
 - `pipe(value)` wraps any `xarray.DataArray` or `xarray.Dataset` without copying it.
@@ -255,6 +305,7 @@ do not execute on the static GitHub Pages site.
 - `pipe` for wrapping any cube before piping.
 - `verbs` (``from cubedynamics import verbs as v``) exposes transforms, statistics, IO, and visualization helpers.
 - Streaming helpers: `cd.load_prism_cube`, `cd.load_gridmet_cube`, `cd.load_sentinel2_cube`, `cd.load_sentinel2_bands_cube`, `cd.load_sentinel2_ndvi_cube`, `cd.load_sentinel2_ndvi_zscore_cube`. Legacy `load_s2_*` aliases resolve to the same loaders.
+- Semantic loaders: `cd.temperature`, `cd.temperature_min`, `cd.temperature_max`, `cd.temperature_anomaly`, and `cd.ndvi` for quick access to common climate and greenness variables.
 - Vegetation helper: `v.ndvi_from_s2` for direct NDVI calculation on Sentinel-2 cubes.
 - Stats verbs: `v.mean`, `v.variance`, `v.anomaly`, `v.month_filter`, and `v.zscore`. The `v.correlation_cube` factory is reserved for a future streaming implementation and currently raises `NotImplementedError`.
 - IO verbs: `v.to_netcdf`, `v.to_zarr`, etc.
