@@ -10,19 +10,13 @@ from cubedynamics.stats.anomalies import temporal_anomaly
 from cubedynamics.stats.spatial import spatial_coarsen_mean
 from cubedynamics.viz.qa_plots import plot_median_over_space
 
-boulder_bbox = {
-    "min_lon": -105.35,
-    "max_lon": -105.20,
-    "min_lat": 40.00,
-    "max_lat": 40.10,
-}
-
 tmax = cd.load_gridmet_cube(
-    variables=["tmmx"],
+    lat=40.05,
+    lon=-105.275,
+    variable="tmmx",
     start="2000-01-01",
     end="2020-12-31",
-    aoi=boulder_bbox,
-    time_res="MS",
+    freq="MS",
     chunks={"time": 120},
 )
 tmax_anom = temporal_anomaly(tmax, dim="time")

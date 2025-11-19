@@ -30,7 +30,7 @@ CubeDynamics focuses on **streaming cubes** instead of requiring large local dow
 
 ## Correctness & cube shapes
 
-- **PRISM/gridMET loaders** (`load_prism_cube`, `load_gridmet_cube`) return `xarray.Dataset` objects with dims `(time, y, x)` per variable. Pass either a `lat`/`lon`, `bbox`, or `aoi_geojson` to PRISM. GRIDMET currently expects a bounding-box mapping named `aoi` with keys `min_lon`, `max_lon`, `min_lat`, `max_lat`.
+- **PRISM/gridMET loaders** (`load_prism_cube`, `load_gridmet_cube`) return `xarray.Dataset` objects with dims `(time, y, x)` per variable. Pass exactly one AOI description: `lat`/`lon`, `bbox=[min_lon, min_lat, max_lon, max_lat]`, or `aoi_geojson` (GeoJSON Feature/FeatureCollection).
 - **Sentinel-2 loaders**:
   - `load_sentinel2_cube` and `load_sentinel2_bands_cube` return multispectral stacks with dims `(time, y, x, band)`.
   - `load_sentinel2_ndvi_cube` returns raw NDVI reflectance with dims `(time, y, x)` and optionally the underlying bands when `return_raw=True`.

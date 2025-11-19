@@ -62,20 +62,14 @@ can flow directly into the pipe system.
 import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
-boulder_bbox = {
-    "min_lon": -105.35,
-    "max_lon": -105.20,
-    "min_lat": 40.00,
-    "max_lat": 40.10,
-}
-
 # Stream a monthly gridMET precipitation cube for Boulder
 cube = cd.load_gridmet_cube(
-    variables=["pr"],
+    lat=40.05,
+    lon=-105.275,
     start="2000-01-01",
     end="2020-12-31",
-    aoi=boulder_bbox,
-    time_res="MS",
+    variable="pr",
+    freq="MS",
     chunks={"time": 120},
 )
 
@@ -237,18 +231,12 @@ CubeDynamics integrates with [Lexcube](https://github.com/carbonplan/lexcube) to
 from cubedynamics import pipe, verbs as v
 import cubedynamics as cd
 
-bbox = {
-    "min_lon": -105.35,
-    "max_lon": -105.20,
-    "min_lat": 40.00,
-    "max_lat": 40.10,
-}
-
 cube = cd.load_gridmet_cube(
-    variables=["pr"],
+    lat=40.05,
+    lon=-105.275,
     start="2000-01-01",
     end="2020-12-31",
-    aoi=bbox,
+    variable="pr",
 )
 
 # JJA cube + Lexcube widget

@@ -107,10 +107,11 @@ import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
 cube = cd.load_gridmet_cube(
-    variables=["pr"],
+    lat=40.05,
+    lon=-105.275,
     start="2000-01-01",
     end="2020-12-31",
-    aoi={"min_lon": -105.35, "max_lon": -105.20, "min_lat": 40.00, "max_lat": 40.10},
+    variable="pr",
 )
 
 pipe(cube) | v.month_filter([6, 7, 8]) | v.show_cube_lexcube(cmap="RdBu_r")
@@ -126,19 +127,13 @@ Define a simple bounding box and stream gridMET data directly into the pipe:
 import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
-boulder_bbox = {
-    "min_lon": -105.35,
-    "max_lon": -105.20,
-    "min_lat": 40.00,
-    "max_lat": 40.10,
-}
-
 cube = cd.load_gridmet_cube(
-    variables=["pr"],
+    lat=40.05,
+    lon=-105.275,
     start="2000-01-01",
     end="2020-12-31",
-    aoi=boulder_bbox,
-    time_res="MS",
+    variable="pr",
+    freq="MS",
     chunks={"time": 120},
 )
 

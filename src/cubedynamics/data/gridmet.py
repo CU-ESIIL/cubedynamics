@@ -1,61 +1,236 @@
 """GRIDMET data access helpers.
 
-This module implements a streaming-first loader that mirrors the behavior
-of the existing Sentinel-2 helper.  The loader fabricates a synthetic cube
-that mimics GRIDMET structure so the rest of the package can exercise the
-same API regardless of whether a true remote service is available in the
-execution environment.  When streaming is unavailable the loader falls back
-to a small in-memory dataset and emits a clear warning so callers can decide
-how to proceed.
+This module implements a streaming-first loader that mirrors the behavior of
+the PRISM helper. It accepts both the modern keyword-only API (``lat``/``lon``,
+``bbox`` or ``aoi_geojson``) and the legacy positional form
+``load_gridmet_cube(variable, start, end, aoi, ...)``. The loader fabricates a
+synthetic cube so the rest of the package can exercise the same API regardless
+of whether a true remote service is available in the execution environment. If
+streaming is unavailable the loader falls back to a small in-memory dataset and
+emits a clear warning so callers can decide how to proceed.
 """
 
 from __future__ import annotations
 
-from typing import Hashable, Mapping, Sequence
+import warnings
+from typing import Hashable, Iterable, Mapping, Sequence
 
 import numpy as np
 import pandas as pd
 import xarray as xr
 
 from ..config import DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
+from .prism import _bbox_mapping_from_geojson, _bbox_mapping_from_sequence, _coerce_aoi
 
 
 def load_gridmet_cube(
+    *legacy_args: object,
+    lat: float | None = None,
+    lon: float | None = None,
+    bbox: Sequence[float] | None = None,
+    aoi_geojson: Mapping[str, object] | None = None,
+    aoi: Mapping[str, float] | Sequence[float] | None = None,
+    start: str | pd.Timestamp | None = None,
+    end: str | pd.Timestamp | None = None,
+    variable: str | None = None,
+    variables: Sequence[str] | None = None,
+    freq: str | None = None,
+    time_res: str | None = None,
+    chunks: Mapping[Hashable, int] | None = None,
+    prefer_streaming: bool = True,
+) -> xr.Dataset:
+    """Load a GRIDMET-like climate cube.
+
+    Parameters
+    ----------
+    lat, lon : float, optional
+        Latitude/longitude of a point of interest. When provided, a small
+        bounding box is generated around the point so that GRIDMET pixels are
+        fetched for the surrounding area.
+    bbox : sequence of float, optional
+        Bounding box defined as ``[min_lon, min_lat, max_lon, max_lat]``.
+    aoi_geojson : mapping, optional
+        GeoJSON Feature/FeatureCollection describing the area of interest. A
+        bounding box is derived from the geometry.
+    start, end : datetime-like
+        Temporal extent for the request.
+    variable : str, optional
+        GRIDMET variable to request. ``variables`` may be used to explicitly
+        pass a list.
+    freq, time_res : str, optional
+        Temporal frequency code. ``freq`` overrides ``time_res`` when set and
+        defaults to monthly (``"MS"``) to mirror the documentation.
+    chunks : mapping, optional
+        Custom Dask chunk mapping.
+    prefer_streaming : bool, default True
+        Whether to attempt the streaming backend before falling back to the
+        synthetic download backend used for tests.
+
+    Notes
+    -----
+    The modern API requires keyword arguments and exactly one AOI specification
+    (``lat``/``lon``, ``bbox`` or ``aoi_geojson``). Legacy positional usage of
+    the form ``load_gridmet_cube(variable, start, end, aoi, ...)`` is still
+    supported but deprecated.
+    """
+
+    if legacy_args:
+        if any(
+            value is not None
+            for value in (
+                lat,
+                lon,
+                bbox,
+                aoi_geojson,
+                aoi,
+                start,
+                end,
+                freq,
+                variables,
+                variable,
+            )
+        ):
+            raise TypeError(
+                "Cannot mix positional GRIDMET arguments with the keyword-only API."
+            )
+        warnings.warn(
+            "Positional GRIDMET arguments are deprecated; use keyword arguments",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return _load_gridmet_cube_legacy(
+            *legacy_args,
+            time_res=time_res,
+            chunks=chunks,
+            prefer_streaming=prefer_streaming,
+        )
+
+    resolved_freq = freq or time_res or "MS"
+    if start is None or end is None:
+        raise ValueError("Both 'start' and 'end' must be provided.")
+    if variable is None and variables is None:
+        raise ValueError("A GRIDMET variable must be provided via 'variable' or 'variables'.")
+
+    start_ts = pd.to_datetime(start)
+    end_ts = pd.to_datetime(end)
+    if start_ts > end_ts:
+        raise ValueError("'start' must be before 'end'.")
+
+    variable_spec: Iterable[str] | str = variables if variables is not None else variable
+    normalized_variables = _normalize_variables(variable_spec)
+    if aoi is not None:
+        if any(spec is not None for spec in (lat, lon, bbox, aoi_geojson)):
+            raise ValueError(
+                "Specify only one AOI via lat/lon, bbox, aoi_geojson, or the legacy 'aoi' mapping."
+            )
+        aoi_mapping = _coerce_legacy_gridmet_aoi(aoi)
+    else:
+        aoi_mapping = _coerce_aoi(lat=lat, lon=lon, bbox=bbox, aoi_geojson=aoi_geojson)
+
+    return _load_gridmet_cube_impl(
+        normalized_variables,
+        start_ts.isoformat(),
+        end_ts.isoformat(),
+        aoi_mapping,
+        resolved_freq,
+        chunks,
+        prefer_streaming,
+    )
+
+
+def _load_gridmet_cube_impl(
     variables: Sequence[str],
     start: str,
     end: str,
     aoi: Mapping[str, float],
-    time_res: str = "D",
+    freq: str,
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
 ) -> xr.Dataset:
-    """Load a GRIDMET-like climate cube for the requested window.
-
-    Parameters mirror the user-facing docstring described in the prompt.
-    The loader always prefers a streaming-friendly (dask-backed) dataset
-    and only falls back to eager arrays when the streaming helper fails or
-    when ``prefer_streaming`` is explicitly disabled.
-    """
+    """Internal implementation shared by legacy and modern entrypoints."""
 
     chunk_map = _resolve_chunks(chunks)
 
     if prefer_streaming:
         try:
-            ds = _open_gridmet_streaming(variables, start, end, aoi, time_res)
+            ds = _open_gridmet_streaming(variables, start, end, aoi, freq)
         except Exception as exc:  # pragma: no cover - exercised via tests
-            import warnings
-
             warnings.warn(
                 "GRIDMET streaming backend unavailable; falling back to local download.",
                 RuntimeWarning,
             )
-            ds = _open_gridmet_download(variables, start, end, aoi, time_res, error=exc)
+            ds = _open_gridmet_download(variables, start, end, aoi, freq, error=exc)
     else:
-        ds = _open_gridmet_download(variables, start, end, aoi, time_res)
+        ds = _open_gridmet_download(variables, start, end, aoi, freq)
 
     ds = _crop_to_aoi(ds, aoi)
-    ds = ds.chunk(chunk_map)
-    return ds
+    return ds.chunk(chunk_map)
+
+
+def _load_gridmet_cube_legacy(
+    *legacy_args: object,
+    time_res: str | None = None,
+    chunks: Mapping[Hashable, int] | None = None,
+    prefer_streaming: bool = True,
+) -> xr.Dataset:
+    if len(legacy_args) < 4:
+        raise TypeError(
+            "load_gridmet_cube() legacy usage requires variable, start, end, and aoi"
+        )
+
+    variable_spec = legacy_args[0]
+    start = legacy_args[1]
+    end = legacy_args[2]
+    aoi = legacy_args[3]
+    freq = time_res or "D"
+    idx = 4
+    if len(legacy_args) > idx:
+        freq = legacy_args[idx] or freq
+        idx += 1
+    if len(legacy_args) > idx:
+        chunks = legacy_args[idx]
+        idx += 1
+    if len(legacy_args) > idx:
+        prefer_streaming = bool(legacy_args[idx])
+        idx += 1
+    if len(legacy_args) > idx:
+        raise TypeError("load_gridmet_cube() received too many positional arguments")
+
+    normalized_variables = _normalize_variables(variable_spec)
+    aoi_mapping = _coerce_legacy_gridmet_aoi(aoi)
+
+    start_ts = pd.to_datetime(start)
+    end_ts = pd.to_datetime(end)
+
+    return _load_gridmet_cube_impl(
+        normalized_variables,
+        start_ts.isoformat(),
+        end_ts.isoformat(),
+        aoi_mapping,
+        freq,
+        chunks,
+        prefer_streaming,
+    )
+
+
+def _normalize_variables(variable_spec: Iterable[str] | str) -> Sequence[str]:
+    if isinstance(variable_spec, str):
+        values = [variable_spec]
+    else:
+        values = list(variable_spec)
+    if not values:
+        raise ValueError("At least one GRIDMET variable must be provided.")
+    return [str(val) for val in values]
+
+
+def _coerce_legacy_gridmet_aoi(aoi: object) -> Mapping[str, float]:
+    if isinstance(aoi, Mapping):
+        if {"min_lon", "max_lon", "min_lat", "max_lat"}.issubset(aoi.keys()):
+            return {key: float(aoi[key]) for key in ("min_lon", "max_lon", "min_lat", "max_lat")}
+        return _bbox_mapping_from_geojson(aoi)
+    if isinstance(aoi, Sequence) and not isinstance(aoi, (str, bytes)):
+        return _bbox_mapping_from_sequence(aoi)
+    raise ValueError("Legacy GRIDMET AOI must be a bbox sequence or GeoJSON mapping.")
 
 
 def _open_gridmet_streaming(
@@ -63,7 +238,7 @@ def _open_gridmet_streaming(
     start: str,
     end: str,
     aoi: Mapping[str, float],
-    time_res: str = "D",
+    freq: str = "D",
 ) -> xr.Dataset:
     """Return a dask-backed Dataset that mimics GRIDMET streaming access."""
 
@@ -72,7 +247,7 @@ def _open_gridmet_streaming(
     except ImportError as exc:  # pragma: no cover - relies on optional dep
         raise RuntimeError("dask is required for GRIDMET streaming") from exc
 
-    times = pd.date_range(start, end, freq=time_res or "D")
+    times = pd.date_range(start, end, freq=freq or "D")
     if not len(times):
         raise ValueError("No time steps available for the requested range")
 
@@ -99,13 +274,13 @@ def _open_gridmet_download(
     start: str,
     end: str,
     aoi: Mapping[str, float],
-    time_res: str = "D",
+    freq: str = "D",
     *,
     error: Exception | None = None,
 ) -> xr.Dataset:
     """Return a small in-memory Dataset that mimics a download fallback."""
 
-    times = pd.date_range(start, end, freq=time_res or "D")
+    times = pd.date_range(start, end, freq=freq or "D")
     y_coords, x_coords = _build_coords_for_aoi(aoi)
     rng = np.random.default_rng(7)
 

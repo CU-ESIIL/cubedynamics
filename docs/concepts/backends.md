@@ -24,20 +24,13 @@ of the math stack can focus on statistics instead of I/O details.
 import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
-# Bounding box used by the gridMET loader
-bbox = {
-    "min_lon": -105.35,
-    "max_lon": -105.20,
-    "min_lat": 40.00,
-    "max_lat": 40.10,
-}
-
 precip = cd.load_gridmet_cube(
-    variables=["pr"],
+    lat=40.05,
+    lon=-105.275,
+    variable="pr",
     start="2000-01-01",
     end="2020-12-31",
-    aoi=bbox,
-    time_res="MS",
+    freq="MS",
     chunks={"time": 120},
 )
 

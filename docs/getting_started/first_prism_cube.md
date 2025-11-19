@@ -39,19 +39,13 @@ Because `Pipe` implements `_repr_html_`, notebooks display the wrapped DataArray
 The same grammar applies to GRIDMET cubes. Stream a polygon AOI, filter to summer months, and compute variance:
 
 ```python
-bbox = {
-    "min_lon": -105.35,
-    "max_lon": -105.20,
-    "min_lat": 40.00,
-    "max_lat": 40.10,
-}
-
 cube = cd.load_gridmet_cube(
-    variables=["pr"],
+    lat=40.05,
+    lon=-105.275,
+    variable="pr",
     start="2000-01-01",
     end="2020-12-31",
-    aoi=bbox,
-    time_res="MS",
+    freq="MS",
     chunks={"time": 120},
 )
 

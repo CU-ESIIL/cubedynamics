@@ -38,19 +38,13 @@ public API.
 ```python
 import cubedynamics as cd
 
-bbox = {
-    "min_lon": -105.35,
-    "max_lon": -105.20,
-    "min_lat": 40.00,
-    "max_lat": 40.10,
-}
-
 cube = cd.load_gridmet_cube(
-    variables=["pr"],
+    lat=40.05,
+    lon=-105.275,
+    variable="pr",
     start="2000-01-01",
     end="2020-12-31",
-    aoi=bbox,
-    time_res="MS",
+    freq="MS",
     chunks={"time": 120},
 )
 ```
