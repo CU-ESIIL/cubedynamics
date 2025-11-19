@@ -2,15 +2,24 @@
 
 from __future__ import annotations
 
-from typing import Hashable
+from typing import Any, Hashable, Iterable
 
 import numpy as np
 import xarray as xr
 
 from ..config import STD_EPS
+from ..streaming import VirtualCube
 
 
-def _ensure_dim(obj: xr.Dataset | xr.DataArray, dim: Hashable) -> None:
+def _ensure_dim(obj: xr.Dataset | xr.DataArray, dim: Hashable | Iterable[Hashable]) -> None:
+    if isinstance(dim, (list, tuple, set)):
+        missing = [d for d in dim if d not in obj.dims]
+        if missing:
+            raise ValueError(
+                f"Dimensions {missing!r} not found in object dims: {tuple(obj.dims)}"
+            )
+        return
+
     if dim not in obj.dims:
         raise ValueError(f"Dimension {dim!r} not found in object dims: {tuple(obj.dims)}")
 
@@ -23,6 +32,8 @@ def _expand_dim(
     """Return ``reduced`` with ``dim`` added back as a length-1 dimension."""
 
     if not keep_dim:
+        return reduced
+    if isinstance(dim, (list, tuple, set)):
         return reduced
     if dim in reduced.dims:
         return reduced
@@ -57,12 +68,108 @@ def mean(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True
 def variance(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True):
     """Return a variance reducer along ``dim`` with optional dimension retention."""
 
-    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
+    def _variance_xarray(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
         _ensure_dim(obj, dim)
         reduced = obj.var(dim=dim, skipna=skipna, keep_attrs=True)
         return _expand_dim(reduced, dim, keep_dim)
 
+    def _variance_virtual_cube(vc: VirtualCube):  # type: ignore[return-value]
+        if isinstance(dim, (tuple, list)) and set(dim) == {"y", "x"}:
+            return _variance_virtual_space(vc)
+        if dim == "time":
+            return _variance_virtual_time(vc, keep_dim=keep_dim)
+        raise NotImplementedError(f"Streaming variance for dim={dim} not implemented")
+
+    def _op(obj: xr.Dataset | xr.DataArray | VirtualCube):  # type: ignore[type-arg]
+        if isinstance(obj, VirtualCube):
+            return _variance_virtual_cube(obj)
+        return _variance_xarray(obj)
+
     return _op
+
+
+def _variance_virtual_time(vc: VirtualCube, *, keep_dim: bool) -> xr.DataArray:
+    mean = None
+    m2 = None
+    n = None
+    y_coords = None
+    x_coords = None
+
+    for cube in vc.iter_time_tiles():
+        ordered = cube.transpose(*[d for d in vc.dims if d in cube.dims])
+        data = np.asarray(ordered.data)
+        if "y" in ordered.coords:
+            y_coords = ordered.coords.get("y")
+        if "x" in ordered.coords:
+            x_coords = ordered.coords.get("x")
+
+        for idx in range(data.shape[0]):
+            x = np.asarray(data[idx, ...])
+            mask = np.isfinite(x)
+
+            if mean is None:
+                mean = np.zeros_like(x, dtype=float)
+                m2 = np.zeros_like(x, dtype=float)
+                n = np.zeros_like(x, dtype=np.int64)
+
+            n_new = n + mask.astype(np.int64)
+            delta = x - mean
+            mean = mean + np.where(mask, delta / np.maximum(n_new, 1), 0.0)
+            delta2 = x - mean
+            m2 = m2 + np.where(mask, delta * delta2, 0.0)
+            n = n_new
+
+    if mean is None or m2 is None or n is None:
+        raise ValueError("VirtualCube produced no tiles during variance computation")
+
+    var = m2 / np.maximum(n, 1)
+    var_da = xr.DataArray(var, coords={}, dims=("y", "x"), name="variance")
+    if y_coords is not None:
+        var_da = var_da.assign_coords(y=y_coords)
+    if x_coords is not None:
+        var_da = var_da.assign_coords(x=x_coords)
+
+    return _expand_dim(var_da, "time", keep_dim)
+
+
+def _variance_virtual_space(vc: VirtualCube) -> xr.DataArray:
+    stats: dict[Any, tuple[float, float, int]] = {}
+
+    for cube in vc.iter_tiles():
+        ordered = cube.transpose(*[d for d in vc.dims if d in cube.dims])
+        times = ordered["time"].values
+        data = np.asarray(ordered.data)
+
+        for idx, tval in enumerate(times):
+            flat = np.asarray(data[idx, ...]).ravel()
+            mask = np.isfinite(flat)
+            vals = flat[mask]
+            if vals.size == 0:
+                continue
+
+            mean, m2, n = stats.get(tval, (0.0, 0.0, 0))
+            for v in vals:
+                n_new = n + 1
+                delta = v - mean
+                mean = mean + delta / n_new
+                delta2 = v - mean
+                m2 = m2 + delta * delta2
+                n = n_new
+
+            stats[tval] = (mean, m2, n)
+
+    times_sorted = sorted(stats.keys())
+    values = []
+    for tval in times_sorted:
+        mean, m2, n = stats[tval]
+        values.append(m2 / max(n, 1))
+
+    return xr.DataArray(
+        np.array(values),
+        coords={"time": times_sorted},
+        dims=("time",),
+        name="variance",
+    )
 
 
 def anomaly(dim: str = "time", *, keep_dim: bool = True):

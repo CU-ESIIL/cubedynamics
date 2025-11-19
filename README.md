@@ -67,6 +67,29 @@ pipe(mean_temp) | v.anomaly(dim="time")
 ```
 This calculates how each day differs from the long-term average at that location.
 
+### Virtual cubes for very large requests
+
+When you ask for decades of data or a wide area of interest, ``cd.temperature``
+can return a lightweight :class:`cubedynamics.streaming.VirtualCube` instead of
+an in-memory ``xarray.DataArray``. A virtual cube only stores metadata and the
+instructions needed to stream tiles on demand, but the pipe + verb syntax stays
+identical:
+
+```python
+temp = cd.temperature(
+    lat=40.0,
+    lon=-105.25,
+    start="1970-01-01",
+    end="2020-12-31",
+)
+
+var_ts = pipe(temp) | v.variance(dim=("y", "x"))
+```
+
+Advanced users can force streaming with ``streaming_strategy="virtual"`` or
+force full materialization with ``streaming_strategy="materialize"``. Either
+way, the downstream verbs operate the same way.
+
 ## Friendly pathways
 
 - **New to cubes?** Read [docs/climate_cubes.md](docs/climate_cubes.md) for a plain-language tour of the cube idea.

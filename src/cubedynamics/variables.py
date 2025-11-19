@@ -4,11 +4,17 @@ from __future__ import annotations
 
 from typing import Any, Mapping, Optional, Sequence, Literal
 
+import pandas as pd
 import xarray as xr
 
 from cubedynamics import pipe, verbs as v
 from cubedynamics.data.gridmet import load_gridmet_cube
 from cubedynamics.data.prism import load_prism_cube
+from cubedynamics.streaming import (
+    VirtualCube,
+    make_spatial_tiler,
+    make_time_tiler,
+)
 from cubedynamics.sentinel import (
     load_sentinel2_bands_cube,
     load_sentinel2_ndvi_cube,
@@ -28,6 +34,49 @@ TEMP_SOURCES: dict[str, dict[str, str]] = {
         "max": "tmax",
     },
 }
+
+STREAMING_SIZE_THRESHOLD = 2.5e6
+
+
+def estimate_cube_size(
+    lat: Optional[float],
+    lon: Optional[float],
+    bbox: Optional[Sequence[float]],
+    aoi_geojson: Optional[Mapping[str, Any]],
+    start: Any,
+    end: Any,
+    source: str,
+) -> float:
+    """Return a rough scalar size estimate for a requested cube.
+
+    The heuristic multiplies the spatial footprint by the time span in days.
+    It intentionally errs on the side of being simple and fast; the goal is to
+    decide whether a request should stream rather than to predict byte counts
+    exactly.
+    """
+
+    start_ts = pd.to_datetime(start) if start is not None else None
+    end_ts = pd.to_datetime(end) if end is not None else None
+    if start_ts is not None and end_ts is not None:
+        days = max((end_ts - start_ts).days, 1)
+    else:
+        days = 1
+
+    area = 1.0
+    if bbox is not None:
+        xmin, ymin, xmax, ymax = bbox
+        area = max((xmax - xmin) * (ymax - ymin), 1.0)
+    elif aoi_geojson is not None:
+        # Without geometry computation fall back to a conservative factor.
+        area = 2.0
+    elif lat is not None and lon is not None:
+        area = 1.0
+
+    # A tiny boost for higher resolution sources.
+    if source == "prism":
+        area *= 1.25
+
+    return float(area * days)
 
 
 def _resolve_temp_variable(source: str, kind: str) -> str:
@@ -93,8 +142,12 @@ def temperature(
     start: Any = None,
     end: Any = None,
     source: Literal["gridmet", "prism"] = "gridmet",
+    streaming_strategy: str | None = None,
+    time_chunk: str = "AS",
+    spatial_tile: float | None = None,
+    streaming_threshold: float | None = None,
     **kwargs: Any,
-) -> xr.DataArray:
+) -> xr.DataArray | VirtualCube:
     """
     Load a mean temperature cube from the chosen climate provider.
 
@@ -103,16 +156,50 @@ def temperature(
     underlying loader.
     """
 
-    return _load_temperature(
-        kind="mean",
-        lat=lat,
-        lon=lon,
-        bbox=bbox,
-        aoi_geojson=aoi_geojson,
-        start=start,
-        end=end,
-        source=source,
+    strategy = streaming_strategy or "auto"
+    size_estimate = estimate_cube_size(lat, lon, bbox, aoi_geojson, start, end, source)
+    threshold = streaming_threshold if streaming_threshold is not None else STREAMING_SIZE_THRESHOLD
+
+    def base_loader(**loader_kwargs: Any) -> xr.DataArray:
+        return _load_temperature(kind="mean", **loader_kwargs)
+
+    loader_kwargs: dict[str, Any] = {
+        "lat": lat,
+        "lon": lon,
+        "bbox": bbox,
+        "aoi_geojson": aoi_geojson,
+        "start": start,
+        "end": end,
+        "source": source,
         **kwargs,
+    }
+
+    if strategy == "materialize" or (strategy == "auto" and size_estimate <= threshold):
+        return base_loader(**loader_kwargs)
+
+    time_tiler = make_time_tiler(start, end, freq=time_chunk)
+    if spatial_tile is None or bbox is None:
+        spatial_tiler = lambda kw: ({} for _ in [None])  # type: ignore[misc]
+    else:
+        spatial_tiler = make_spatial_tiler(bbox, dlon=spatial_tile, dlat=spatial_tile)
+
+    return VirtualCube(
+        dims=("time", "y", "x"),
+        coords_metadata={
+            "start": start,
+            "end": end,
+            "aoi": {
+                "lat": lat,
+                "lon": lon,
+                "bbox": bbox,
+                "aoi_geojson": aoi_geojson,
+            },
+            "source": source,
+        },
+        loader=base_loader,
+        loader_kwargs=loader_kwargs,
+        time_tiler=time_tiler,
+        spatial_tiler=spatial_tiler,
     )
 
 
