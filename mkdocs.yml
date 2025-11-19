@@ -16,6 +16,7 @@ nav:
       - gridMET AOI variance: examples/gridmet_aoi_variance.md
       - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md
       - Climate–NDVI correlation cube: examples/climate_ndvi_correlation.md
+      - Sentinel-2 tail-dependence vs center pixel: recipes/s2_tail_dep_manual.md
   - Verbs Reference:
       - Transform verbs: reference/verbs_transforms.md
       - Stats verbs: reference/verbs_stats.md
