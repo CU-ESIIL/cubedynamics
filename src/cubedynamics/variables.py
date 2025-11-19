@@ -350,6 +350,7 @@ def ndvi(
         return load_sentinel2_ndvi_zscore_cube(
             lat=lat,
             lon=lon,
+            bbox=bbox,
             start=start,
             end=end,
             **kwargs,
@@ -360,6 +361,7 @@ def ndvi(
         lon=lon,
         start=start,
         end=end,
+        bbox=bbox,
         bands=["B04", "B08"],
         **kwargs,
     )
