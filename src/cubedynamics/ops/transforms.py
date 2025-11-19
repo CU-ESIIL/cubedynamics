@@ -6,21 +6,13 @@ from collections.abc import Iterable
 
 import xarray as xr
 
+from ..verbs.stats import anomaly as _anomaly
 
-def anomaly(dim: str = "time"):
-    """Factory for an anomaly transform over ``dim``.
 
-    Returns a callable that subtracts the mean over ``dim`` while preserving the
-    input type (``DataArray`` or ``Dataset``). The returned callable is intended
-    to be used within a :class:`~cubedynamics.piping.Pipe` chain via ``|``.
-    """
+def anomaly(dim: str = "time", *, keep_dim: bool = True):
+    """Deprecated shim forwarding to :func:`cubedynamics.verbs.stats.anomaly`."""
 
-    def _inner(da: xr.DataArray | xr.Dataset):
-        if dim not in da.dims:
-            raise ValueError(f"Dimension {dim!r} not found in object dims: {da.dims}")
-        return da - da.mean(dim=dim)
-
-    return _inner
+    return _anomaly(dim=dim, keep_dim=keep_dim)
 
 
 def month_filter(months: Iterable[int]):

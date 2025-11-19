@@ -32,6 +32,7 @@ from .sentinel import (
     load_sentinel2_bands_cube,
     load_sentinel2_cube,
     load_sentinel2_ndvi_cube,
+    load_sentinel2_ndvi_zscore_cube,
 )
 
 # Streaming-first stubs for the new architecture ---------------------------------
@@ -58,6 +59,7 @@ __all__ = [
     "load_sentinel2_cube",
     "load_sentinel2_bands_cube",
     "load_sentinel2_ndvi_cube",
+    "load_sentinel2_ndvi_zscore_cube",
     "compute_ndvi_from_s2",
     "zscore_over_time",
     "temporal_anomaly",

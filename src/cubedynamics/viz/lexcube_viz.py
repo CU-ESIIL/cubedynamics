@@ -5,6 +5,8 @@ from __future__ import annotations
 import lexcube
 import xarray as xr
 
+from ..config import TIME_DIM, X_DIM, Y_DIM
+
 
 def show_cube_lexcube(
     cube: xr.DataArray,
@@ -15,8 +17,14 @@ def show_cube_lexcube(
 ) -> lexcube.Cube3DWidget:
     """Create a Lexcube Cube3DWidget from a 3D cube (time, y, x)."""
 
-    if cube.ndim != 3:
-        raise ValueError("Cube must have exactly three dimensions (time, y, x)")
+    expected_dims = {TIME_DIM, Y_DIM, X_DIM}
+    if cube.ndim != 3 or set(cube.dims) != expected_dims:
+        raise ValueError(
+            "Lexcube visualization requires dims exactly (time, y, x); "
+            f"received dims {cube.dims}"
+        )
+
+    cube = cube.transpose(TIME_DIM, Y_DIM, X_DIM)
     widget = lexcube.Cube3DWidget(
         cube,
         title=title,

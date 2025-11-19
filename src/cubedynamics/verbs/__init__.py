@@ -6,21 +6,23 @@ import xarray as xr
 from IPython.display import display
 
 from .. import viz
+from ..config import TIME_DIM, X_DIM, Y_DIM
 from ..ops.io import to_netcdf
 from ..ops.ndvi import ndvi_from_s2
-from ..ops.stats import correlation_cube, variance, zscore
-from ..ops.transforms import anomaly, month_filter
+from ..ops.stats import correlation_cube
+from ..ops.transforms import month_filter
+from .custom import apply
+from .flatten import flatten_cube, flatten_space
+from .models import fit_model
+from .stats import anomaly, mean, variance, zscore
 
 
 def show_cube_lexcube(**kwargs):
-    """Pipe verb: render a Lexcube widget as a side-effect and return the cube.
+    """Render a Lexcube widget as a side-effect and return the original cube.
 
-    Example:
-        jja = (
-            pipe(cube)
-            | v.month_filter([6, 7, 8])
-            | v.show_cube_lexcube(cmap="RdBu_r")
-        ).unwrap()
+    The incoming object must represent a 3D cube with dims ``(time, y, x)``.
+    Reducers such as :func:`mean`, :func:`variance`, :func:`anomaly`, and
+    :func:`zscore` keep the cube Lexcube-ready when ``keep_dim=True``.
     """
 
     def _op(obj):
@@ -35,6 +37,14 @@ def show_cube_lexcube(**kwargs):
         else:
             da = obj
 
+        required_dims = {TIME_DIM, Y_DIM, X_DIM}
+        if da.ndim != 3 or set(da.dims) != required_dims:
+            raise ValueError(
+                "show_cube_lexcube expects a 3D cube with dims (time, y, x); "
+                f"received dims {da.dims}"
+            )
+
+        da = da.transpose(TIME_DIM, Y_DIM, X_DIM)
         widget = viz.show_cube_lexcube(da, **kwargs)
         display(widget)
 
@@ -46,11 +56,16 @@ def show_cube_lexcube(**kwargs):
 
 __all__ = [
     "anomaly",
+    "apply",
+    "mean",
     "month_filter",
+    "flatten_space",
+    "flatten_cube",
     "variance",
     "correlation_cube",
     "to_netcdf",
     "zscore",
     "ndvi_from_s2",
     "show_cube_lexcube",
+    "fit_model",
 ]

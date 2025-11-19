@@ -116,13 +116,18 @@ def load_sentinel2_ndvi_cube(
     resolution: int = 10,
     max_cloud: int = 40,
     return_raw: bool = False,
-) -> xr.DataArray | tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
-    """Stream Sentinel-2 L2A data and compute NDVI and NDVI z-score cubes.
+) -> xr.DataArray | tuple[xr.DataArray, xr.DataArray]:
+    """Stream Sentinel-2 L2A data and compute a raw NDVI cube.
 
     The helper loads the red (B04) and near-infrared (B08) bands via
-    :func:`load_sentinel2_bands_cube`, computes NDVI with
-    :func:`cubedynamics.verbs.ndvi_from_s2`, and standardizes the NDVI cube over
-    time with :func:`cubedynamics.verbs.zscore`.
+    :func:`load_sentinel2_bands_cube` and derives NDVI using the
+    :mod:`cubedynamics.verbs` implementation.  NDVI values are returned in their
+    raw physical range ``[-1, 1]`` so downstream verbs control any
+    standardization.
+
+    Parameters mirror :func:`load_sentinel2_bands_cube`.  When ``return_raw`` is
+    ``True`` both the reflectance stack and NDVI cube are returned so callers can
+    cache the original bands.
     """
 
     s2 = load_sentinel2_bands_cube(
@@ -137,10 +142,41 @@ def load_sentinel2_ndvi_cube(
     )
 
     ndvi = (pipe(s2) | v.ndvi_from_s2(nir_band="B08", red_band="B04")).unwrap()
-    ndvi_z = (pipe(ndvi) | v.zscore(dim="time")).unwrap()
 
     if return_raw:
-        return s2, ndvi, ndvi_z
+        return s2, ndvi
+    return ndvi
+
+
+def load_sentinel2_ndvi_zscore_cube(
+    lat: float,
+    lon: float,
+    start: str,
+    end: str,
+    *,
+    edge_size: int = 512,
+    resolution: int = 10,
+    max_cloud: int = 40,
+    keep_dim: bool = True,
+) -> xr.DataArray:
+    """Convenience wrapper that returns a z-scored Sentinel-2 NDVI cube.
+
+    The helper simply calls :func:`load_sentinel2_ndvi_cube` and applies the
+    standardized :func:`cubedynamics.verbs.zscore` verb so callers upgrading from
+    older APIs retain a single-call experience.
+    """
+
+    ndvi = load_sentinel2_ndvi_cube(
+        lat=lat,
+        lon=lon,
+        start=start,
+        end=end,
+        edge_size=edge_size,
+        resolution=resolution,
+        max_cloud=max_cloud,
+    )
+
+    ndvi_z = (pipe(ndvi) | v.zscore(dim="time", keep_dim=keep_dim)).unwrap()
     return ndvi_z
 
 
@@ -148,4 +184,5 @@ __all__ = [
     "load_sentinel2_cube",
     "load_sentinel2_bands_cube",
     "load_sentinel2_ndvi_cube",
+    "load_sentinel2_ndvi_zscore_cube",
 ]

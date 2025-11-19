@@ -23,7 +23,11 @@ def _make_time_series(count: int = 12):
 def test_pipe_basic_chain():
     da = _make_time_series()
 
-    result = (pipe(da) | v.anomaly(dim="time") | v.variance(dim="time")).unwrap()
+    result = (
+        pipe(da)
+        | v.anomaly(dim="time")
+        | v.variance(dim="time", keep_dim=False)
+    ).unwrap()
 
     assert isinstance(result, xr.DataArray)
     assert result.dims == ()
@@ -51,7 +55,8 @@ def test_to_netcdf_roundtrip(tmp_path):
 
 
 def test_show_cube_lexcube_returns_original_cube(monkeypatch):
-    da = _make_time_series()
+    base = _make_time_series()
+    da = base.expand_dims(y=[0, 1]).expand_dims(x=[0, 1])
     captured = {}
 
     def fake_show(cube, **kwargs):
@@ -64,5 +69,6 @@ def test_show_cube_lexcube_returns_original_cube(monkeypatch):
     result = (pipe(da) | v.show_cube_lexcube(cmap="Blues")).unwrap()
 
     assert result is da
-    assert captured["cube"] is da
+    expected = da.transpose("time", "y", "x")
+    xr.testing.assert_identical(captured["cube"], expected)
     assert captured["kwargs"] == {"cmap": "Blues"}
