@@ -10,6 +10,7 @@ Core goals
 from .version import __version__
 from .piping import Pipe, pipe
 from . import verbs
+import xarray as xr
 
 # Legacy, fully implemented APIs -------------------------------------------------
 from .data.gridmet import load_gridmet_cube
@@ -28,6 +29,7 @@ from .stats.tails import rolling_tail_dep_vs_center
 from .utils.chunking import coarsen_and_stride
 from .viz.lexcube_viz import show_cube_lexcube
 from .viz.qa_plots import plot_median_over_space
+from .ops.viz import plot as _plot_verb
 from .variables import (
     temperature,
     temperature_anomaly,
@@ -79,6 +81,7 @@ __all__ = [
     "mask_by_threshold",
     "show_cube_lexcube",
     "plot_median_over_space",
+    "plot",
     "coarsen_and_stride",
     # Streaming-first stubs -------------------------------------------------------
     "stream_gridmet_to_cube",
@@ -100,3 +103,29 @@ __all__ = [
     "temperature_anomaly",
     "ndvi",
 ]
+
+
+def plot(
+    cube: xr.DataArray,
+    time_dim: str | None = "time",
+    cmap: str = "viridis",
+    clim: tuple[float, float] | None = None,
+    aspect: str = "equal",
+):
+    """
+    Convenience helper for plotting a 3D cube without using the pipe.
+
+    Example
+    -------
+    import cubedynamics as cd
+
+    cube = cd.load_gridmet_cube(...)
+    cd.plot(cube, time_dim="time", cmap="RdBu_r", clim=(-3, 3))
+    """
+
+    return _plot_verb(
+        time_dim=time_dim,
+        cmap=cmap,
+        clim=clim,
+        aspect=aspect,
+    )(cube)

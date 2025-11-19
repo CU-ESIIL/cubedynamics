@@ -14,6 +14,7 @@ from ..ops.transforms import month_filter
 from .custom import apply
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
+from .viz import plot
 from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
 
 
@@ -69,4 +70,5 @@ __all__ = [
     "ndvi_from_s2",
     "show_cube_lexcube",
     "fit_model",
+    "plot",
 ]

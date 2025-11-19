@@ -458,6 +458,34 @@ per-pixel climate/NDVI correlations; the dedicated `v.correlation_cube` factory
 is a placeholder that currently raises `NotImplementedError`. The full notebook
 lives at [`notebooks/example_sentinel2_ndvi_zscore.ipynb`](notebooks/example_sentinel2_ndvi_zscore.ipynb).
 
+### Native slice viewer (`v.plot` / `cd.plot`)
+
+For quick inspection, CubeDynamics ships with a minimal native viewer that does
+not depend on Lexcube:
+
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+cube = cd.load_gridmet_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+    variable="pr",
+)
+
+# Inside a pipe
+pipe(cube) | v.plot(time_dim="time", cmap="RdBu_r", clim=(-3, 3))
+
+# Or outside the pipe
+cd.plot(cube, time_dim="time")
+```
+
+This widget uses a time slider to view 2D slices without loading the full cube
+into memory. For full 3D exploration, you can still use `v.show_cube_lexcube`
+and `cd.show_cube_lexcube` as documented below.
+
 ### Interactive Lexcube visualization
 
 CubeDynamics integrates with [Lexcube](https://github.com/carbonplan/lexcube) to provide interactive 3D exploration of `(time, y, x)` cubes. Call the helper directly or use the pipe verb:
