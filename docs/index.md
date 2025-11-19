@@ -1,3 +1,58 @@
+# CubeDynamics home
+
+**In plain English:**  
+This site shows how to load climate data as easy-to-think-about cubes and process them with simple pipe verbs.
+You will see plain-language guides, code snippets, and the original technical notes for deeper reference.
+
+**You will learn:**  
+- What a cube is and why CubeDynamics uses the idea
+- How the pipe `|` operator keeps analyses readable
+- Where to find transform, statistics, and visualization verbs
+
+## What this is
+
+CubeDynamics is a notebook-friendly way to handle gridded climate data.
+You start with an `xarray` object shaped like `(time, y, x [, band])`, wrap it in `pipe(cube)`, and pass it through verbs such as `v.anomaly` or `v.show_cube_lexcube`.
+Every example on this site follows that rhythm so you can adapt them quickly.
+
+## Why it matters
+
+Climate archives can be overwhelming when you just need a clean seasonal summary or greenness anomaly.
+By streaming data from PRISM, gridMET, or Sentinel-2 straight into a cube, you avoid bulky downloads and keep your work reproducible.
+The short, chained verbs make it easier to teach workflows to students or community partners.
+
+## How to use it
+
+Start with a small cube and practice chaining verbs.
+
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+# Daily precipitation near Boulder, CO
+daily_ppt = cd.load_prism_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+    variable="ppt",
+)
+
+# Quick seasonal variance
+pipe(daily_ppt) | v.month_filter([6, 7, 8]) | v.variance(dim="time")
+```
+This finds how variable summer precipitation is over the 20-year span.
+
+You can also visualize cubes directly:
+
+```python
+pipe(daily_ppt) | v.anomaly(dim="time") | v.show_cube_lexcube(title="Summer anomalies")
+```
+This pipes the mean-centered cube into Lexcube for interactive exploration.
+
+---
+
+## Original Reference (kept for context)
 # CubeDynamics
 
 ## A tidyverse-style grammar for Earth system data cubes

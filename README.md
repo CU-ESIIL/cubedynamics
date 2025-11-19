@@ -1,5 +1,83 @@
 # CubeDynamics (`cubedynamics`)
 
+**In plain English:**  
+CubeDynamics helps you work with climate and remote-sensing data as tidy "cubes" of time, latitude, and longitude.
+You load a cube, pass it into a pipe, and chain small verbs to filter, summarize, and visualize without downloading giant archives.
+
+**You will learn:**  
+- What a climate cube is and why it helps climate and ecology work
+- How to install the package and stream a first cube
+- How to read the pipe `|` syntax with verbs such as `anomaly`, `variance`, and `show_cube_lexcube`
+
+## What this is
+
+CubeDynamics is a friendly Python library that turns climate rasters into simple 3-D cubes.
+A cube is just a stack of maps through time, usually with dimensions `(time, y, x)` and sometimes a `band` axis.
+The library borrows the tidyverse idea of pipes so you can read analyses in plain English: `pipe(cube) | v.month_filter(...) | v.variance(...)`.
+
+## Why it matters
+
+Students, land managers, and researchers often need climate summaries without fighting file formats.
+CubeDynamics streams data from PRISM, gridMET, and Sentinel-2 so you can compute anomalies or greenness trends on a laptop.
+The pipe grammar keeps each step readable and repeatable, which is valuable for teaching and collaboration.
+
+## How to use it
+
+Install from PyPI or GitHub, then build a small pipeline.
+
+```bash
+pip install cubedynamics
+# or grab the freshest commits
+pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+```
+
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+# Load daily PRISM precipitation for a point near Boulder, CO
+ppt = cd.load_prism_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+    variable="ppt",
+)
+
+# Filter to summer months and compute variance
+pipe(ppt) \
+    | v.month_filter([6, 7, 8]) \
+    | v.variance(dim="time")
+```
+This chain keeps the cube lazy until you ask for results, so you can explore long time periods without heavy downloads.
+
+Next, try the semantic helpers when you do not remember provider variable names.
+
+```python
+# Daily temperature cube from gridMET by default
+mean_temp = cd.temperature(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+)
+
+# Turn it into a time-centered anomaly cube
+pipe(mean_temp) | v.anomaly(dim="time")
+```
+This calculates how each day differs from the long-term average at that location.
+
+## Friendly pathways
+
+- **New to cubes?** Read [docs/climate_cubes.md](docs/climate_cubes.md) for a plain-language tour of the cube idea.
+- **Want a cheat sheet of verbs?** See [docs/pipe_verbs.md](docs/pipe_verbs.md) plus the operation references.
+- **Need quick examples?** The docs include ready-made PRISM, gridMET, and Sentinel-2 snippets you can paste into a notebook.
+
+---
+
+## Original Reference (kept for context)
+# CubeDynamics (`cubedynamics`)
+
 CubeDynamics is a streaming-first climate cube math library with ggplot-style piping. It brings high-resolution climate archives (PRISM, gridMET, NDVI, and more) directly into your workflows so you can compose anomaly, synchrony, and correlation cubes without mirroring entire datasets.
 
 ## Features

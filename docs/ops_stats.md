@@ -1,3 +1,55 @@
+# Operations – statistic verbs
+
+**In plain English:**  
+Statistic verbs summarize or standardize a cube along one dimension.
+They build on transforms to answer questions like “how variable is summer rainfall?”
+
+**You will learn:**  
+- How to compute means, variances, and z-scores
+- How to control dimensions you keep or drop
+- Where the deeper technical notes live
+
+## What this is
+
+These functions live in `cubedynamics.ops.stats` and are also available under `cubedynamics.verbs`.
+They expect an `xarray` cube and return an object with the same labeled coordinates unless you choose to drop dimensions.
+
+## Why it matters
+
+Summaries like variance or z-score highlight unusual events and trends.
+Keeping the cube structure intact makes it easy to compare climate and vegetation or to hand off results to visualization tools.
+
+## How to use it
+
+### `mean(dim="time", keep_dim=True)`
+Computes the average along a dimension.
+
+```python
+from cubedynamics import pipe, verbs as v
+
+avg = pipe(cube) | v.mean(dim="time", keep_dim=True)
+```
+Setting `keep_dim=True` leaves the dimension in place with length 1, which helps when you want to broadcast results later.
+
+### `variance(dim="time", keep_dim=True)`
+Measures spread along a dimension.
+
+```python
+var = pipe(cube) | v.variance(dim="time", keep_dim=True)
+```
+Use this to see how much a season or band varies over time.
+
+### `zscore(dim="time", std_eps=1e-4)`
+Standardizes values by subtracting the mean and dividing by the standard deviation.
+
+```python
+z = pipe(cube) | v.zscore(dim="time")
+```
+This returns unitless scores that show how unusual each timestep is relative to its own history.
+
+---
+
+## Original Reference (kept for context)
 # Operations Reference – Stats
 
 Statistic verbs summarize cubes along dimensions or compare axes. They live in `cubedynamics.ops.stats` and are re-exported via `cubedynamics.verbs`. Examples assume `from cubedynamics import pipe, verbs as v` and a `cube` variable bound to an `xarray` object.

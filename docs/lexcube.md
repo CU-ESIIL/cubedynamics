@@ -1,5 +1,59 @@
 # Lexcube integration
 
+**In plain English:**  
+Lexcube is an interactive viewer for `(time, y, x)` cubes.
+CubeDynamics includes verbs and helpers so you can send a cube to Lexcube with one line and keep working.
+
+**You will learn:**  
+- How to display a cube in Lexcube from inside a pipe
+- How to call the helper directly without the pipe
+- Where the original technical notes live for reference
+
+## What this is
+
+The verb `v.show_cube_lexcube` and helper `cd.show_cube_lexcube` open a Lexcube widget for exploration.
+They display the data as a side effect and return the original cube so your analysis can continue.
+
+## Why it matters
+
+Seeing the cube helps you spot patterns, cloud issues, or extreme events before running heavier statistics.
+The one-line verb keeps visualization close to your computations, which is great for teaching and quick QA.
+
+## How to use it
+
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+cube = cd.load_prism_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+    variable="ppt",
+)
+
+pipe(cube) \
+    | v.month_filter([6, 7, 8]) \
+    | v.show_cube_lexcube(title="PRISM JJA precipitation", cmap="RdBu_r")
+```
+This filters to summer months, opens the Lexcube widget, and leaves the cube intact for more processing.
+
+You can also call the helper outside a pipe:
+
+```python
+cd.show_cube_lexcube(cube, cmap="RdBu_r")
+```
+This is handy when you already have an `xarray` object and just want a quick look.
+
+Lexcube widgets render only in live notebook environments (JupyterLab, VS Code, Colab, Binder).
+On the static docs site you will see screenshots or Binder links instead.
+
+---
+
+## Original Reference (kept for context)
+# Lexcube integration
+
 Lexcube provides interactive 3D exploration of `(time, y, x)` climate cubes. CubeDynamics exposes both a pipe verb (`v.show_cube_lexcube`) and a functional helper (`cd.show_cube_lexcube`) so you can embed the widget anywhere in your workflow. The verb displays the widget as a side effect and returns the original cube so the pipe chain can continue unchanged.
 
 ## Example workflow

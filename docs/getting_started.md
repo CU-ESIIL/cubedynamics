@@ -1,3 +1,83 @@
+# Getting started with CubeDynamics
+
+**In plain English:**  
+This guide walks you through installing CubeDynamics, loading your first cube, and seeing how the pipe `|` syntax works.
+Everything stays light and copy-friendly so you can paste examples into a notebook.
+
+**You will learn:**  
+- How to install from GitHub or PyPI
+- How to build a first cube and send it through verbs
+- Where to find deeper notebook tutorials
+
+## What this is
+
+CubeDynamics runs anywhere `xarray` runs: laptops, HPC clusters, or hosted notebooks.
+You use the loader helpers to stream data, then chain verbs that describe each step in plain English.
+
+## Why it matters
+
+Climate archives are large, but most projects need only a slice or a simple statistic.
+Streaming cubes let you explore without heavy downloads, and the pipe syntax keeps the steps transparent for students or collaborators.
+
+## How to use it
+
+Install the package, then try a short pipeline.
+
+```bash
+pip install cubedynamics
+# or install straight from GitHub for the freshest commits
+pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+```
+
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+cube = cd.load_prism_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2020-12-31",
+    variable="ppt",
+)
+
+# Find how variable summer precipitation is
+pipe(cube) \
+    | v.anomaly(dim="time") \
+    | v.month_filter([6, 7, 8]) \
+    | v.variance(dim="time")
+```
+This chain loads, mean-centers, filters, and summarizes the cube without breaking the flow.
+
+If you prefer gridMET or Sentinel-2, swap in `cd.load_gridmet_cube` or `cd.load_sentinel2_ndvi_cube` with the same pattern.
+
+## A second quick example
+
+```python
+# Stream gridMET precipitation for Boulder and visualize it
+boulder_pr = cd.load_gridmet_cube(
+    lat=40.05,
+    lon=-105.275,
+    variable="pr",
+    start="2000-01-01",
+    end="2020-12-31",
+    freq="MS",
+    chunks={"time": 120},
+)
+
+pipe(boulder_pr) | v.month_filter([6, 7, 8]) | v.show_cube_lexcube(title="Summer precipitation")
+```
+This shows a seasonal slice inside Lexcube without saving anything to disk first.
+
+## Keep exploring
+
+- Open the quickstart notebook at `notebooks/quickstart_cubedynamics.ipynb` for a runnable tour.
+- Peek at the semantic variable helpers in [docs/semantic_variables.md](semantic_variables.md) when you want temperature or NDVI without memorizing provider variable names.
+- Browse the operation references for more verbs: [docs/ops_transforms.md](ops_transforms.md), [docs/ops_stats.md](ops_stats.md), and [docs/ops_io.md](ops_io.md).
+
+---
+
+## Original Reference (kept for context)
 # Getting Started
 
 CubeDynamics (`cubedynamics`) runs anywhere `xarray` does—laptops, clusters, or hosted notebooks. Use this guide to install the package, spin up the first pipe chain, and know where the notebook vignette lives.
