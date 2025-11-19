@@ -2,22 +2,25 @@
 
 from __future__ import annotations
 
+import math
 import warnings
 from typing import Sequence
 
 import cubo
 import xarray as xr
+from pyproj import CRS, Transformer
 
 from . import verbs as v
 from .piping import pipe
 
 
 def load_sentinel2_cube(
-    lat: float,
-    lon: float,
+    lat: float | None,
+    lon: float | None,
     start: str,
     end: str,
     *,
+    bbox: Sequence[float] | None = None,
     bands: Sequence[str] | None = None,
     edge_size: int = 512,
     resolution: int = 10,
@@ -28,7 +31,11 @@ def load_sentinel2_cube(
     Parameters
     ----------
     lat, lon
-        Center point for the spatial subset.
+        Center point for the spatial subset. Provide both or supply ``bbox``.
+    bbox
+        Optional ``(xmin, ymin, xmax, ymax)`` bounding box in geographic
+        coordinates. When provided, the center coordinate and pixel edge size
+        are derived to fully cover the requested extent.
     start, end
         Date range (``YYYY-MM-DD``).
     bands
@@ -46,6 +53,10 @@ def load_sentinel2_cube(
     xarray.DataArray
         Sentinel-2 stack with dims ``(time, y, x, band)``.
     """
+
+    lat, lon, edge_size = _resolve_lat_lon_and_edge_size(
+        lat, lon, bbox, edge_size, resolution
+    )
 
     create_kwargs = dict(
         lat=lat,
@@ -72,11 +83,12 @@ def load_sentinel2_cube(
 
 
 def load_sentinel2_bands_cube(
-    lat: float,
-    lon: float,
+    lat: float | None,
+    lon: float | None,
     start: str,
     end: str,
     *,
+    bbox: Sequence[float] | None = None,
     bands: Sequence[str],
     edge_size: int = 512,
     resolution: int = 10,
@@ -99,6 +111,7 @@ def load_sentinel2_bands_cube(
         lon=lon,
         start=start,
         end=end,
+        bbox=bbox,
         bands=bands,
         edge_size=edge_size,
         resolution=resolution,
@@ -107,11 +120,12 @@ def load_sentinel2_bands_cube(
 
 
 def load_sentinel2_ndvi_cube(
-    lat: float,
-    lon: float,
+    lat: float | None,
+    lon: float | None,
     start: str,
     end: str,
     *,
+    bbox: Sequence[float] | None = None,
     edge_size: int = 512,
     resolution: int = 10,
     max_cloud: int = 40,
@@ -135,6 +149,7 @@ def load_sentinel2_ndvi_cube(
         lon=lon,
         start=start,
         end=end,
+        bbox=bbox,
         bands=["B04", "B08"],
         edge_size=edge_size,
         resolution=resolution,
@@ -149,11 +164,12 @@ def load_sentinel2_ndvi_cube(
 
 
 def load_sentinel2_ndvi_zscore_cube(
-    lat: float,
-    lon: float,
+    lat: float | None,
+    lon: float | None,
     start: str,
     end: str,
     *,
+    bbox: Sequence[float] | None = None,
     edge_size: int = 512,
     resolution: int = 10,
     max_cloud: int = 40,
@@ -171,6 +187,7 @@ def load_sentinel2_ndvi_zscore_cube(
         lon=lon,
         start=start,
         end=end,
+        bbox=bbox,
         edge_size=edge_size,
         resolution=resolution,
         max_cloud=max_cloud,
@@ -186,3 +203,44 @@ __all__ = [
     "load_sentinel2_ndvi_cube",
     "load_sentinel2_ndvi_zscore_cube",
 ]
+
+
+def _resolve_lat_lon_and_edge_size(
+    lat: float | None,
+    lon: float | None,
+    bbox: Sequence[float] | None,
+    edge_size: int,
+    resolution: int,
+) -> tuple[float, float, int]:
+    """Return a valid ``lat``, ``lon``, and ``edge_size`` for Sentinel-2 requests.
+
+    ``cubo.create`` requires a center coordinate along with an edge size and
+    spatial resolution. When callers provide a bounding box, we compute the
+    center point and derive an edge size that fully covers the requested extent.
+    The helper falls back to the user-provided latitude and longitude when a
+    bounding box is not supplied.
+    """
+
+    if bbox is None:
+        if lat is None or lon is None:
+            raise ValueError(
+                "load_sentinel2_cube requires either a bbox or both lat and lon."
+            )
+        return lat, lon, edge_size
+
+    xmin, ymin, xmax, ymax = bbox
+    center_lon = (xmin + xmax) / 2.0
+    center_lat = (ymin + ymax) / 2.0
+
+    zone = math.floor((center_lon + 180.0) / 6.0) + 1
+    utm_crs = CRS.from_dict({"proj": "utm", "zone": zone, "south": center_lat < 0})
+    transformer = Transformer.from_crs("EPSG:4326", utm_crs, always_xy=True)
+
+    x0, y0 = transformer.transform(xmin, ymin)
+    x1, y1 = transformer.transform(xmax, ymax)
+
+    span_m = max(abs(x1 - x0), abs(y1 - y0))
+    required_edge = int(math.ceil(span_m / resolution))
+    adjusted_edge = max(edge_size, required_edge)
+
+    return center_lat, center_lon, adjusted_edge
