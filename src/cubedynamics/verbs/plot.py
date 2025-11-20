@@ -66,6 +66,7 @@ def plot(
     vmax: Optional[float] = None,
     figsize: Tuple[float, float] = (6.0, 4.0),
     title: Optional[str] = None,
+    aspect: Optional[str | float] = "equal",
 ):
     """Pipe verb: interactive time slider + 2D map viewer for cubes.
 
@@ -130,6 +131,9 @@ def plot(
                         )
                         ax.set_xlabel(x_dim)
                         ax.set_ylabel(y_dim)
+
+                    if aspect is not None:
+                        ax.set_aspect(aspect)
 
                     if title is not None:
                         ax.set_title(title)
