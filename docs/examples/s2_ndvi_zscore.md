@@ -12,15 +12,17 @@ We request Sentinel-2 Level-2A data (via CubeDynamics loaders or `cubo`), comput
 import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
-ndvi_z = cd.load_sentinel2_ndvi_zscore_cube(
+ndvi = cd.load_sentinel2_ndvi_cube(
     lat=40.0,
     lon=-105.25,
     start="2018-01-01",
     end="2020-12-31",
 )
+
+ndvi_z = pipe(ndvi) | v.zscore(dim="time")
 ```
 
-Need raw reflectance instead? Call `cd.load_sentinel2_ndvi_cube(...)` to get NDVI in the physical range `[-1, 1]` and optionally request the underlying B04/B08 stack with `return_raw=True`.
+Need raw reflectance instead? Call `cd.load_sentinel2_ndvi_cube(...)` (shown above) to get NDVI in the physical range `[-1, 1]` and optionally request the underlying B04/B08 stack with `return_raw=True`.
 
 Prefer to stream via [`cubo`](https://github.com/carbonplan/cubo)? Use the original recipe snippet:
 

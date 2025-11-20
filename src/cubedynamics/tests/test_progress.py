@@ -46,7 +46,7 @@ def test_ndvi_accepts_show_progress(monkeypatch):
             coords={"time": ["2000-01-01", "2000-02-01"], "y": [0], "x": [0]},
         )
 
-    monkeypatch.setattr(cd.variables, "load_sentinel2_ndvi_zscore_cube", _fake_loader)
+    monkeypatch.setattr(cd.variables, "load_sentinel2_ndvi_cube", _fake_loader)
 
     result = cd.ndvi(
         lat=40.0,

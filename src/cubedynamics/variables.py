@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from typing import Any, Mapping, Optional, Sequence, Literal
+import warnings
 
 import pandas as pd
 import xarray as xr
@@ -16,7 +17,6 @@ from cubedynamics.streaming import (
     make_time_tiler,
 )
 from cubedynamics.sentinel import (
-    load_sentinel2_bands_cube,
     load_sentinel2_ndvi_cube,
     load_sentinel2_ndvi_zscore_cube,
 )
@@ -333,15 +333,17 @@ def ndvi(
     start: Any = None,
     end: Any = None,
     source: Literal["sentinel2"] = "sentinel2",
-    as_zscore: bool = True,
+    as_zscore: bool = False,
     show_progress: bool = True,
     **kwargs: Any,
 ) -> xr.DataArray:
     """
-    Load an NDVI cube.
+    Load a Sentinel-2 NDVI cube.
 
-    For now, only Sentinel-2 is supported. By default, returns NDVI z-scores
-    using ``load_sentinel2_ndvi_cube``, but can optionally return raw NDVI.
+    For now, only Sentinel-2 is supported. The loader returns **raw** NDVI in
+    its physical units. Apply :func:`cubedynamics.verbs.zscore` in a downstream
+    pipe to standardize the time dimension. ``as_zscore`` is deprecated and
+    will be removed in a future release.
 
     Parameters
     ----------
@@ -355,27 +357,26 @@ def ndvi(
         raise ValueError("Only the 'sentinel2' source is supported for NDVI.")
 
     if as_zscore:
-        return load_sentinel2_ndvi_zscore_cube(
-            lat=lat,
-            lon=lon,
-            bbox=bbox,
-            start=start,
-            end=end,
-            show_progress=show_progress,
-            **kwargs,
+        warnings.warn(
+            "`as_zscore` is deprecated. Call v.zscore(dim='time') on the raw NDVI cube instead.",
+            DeprecationWarning,
+            stacklevel=2,
         )
 
-    bands = load_sentinel2_bands_cube(
+    ndvi = load_sentinel2_ndvi_cube(
         lat=lat,
         lon=lon,
         start=start,
         end=end,
         bbox=bbox,
-        bands=["B04", "B08"],
         show_progress=show_progress,
         **kwargs,
     )
-    return (pipe(bands) | v.ndvi_from_s2(nir_band="B08", red_band="B04")).unwrap()
+
+    if as_zscore:
+        ndvi = (pipe(ndvi) | v.zscore(dim="time", keep_dim=True)).unwrap()
+
+    return ndvi
 
 
 __all__ = [

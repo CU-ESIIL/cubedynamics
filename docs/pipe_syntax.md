@@ -95,7 +95,7 @@ import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
 ppt_anom = (pipe(prism_cube) | v.anomaly(dim="time")).unwrap()["ppt"]
-ndvi_z = cd.load_sentinel2_ndvi_zscore_cube(...)
+ndvi_z = pipe(cd.load_sentinel2_ndvi_cube(...)) | v.zscore(dim="time")
 
 per_pixel_corr = xr.corr(ndvi_z, ppt_anom, dim="time")
 ```

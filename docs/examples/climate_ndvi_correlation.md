@@ -16,12 +16,13 @@ prism_cube = cd.load_prism_cube(
     variable="ppt",
 )
 
-ndvi_z = cd.load_sentinel2_ndvi_zscore_cube(
+ndvi = cd.load_sentinel2_ndvi_cube(
     lat=40.0,
     lon=-105.25,
     start="2018-01-01",
     end="2020-12-31",
 )
+ndvi_z = pipe(ndvi) | v.zscore(dim="time")
 ```
 
 ## Prepare anomalies
