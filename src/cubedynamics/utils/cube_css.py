@@ -50,7 +50,7 @@ def write_css_cube_static(
     half = size / 2
 
     colorbar = (
-        f"<img class=\\"colorbar-img\\" src=\\"data:image/png;base64,{colorbar_b64}\\" alt=\\"colorbar\\" />"
+        f'<img class="colorbar-img" src="data:image/png;base64,{colorbar_b64}" alt="colorbar" />'
         if colorbar_b64
         else ""
     )

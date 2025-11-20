@@ -6,10 +6,10 @@ from importlib import resources
 from pathlib import Path
 from typing import Tuple
 
-import matplotlib.cm as cm
 import numpy as np
 import xarray as xr
 from PIL import Image
+from matplotlib import colormaps
 
 
 def _infer_dims(da: xr.DataArray) -> Tuple[str, str, str]:
@@ -90,7 +90,7 @@ def _face_to_base64(
     safe_vmax = vmax if vmax != vmin else vmin + 1.0
     scaled = (np.nan_to_num(face, nan=vmin) - vmin) / (safe_vmax - vmin)
     scaled = np.clip(scaled, 0.0, 1.0)
-    rgba = (cm.get_cmap(cmap)(scaled) * 255).astype(np.uint8)
+    rgba = (colormaps.get_cmap(cmap)(scaled) * 255).astype(np.uint8)
 
     image = Image.fromarray(rgba, mode="RGBA")
     buffer = io.BytesIO()
