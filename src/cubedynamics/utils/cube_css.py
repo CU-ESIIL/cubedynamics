@@ -247,7 +247,7 @@ document.addEventListener("mousemove", e => {{
 }});
 
 const applyZoom = () => {{
-  wrapper.style.transform = `scale(${zoom})`;
+  wrapper.style.transform = `scale(${{zoom}})`;
 }};
 
 scene.addEventListener("wheel", e => {{
