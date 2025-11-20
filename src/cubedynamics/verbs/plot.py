@@ -9,6 +9,7 @@ from IPython.display import IFrame
 
 from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 from cubedynamics.utils import _infer_time_y_x_dims
+from cubedynamics.viewers.simple_plot import simple_cube_widget
 
 
 PlotResult = xr.plot.FacetGrid | IFrame | Any
@@ -69,14 +70,7 @@ def plot(
         if kind not in {"auto", "cube", "2d"}:
             raise ValueError("kind must be one of {'auto', 'cube', '2d'}")
 
-        use_cube = False
         if kind == "cube":
-            use_cube = True
-        elif kind == "auto":
-            if da.ndim == 3 and None not in (t_dim, y_axis, x_axis):
-                use_cube = True
-
-        if use_cube:
             if da.ndim != 3:
                 raise ValueError(
                     "Cube viewer requires a 3D DataArray with time, y, x dimensions."
@@ -89,6 +83,21 @@ def plot(
                 cmap=cmap,
                 size_px=size_px,
                 thin_time_factor=thin_time_factor,
+            )
+
+        if kind == "auto" and da.ndim == 3:
+            inferred = _infer_time_y_x_dims(da)
+            t_dim = t_dim or inferred[0]
+            # Map optional vmin/vmax kwargs to clim for the widget
+            vmin = local_kwargs.pop("vmin", None)
+            vmax = local_kwargs.pop("vmax", None)
+            clim = (vmin, vmax) if vmin is not None or vmax is not None else None
+            return simple_cube_widget(
+                da,
+                time_dim=t_dim,
+                cmap=cmap,
+                clim=clim,
+                aspect=local_kwargs.pop("aspect", "equal"),
             )
 
         # 2D fallback
