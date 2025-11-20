@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Callable, Optional
 
 import xarray as xr
 from IPython.display import display
@@ -13,44 +13,16 @@ from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 __all__ = ["plot"]
 
 
-def plot(
+def _render_and_return(
     da: xr.DataArray,
     *,
     cmap: str = "viridis",
     size_px: int = 260,
     thin_time_factor: int = 4,
     out_html: str = "cube_da.html",
-    **kwargs: Any,
+    **_: Any,
 ) -> xr.DataArray:
-    """Display a 3D CSS cube viewer for the provided ``DataArray``.
-
-    This verb is designed for piping workflows, e.g. ``pipe(cube) | v.plot(...)``.
-    It renders the HTML viewer produced by :func:`cube_from_dataarray` and then
-    returns the original DataArray so additional verbs can be chained.
-
-    Parameters
-    ----------
-    da : xr.DataArray
-        Input cube, ideally with (time, y, x) dimensions (order inferred
-        internally by :func:`cube_from_dataarray`).
-    cmap : str, default "viridis"
-        Matplotlib colormap to use for the cube faces.
-    size_px : int, default 260
-        Cube face size in pixels.
-    thin_time_factor : int, default 4
-        Factor used inside :func:`cube_from_dataarray` to thin very long time
-        axes for performance.
-    out_html : str, default "cube_da.html"
-        Filename for the generated HTML viewer.
-    **kwargs : Any
-        Additional keyword arguments accepted for API flexibility; currently
-        ignored.
-
-    Returns
-    -------
-    xr.DataArray
-        The original DataArray, unchanged.
-    """
+    """Render the cube viewer and return the original DataArray."""
 
     viewer = cube_from_dataarray(
         da,
@@ -62,3 +34,44 @@ def plot(
 
     display(viewer)
     return da
+
+
+def plot(
+    da: Optional[xr.DataArray] = None,
+    *,
+    cmap: str = "viridis",
+    size_px: int = 260,
+    thin_time_factor: int = 4,
+    out_html: str = "cube_da.html",
+    **kwargs: Any,
+) -> Callable[[xr.DataArray], xr.DataArray] | xr.DataArray:
+    """Display a 3D CSS cube viewer for a ``DataArray``.
+
+    This verb supports both pipe-style usage (``pipe(cube) | v.plot(...)``)
+    and direct invocation (``v.plot(...)(cube)`` or ``cd.plot(cube, ...)``).
+    It renders the HTML viewer produced by :func:`cube_from_dataarray`,
+    displays it in the active notebook, and returns the original DataArray so
+    additional verbs can be chained.
+    """
+
+    def _op(obj: xr.DataArray) -> xr.DataArray:
+        if not isinstance(obj, xr.DataArray):
+            raise TypeError(
+                "v.plot expects an xarray.DataArray. " f"Got type {type(obj)!r}."
+            )
+
+        return _render_and_return(
+            obj,
+            cmap=cmap,
+            size_px=size_px,
+            thin_time_factor=thin_time_factor,
+            out_html=out_html,
+            **kwargs,
+        )
+
+    # If a DataArray is provided directly, render immediately; otherwise return
+    # a callable so the verb can be used in pipelines.
+    if da is None:
+        return _op
+
+    return _op(da)
