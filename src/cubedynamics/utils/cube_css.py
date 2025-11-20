@@ -34,6 +34,8 @@ def write_css_cube_static(
     time_label: str = "time",
     x_label: str = "x",
     y_label: str = "y",
+    legend_title: str | None = None,
+    css_vars: Dict[str, str] | None = None,
 ) -> Path:
     """Write a standalone HTML page with a simple CSS-based cube skeleton.
 
@@ -63,6 +65,24 @@ def write_css_cube_static(
         else ""
     )
 
+    css_vars = css_vars or {}
+    bg_color = css_vars.get("--cube-bg-color", "#000")
+    panel_color = css_vars.get("--cube-panel-color", "#000")
+    shadow_strength = css_vars.get("--cube-shadow-strength", "0.2")
+    title_color = css_vars.get("--cube-title-color", "#f7f7f7")
+    axis_color = css_vars.get("--cube-axis-color", "#f7f7f7")
+    legend_color = css_vars.get("--cube-legend-color", "#f7f7f7")
+    title_font_size = css_vars.get("--cube-title-font-size", "18px")
+    axis_font_size = css_vars.get("--cube-axis-font-size", "12px")
+    legend_font_size = css_vars.get("--cube-legend-font-size", "10px")
+    font_family = css_vars.get(
+        "--cube-font-family", "system-ui, -apple-system, sans-serif"
+    )
+
+    legend_block = (
+        f"<div class=\"colorbar-title\">{legend_title}</div>" if legend_title else ""
+    )
+
     html = f"""
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -72,6 +92,16 @@ def write_css_cube_static(
   <style>
     :root {{
       --cube-size: {size}px;
+      --cube-bg-color: {bg_color};
+      --cube-panel-color: {panel_color};
+      --cube-shadow-strength: {shadow_strength};
+      --cube-title-color: {title_color};
+      --cube-axis-color: {axis_color};
+      --cube-legend-color: {legend_color};
+      --cube-title-font-size: {title_font_size};
+      --cube-axis-font-size: {axis_font_size};
+      --cube-legend-font-size: {legend_font_size};
+      --cube-font-family: {font_family};
     }}
     * {{ box-sizing: border-box; }}
     body {{
@@ -79,9 +109,9 @@ def write_css_cube_static(
       padding: 24px 12px 32px 12px;
       width: 100%;
       height: 100%;
-      background: #000;
-      color: #f7f7f7;
-      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--cube-bg-color);
+      color: var(--cube-axis-color);
+      font-family: var(--cube-font-family);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -96,12 +126,17 @@ def write_css_cube_static(
       transform: scale(var(--zoom, 1));
       transform-origin: center center;
       transition: transform 120ms ease-out;
+      background: var(--cube-panel-color);
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 16px 40px rgba(0,0,0,var(--cube-shadow-strength));
     }}
     .cube-title {{
-      font-size: 18px;
+      font-size: var(--cube-title-font-size);
       letter-spacing: 0.04em;
       font-weight: 600;
       text-align: center;
+      color: var(--cube-title-color);
     }}
     .scene {{
       position: relative;
@@ -137,13 +172,14 @@ def write_css_cube_static(
     #bottom {{ transform: rotateX(-90deg) translateZ({half}px); { _face_style(face_map['bottom']) } }}
     .axis-label {{
       position: absolute;
-      font-size: 14px;
+      font-size: var(--cube-axis-font-size);
       letter-spacing: 0.04em;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.08);
       padding: 6px 10px;
       border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1px solid rgba(0,0,0,0.08);
       pointer-events: none;
+      color: var(--cube-axis-color);
     }}
     .axis-time {{
       left: 28px;
@@ -166,20 +202,29 @@ def write_css_cube_static(
       width: min(520px, 70vw);
       align-self: center;
     }}
+    .colorbar-title {{
+      font-size: var(--cube-legend-font-size);
+      font-weight: 600;
+      color: var(--cube-legend-color);
+      text-align: center;
+      margin-bottom: 4px;
+      font-family: var(--cube-font-family);
+    }}
     .colorbar-img {{
       width: 100%;
       height: 14px;
       border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.6);
+      border: 1px solid rgba(0,0,0,0.2);
       display: block;
     }}
     .colorbar-labels {{
       width: min(520px, 70vw);
       display: flex;
       justify-content: space-between;
-      font-size: 10px;
+      font-size: var(--cube-legend-font-size);
       margin-top: 4px;
       align-self: center;
+      color: var(--cube-legend-color);
     }}
   </style>
 
@@ -201,7 +246,7 @@ def write_css_cube_static(
     <div class=\"axis-label axis-y\">{y_label} \u2191</div>
     <div class=\"axis-label axis-x\">{x_label} \u2192</div>
   </div>
-  <div class=\"colorbar-wrapper\">{colorbar}</div>
+  <div class=\"colorbar-wrapper\">{legend_block}{colorbar}</div>
   <div class=\"colorbar-labels\">
     <span id=\"cb-min\"></span>
     <span id=\"cb-max\"></span>

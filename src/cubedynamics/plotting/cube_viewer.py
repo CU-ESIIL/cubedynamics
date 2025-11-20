@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import io
+from typing import Any, Dict, Optional
 
 import numpy as np
 import xarray as xr
@@ -10,6 +11,7 @@ from PIL import Image
 from IPython.display import IFrame
 
 from cubedynamics.utils import _infer_time_y_x_dims, write_css_cube_static
+from cubedynamics.plotting.progress import _CubeProgress
 
 
 def cube_from_dataarray(
@@ -22,6 +24,13 @@ def cube_from_dataarray(
     time_label: str | None = None,
     x_label: str | None = None,
     y_label: str | None = None,
+    *,
+    legend_title: str | None = None,
+    theme: Any | None = None,
+    show_progress: bool = True,
+    progress_style: str = "bar",
+    time_dim: str | None = None,
+    return_html: bool = False,
 ):
     """
     Build an interactive 3D CSS cube from a (time, y, x) DataArray.
@@ -49,7 +58,16 @@ def cube_from_dataarray(
     # ---------------------
     # 1. Infer dims safely
     # ---------------------
-    t_dim, y_dim, x_dim = _infer_time_y_x_dims(da)
+    if time_dim:
+        if time_dim not in da.dims:
+            raise ValueError(f"Specified time_dim '{time_dim}' not found in DataArray dims {da.dims}")
+        remaining_dims = [d for d in da.dims if d != time_dim]
+        if len(remaining_dims) < 2:
+            raise ValueError("Need at least two spatial dimensions when providing time_dim")
+        t_dim = time_dim
+        y_dim, x_dim = remaining_dims[-2], remaining_dims[-1]
+    else:
+        t_dim, y_dim, x_dim = _infer_time_y_x_dims(da)
     if t_dim is None:
         raise ValueError("cube_from_dataarray expects a time dimension for 3D cubes.")
     da = da.transpose(t_dim, y_dim, x_dim)
@@ -57,27 +75,41 @@ def cube_from_dataarray(
     nt, ny, nx = da.sizes[t_dim], da.sizes[y_dim], da.sizes[x_dim]
 
     # ----------------------------
-    # 2. Reduce time if very long
+    # 2. Reduce time if needed
     # ----------------------------
-    if thin_time_factor > 1 and nt > 300:
-        da = da.isel({t_dim: slice(0, None, thin_time_factor)})
-        nt = da.sizes[t_dim]
+    t_indices = list(range(0, nt, max(1, thin_time_factor)))
+    nt_eff = len(t_indices)
+
+    progress = _CubeProgress(total=nt_eff, enabled=show_progress, style=progress_style)
 
     # ---------------------------------
     # 3. Extract raw numpy face arrays
     # ---------------------------------
-    # Lazy Dask compute is OK; only reads three slices
-    first_t = da.isel({t_dim: 0})
-    last_t = da.isel({t_dim: nt - 1})
+    front_spatial: Optional[np.ndarray] = None
+    back_spatial: Optional[np.ndarray] = None
+    left_time_y = np.zeros((ny, nt_eff), dtype="float32")
+    right_time_y = np.zeros((ny, nt_eff), dtype="float32")
+    top_time_x = np.zeros((nx, nt_eff), dtype="float32")
+    bottom_time_x = np.zeros((nx, nt_eff), dtype="float32")
 
-    front_spatial = last_t.values  # (y, x) latest time
-    back_spatial = np.flip(first_t.values, axis=1)
+    for idx, t_idx in enumerate(t_indices):
+        frame = da.isel({t_dim: t_idx}).transpose(y_dim, x_dim)
+        arr = frame.values  # 2D slice only
 
-    left_time_y = da.isel({x_dim: 0}).transpose(y_dim, t_dim).values
-    right_time_y = da.isel({x_dim: nx - 1}).transpose(y_dim, t_dim).values
+        if idx == 0:
+            back_spatial = np.flip(arr, axis=1)
+        front_spatial = arr
 
-    top_time_x = da.isel({y_dim: ny - 1}).transpose(x_dim, t_dim).values
-    bottom_time_x = da.isel({y_dim: 0}).transpose(x_dim, t_dim).values
+        left_time_y[:, idx] = arr[:, 0]
+        right_time_y[:, idx] = arr[:, -1]
+        top_time_x[:, idx] = arr[-1, :]
+        bottom_time_x[:, idx] = arr[0, :]
+
+        progress.step()
+
+    progress.done()
+
+    assert front_spatial is not None and back_spatial is not None
 
     # -----------------------------
     # 4. Merge values for vmin/vmax
@@ -152,6 +184,25 @@ def cube_from_dataarray(
     colorbar_b64 = base64.b64encode(buf_cb.getvalue()).decode("ascii")
 
     derived_title = title or da.name or f"{t_dim} × {y_dim} × {x_dim} cube"
+    legend_title = legend_title or derived_title
+
+    css_vars: Dict[str, str] = {
+        "--cube-bg-color": getattr(theme, "bg_color", "#000"),
+        "--cube-panel-color": getattr(theme, "panel_color", "#000"),
+        "--cube-shadow-strength": str(getattr(theme, "shadow_strength", 0.2)),
+        "--cube-title-color": getattr(theme, "title_color", "#f7f7f7"),
+        "--cube-axis-color": getattr(theme, "axis_color", "#f7f7f7"),
+        "--cube-legend-color": getattr(theme, "legend_color", "#f7f7f7"),
+        "--cube-title-font-size": f"{getattr(theme, 'title_font_size', 18)}px",
+        "--cube-axis-font-size": f"{getattr(theme, 'title_font_size', 18) * getattr(theme, 'axis_scale', 0.6)}px",
+        "--cube-legend-font-size": f"{getattr(theme, 'title_font_size', 18) * getattr(theme, 'legend_scale', 0.55)}px",
+        "--cube-font-family": getattr(
+            theme,
+            "title_font_family",
+            "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        ),
+    }
+
     write_css_cube_static(
         out_html=out_html,
         size_px=size_px,
@@ -161,6 +212,8 @@ def cube_from_dataarray(
         time_label=time_label or t_dim or "time",
         x_label=x_label or x_dim,
         y_label=y_label or y_dim,
+        legend_title=legend_title,
+        css_vars=css_vars,
     )
 
     # -------------------------
@@ -234,6 +287,8 @@ def cube_from_dataarray(
         f.write(html)
 
     print(f"✓ Cube viewer written to: {out_html}")
+    if return_html:
+        return html
     return IFrame(out_html, width=900, height=900)
 
 
