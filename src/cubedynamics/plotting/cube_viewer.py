@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 import io
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 import numpy as np
 import xarray as xr
@@ -12,6 +12,9 @@ from IPython.display import IFrame
 
 from cubedynamics.utils import _infer_time_y_x_dims, write_css_cube_static
 from cubedynamics.plotting.progress import _CubeProgress
+
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from cubedynamics.plotting.cube_plot import CoordCube, CubeAnnotation
 
 
 def cube_from_dataarray(
@@ -30,6 +33,11 @@ def cube_from_dataarray(
     show_progress: bool = True,
     progress_style: str = "bar",
     time_dim: str | None = None,
+    fill_limits: tuple[float, float] | None = None,
+    fill_breaks: list[float] | None = None,
+    fill_labels: list[str] | None = None,
+    coord: "CoordCube" | None = None,
+    annotations: list["CubeAnnotation"] | None = None,
     return_html: bool = False,
 ):
     """
@@ -125,16 +133,19 @@ def cube_from_dataarray(
         ]
     )
 
-    mask = np.isfinite(all_vals)
-    if mask.any():
-        vmin = float(np.nanpercentile(all_vals[mask], 2))
-        vmax = float(np.nanpercentile(all_vals[mask], 98))
+    if fill_limits is not None:
+        vmin, vmax = fill_limits
     else:
-        vmin, vmax = -1.0, 1.0
+        mask = np.isfinite(all_vals)
+        if mask.any():
+            vmin = float(np.nanpercentile(all_vals[mask], 2))
+            vmax = float(np.nanpercentile(all_vals[mask], 98))
+        else:
+            vmin, vmax = -1.0, 1.0
 
-    if vmin == vmax:
-        vmin -= 1.0
-        vmax += 1.0
+        if vmin == vmax:
+            vmin -= 1.0
+            vmax += 1.0
 
     # --------------------------------
     # 5. Helper to encode NumPy → PNG
@@ -211,9 +222,13 @@ def cube_from_dataarray(
         title=derived_title,
         time_label=time_label or t_dim or "time",
         x_label=x_label or x_dim,
-        y_label=y_label or y_dim,
+        y_label=y_dim,
         legend_title=legend_title,
         css_vars=css_vars,
+        colorbar_breaks=fill_breaks,
+        colorbar_labels=fill_labels,
+        coord=coord,
+        annotations=annotations,
     )
 
     # -------------------------
@@ -224,7 +239,7 @@ def cube_from_dataarray(
 
     # Add data attributes + loading overlay + JS to hide it on load.
     injection = f'''
-<body data-cb-min="{vmin:.2f}" data-cb-max="{vmax:.2f}">
+<body data-cb-min="{vmin:.2f}" data-cb-max="{vmax:.2f}" data-rot-x="{getattr(coord, 'elev', 15.0)}" data-rot-y="{getattr(coord, 'azim', -25.0)}" data-zoom="{getattr(coord, 'zoom', 1.0)}">
   <div id="cube-loading-overlay">
     <div class="cube-spinner"></div>
     <div class="cube-loading-text">Loading cube…</div>

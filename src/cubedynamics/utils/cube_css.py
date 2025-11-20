@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict, List, Sequence
 
 DEFAULT_FACES = {
     "front": "none",
@@ -24,6 +24,16 @@ def _face_style(face_uri: str) -> str:
     )
 
 
+def _colorbar_labels(breaks: Sequence[float] | None, labels: Sequence[str] | None) -> str:
+    if not breaks:
+        return "<span id=\"cb-min\"></span><span id=\"cb-max\"></span>"
+    spans: List[str] = []
+    for idx, val in enumerate(breaks):
+        label = labels[idx] if labels and idx < len(labels) else f"{val:.2f}"
+        spans.append(f"<span class=\"cb-tick\" data-tick=\"{val:.2f}\">{label}</span>")
+    return "".join(spans)
+
+
 def write_css_cube_static(
     *,
     out_html: str = "cube_da.html",
@@ -36,6 +46,10 @@ def write_css_cube_static(
     y_label: str = "y",
     legend_title: str | None = None,
     css_vars: Dict[str, str] | None = None,
+    colorbar_breaks: Sequence[float] | None = None,
+    colorbar_labels: Sequence[str] | None = None,
+    coord: Any | None = None,
+    annotations: Sequence[Any] | None = None,
 ) -> Path:
     """Write a standalone HTML page with a simple CSS-based cube skeleton.
 
@@ -82,6 +96,8 @@ def write_css_cube_static(
     legend_block = (
         f"<div class=\"colorbar-title\">{legend_title}</div>" if legend_title else ""
     )
+
+    tick_block = _colorbar_labels(colorbar_breaks, colorbar_labels)
 
     html = f"""
 <!DOCTYPE html>
@@ -170,33 +186,35 @@ def write_css_cube_static(
     #left   {{ transform: rotateY(-90deg) translateZ({half}px); { _face_style(face_map['left']) } }}
     #top    {{ transform: rotateX(90deg) translateZ({half}px); { _face_style(face_map['top']) } }}
     #bottom {{ transform: rotateX(-90deg) translateZ({half}px); { _face_style(face_map['bottom']) } }}
-    .axis-label {{
+    .cube-outline {{
+      position: absolute;
+      inset: 0;
+      width: var(--cube-size);
+      height: var(--cube-size);
+      transform-style: preserve-3d;
+      border: 1px solid rgba(255,255,255,0.15);
+      pointer-events: none;
+    }}
+    .cube-label {{
       position: absolute;
       font-size: var(--cube-axis-font-size);
       letter-spacing: 0.04em;
-      background: rgba(0,0,0,0.08);
-      padding: 6px 10px;
+      padding: 4px 8px;
       border-radius: 6px;
       border: 1px solid rgba(0,0,0,0.08);
       pointer-events: none;
       color: var(--cube-axis-color);
+      background: rgba(0,0,0,0.08);
+      transform-style: preserve-3d;
     }}
-    .axis-time {{
-      left: 28px;
-      top: 50%;
-      transform: translate(-50%, -50%) rotate(-90deg);
-      transform-origin: center;
+    .cube-label-time {{
+      transform: translate3d(-40px, 50%, {half}px) rotateY(90deg) rotateX(90deg);
     }}
-    .axis-x {{
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
+    .cube-label-y {{
+      transform: translate3d({half}px, -40px, 0px) rotateX(90deg);
     }}
-    .axis-y {{
-      right: 32px;
-      top: 50%;
-      transform: translate(50%, -50%) rotate(90deg);
-      transform-origin: center;
+    .cube-label-x {{
+      transform: translate3d(0px, {half + 10}px, {half}px) rotateY(0deg);
     }}
     .colorbar-wrapper {{
       width: min(520px, 70vw);
@@ -225,6 +243,11 @@ def write_css_cube_static(
       margin-top: 4px;
       align-self: center;
       color: var(--cube-legend-color);
+      gap: 6px;
+    }}
+    .cb-tick {{
+      flex: 1;
+      text-align: center;
     }}
   </style>
 
@@ -234,82 +257,88 @@ def write_css_cube_static(
 <div class=\"cube-wrapper\" id=\"cube-wrapper\">
   <div class=\"cube-title\">{title}</div>
   <div class=\"scene\" id=\"scene\">
-    <div id=\"cube\"> 
+    <div id=\"cube\">
       <div id=\"front\"  class=\"face\"></div>
       <div id=\"back\"   class=\"face\"></div>
       <div id=\"right\"  class=\"face\"></div>
       <div id=\"left\"   class=\"face\"></div>
       <div id=\"top\"    class=\"face\"></div>
       <div id=\"bottom\" class=\"face\"></div>
+      <div class=\"cube-outline\"></div>
+      <div class=\"cube-label cube-label-time\">{time_label} \u2192</div>
+      <div class=\"cube-label cube-label-y\">{y_label} \u2191</div>
+      <div class=\"cube-label cube-label-x\">{x_label} \u2192</div>
     </div>
-    <div class=\"axis-label axis-time\">{time_label} \u2192</div>
-    <div class=\"axis-label axis-y\">{y_label} \u2191</div>
-    <div class=\"axis-label axis-x\">{x_label} \u2192</div>
   </div>
   <div class=\"colorbar-wrapper\">{legend_block}{colorbar}</div>
-  <div class=\"colorbar-labels\">
-    <span id=\"cb-min\"></span>
-    <span id=\"cb-max\"></span>
-  </div>
+  <div class=\"colorbar-labels\">{tick_block}</div>
 </div>
 
 <script>
-let rotX = 15;
-let rotY = -25;
-let zoom = 1.0;
+class CubeScene {{
+  constructor(config) {{
+    this.config = config || {{}};
+    this.cube = document.getElementById("cube");
+    this.wrapper = document.getElementById("cube-wrapper");
+    this.scene = document.getElementById("scene");
+    this.rotX = parseFloat(document.body.getAttribute("data-rot-x") || 20);
+    this.rotY = parseFloat(document.body.getAttribute("data-rot-y") || -30);
+    this.zoom = parseFloat(document.body.getAttribute("data-zoom") || 1.0);
+    this.dragging = false;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.apply();
+    this.bind();
+  }}
 
-let dragging = false;
-let lastX = 0;
-let lastY = 0;
+  apply() {{
+    this.cube.style.setProperty("--rotX", this.rotX + "deg");
+    this.cube.style.setProperty("--rotY", this.rotY + "deg");
+    this.wrapper.style.setProperty("--zoom", this.zoom);
+  }}
 
-const cube = document.getElementById("cube");
-const wrapper = document.getElementById("cube-wrapper");
-const scene = document.getElementById("scene");
-cube.style.setProperty("--rotX", rotX + "deg");
-cube.style.setProperty("--rotY", rotY + "deg");
-wrapper.style.setProperty("--zoom", zoom);
+  bind() {{
+    document.addEventListener("mousedown", e => {{
+      this.dragging = true;
+      this.lastX = e.clientX;
+      this.lastY = e.clientY;
+    }});
+    document.addEventListener("mouseup", () => {{ this.dragging = false; }});
+    document.addEventListener("mousemove", e => {{
+      if (!this.dragging) return;
+      const dx = e.clientX - this.lastX;
+      const dy = e.clientY - this.lastY;
+      this.lastX = e.clientX;
+      this.lastY = e.clientY;
+      this.rotY += dx * 0.4;
+      this.rotX -= dy * 0.4;
+      this.apply();
+    }});
 
-document.addEventListener("mousedown", e => {{
-  dragging = true;
-  lastX = e.clientX;
-  lastY = e.clientY;
-}});
+    this.scene.addEventListener("wheel", e => {{
+      e.preventDefault();
+      this.zoom += (e.deltaY > 0) ? -0.08 : 0.08;
+      this.zoom = Math.min(Math.max(this.zoom, 0.3), 3.0);
+      this.apply();
+    }}, {{ passive: false }});
+  }}
+}}
 
-document.addEventListener("mouseup", () => {{ dragging = false; }});
-
-document.addEventListener("mousemove", e => {{
-  if (!dragging) return;
-  const dx = e.clientX - lastX;
-  const dy = e.clientY - lastY;
-  lastX = e.clientX;
-  lastY = e.clientY;
-
-  rotY += dx * 0.4;
-  rotX -= dy * 0.4;
-
-  cube.style.setProperty("--rotX", rotX + "deg");
-  cube.style.setProperty("--rotY", rotY + "deg");
-}});
-
-const applyZoom = () => {{
-  wrapper.style.transform = `scale(${{zoom}})`;
-}};
-
-scene.addEventListener("wheel", e => {{
-  e.preventDefault();
-  zoom += (e.deltaY > 0) ? -0.08 : 0.08;
-  zoom = Math.min(Math.max(zoom, 0.3), 3.0);
-  applyZoom();
-}}, {{ passive: false }});
-
-// Colorbar labels
 const cbMin = document.body.getAttribute("data-cb-min");
 const cbMax = document.body.getAttribute("data-cb-max");
-if (cbMin !== null) document.getElementById("cb-min").innerText = cbMin;
-if (cbMax !== null) document.getElementById("cb-max").innerText = cbMax;
+if (cbMin !== null) {{
+  const minEl = document.getElementById("cb-min");
+  if (minEl) minEl.innerText = cbMin;
+}}
+if (cbMax !== null) {{
+  const maxEl = document.getElementById("cb-max");
+  if (maxEl) maxEl.innerText = cbMax;
+}}
 
-applyZoom();
+const annotations = {annotations or []};
+void annotations; // placeholder for future overlay wiring
 
+new CubeScene({{}});
 </script>
 
 </body>

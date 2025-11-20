@@ -7,7 +7,12 @@ from typing import Any, Callable, Optional
 import xarray as xr
 from IPython.display import display
 
-from cubedynamics.plotting.cube_plot import CubePlot, theme_cube_studio
+from cubedynamics.plotting.cube_plot import (
+    CoordCube,
+    CubePlot,
+    ScaleFillContinuous,
+    theme_cube_studio,
+)
 from cubedynamics.utils import _infer_time_y_x_dims
 
 
@@ -31,6 +36,9 @@ def _render_and_return(
     show_progress: bool = True,
     progress_style: str = "bar",
     time_dim: str | None = None,
+    view_elev: float | None = None,
+    view_azim: float | None = None,
+    view_zoom: float | None = None,
     **_: Any,
 ) -> xr.DataArray:
     """Render the cube viewer and return the original DataArray."""
@@ -40,6 +48,14 @@ def _render_and_return(
         for key, val in theme_kwargs.items():
             if hasattr(theme, key) and val is not None:
                 setattr(theme, key, val)
+
+    coord = CoordCube()
+    if view_elev is not None:
+        coord.elev = view_elev
+    if view_azim is not None:
+        coord.azim = view_azim
+    if view_zoom is not None:
+        coord.zoom = view_zoom
 
     cube_plot = CubePlot(
         da,
@@ -57,6 +73,8 @@ def _render_and_return(
         show_progress=show_progress,
         progress_style=progress_style,
         out_html=out_html,
+        coord=coord,
+        fill_scale=ScaleFillContinuous(cmap=cmap, name=legend_title),
     )
 
     display(cube_plot)
@@ -84,6 +102,9 @@ def plot(
     show_progress: bool = True,
     progress_style: str = "bar",
     time_dim: str | None = None,
+    view_elev: float | None = None,
+    view_azim: float | None = None,
+    view_zoom: float | None = None,
     **kwargs: Any,
 ) -> Callable[[xr.DataArray], xr.DataArray] | xr.DataArray:
     """Display a 3D CSS cube viewer for a ``DataArray``.
@@ -126,6 +147,9 @@ def plot(
             show_progress=show_progress,
             progress_style=progress_style,
             time_dim=time_dim or t_dim,
+            view_elev=view_elev,
+            view_azim=view_azim,
+            view_zoom=view_zoom,
             **kwargs,
         )
 
