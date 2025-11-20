@@ -11,10 +11,10 @@ from ..ops.io import to_netcdf
 from ..ops.ndvi import ndvi_from_s2
 from ..ops.stats import correlation_cube
 from ..ops.transforms import month_filter
-from ..ops.viz import plot
 from .custom import apply
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
+from .plot import plot
 from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
 
 

@@ -29,7 +29,7 @@ from .stats.tails import rolling_tail_dep_vs_center
 from .utils.chunking import coarsen_and_stride
 from .viz.lexcube_viz import show_cube_lexcube
 from .viz.qa_plots import plot_median_over_space
-from .ops.viz import plot as _plot_verb
+from .verbs.plot import plot as _plot_verb
 from .variables import (
     temperature,
     temperature_anomaly,
@@ -112,20 +112,19 @@ def plot(
     clim: tuple[float, float] | None = None,
     aspect: str = "equal",
 ):
-    """
-    Convenience helper for plotting a 3D cube without using the pipe.
+    """Convenience helper for plotting a 3D cube without using the pipe."""
 
-    Example
-    -------
-    import cubedynamics as cd
-
-    cube = cd.load_gridmet_cube(...)
-    cd.plot(cube, time_dim="time", cmap="RdBu_r", clim=(-3, 3))
-    """
+    vmin, vmax = (None, None) if clim is None else clim
+    time_name = time_dim if time_dim is not None else "time"
+    y_dim = cube.dims[1] if len(cube.dims) >= 2 else "y"
+    x_dim = cube.dims[2] if len(cube.dims) >= 3 else "x"
 
     return _plot_verb(
-        time_dim=time_dim,
+        time_dim=time_name,
+        y_dim=y_dim,
+        x_dim=x_dim,
         cmap=cmap,
-        clim=clim,
+        vmin=vmin,
+        vmax=vmax,
         aspect=aspect,
     )(cube)
