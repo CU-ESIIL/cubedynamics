@@ -11,6 +11,7 @@ import pandas as pd
 import xarray as xr
 
 from ..config import DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
+from ..progress import progress_bar
 
 
 _POINT_BUFFER_DEGREES = 0.05
@@ -30,6 +31,7 @@ def load_prism_cube(
     freq: str | None = None,
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
+    show_progress: bool = True,
 ) -> xr.Dataset:
     """Load a PRISM-like cube.
 
@@ -56,6 +58,9 @@ def load_prism_cube(
     prefer_streaming : bool, default True
         Whether to attempt the streaming backend before falling back to the
         synthetic download backend used for tests.
+    show_progress : bool, default True
+        Display a progress bar while synthetic PRISM data are generated when
+        ``tqdm`` is installed. Set to ``False`` to disable progress reporting.
 
     Notes
     -----
@@ -82,6 +87,7 @@ def load_prism_cube(
             time_res=time_res,
             chunks=chunks,
             prefer_streaming=prefer_streaming,
+            show_progress=show_progress,
         )
 
     freq_code = freq or time_res or "ME"
@@ -111,6 +117,7 @@ def load_prism_cube(
         freq_code,
         chunks,
         prefer_streaming,
+        show_progress,
     )
 
 
@@ -122,19 +129,28 @@ def _load_prism_cube_impl(
     freq: str,
     chunks: Mapping[Hashable, int] | None,
     prefer_streaming: bool,
+    show_progress: bool,
 ) -> xr.Dataset:
     chunk_map = _resolve_chunks(chunks)
     if prefer_streaming:
         try:
-            ds = _open_prism_streaming(variables, start, end, aoi, freq)
+            try:
+                ds = _open_prism_streaming(variables, start, end, aoi, freq, show_progress)
+            except TypeError:
+                ds = _open_prism_streaming(variables, start, end, aoi, freq)
         except Exception as exc:  # pragma: no cover - used in tests
             warnings.warn(
                 "PRISM streaming backend unavailable; falling back to local download.",
                 RuntimeWarning,
             )
-            ds = _open_prism_download(variables, start, end, aoi, freq, error=exc)
+            ds = _open_prism_download(
+                variables, start, end, aoi, freq, error=exc, show_progress=show_progress
+            )
     else:
-        ds = _open_prism_download(variables, start, end, aoi, freq)
+        try:
+            ds = _open_prism_download(variables, start, end, aoi, freq, show_progress=show_progress)
+        except TypeError:
+            ds = _open_prism_download(variables, start, end, aoi, freq)
 
     ds = _crop_to_aoi(ds, aoi)
     return ds.chunk(chunk_map)
@@ -145,6 +161,7 @@ def _load_prism_cube_legacy(
     time_res: str = "ME",
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
+    show_progress: bool = True,
 ) -> xr.Dataset:
     if len(legacy_args) < 4:
         raise TypeError(
@@ -167,6 +184,9 @@ def _load_prism_cube_legacy(
         prefer_streaming = bool(legacy_args[idx])
         idx += 1
     if len(legacy_args) > idx:
+        show_progress = bool(legacy_args[idx])
+        idx += 1
+    if len(legacy_args) > idx:
         raise TypeError("load_prism_cube() received too many positional arguments")
 
     normalized_variables = _normalize_variables(variables)
@@ -183,6 +203,7 @@ def _load_prism_cube_legacy(
         freq,
         chunks,
         prefer_streaming,
+        show_progress,
     )
 
 
@@ -320,6 +341,7 @@ def _open_prism_streaming(
     end: str,
     aoi: Mapping[str, float],
     freq: str = "ME",
+    show_progress: bool = True,
 ) -> xr.Dataset:
     try:
         import dask.array as da
@@ -335,16 +357,22 @@ def _open_prism_streaming(
     chunks = (len(times), min(len(y_coords), 128), min(len(x_coords), 128))
     rng = da.random.RandomState(111)
     data_vars = {}
-    for name in variables:
-        data = rng.gamma(shape=2.0, scale=1.0, size=(len(times), len(y_coords), len(x_coords)), chunks=chunks)
-        da_var = xr.DataArray(
-            data,
-            coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
-            dims=(TIME_DIM, Y_DIM, X_DIM),
-            name=name,
-            attrs={"units": "synthetic"},
-        )
-        data_vars[name] = da_var
+    total = len(variables) if show_progress else None
+    with progress_bar(total=total, description="PRISM streaming") as advance:
+        for name in variables:
+            data = rng.gamma(
+                shape=2.0, scale=1.0, size=(len(times), len(y_coords), len(x_coords)), chunks=chunks
+            )
+            da_var = xr.DataArray(
+                data,
+                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
+                dims=(TIME_DIM, Y_DIM, X_DIM),
+                name=name,
+                attrs={"units": "synthetic"},
+            )
+            data_vars[name] = da_var
+            if show_progress:
+                advance(1)
 
     return xr.Dataset(data_vars)
 
@@ -357,6 +385,7 @@ def _open_prism_download(
     freq: str = "ME",
     *,
     error: Exception | None = None,
+    show_progress: bool = True,
 ) -> xr.Dataset:
     resolved_freq = freq or "ME"
     times = pd.date_range(start, end, freq=resolved_freq)
@@ -364,16 +393,20 @@ def _open_prism_download(
     rng = np.random.default_rng(19)
 
     data_vars = {}
-    for name in variables:
-        data = rng.uniform(low=0.0, high=5.0, size=(len(times), len(y_coords), len(x_coords)))
-        da_var = xr.DataArray(
-            data,
-            coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
-            dims=(TIME_DIM, Y_DIM, X_DIM),
-            name=name,
-            attrs={"source": "synthetic-prism", "fallback_error": str(error) if error else ""},
-        )
-        data_vars[name] = da_var
+    total = len(variables) if show_progress else None
+    with progress_bar(total=total, description="PRISM download") as advance:
+        for name in variables:
+            data = rng.uniform(low=0.0, high=5.0, size=(len(times), len(y_coords), len(x_coords)))
+            da_var = xr.DataArray(
+                data,
+                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
+                dims=(TIME_DIM, Y_DIM, X_DIM),
+                name=name,
+                attrs={"source": "synthetic-prism", "fallback_error": str(error) if error else ""},
+            )
+            data_vars[name] = da_var
+            if show_progress:
+                advance(1)
 
     return xr.Dataset(data_vars)
 

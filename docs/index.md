@@ -21,10 +21,23 @@ ndvi = cd.ndvi(
     lon=-105.25,
     start="1970-01-01",
     end="2020-12-31",
+    show_progress=True,  # optional progress bar when tqdm is installed
 )
 
 # Even though this is a 50-year request, it streams under the hood
 trend = pipe(ndvi) | v.mean(dim=("y", "x"))
+```
+
+Turn the bar off when you prefer a quiet log:
+
+```python
+ndvi_quiet = cd.ndvi(
+    lat=40.0,
+    lon=-105.25,
+    start="1970-01-01",
+    end="2020-12-31",
+    show_progress=False,
+)
 ```
 
 You do not have to toggle anything for large requests—VirtualCube starts streaming tiles automatically.

@@ -334,6 +334,7 @@ def ndvi(
     end: Any = None,
     source: Literal["sentinel2"] = "sentinel2",
     as_zscore: bool = True,
+    show_progress: bool = True,
     **kwargs: Any,
 ) -> xr.DataArray:
     """
@@ -341,6 +342,13 @@ def ndvi(
 
     For now, only Sentinel-2 is supported. By default, returns NDVI z-scores
     using ``load_sentinel2_ndvi_cube``, but can optionally return raw NDVI.
+
+    Parameters
+    ----------
+    show_progress : bool, default True
+        Whether to display a progress bar for time-stepped NDVI building when
+        available. Progress reporting is a no-op when ``tqdm`` is not
+        installed.
     """
 
     if source != "sentinel2":
@@ -353,6 +361,7 @@ def ndvi(
             bbox=bbox,
             start=start,
             end=end,
+            show_progress=show_progress,
             **kwargs,
         )
 
@@ -363,6 +372,7 @@ def ndvi(
         end=end,
         bbox=bbox,
         bands=["B04", "B08"],
+        show_progress=show_progress,
         **kwargs,
     )
     return (pipe(bands) | v.ndvi_from_s2(nir_band="B08", red_band="B04")).unwrap()
