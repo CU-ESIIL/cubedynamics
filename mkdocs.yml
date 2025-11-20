@@ -10,17 +10,26 @@ nav:
   - Semantic variable loaders: semantic_variables.md
   - Virtual Cubes: virtual_cubes.md
   - Streaming Large Data: streaming_large_data.md
+  - Streaming-First Renderer: streaming_renderer.md
   - Pipe syntax & verbs: pipe_verbs.md
+  - Grammar of Graphics for CubePlots: cubeplot_grammar.md
   - Operations:
       - Transform verbs: ops_transforms.md
       - Stats verbs: ops_stats.md
       - IO verbs: ops_io.md
-  - Visualization: lexcube.md
+  - Visualization:
+      - LexCube (legacy): lexcube.md
+      - Themes and Studio Defaults: design_philosophy.md
+      - Captions & Legends: captions_legends.md
+      - Faceting: facet wrap/grid: concepts/faceting.md
+      - Saving & Exporting: ops_io.md
   - Examples & Recipes:
       - PRISM JJA variance: examples/prism_jja_variance.md
       - gridMET AOI variance: examples/gridmet_aoi_variance.md
       - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md
       - Climate–NDVI correlation cube: examples/climate_ndvi_correlation.md
+      - Examples Gallery: examples_gallery.md
+      - Streaming notebook tour: streaming_large_data.md
       - Sentinel-2 tail-dependence vs center pixel: recipes/s2_tail_dep_manual.md
   - Detailed Reference:
       - Concepts overview: concepts.md

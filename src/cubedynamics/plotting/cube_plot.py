@@ -1,9 +1,11 @@
-"""Lightweight CubePlot object model with theming and caption support.
+"""Grammar-of-graphics + streaming core for cube plotting.
 
-This module now hosts a minimal grammar-of-graphics core for cube plotting,
-including aesthetics, layers/geoms, scales, stats, coordinates, and simple
-annotations. The goal is to keep the API small and streaming-friendly while
-expanding the expressiveness of cube visualizations.
+This module powers the "CubePlot" narrative used throughout the docs:
+`pipe(ndvi) | v.plot()` for the simple case, and `CubePlot(...).geom_cube()`
+when you want fully controlled layers, scales, captions, and facets. Every
+component is designed to stay **streaming-first**: the viewer iterates over
+time slices and avoids materializing whole cubes, keeping NEON/Sentinel/PRISM
+requests responsive in notebooks.
 """
 
 from __future__ import annotations
@@ -22,7 +24,13 @@ from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 
 @dataclass
 class CubeTheme:
-    """Theme configuration for cube plots."""
+    """Theme configuration for cube plots.
+
+    CSS variables and font sizes flow through to the generated HTML so captions,
+    titles, axes, and legends match report-ready styling. Themes are intentionally
+    lightweight: adjust only what is needed while leaving streaming behavior
+    untouched.
+    """
 
     bg_color: str = "#ffffff"
     panel_color: str = "#ffffff"
@@ -53,7 +61,13 @@ def theme_cube_studio() -> CubeTheme:
 
 @dataclass
 class CubeAes:
-    """Aesthetic mapping for cube plots."""
+    """Aesthetic mapping for cube plots.
+
+    Mirrors ggplot's ``aes`` by mapping data variables to visuals. Only the
+    fields relevant to the cube viewer are exposed (fill, alpha, and slice
+    selection), keeping the API small while matching the grammar-of-graphics
+    vocabulary documented on the website.
+    """
 
     fill: Optional[str] = None
     alpha: Optional[str] = None
@@ -79,7 +93,12 @@ def _infer_aes_from_data(data: Any) -> CubeAes:
 
 @dataclass
 class CubeLayer:
-    """A plotting layer pairing a geom with data and stat."""
+    """A plotting layer pairing a geom with data and stat.
+
+    ``CubePlot`` currently supports a single primary layer but the object model
+    mirrors ggplot so additional geoms can be added in the future without
+    breaking the streaming renderer.
+    """
 
     geom: str
     data: Any = None
@@ -106,6 +125,11 @@ def geom_path3d(**params: Any) -> CubeLayer:
 
 @dataclass
 class ScaleFillContinuous:
+    """Continuous color scale used by the cube viewer.
+
+    Supports palette selection, centered/diverging ramps, and legend metadata.
+    ``CubePlot`` infers limits lazily from the streamed slices.
+    """
     cmap: str = "cividis"
     palette: str = "sequential"
     limits: Optional[tuple[float, float]] = None
@@ -156,6 +180,7 @@ class ScaleAlphaContinuous:
 
 @dataclass
 class CoordCube:
+    """Camera/coordinate configuration for cube plots."""
     view: str = "iso"
     elev: float = 30.0
     azim: float = 45.0
@@ -165,6 +190,7 @@ class CoordCube:
 
 @dataclass
 class CubeAnnotation:
+    """Simple annotation container for planes/text anchored to cube axes."""
     kind: str
     axis: Optional[str] = None
     value: Optional[float] = None
@@ -243,7 +269,12 @@ def _build_caption(caption: Optional[Dict[str, Any]]) -> str:
 
 @dataclass
 class CubePlot:
-    """Internal object model for cube visualizations."""
+    """Internal object model for cube visualizations.
+
+    The class glues the grammar-of-graphics pieces together while keeping the
+    streaming pipeline intact. It powers both pipe-style usage (``v.plot``) and
+    advanced layering/faceting examples used throughout the docs.
+    """
 
     data: Any
     aes: Optional[CubeAes] = None

@@ -12,6 +12,7 @@ from cubedynamics.plotting.cube_plot import (
     geom_outline,
     geom_path3d,
     geom_slice,
+    CubeFacet,
     stat_space_mean,
     stat_time_anomaly,
     stat_time_mean,
@@ -88,3 +89,53 @@ def test_coordcube_injected_into_html(tmp_path):
     assert 'data-rot-x="10.0"' in html
     assert 'data-rot-y="15.0"' in html
     assert 'data-zoom="1.2"' in html
+
+
+def test_caption_and_theme_blocks_render():
+    data = xr.DataArray(np.ones((2, 2, 2)), dims=("time", "y", "x"))
+    cp = CubePlot(
+        data,
+        caption={"id": 5, "title": "NDVI anomaly", "text": "**Markdown** + $\\nabla$"},
+    )
+    html = cp.to_html()
+    assert "cube-caption-label" in html
+    assert "cube-caption-title" in html
+    assert "cube-caption-text" in html
+    assert "--cube-bg-color" in html
+    assert "--cube-title-color" in html
+
+
+def test_streaming_iterates_time_slices(monkeypatch):
+    data = xr.DataArray(np.arange(40).reshape(5, 2, 4), dims=("time", "y", "x"))
+    calls = []
+    original_isel = xr.DataArray.isel
+
+    def _wrapped(self, indexers=None, **kwargs):
+        if indexers and "time" in indexers:
+            calls.append(indexers["time"])
+        return original_isel(self, indexers=indexers, **kwargs)
+
+    monkeypatch.setattr(xr.DataArray, "isel", _wrapped)
+    cube_from_dataarray(data, show_progress=False, thin_time_factor=2, return_html=True)
+    assert calls == [0, 2, 4]
+
+
+def test_facets_render_multiple_panels(tmp_path):
+    data = xr.DataArray(
+        np.arange(16).reshape(2, 2, 2, 2),
+        dims=("scenario", "time", "y", "x"),
+        coords={"scenario": ["base", "alt"]},
+    )
+    cp = CubePlot(data, facet=CubeFacet(by="scenario"), show_progress=False, out_html=str(tmp_path / "facet.html"))
+    html = cp.to_html()
+    assert html.count("cube-facet-panel") >= 2
+    assert "cube-legend-title" in html
+    assert "cube-facet-label" in html
+
+
+def test_save_exports_html(tmp_path):
+    data = xr.DataArray(np.ones((2, 2, 2)), dims=("time", "y", "x"))
+    path = tmp_path / "figure1.html"
+    cp = CubePlot(data, title="export" , show_progress=False)
+    cp.save(path)
+    assert path.exists()

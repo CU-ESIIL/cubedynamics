@@ -107,13 +107,13 @@ def plot(
     view_zoom: float | None = None,
     **kwargs: Any,
 ) -> Callable[[xr.DataArray], xr.DataArray] | xr.DataArray:
-    """Display a 3D CSS cube viewer for a ``DataArray``.
+    """Display a streaming 3D CSS cube viewer for a ``DataArray``.
 
-    This verb supports both pipe-style usage (``pipe(cube) | v.plot(...)``)
-    and direct invocation (``v.plot(...)(cube)`` or ``cd.plot(cube, ...)``).
-    It renders the HTML viewer produced by :func:`cube_from_dataarray`,
-    displays it in the active notebook, and returns the original DataArray so
-    additional verbs can be chained.
+    The verb is the public entry point for the grammar: ``pipe(cube) | v.plot()``
+    renders a cube with captions, legend, and progress feedback, while advanced
+    users can lean on :class:`cubedynamics.plotting.cube_plot.CubePlot` to
+    combine stats, geoms, scales, themes, and facets. All rendering remains
+    streaming-first and avoids materializing large cubes in memory.
     """
 
     def _op(obj: xr.DataArray) -> xr.DataArray:
