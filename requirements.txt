@@ -3,6 +3,7 @@ pandas
 xarray
 dask
 matplotlib
+Pillow
 lexcube
 cubo
 pytest

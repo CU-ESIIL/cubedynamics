@@ -19,6 +19,8 @@ dependencies = [
     "pyproj",
     "requests",
     "dask",
+    "matplotlib",
+    "Pillow",
 ]
 
 [project.urls]
@@ -28,6 +30,9 @@ Source = "https://github.com/CU-ESIIL/climate_cube_math"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+
+[tool.setuptools.package-data]
+"cubedynamics.viewers" = ["templates/*.html"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
