@@ -20,6 +20,7 @@ import pandas as pd
 import xarray as xr
 
 from ..config import DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
+from ..progress import progress_bar
 from .prism import _bbox_mapping_from_geojson, _bbox_mapping_from_sequence, _coerce_aoi
 
 
@@ -38,6 +39,7 @@ def load_gridmet_cube(
     time_res: str | None = None,
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
+    show_progress: bool = True,
 ) -> xr.Dataset:
     """Load a GRIDMET-like climate cube.
 
@@ -65,6 +67,9 @@ def load_gridmet_cube(
     prefer_streaming : bool, default True
         Whether to attempt the streaming backend before falling back to the
         synthetic download backend used for tests.
+    show_progress : bool, default True
+        Display a progress bar while synthetic GRIDMET data are generated when
+        ``tqdm`` is installed. Set to ``False`` to disable progress reporting.
 
     Notes
     -----
@@ -103,6 +108,7 @@ def load_gridmet_cube(
             time_res=time_res,
             chunks=chunks,
             prefer_streaming=prefer_streaming,
+            show_progress=show_progress,
         )
 
     resolved_freq = freq or time_res or "MS"
@@ -135,6 +141,7 @@ def load_gridmet_cube(
         resolved_freq,
         chunks,
         prefer_streaming,
+        show_progress,
     )
 
 
@@ -146,6 +153,7 @@ def _load_gridmet_cube_impl(
     freq: str,
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
+    show_progress: bool = True,
 ) -> xr.Dataset:
     """Internal implementation shared by legacy and modern entrypoints."""
 
@@ -153,15 +161,27 @@ def _load_gridmet_cube_impl(
 
     if prefer_streaming:
         try:
-            ds = _open_gridmet_streaming(variables, start, end, aoi, freq)
+            try:
+                ds = _open_gridmet_streaming(
+                    variables, start, end, aoi, freq, show_progress
+                )
+            except TypeError:
+                ds = _open_gridmet_streaming(variables, start, end, aoi, freq)
         except Exception as exc:  # pragma: no cover - exercised via tests
             warnings.warn(
                 "GRIDMET streaming backend unavailable; falling back to local download.",
                 RuntimeWarning,
             )
-            ds = _open_gridmet_download(variables, start, end, aoi, freq, error=exc)
+            ds = _open_gridmet_download(
+                variables, start, end, aoi, freq, error=exc, show_progress=show_progress
+            )
     else:
-        ds = _open_gridmet_download(variables, start, end, aoi, freq)
+        try:
+            ds = _open_gridmet_download(
+                variables, start, end, aoi, freq, show_progress=show_progress
+            )
+        except TypeError:
+            ds = _open_gridmet_download(variables, start, end, aoi, freq)
 
     ds = _crop_to_aoi(ds, aoi)
     return ds.chunk(chunk_map)
@@ -172,6 +192,7 @@ def _load_gridmet_cube_legacy(
     time_res: str | None = None,
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
+    show_progress: bool = True,
 ) -> xr.Dataset:
     if len(legacy_args) < 4:
         raise TypeError(
@@ -194,6 +215,9 @@ def _load_gridmet_cube_legacy(
         prefer_streaming = bool(legacy_args[idx])
         idx += 1
     if len(legacy_args) > idx:
+        show_progress = bool(legacy_args[idx])
+        idx += 1
+    if len(legacy_args) > idx:
         raise TypeError("load_gridmet_cube() received too many positional arguments")
 
     normalized_variables = _normalize_variables(variable_spec)
@@ -210,6 +234,7 @@ def _load_gridmet_cube_legacy(
         freq,
         chunks,
         prefer_streaming,
+        show_progress,
     )
 
 
@@ -239,6 +264,7 @@ def _open_gridmet_streaming(
     end: str,
     aoi: Mapping[str, float],
     freq: str = "D",
+    show_progress: bool = True,
 ) -> xr.Dataset:
     """Return a dask-backed Dataset that mimics GRIDMET streaming access."""
 
@@ -255,16 +281,20 @@ def _open_gridmet_streaming(
     chunks = (len(times), min(len(y_coords), 128), min(len(x_coords), 128))
     rng = da.random.RandomState(42)
     data_vars = {}
-    for name in variables:
-        data = rng.random_sample((len(times), len(y_coords), len(x_coords)), chunks=chunks)
-        da_var = xr.DataArray(
-            data,
-            coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
-            dims=(TIME_DIM, Y_DIM, X_DIM),
-            name=name,
-            attrs={"units": "synthetic"},
-        )
-        data_vars[name] = da_var
+    total = len(variables) if show_progress else None
+    with progress_bar(total=total, description="gridMET streaming") as advance:
+        for name in variables:
+            data = rng.random_sample((len(times), len(y_coords), len(x_coords)), chunks=chunks)
+            da_var = xr.DataArray(
+                data,
+                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
+                dims=(TIME_DIM, Y_DIM, X_DIM),
+                name=name,
+                attrs={"units": "synthetic"},
+            )
+            data_vars[name] = da_var
+            if show_progress:
+                advance(1)
 
     return xr.Dataset(data_vars)
 
@@ -277,6 +307,7 @@ def _open_gridmet_download(
     freq: str = "D",
     *,
     error: Exception | None = None,
+    show_progress: bool = True,
 ) -> xr.Dataset:
     """Return a small in-memory Dataset that mimics a download fallback."""
 
@@ -285,16 +316,22 @@ def _open_gridmet_download(
     rng = np.random.default_rng(7)
 
     data_vars = {}
-    for name in variables:
-        data = rng.normal(loc=0.0, scale=1.0, size=(len(times), len(y_coords), len(x_coords)))
-        da_var = xr.DataArray(
-            data,
-            coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
-            dims=(TIME_DIM, Y_DIM, X_DIM),
-            name=name,
-            attrs={"source": "synthetic-gridmet", "fallback_error": str(error) if error else ""},
-        )
-        data_vars[name] = da_var
+    total = len(variables) if show_progress else None
+    with progress_bar(total=total, description="gridMET download") as advance:
+        for name in variables:
+            data = rng.normal(
+                loc=0.0, scale=1.0, size=(len(times), len(y_coords), len(x_coords))
+            )
+            da_var = xr.DataArray(
+                data,
+                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
+                dims=(TIME_DIM, Y_DIM, X_DIM),
+                name=name,
+                attrs={"source": "synthetic-gridmet", "fallback_error": str(error) if error else ""},
+            )
+            data_vars[name] = da_var
+            if show_progress:
+                advance(1)
 
     return xr.Dataset(data_vars)
 

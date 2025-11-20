@@ -8,6 +8,8 @@ import requests
 import xarray as xr
 from xarray.backends.plugins import list_engines
 
+from cubedynamics.progress import progress_bar
+
 GRIDMET_BASE_URL = "https://www.northwestknowledge.net/metdata/data"
 _ENGINE_PREFERENCE = ("h5netcdf", "netcdf4", "scipy")
 _AVAILABLE_ENGINES = list_engines()
@@ -170,6 +172,7 @@ def stream_gridmet_to_cube(
     end: str,
     freq: str = "D",
     chunks: Optional[Dict[str, int]] = None,
+    show_progress: bool = True,
 ) -> xr.DataArray:
     """
     Stream a gridMET subset as an xarray.DataArray "cube" for a given AOI.
@@ -200,9 +203,13 @@ def stream_gridmet_to_cube(
     # 1) Load all needed years into a list of Datasets
     year_chunks = chunks or {"time": 366}
     ds_list = []
-    for year in range(start_year, end_year + 1):
-        ds_y = _open_gridmet_year(variable, year, chunks=year_chunks)
-        ds_list.append(ds_y)
+    total_years = end_year - start_year + 1
+    with progress_bar(total=total_years if show_progress else None, description="gridMET years") as advance:
+        for year in range(start_year, end_year + 1):
+            ds_y = _open_gridmet_year(variable, year, chunks=year_chunks)
+            ds_list.append(ds_y)
+            if show_progress:
+                advance(1)
 
     # 2) Concatenate along the normalized time axis and clip to [start, end]
     ds = xr.concat(ds_list, dim="time")

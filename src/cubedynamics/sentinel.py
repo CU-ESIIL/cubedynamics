@@ -25,6 +25,7 @@ def load_sentinel2_cube(
     edge_size: int = 512,
     resolution: int = 10,
     max_cloud: int = 40,
+    show_progress: bool = True,
 ) -> xr.DataArray:
     """Stream a Sentinel-2 L2A cube via ``cubo``.
 
@@ -93,6 +94,7 @@ def load_sentinel2_bands_cube(
     edge_size: int = 512,
     resolution: int = 10,
     max_cloud: int = 40,
+    show_progress: bool = True,
 ) -> xr.DataArray:
     """Stream a Sentinel-2 L2A cube for a user-selected list of bands.
 
@@ -116,6 +118,7 @@ def load_sentinel2_bands_cube(
         edge_size=edge_size,
         resolution=resolution,
         max_cloud=max_cloud,
+        show_progress=show_progress,
     )
 
 
@@ -130,6 +133,7 @@ def load_sentinel2_ndvi_cube(
     resolution: int = 10,
     max_cloud: int = 40,
     return_raw: bool = False,
+    show_progress: bool = True,
 ) -> xr.DataArray | tuple[xr.DataArray, xr.DataArray]:
     """Stream Sentinel-2 L2A data and compute a raw NDVI cube.
 
@@ -154,6 +158,7 @@ def load_sentinel2_ndvi_cube(
         edge_size=edge_size,
         resolution=resolution,
         max_cloud=max_cloud,
+        show_progress=show_progress,
     )
 
     ndvi = (pipe(s2) | v.ndvi_from_s2(nir_band="B08", red_band="B04")).unwrap()
@@ -174,6 +179,7 @@ def load_sentinel2_ndvi_zscore_cube(
     resolution: int = 10,
     max_cloud: int = 40,
     keep_dim: bool = True,
+    show_progress: bool = True,
 ) -> xr.DataArray:
     """Convenience wrapper that returns a z-scored Sentinel-2 NDVI cube.
 
@@ -191,6 +197,7 @@ def load_sentinel2_ndvi_zscore_cube(
         edge_size=edge_size,
         resolution=resolution,
         max_cloud=max_cloud,
+        show_progress=show_progress,
     )
 
     ndvi_z = (pipe(ndvi) | v.zscore(dim="time", keep_dim=keep_dim)).unwrap()
