@@ -5,7 +5,7 @@ import xarray as xr
 from cubedynamics import verbs as v
 
 
-def test_plot_returns_widget():
+def test_plot_returns_original_cube():
     times = pd.date_range("2024-01-01", periods=3, freq="D")
     data = xr.DataArray(
         np.ones((3, 2, 2)),
@@ -14,10 +14,7 @@ def test_plot_returns_widget():
         name="test",
     )
 
-    widget = v.plot()(data)
+    result = v.plot()(data)
 
-    # The verb should return a VBox container with the slider + output elements.
-    from ipywidgets import VBox
-
-    assert isinstance(widget, VBox)
-    assert len(widget.children) == 2
+    # The verb should return the original DataArray so pipes can continue.
+    assert result is data

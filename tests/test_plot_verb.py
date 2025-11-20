@@ -21,40 +21,26 @@ def _dummy_cube():
     )
 
 
-def test_v_plot_returns_widget():
+def test_v_plot_returns_original_cube():
     cube = _dummy_cube()
-    widget = (pipe(cube) | v.plot(time_dim="time")).unwrap()
-    import ipywidgets as widgets
+    result = (pipe(cube) | v.plot(time_dim="time")).unwrap()
 
-    assert isinstance(widget, widgets.VBox)
+    # v.plot should pass the original cube through so pipelines can continue.
+    assert result is cube
 
 
-def test_plot_widget_has_slider_and_label_only():
+def test_plot_returns_original_cube_from_pipe():
     cube = _dummy_cube()
-    widget = (pipe(cube) | v.plot(time_dim="time")).unwrap()
-    import ipywidgets as widgets
+    result = (pipe(cube) | v.plot(time_dim="time")).unwrap()
 
-    assert isinstance(widget, widgets.VBox)
-
-    controls = widget.children[0]
-    assert isinstance(controls, widgets.HBox)
-
-    sliders = [c for c in controls.children if isinstance(c, widgets.IntSlider)]
-    labels = [c for c in controls.children if isinstance(c, widgets.Label)]
-    dropdowns = [c for c in controls.children if isinstance(c, widgets.Dropdown)]
-
-    assert len(sliders) == 1
-    assert len(labels) == 1
-    assert dropdowns == []
-    assert controls.children[1].value.startswith("time:")
+    assert result is cube
 
 
-def test_cd_plot_returns_widget():
+def test_cd_plot_returns_original_cube():
     cube = _dummy_cube()
-    widget = cd.plot(cube, time_dim="time")
-    import ipywidgets as widgets
+    result = cd.plot(cube, time_dim="time")
 
-    assert isinstance(widget, widgets.VBox)
+    assert result is cube
 
 
 def test_v_plot_rejects_non_dataarray():
