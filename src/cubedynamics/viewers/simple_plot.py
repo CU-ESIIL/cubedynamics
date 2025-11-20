@@ -64,7 +64,7 @@ def simple_cube_widget(
     Minimal interactive viewer for a 3D cube (time, y, x).
 
     - Uses ipywidgets + matplotlib.
-    - Adds a time slider over the time dimension.
+    - Adds a time slider over the time dimension with a label showing the current timestamp.
     - Plots 2D slices without loading the whole cube into memory.
     - Intended as the default native viewer for CubeDynamics.
 
@@ -109,23 +109,7 @@ def simple_cube_widget(
         readout=True,
     )
 
-    # Drop-down for label display (optional but nice)
-    label_dropdown = widgets.Dropdown(
-        options=[
-            (f"{i}: {lab}", i) for i, lab in enumerate(time_labels)
-        ],
-        value=0,
-        description="Index",
-        disabled=False,
-    )
-
-    def _sync_slider(change):
-        # Keep slider and dropdown in sync
-        if change["name"] == "value":
-            time_slider.value = change["new"]
-
-    label_dropdown.observe(_sync_slider, names="value")
-
+    time_label = widgets.Label()
     output = widgets.Output()
 
     # Compute color limits from first slice if not provided.
@@ -136,6 +120,9 @@ def simple_cube_widget(
         vmax = float(np.nanmax(arr))
     else:
         vmin, vmax = clim
+
+    def _update_label(t_idx: int):
+        time_label.value = f"{time_dim}: {time_labels[int(t_idx)]}"
 
     def _plot_slice(t_idx: int):
         # Select one time slice without loading the full cube.
@@ -159,15 +146,17 @@ def simple_cube_widget(
             fig.tight_layout()
             plt.show()
 
-    # Wire both slider and dropdown to the same plotting function
-    widgets.interactive_output(
-        lambda value: _plot_slice(value),
-        {"value": time_slider},
-    )
-    widgets.interactive_output(
-        lambda value: _plot_slice(value),
-        {"value": label_dropdown},
-    )
+    def _on_slider_change(change):
+        if change["name"] == "value":
+            new_value = change["new"]
+            _update_label(new_value)
+            _plot_slice(new_value)
 
-    controls = widgets.HBox([time_slider, label_dropdown])
+    time_slider.observe(_on_slider_change, names="value")
+
+    # Initialize label and first plot
+    _update_label(time_slider.value)
+    _plot_slice(time_slider.value)
+
+    controls = widgets.HBox([time_slider, time_label])
     return widgets.VBox([controls, output])
