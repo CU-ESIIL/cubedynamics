@@ -188,6 +188,12 @@ def load_sentinel2_ndvi_zscore_cube(
     older APIs retain a single-call experience.
     """
 
+    warnings.warn(
+        "load_sentinel2_ndvi_zscore_cube is deprecated; load raw NDVI and apply v.zscore(dim='time') instead.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     ndvi = load_sentinel2_ndvi_cube(
         lat=lat,
         lon=lon,

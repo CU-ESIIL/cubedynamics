@@ -134,7 +134,7 @@ def test_ndvi_uses_sentinel_ndvi_helper(monkeypatch):
         return da
 
     monkeypatch.setattr(
-        "cubedynamics.variables.load_sentinel2_ndvi_zscore_cube",
+        "cubedynamics.variables.load_sentinel2_ndvi_cube",
         fake_ndvi_loader,
     )
 
@@ -143,7 +143,7 @@ def test_ndvi_uses_sentinel_ndvi_helper(monkeypatch):
         lon=-105.25,
         start="2020-01-01",
         end="2020-01-31",
-        as_zscore=True,
+        as_zscore=False,
     )
 
     assert isinstance(out, xr.DataArray)

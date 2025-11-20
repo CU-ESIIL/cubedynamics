@@ -125,16 +125,18 @@ These calls delegate to the provider-specific loaders, so you keep the convenien
 A second example shows NDVI:
 
 ```python
-ndvi_z = cd.ndvi(
+ndvi = cd.ndvi(
     lat=40.0,
     lon=-105.25,
     start="2018-01-01",
     end="2020-12-31",
     source="sentinel2",
-    as_zscore=True,
 )
+
+ndvi_z = pipe(ndvi) | v.zscore(dim="time")
 ```
-Setting `as_zscore=True` returns a standardized NDVI cube ready for comparison across seasons.
+`cd.ndvi` now returns raw NDVI; standardize explicitly with ``v.zscore``. The
+``as_zscore`` flag is deprecated and will be removed in a future release.
 
 ---
 

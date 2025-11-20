@@ -112,12 +112,13 @@ def test_load_sentinel2_ndvi_cube_return_raw():
 
 
 def test_load_sentinel2_ndvi_zscore_cube_returns_standardized_cube():
-    ndvi_z = load_sentinel2_ndvi_zscore_cube(
-        lat=40.0,
-        lon=-105.25,
-        start="2018-01-01",
-        end="2018-12-31",
-    )
+    with pytest.warns(DeprecationWarning):
+        ndvi_z = load_sentinel2_ndvi_zscore_cube(
+            lat=40.0,
+            lon=-105.25,
+            start="2018-01-01",
+            end="2018-12-31",
+        )
 
     assert ndvi_z.dims == ("time", "y", "x")
     mean_over_time = ndvi_z.mean(dim="time")
