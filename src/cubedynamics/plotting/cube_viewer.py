@@ -18,20 +18,32 @@ def cube_from_dataarray(
     cmap: str = "viridis",
     size_px: int = 260,
     thin_time_factor: int = 4,
+    title: str | None = None,
+    time_label: str | None = None,
+    x_label: str | None = None,
+    y_label: str | None = None,
 ):
     """
     Build an interactive 3D CSS cube from a (time, y, x) DataArray.
 
     - Infers time/y/x dims robustly.
     - Optionally thins the time axis for very long series.
-    - Extracts only 3 slices (top, front, right) as NumPy arrays.
-    - Encodes them as PNGs and writes a static HTML file with a CSS cube.
+    - Extracts six oriented faces (front/back spatial, time walls, top/bottom)
+      as NumPy arrays.
+    - Encodes them as PNGs and writes a static HTML file with a CSS cube that
+      includes axis labels and a title.
     - Injects colorbar metadata and a simple loading overlay.
 
     Returns
     -------
     iframe : IPython.display.IFrame
         An iframe pointing to the generated HTML, suitable for Jupyter notebooks.
+
+    Additional Parameters
+    ---------------------
+    title, time_label, x_label, y_label : str, optional
+        Text used for the viewer title and axis annotations. Defaults fall back to
+        the DataArray ``name`` and dimension names when omitted.
     """
 
     # ---------------------
@@ -55,18 +67,31 @@ def cube_from_dataarray(
     # 3. Extract raw numpy face arrays
     # ---------------------------------
     # Lazy Dask compute is OK; only reads three slices
-    top = da.isel({t_dim: nt - 1}).values       # shape (y, x)
-    front = da.isel({x_dim: 0}).values          # shape (time, y)
-    right = da.isel({y_dim: ny - 1}).values     # shape (time, x)
+    first_t = da.isel({t_dim: 0})
+    last_t = da.isel({t_dim: nt - 1})
+
+    front_spatial = last_t.values  # (y, x) latest time
+    back_spatial = np.flip(first_t.values, axis=1)
+
+    left_time_y = da.isel({x_dim: 0}).transpose(y_dim, t_dim).values
+    right_time_y = da.isel({x_dim: nx - 1}).transpose(y_dim, t_dim).values
+
+    top_time_x = da.isel({y_dim: ny - 1}).transpose(x_dim, t_dim).values
+    bottom_time_x = da.isel({y_dim: 0}).transpose(x_dim, t_dim).values
 
     # -----------------------------
     # 4. Merge values for vmin/vmax
     # -----------------------------
-    all_vals = np.concatenate([
-        top.astype("float32").ravel(),
-        front.astype("float32").ravel(),
-        right.astype("float32").ravel(),
-    ])
+    all_vals = np.concatenate(
+        [
+            front_spatial.astype("float32").ravel(),
+            back_spatial.astype("float32").ravel(),
+            left_time_y.astype("float32").ravel(),
+            right_time_y.astype("float32").ravel(),
+            top_time_x.astype("float32").ravel(),
+            bottom_time_x.astype("float32").ravel(),
+        ]
+    )
 
     mask = np.isfinite(all_vals)
     if mask.any():
@@ -96,20 +121,23 @@ def cube_from_dataarray(
         Image.fromarray(img).save(buf, format="PNG", compress_level=1)
         return base64.b64encode(buf.getvalue()).decode("ascii")
 
-    top_b64   = arr_to_b64(top)
-    front_b64 = arr_to_b64(front)
-    right_b64 = arr_to_b64(right)
+    front_b64 = arr_to_b64(front_spatial)
+    back_b64 = arr_to_b64(back_spatial)
+    left_b64 = arr_to_b64(left_time_y)
+    right_b64 = arr_to_b64(right_time_y)
+    top_b64 = arr_to_b64(top_time_x)
+    bottom_b64 = arr_to_b64(bottom_time_x)
 
     # -------------------------
     # 6. Build cube face dict
     # -------------------------
     faces = {
-        "front":   f"data:image/png;base64,{front_b64}",
-        "right":   f"data:image/png;base64,{right_b64}",
-        "top":     f"data:image/png;base64,{top_b64}",
-        "back":    "none",
-        "left":    "none",
-        "bottom":  "none",
+        "front": f"data:image/png;base64,{front_b64}",
+        "back": f"data:image/png;base64,{back_b64}",
+        "left": f"data:image/png;base64,{left_b64}",
+        "right": f"data:image/png;base64,{right_b64}",
+        "top": f"data:image/png;base64,{top_b64}",
+        "bottom": f"data:image/png;base64,{bottom_b64}",
     }
 
     # -------------------------
@@ -123,8 +151,16 @@ def cube_from_dataarray(
     Image.fromarray(grad_img).save(buf_cb, format="PNG")
     colorbar_b64 = base64.b64encode(buf_cb.getvalue()).decode("ascii")
 
+    derived_title = title or da.name or f"{t_dim} × {y_dim} × {x_dim} cube"
     write_css_cube_static(
-        out_html=out_html, size_px=size_px, faces=faces, colorbar_b64=colorbar_b64
+        out_html=out_html,
+        size_px=size_px,
+        faces=faces,
+        colorbar_b64=colorbar_b64,
+        title=derived_title,
+        time_label=time_label or t_dim or "time",
+        x_label=x_label or x_dim,
+        y_label=y_label or y_dim,
     )
 
     # -------------------------

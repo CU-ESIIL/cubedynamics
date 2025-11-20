@@ -30,6 +30,10 @@ def write_css_cube_static(
     size_px: int = 260,
     faces: Dict[str, str] | None = None,
     colorbar_b64: str | None = None,
+    title: str = "Cube Viewer",
+    time_label: str = "time",
+    x_label: str = "x",
+    y_label: str = "y",
 ) -> Path:
     """Write a standalone HTML page with a simple CSS-based cube skeleton.
 
@@ -43,6 +47,10 @@ def write_css_cube_static(
         Optional mapping of cube face names to data URIs (or ``"none"``).
     colorbar_b64:
         Optional base64-encoded PNG that will be used as the colorbar image.
+    title:
+        Title text rendered above the cube.
+    time_label, x_label, y_label:
+        Axis labels placed around the cube to indicate coordinate directions.
     """
 
     face_map = {**DEFAULT_FACES, **(faces or {})}
@@ -60,7 +68,7 @@ def write_css_cube_static(
 <html lang=\"en\">
 <head>
   <meta charset=\"UTF-8\" />
-  <title>Cube Viewer</title>
+  <title>{title}</title>
   <style>
     :root {{
       --cube-size: {size}px;
@@ -68,7 +76,7 @@ def write_css_cube_static(
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      padding: 0;
+      padding: 24px 12px 32px 12px;
       width: 100%;
       height: 100%;
       background: #000;
@@ -80,20 +88,36 @@ def write_css_cube_static(
       overflow: hidden;
       user-select: none;
     }}
-    #container {{
-      width: 100vw;
-      height: 100vh;
+    .cube-wrapper {{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transform: scale(var(--zoom, 1));
+      transform-origin: center center;
+      transition: transform 120ms ease-out;
+    }}
+    .cube-title {{
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+      text-align: center;
+    }}
+    .scene {{
+      position: relative;
+      width: 900px;
+      height: 700px;
       display: flex;
       align-items: center;
       justify-content: center;
-      perspective: 1200px;
+      perspective: 1600px;
     }}
     #cube {{
       position: relative;
       width: var(--cube-size);
       height: var(--cube-size);
       transform-style: preserve-3d;
-      transform: translateZ(0px) rotateX(var(--rotX, 15deg)) rotateY(var(--rotY, -25deg)) scale(var(--zoom, 1));
+      transform: translateZ(0px) rotateX(var(--rotX, 20deg)) rotateY(var(--rotY, -30deg));
     }}
     .face {{
       position: absolute;
@@ -111,20 +135,36 @@ def write_css_cube_static(
     #left   {{ transform: rotateY(-90deg) translateZ({half}px); { _face_style(face_map['left']) } }}
     #top    {{ transform: rotateX(90deg) translateZ({half}px); { _face_style(face_map['top']) } }}
     #bottom {{ transform: rotateX(-90deg) translateZ({half}px); { _face_style(face_map['bottom']) } }}
-    .label {{
+    .axis-label {{
       position: absolute;
-      top: 10px;
-      left: 10px;
       font-size: 14px;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.04em;
+      background: rgba(0,0,0,0.4);
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.08);
+      pointer-events: none;
+    }}
+    .axis-time {{
+      left: 28px;
+      top: 50%;
+      transform: translate(-50%, -50%) rotate(-90deg);
+      transform-origin: center;
+    }}
+    .axis-x {{
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%);
+    }}
+    .axis-y {{
+      right: 32px;
+      top: 50%;
+      transform: translate(50%, -50%) rotate(90deg);
+      transform-origin: center;
     }}
     .colorbar-wrapper {{
-      position: absolute;
-      left: 50%;
-      bottom: 25px;
-      transform: translateX(-50%);
-      width: 55%;
-      max-width: 520px;
+      width: min(520px, 70vw);
+      align-self: center;
     }}
     .colorbar-img {{
       width: 100%;
@@ -134,40 +174,38 @@ def write_css_cube_static(
       display: block;
     }}
     .colorbar-labels {{
-      position: absolute;
-      left: 50%;
-      bottom: 8px;
-      transform: translateX(-50%);
-      width: 55%;
-      max-width: 520px;
+      width: min(520px, 70vw);
       display: flex;
       justify-content: space-between;
       font-size: 10px;
+      margin-top: 4px;
+      align-self: center;
     }}
   </style>
 
 </head>
 <body>
 
-<div class=\"label\">DataArray cube (drag to rotate, wheel to zoom)</div>
-
-<div id=\"container\">
-  <div id=\"cube\">
-    <div id=\"front\"  class=\"face\"></div>
-    <div id=\"back\"   class=\"face\"></div>
-    <div id=\"right\"  class=\"face\"></div>
-    <div id=\"left\"   class=\"face\"></div>
-    <div id=\"top\"    class=\"face\"></div>
-    <div id=\"bottom\" class=\"face\"></div>
+<div class=\"cube-wrapper\" id=\"cube-wrapper\">
+  <div class=\"cube-title\">{title}</div>
+  <div class=\"scene\" id=\"scene\">
+    <div id=\"cube\"> 
+      <div id=\"front\"  class=\"face\"></div>
+      <div id=\"back\"   class=\"face\"></div>
+      <div id=\"right\"  class=\"face\"></div>
+      <div id=\"left\"   class=\"face\"></div>
+      <div id=\"top\"    class=\"face\"></div>
+      <div id=\"bottom\" class=\"face\"></div>
+    </div>
+    <div class=\"axis-label axis-time\">{time_label} \u2192</div>
+    <div class=\"axis-label axis-y\">{y_label} \u2191</div>
+    <div class=\"axis-label axis-x\">{x_label} \u2192</div>
   </div>
-</div>
-
-<div class=\"colorbar-wrapper\">
-  {colorbar}
-</div>
-<div class=\"colorbar-labels\">
-  <span id=\"cb-min\"></span>
-  <span id=\"cb-max\"></span>
+  <div class=\"colorbar-wrapper\">{colorbar}</div>
+  <div class=\"colorbar-labels\">
+    <span id=\"cb-min\"></span>
+    <span id=\"cb-max\"></span>
+  </div>
 </div>
 
 <script>
@@ -180,9 +218,11 @@ let lastX = 0;
 let lastY = 0;
 
 const cube = document.getElementById("cube");
+const wrapper = document.getElementById("cube-wrapper");
+const scene = document.getElementById("scene");
 cube.style.setProperty("--rotX", rotX + "deg");
 cube.style.setProperty("--rotY", rotY + "deg");
-cube.style.setProperty("--zoom", zoom);
+wrapper.style.setProperty("--zoom", zoom);
 
 document.addEventListener("mousedown", e => {{
   dragging = true;
@@ -206,11 +246,15 @@ document.addEventListener("mousemove", e => {{
   cube.style.setProperty("--rotY", rotY + "deg");
 }});
 
-document.addEventListener("wheel", e => {{
+const applyZoom = () => {{
+  wrapper.style.transform = `scale(${{zoom}})`;
+}};
+
+scene.addEventListener("wheel", e => {{
   e.preventDefault();
-  zoom *= (e.deltaY > 0) ? 0.92 : 1.08;
-  zoom = Math.min(Math.max(zoom, 0.25), 6.0);
-  cube.style.setProperty("--zoom", zoom);
+  zoom += (e.deltaY > 0) ? -0.08 : 0.08;
+  zoom = Math.min(Math.max(zoom, 0.3), 3.0);
+  applyZoom();
 }}, {{ passive: false }});
 
 // Colorbar labels
@@ -218,6 +262,8 @@ const cbMin = document.body.getAttribute("data-cb-min");
 const cbMax = document.body.getAttribute("data-cb-max");
 if (cbMin !== null) document.getElementById("cb-min").innerText = cbMin;
 if (cbMax !== null) document.getElementById("cb-max").innerText = cbMax;
+
+applyZoom();
 
 </script>
 
