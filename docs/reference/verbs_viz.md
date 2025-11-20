@@ -21,6 +21,40 @@ pipe(cube) \
 
 For QA plots outside Lexcube, call the functional helper `cubedynamics.plot_median_over_space(cube, ...)`.
 
+---
+
+## Update (2025): New `v.plot` cube viewer
+
+### `verbs.plot(obj, kind="auto", **kwargs)`
+
+Generic plotting verb.
+
+- `kind="auto"` (default):
+  - If `obj` is 3D `(time,y,x)`, may dispatch to the cube viewer or a slice-based plot, depending on configuration.
+  - For 2D arrays, uses the existing 2D plotting (Matplotlib) behavior.
+
+- `kind="cube"`:
+  - Uses the new HTML cube viewer from `vis_cube_html.cube_with_loading`.
+  - Parameters forwarded:
+    - `out_html`, `cmap`, `size_px`, `thin_time_factor`.
+
+- `kind="slice"`:
+  - Old behavior: 2D map with time slider (ipywidgets + Matplotlib), if still kept for backward compatibility.
+
+### `verbs.map(obj, time_index=None, **kwargs)`
+
+Map-style visualization of `(y,x)` or `(time,y,x)` DataArrays using a MapGL-style engine (pydeck).
+
+Parameters:
+
+- `obj`: piped object or xarray DataArray/Dataset.
+- `time_index`: optional index along the time dimension for 3D inputs (defaults to the last timestep).
+- `**kwargs`: forwarded to `vis_map.show_map_pydeck`, including:
+  - `cmap`, `vmin`, `vmax`: color scaling.
+  - `height`, `width`: canvas size.
+
+Returns a pydeck `Deck` object displayed inline in Jupyter.
+
 ### `v.quick_map()` (planned)
 
 Future work will expose small multiples and static PNG exporters for dashboards. Track development in the [Roadmap](../dev/roadmap.md).

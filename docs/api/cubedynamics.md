@@ -13,7 +13,7 @@ using `mkdocstrings`.
 ## Pipe + verbs
 
 - `cubedynamics.pipe`: exposes the lightweight `Pipe` helper used throughout the documentation. Import via `from cubedynamics import pipe`.
-- `cubedynamics.verbs`: namespace of pipe-able callables (import with `from cubedynamics import verbs as v`). Includes transforms (`v.anomaly`), statistics (`v.mean`, `v.variance`, `v.zscore`), IO helpers, and visualization verbs such as `v.show_cube_lexcube`. The exported `v.correlation_cube` factory is reserved for a future release and currently raises `NotImplementedError`.
+- `cubedynamics.verbs`: namespace of pipe-able callables (import with `from cubedynamics import verbs as v`). Includes transforms (`v.anomaly`), statistics (`v.mean`, `v.variance`, `v.zscore`), IO helpers, and visualization verbs such as `v.show_cube_lexcube`. New 2025 viewers include `v.plot(kind="cube")` for rotatable HTML cubes and `v.map()` for MapGL/pydeck map views. The exported `v.correlation_cube` factory is reserved for a future release and currently raises `NotImplementedError`.
 - `cubedynamics.show_cube_lexcube`: functional helper that mirrors the verb and renders a Lexcube widget without entering a pipe chain.
 
 ## Vegetation indices

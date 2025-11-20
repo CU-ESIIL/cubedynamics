@@ -55,6 +55,123 @@ pipe(daily_temp) | v.variance(dim="time") | v.plot_timeseries()
 
 If the AOI is continental, expect the plot to update after each tile finishes; reduce the date span to speed it up.
 
+## Update (2025): New `v.plot` cube viewer
+
+We’ve added a new HTML-based cube viewer wired into `verbs.plot`, which visualizes any `(time, y, x)` DataArray as a rotatable “Lexcube-style” cube.
+
+### Basic usage
+
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+ndvi = cd.ndvi(
+    lat=40.0,
+    lon=-105.25,
+    start="2000-01-01",
+    end="2024-12-31",
+)
+
+pipe(ndvi) | v.plot(kind="cube")
+```
+
+This call:
+- Infers which dimension is time and which are spatial (y, x).
+- Extracts three faces of the cube: a map face at the most recent timestep, a time–y curtain at x=0, and a time–x curtain at y=max.
+- Applies a colormap and unified color scaling based on the 2nd and 98th percentiles of all face values.
+- Renders a CSS 3D cube that you can rotate (drag) and zoom (scroll) with a colorbar at the bottom.
+
+### Loading screen behavior
+
+For large cubes, `v.plot(kind="cube")` shows a full-screen loading page immediately while Python computes faces and writes the HTML. The cube then replaces the loading view inside the notebook cell.
+
+### Customization
+
+```python
+pipe(ndvi) | v.plot(
+    kind="cube",
+    out_html="ndvi_cube.html",
+    cmap="RdBu_r",
+    size_px=420,
+    thin_time_factor=4,
+)
+```
+
+- `out_html`: filename for the generated HTML cube.
+- `cmap`: matplotlib colormap name.
+- `size_px`: pixel size of the cube faces.
+- `thin_time_factor`: if time is very long, only every Nth time step is used when building the curtains to speed up rendering.
+
+### When to use the cube viewer
+
+Use `v.plot(kind="cube")` when you care about the **geometry of the data cube** itself—e.g., understanding how variance and anomalies are arranged along both spatial and temporal axes for NDVI, PRISM, or climate cubes.
+
+For map-first tasks (zoom, pan, overlay boundaries), see the new `v.map()` function below.
+
+## Update (2025): New `v.map()` for map-style visualization
+
+Most climate and NDVI workflows in `cubedynamics` produce grids that are naturally viewed as **maps**. To support this, we’ve added a new `v.map()` verb that uses a MapGL-style engine (via `pydeck`) to render DataArrays as interactive maps.
+
+### Basic usage
+
+```python
+import cubedynamics as cd
+from cubedynamics import pipe, verbs as v
+
+ndvi = cd.ndvi(
+    lat=40.0,
+    lon=-105.25,
+    start="2020-01-01",
+    end="2020-12-31",
+)
+
+# Map-style NDVI view (last time slice)
+pipe(ndvi) | v.map()
+```
+
+This call:
+- Accepts (y, x) or (time, y, x) DataArrays.
+- If a time dimension is present, selects the last timestep by default.
+- Infers spatial dimensions (y, x) and approximate lon/lat bounds from the DataArray coordinates.
+- Converts the selected slice to a PNG with a chosen colormap.
+- Uses a pydeck.BitmapLayer to render the PNG as a map, positioned at the correct geographic bounds.
+- Opens an interactive map that you can pan and zoom inside Jupyter.
+
+### Time selection and options
+
+```python
+# First timestep, custom colormap
+pipe(ndvi) | v.map(time_index=0, cmap="viridis")
+
+# Larger map canvas
+pipe(ndvi) | v.map(height=800, width=1000)
+```
+
+Key parameters:
+- `time_index`: which index along the time dimension to render (defaults to the last available step).
+- `cmap`: matplotlib colormap name.
+- `vmin`, `vmax`: override automatic percentile-based color scaling.
+- `height`, `width`: size of the rendered pydeck map in pixels.
+
+### Optional: time slider (if enabled)
+
+If you enable the slider wrapper in `vis_map.py`, you can use a simple time slider to scrub through the DataArray over time:
+
+```python
+pipe(ndvi) | v.map(kind="slider")
+```
+
+This creates:
+- An IntSlider over the time dimension.
+- A pydeck map that updates when you move the slider.
+
+### `v.map()` vs. `v.plot(kind="cube")`
+
+- `v.map()` is for **map-centered** exploration: zooming, panning, and overlaying boundaries with full geographic context.
+- `v.plot(kind="cube")` is for **cube geometry**: seeing spatial and temporal slices simultaneously on three faces of a cube.
+
+Both operate on the same underlying `(time, y, x)` DataArrays, and you can switch between them depending on your diagnostic needs.
+
 ## Debugging climate cube streaming
 
 - Force streaming: `cd.load_prism_cube(..., streaming_strategy="virtual")`

@@ -93,6 +93,17 @@ pipe(ndvi_stream) | v.variance(dim=("y", "x")) | v.plot_timeseries()
 
 The plot updates after each tile finishes; for a fast preview, narrow the time range or AOI.
 
+### Update (2025): Cube and map viewers on streamed data
+
+You can now send streamed cubes directly into the new viewers:
+
+```python
+pipe(ndvi_stream) | v.plot(kind="cube")
+pipe(ndvi_stream) | v.map()
+```
+
+The cube viewer renders the `(time, y, x)` DataArray as a rotatable HTML cube (map face plus two time–space curtains) and shows a loading screen while faces are computed. The map viewer selects a time slice (defaults to the last) and displays it in a pydeck map that you can pan and zoom.
+
 ## Limitations and tradeoffs
 
 - Tile boundaries may introduce slight timing differences if your custom verb assumes full-context data.
