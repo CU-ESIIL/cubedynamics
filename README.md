@@ -14,8 +14,8 @@ CubeDynamics is a friendly Python library that turns climate rasters into simple
 
 ## Streaming Massive Climate & NDVI Datasets (New in 2025)
 
-CubeDynamics now supports true streaming of extremely large datasets through a 
-component called `VirtualCube`. This means you can load 40–60+ years of climate 
+CubeDynamics now supports true streaming of extremely large datasets through a
+component called `VirtualCube`. This means you can load 40–60+ years of climate
 data or continental-scale NDVI without running out of memory.
 
 For example:
@@ -27,6 +27,11 @@ ts = pipe(ndvi) | v.mean(dim=("y","x"))
 Even if this dataset is huge, the code stays the same. CubeDynamics streams the
 data tile by tile, handles incremental statistics, and returns a normal
 DataArray.
+
+### What’s new (2025)
+
+- **Cube viewer**: `pipe(cube) | v.plot(kind="cube")` renders any `(time,y,x)` DataArray as a rotatable HTML cube with three faces (map + two time–space curtains) and a colorbar.
+- **Map viewer**: `pipe(cube) | v.map()` renders NDVI / PRISM / climate slices as an interactive map via pydeck/MapGL, ideal for zoom-and-pan exploration in geographic coordinates.
 
 ## Why it matters
 
