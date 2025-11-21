@@ -460,7 +460,7 @@ def _render_cube_html(
 
             // Combine matrices proj * ry * rx
             let mvp = new Float32Array(16);
-            function mul(a,b){
+            function mul(a,b) {{
                 const o=new Float32Array(16);
                 for (let i=0;i<4;i++)
                 for (let j=0;j<4;j++){{
@@ -469,7 +469,7 @@ def _render_cube_html(
                         o[i*4+j]+=a[i*4+k]*b[k*4+j];
                 }}
                 return o;
-            }
+            }}
             mvp = mul(proj, mul(ry, rx));
 
             const loc = gl.getUniformLocation(program,"mvp");
@@ -478,7 +478,7 @@ def _render_cube_html(
             gl.drawElements(gl.LINES, lines.length, gl.UNSIGNED_SHORT, 0);
 
             requestAnimationFrame(draw);
-        }
+          }}
         draw();
     }})();
 
