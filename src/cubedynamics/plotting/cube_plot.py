@@ -20,6 +20,7 @@ import string
 import xarray as xr
 
 from cubedynamics.plotting.cube_viewer import cube_from_dataarray
+from cubedynamics.vase import VaseDefinition
 
 
 @dataclass
@@ -309,6 +310,7 @@ class CubePlot:
     volume_downsample: Dict[str, int] = field(
         default_factory=lambda: {"time": 4, "space": 4}
     )
+    vase_mask: Optional[xr.DataArray] = None
 
     def __post_init__(self) -> None:
         if self.aes is None:
@@ -360,6 +362,32 @@ class CubePlot:
 
     def add_layer(self, layer: CubeLayer) -> "CubePlot":
         self.layers.append(layer)
+        return self
+
+    def stat_vase(
+        self,
+        vase: VaseDefinition,
+        time_dim: str = "time",
+        y_dim: str = "y",
+        x_dim: str = "x",
+    ) -> "CubePlot":
+        """
+        Attach a vase mask to this CubePlot. This is a pure grammar-of-graphics stat;
+        viewer integration occurs in a later prompt.
+        """
+
+        from .stats import StatVase
+
+        stat = StatVase(
+            vase=vase,
+            time_dim=time_dim,
+            y_dim=y_dim,
+            x_dim=x_dim,
+        )
+
+        masked_cube, mask = stat.compute(self.data)
+        self.data = masked_cube
+        self.vase_mask = mask
         return self
 
     def to_html(self) -> str:
