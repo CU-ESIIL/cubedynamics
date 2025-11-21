@@ -131,6 +131,16 @@ def _render_cube_html(
     color_limits: tuple[float, float],
     interior_meta: Dict[str, int],
 ) -> str:
+    interior_html_parts = []
+    if interior_planes:
+        for axis, idx, b64, meta in interior_planes:
+            transform = _interior_plane_transform(axis, idx, meta or interior_meta, size_px)
+            interior_html_parts.append(
+                "<div class=\"interior-plane\" "
+                f"style=\"transform: {transform}; background-image: url('data:image/png;base64,{b64}');\"></div>"
+            )
+    interior_html = "".join(interior_html_parts)
+
     css_vars = " ".join(f"{k}: {v};" for k, v in theme.items())
 
     axis_meta = axis_meta or {}
@@ -200,12 +210,28 @@ def _render_cube_html(
     .cube-wrapper {{
       position: absolute;
       inset: 0;
+      perspective: 950px;
+      transform-style: preserve-3d;
     }}
 
     .cube-canvas {{
       width: 100%;
       height: 100%;
       display: block;
+    }}
+
+    .interior-plane {{
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.65;
+      mix-blend-mode: normal;
+      border: 1px solid rgba(255,255,255,0.08);
+      pointer-events: none;
+      transform-style: preserve-3d;
     }}
 
     .axis-label {{
@@ -315,6 +341,7 @@ def _render_cube_html(
         <div class=\"cube-container\">
           <div id=\"cube-wrapper-{fig_id}\" class=\"cube-wrapper\">
             <canvas class=\"cube-canvas\" id=\"cube-canvas-{fig_id}\"></canvas>
+            {interior_html}
           </div>
 
           <div class=\"axis-label axis-x-min\">{x_meta.get('min','')}</div>
