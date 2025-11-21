@@ -68,7 +68,9 @@ class Pipe(Generic[T]):
         """Rich HTML representation for Jupyter notebooks."""
 
         val = self.value
-        viewer = getattr(val, "_cd_last_viewer", None) or getattr(getattr(val, "attrs", {}), "_cd_last_viewer", None)
+        viewer = getattr(val, "_cd_last_viewer", None)
+        if viewer is None:
+            viewer = getattr(getattr(val, "attrs", {}), "_cd_last_viewer", None)
         if viewer is not None and hasattr(viewer, "_repr_html_"):
             return viewer._repr_html_()
         if hasattr(val, "_repr_html_"):
