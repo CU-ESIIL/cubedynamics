@@ -14,6 +14,13 @@ Climate cubes use a ggplot-inspired grammar so you can build 3D visualizations l
 - **Facets**: `facet_wrap`, `facet_grid` for multi-panel cube walls
 - **Annotations**: `annot_plane`, `annot_text` for domain and figure storytelling
 
+### Vase volumes inside the grammar
+
+- **Stats (`stat_vase`)**: applies `build_vase_mask` to attach a masked cube **and** the vase mask for downstream layers.
+- **Geoms (`geom_vase_outline`)**: instructs the viewer to tint cube faces where the vase touches each slice.
+
+See [Vase Volumes & Arbitrary 3-D Subsets](vase-volumes.md) for a walkthrough of defining vases and combining these layers with `geom_cube`.
+
 ## Minimal example
 
 ```python

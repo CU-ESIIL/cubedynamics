@@ -664,6 +664,9 @@ def cube_from_dataarray(
         from matplotlib.colors import to_rgb
 
         vase_color_rgb = tuple(int(255 * c) for c in to_rgb(vase_outline.color))
+        # Extract per-face mask slices so each PNG face can be tinted before encoding.
+        # Faces follow the viewer convention: front/back in space, left/right through time,
+        # and top/bottom over the two spatial axes.
         mask_slices["front"] = np.asarray(
             vase_mask.isel({t_dim: t_indices[-1]}).transpose(y_dim, x_dim).values,
             dtype=bool,
@@ -699,6 +702,7 @@ def cube_from_dataarray(
         if apply_vase_overlay and vase_color_rgb is not None and mask_key:
             mask_slice = mask_slices.get(mask_key)
             if mask_slice is not None:
+                # Apply tint on the RGB channels before turning the face into a base64 PNG.
                 tinted_rgb = _apply_vase_tint(
                     rgba[..., :3],
                     mask_slice.astype(bool),

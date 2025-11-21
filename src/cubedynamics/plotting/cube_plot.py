@@ -372,9 +372,12 @@ class CubePlot:
         y_dim: str = "y",
         x_dim: str = "x",
     ) -> "CubePlot":
-        """
-        Attach a vase mask to this CubePlot. This is a pure grammar-of-graphics stat;
-        viewer integration occurs in a later prompt.
+        """Attach a vase mask and masked cube to this plot via ``StatVase``.
+
+        ``stat_vase`` computes a streaming-safe mask with
+        :func:`cubedynamics.vase.build_vase_mask`, replaces ``self.data`` with
+        ``cube.where(mask)``, and stores the mask on ``self.vase_mask`` for
+        downstream geoms (notably ``geom_vase_outline``) or viewer overlays.
         """
 
         from .stats import StatVase

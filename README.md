@@ -106,3 +106,39 @@ figure.save("ndvi_anomaly_facets.html")
 ```
 
 See the [CubePlot Grammar of Graphics](docs/cubeplot_grammar.md) and the [Streaming-First Renderer](docs/streaming_renderer.md) pages for the full narrative and gallery examples.
+
+## Vase Volumes: Cutting 3-D Shapes Out of Climate Cubes
+
+A **vase volume** is a time-varying polygon cross-section over `(x, y)` that traces out a 3-D hull as it moves through `(time, y, x)`.
+Use `VaseDefinition` and `build_vase_mask` to turn those polygons into a boolean mask that can be applied to any cube. Once defined you can
+extract voxels inside the vase, plot them with the grammar-of-graphics, and overlay outlines in the cube viewer—without changing the
+default simplicity of `pipe(cube) | v.plot()`.
+
+```python
+from cubedynamics import pipe, verbs as v
+from cubedynamics.vase import VaseDefinition, VaseSection
+import shapely.geometry as geom
+
+# 1. Define a simple vase with two time slices
+vase = VaseDefinition([
+    VaseSection(time="2020-01-01", polygon=geom.Point(0, 0).buffer(1.0)),  # small circle
+    VaseSection(time="2020-12-31", polygon=geom.Point(0, 0).buffer(2.0)),  # larger circle
+])
+
+# 2. Build mask and extract the vase volume
+vase_cube = pipe(cube) | v.vase_extract(vase)
+
+# 3. Plot with cube viewer and outline the vase region
+from cubedynamics.plotting import CubePlot
+
+p = (CubePlot(cube)
+     .stat_vase(vase)
+     .geom_cube()
+     .geom_vase_outline(color="limegreen", alpha=0.7))
+
+p  # display in a notebook
+```
+
+- **Streaming-first**: masks are computed per time slice without loading the whole cube into memory.
+- **Viewer + viz**: `geom_vase_outline` tints cube faces; scientific 3-D helpers in `vase_viz` offer PyVista/Trimesh workflows.
+- **Defaults intact**: the baseline still starts with `pipe(cube) | v.plot()`, with vase volumes layered on when needed.

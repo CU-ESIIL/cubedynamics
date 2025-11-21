@@ -11,6 +11,7 @@ nav:
   - Virtual Cubes: virtual_cubes.md
   - Streaming Large Data: streaming_large_data.md
   - Streaming-First Renderer: streaming_renderer.md
+  - Vase Volumes: vase-volumes.md
   - Pipe syntax & verbs: pipe_verbs.md
   - Grammar of Graphics for CubePlots: cubeplot_grammar.md
   - Operations:
