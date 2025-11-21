@@ -302,6 +302,13 @@ class CubePlot:
     annotations: List[CubeAnnotation] = field(default_factory=list)
     out_html: str = "cube_da.html"
     facet: Optional[CubeFacet] = None
+    fill_mode: str = "shell"
+    volume_density: Dict[str, int] = field(
+        default_factory=lambda: {"time": 6, "x": 2, "y": 2}
+    )
+    volume_downsample: Dict[str, int] = field(
+        default_factory=lambda: {"time": 4, "space": 4}
+    )
 
     def __post_init__(self) -> None:
         if self.aes is None:
@@ -420,10 +427,13 @@ class CubePlot:
                 fill_labels=fill_scale.labels,
                 coord=self.coord,
                 annotations=self.annotations,
-                return_html=False,
+                return_html=True,
                 show_legend=show_legend,
+                fill_mode=self.fill_mode,
+                volume_density=self.volume_density,
+                volume_downsample=self.volume_downsample,
             )
-            return viewer_obj if isinstance(viewer_obj, str) else viewer_obj._repr_html_()
+            return viewer_obj
 
         fill_scale = self.fill_scale or ScaleFillContinuous(cmap=self.cmap)
 

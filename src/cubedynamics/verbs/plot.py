@@ -39,6 +39,9 @@ def _render_and_return(
     view_elev: float | None = None,
     view_azim: float | None = None,
     view_zoom: float | None = None,
+    fill_mode: str = "shell",
+    volume_density: dict[str, int] | None = None,
+    volume_downsample: dict[str, int] | None = None,
     **_: Any,
 ) -> xr.DataArray:
     """Render the cube viewer and return the original DataArray."""
@@ -75,6 +78,9 @@ def _render_and_return(
         out_html=out_html,
         coord=coord,
         fill_scale=ScaleFillContinuous(cmap=cmap, name=legend_title),
+        fill_mode=fill_mode,
+        volume_density=volume_density or {"time": 6, "x": 2, "y": 2},
+        volume_downsample=volume_downsample or {"time": 4, "space": 4},
     )
 
     display(cube_plot)
@@ -105,6 +111,9 @@ def plot(
     view_elev: float | None = None,
     view_azim: float | None = None,
     view_zoom: float | None = None,
+    fill_mode: str = "shell",
+    volume_density: dict[str, int] | None = None,
+    volume_downsample: dict[str, int] | None = None,
     **kwargs: Any,
 ) -> Callable[[xr.DataArray], xr.DataArray] | xr.DataArray:
     """Display a streaming 3D CSS cube viewer for a ``DataArray``.
@@ -150,6 +159,9 @@ def plot(
             view_elev=view_elev,
             view_azim=view_azim,
             view_zoom=view_zoom,
+            fill_mode=fill_mode,
+            volume_density=volume_density,
+            volume_downsample=volume_downsample,
             **kwargs,
         )
 

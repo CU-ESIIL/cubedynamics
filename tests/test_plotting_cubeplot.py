@@ -6,6 +6,7 @@ from cubedynamics.plotting.cube_plot import CubePlot
 from cubedynamics.plotting.cube_viewer import (
     _axis_range_from_ticks,
     _infer_axis_ticks,
+    _render_cube_html,
     cube_from_dataarray,
 )
 
@@ -112,3 +113,97 @@ def test_cube_layout_structure_includes_new_containers(tmp_path):
     assert "cube-main" in html
     assert "cube-inner" in html
     assert "cube-legend-card" in html
+
+
+def test_shell_fill_mode_returns_shell_html(monkeypatch, tmp_path):
+    data = xr.DataArray(np.arange(27).reshape(3, 3, 3), dims=("time", "y", "x"))
+
+    recorded = {}
+
+    def capture(**kwargs):
+        recorded["planes"] = kwargs.get("interior_planes")
+        return _render_cube_html(**kwargs)
+
+    monkeypatch.setattr("cubedynamics.plotting.cube_viewer._render_cube_html", capture)
+
+    html = cube_from_dataarray(
+        data,
+        out_html=str(tmp_path / "shell.html"),
+        show_progress=False,
+        return_html=True,
+        fill_mode="shell",
+    )
+
+    assert recorded.get("planes") is None
+    assert "<div class=\"interior-plane\"" not in html
+
+
+def test_progressive_mode_builds_interior_planes(monkeypatch, tmp_path):
+    data = xr.DataArray(np.arange(64).reshape(4, 4, 4), dims=("time", "y", "x"))
+
+    calls = {}
+
+    def capture(**kwargs):
+        calls["planes"] = kwargs.get("interior_planes")
+        return "<html></html>"
+
+    monkeypatch.setattr("cubedynamics.plotting.cube_viewer._render_cube_html", capture)
+
+    cube_from_dataarray(
+        data,
+        out_html=str(tmp_path / "progressive.html"),
+        show_progress=False,
+        return_html=True,
+        fill_mode="progressive",
+        volume_density={"time": 2, "x": 1, "y": 1},
+        volume_downsample={"time": 1, "space": 2},
+    )
+
+    planes = calls.get("planes")
+    assert planes is not None
+    axes = [axis for axis, *_ in planes]
+    assert "time" in axes
+    assert any(meta["nt"] == 4 and meta["nx"] == 2 and meta["ny"] == 2 for *_, meta in planes)
+
+
+def test_progressive_html_contains_interior_planes(tmp_path):
+    data = xr.DataArray(np.arange(64).reshape(4, 4, 4), dims=("time", "y", "x"))
+
+    html = cube_from_dataarray(
+        data,
+        out_html=str(tmp_path / "progressive_html.html"),
+        show_progress=False,
+        return_html=True,
+        fill_mode="progressive",
+        volume_density={"time": 1, "x": 1, "y": 1},
+        volume_downsample={"time": 2, "space": 2},
+    )
+
+    assert "interior-plane" in html
+
+
+def test_progressive_values_access_is_2d(monkeypatch, tmp_path):
+    data = xr.DataArray(
+        np.arange(64).reshape(4, 4, 4), dims=("time", "y", "x"), name="guard"
+    )
+
+    original_getter = xr.DataArray.values.fget
+
+    def guarded_values(self):
+        if self.ndim > 2:
+            raise AssertionError("Full values access")
+        return original_getter(self)
+
+    monkeypatch.setattr(xr.DataArray, "values", property(guarded_values))
+
+    html = cube_from_dataarray(
+        data,
+        out_html=str(tmp_path / "guard_progressive.html"),
+        show_progress=False,
+        return_html=True,
+        fill_mode="progressive",
+        volume_density={"time": 1, "x": 1, "y": 1},
+        volume_downsample={"time": 2, "space": 2},
+    )
+
+    assert "data:image/png;base64" in html
