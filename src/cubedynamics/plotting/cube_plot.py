@@ -138,6 +138,7 @@ class ScaleFillContinuous:
     center: Optional[float] = None
     transform: Optional[str] = None
     name: Optional[str] = None
+    units: Optional[str] = None
 
     def _default_cmap(self) -> str:
         if self.cmap:
@@ -186,6 +187,9 @@ class CoordCube:
     azim: float = 45.0
     zoom: float = 1.0
     aspect: tuple[float, float, float] = (1.0, 1.0, 1.0)
+    time_ticks: int = 4
+    space_ticks: int = 3
+    time_format: str = "%Y-%m-%d"
 
 
 @dataclass
@@ -445,7 +449,17 @@ class CubePlot:
         if not self.facet:
             stat_data = _apply_stat(da)
             fill_limits = fill_scale.infer_limits(stat_data)
-            legend_title = fill_scale.name or _derive_legend_title(stat_data, self.legend_title)
+            if fill_scale.units is None:
+                units_attr = getattr(stat_data, "attrs", {}).get("units")
+                if isinstance(units_attr, str) and units_attr.strip():
+                    fill_scale.units = units_attr.strip()
+
+            base_legend_title = fill_scale.name or _derive_legend_title(stat_data, self.legend_title)
+            legend_title = (
+                f"{base_legend_title} ({fill_scale.units})"
+                if base_legend_title and fill_scale.units
+                else base_legend_title
+            )
             viewer_html = _render_viewer(stat_data, fill_scale, legend_title)
             return (
                 "<div class='cube-figure' style="
@@ -509,7 +523,17 @@ class CubePlot:
         ]
         combined = xr.concat(stat_arrays, dim="__facet__") if len(stat_arrays) > 1 else stat_arrays[0]
         fill_limits = fill_scale.infer_limits(combined)
-        legend_title = fill_scale.name or _derive_legend_title(combined, self.legend_title)
+        if fill_scale.units is None:
+            units_attr = getattr(combined, "attrs", {}).get("units")
+            if isinstance(units_attr, str) and units_attr.strip():
+                fill_scale.units = units_attr.strip()
+
+        base_legend_title = fill_scale.name or _derive_legend_title(combined, self.legend_title)
+        legend_title = (
+            f"{base_legend_title} ({fill_scale.units})"
+            if base_legend_title and fill_scale.units
+            else base_legend_title
+        )
 
         panel_html = []
         for idx, (label_meta, stat_data) in enumerate(zip(facet_panels, stat_arrays)):

@@ -5,6 +5,7 @@ import io
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
 import numpy as np
+import pandas as pd
 import xarray as xr
 from matplotlib import colormaps, colors as mcolors
 from PIL import Image
@@ -82,6 +83,35 @@ def cube_from_dataarray(
     da = da.transpose(t_dim, y_dim, x_dim)
 
     nt, ny, nx = da.sizes[t_dim], da.sizes[y_dim], da.sizes[x_dim]
+
+    # ---------------------------------------
+    # 1b. Build axis labels and tick helpers
+    # ---------------------------------------
+    time_tick_count = getattr(coord, "time_ticks", 4) if coord is not None else 4
+    space_tick_count = getattr(coord, "space_ticks", 3) if coord is not None else 3
+    time_format = getattr(coord, "time_format", "%Y-%m-%d") if coord is not None else "%Y-%m-%d"
+
+    time_ticks = _infer_axis_ticks(da, t_dim, n_ticks=time_tick_count, time_format=time_format)
+    x_ticks = _infer_axis_ticks(da, x_dim, n_ticks=space_tick_count)
+    y_ticks = _infer_axis_ticks(da, y_dim, n_ticks=space_tick_count)
+
+    axis_info = {
+        "time": {
+            "name": _guess_axis_name(da, t_dim),
+            "range": _axis_range_from_ticks(time_ticks),
+            "ticks": [label for _, label in time_ticks],
+        },
+        "x": {
+            "name": _guess_axis_name(da, x_dim),
+            "range": _axis_range_from_ticks(x_ticks),
+            "ticks": [label for _, label in x_ticks],
+        },
+        "y": {
+            "name": _guess_axis_name(da, y_dim),
+            "range": _axis_range_from_ticks(y_ticks),
+            "ticks": [label for _, label in y_ticks],
+        },
+    }
 
     # ----------------------------
     # 2. Reduce time if needed
@@ -202,6 +232,18 @@ def cube_from_dataarray(
     if not show_legend:
         legend_title = None
 
+    def _axis_label(axis_key: str, fallback: str) -> str:
+        axis_meta = axis_info.get(axis_key, {})
+        axis_name = axis_meta.get("name") or fallback
+        axis_range = axis_meta.get("range")
+        if axis_range:
+            return f"{axis_name}: {axis_range}"
+        return axis_name
+
+    axis_time_label = time_label or _axis_label("time", t_dim or "time")
+    axis_x_label = x_label or _axis_label("x", x_dim)
+    axis_y_label = y_label or _axis_label("y", y_dim)
+
     css_vars: Dict[str, str] = {
         "--cube-bg-color": getattr(theme, "bg_color", "#000"),
         "--cube-panel-color": getattr(theme, "panel_color", "#000"),
@@ -225,15 +267,16 @@ def cube_from_dataarray(
         faces=faces,
         colorbar_b64=colorbar_b64,
         title=derived_title,
-        time_label=time_label or t_dim or "time",
-        x_label=x_label or x_dim,
-        y_label=y_dim,
+        time_label=axis_time_label,
+        x_label=axis_x_label,
+        y_label=axis_y_label,
         legend_title=legend_title,
         css_vars=css_vars,
         colorbar_breaks=fill_breaks,
         colorbar_labels=fill_labels,
         coord=coord,
         annotations=annotations,
+        axis_info=axis_info,
     )
 
     # -------------------------
@@ -312,4 +355,50 @@ def cube_from_dataarray(
     return IFrame(out_html, width=900, height=900)
 
 
-__all__ = ["cube_from_dataarray"]
+def _guess_axis_name(da: xr.DataArray, dim: str) -> str:
+    name = str(dim).lower()
+    if "lat" in name:
+        return "latitude"
+    if "lon" in name or "lng" in name:
+        return "longitude"
+    return dim
+
+
+def _infer_axis_ticks(
+    da: xr.DataArray, dim: str, n_ticks: int = 3, time_format: str = "%Y-%m-%d"
+):
+    if dim not in da.dims:
+        return []
+    coords = da.coords[dim].values
+    if coords.size == 0:
+        return []
+
+    idxs = np.linspace(0, coords.size - 1, num=min(n_ticks, coords.size), dtype=int)
+    values = coords[idxs]
+
+    if np.issubdtype(values.dtype, np.datetime64):
+        times = pd.to_datetime(values)
+        labels = [t.strftime(time_format) for t in times]
+    else:
+        units = da.coords[dim].attrs.get("units", "") if dim in da.coords else ""
+        units_str = f" {units}" if units else ""
+        labels = [f"{float(v):.2f}{units_str}" for v in values]
+
+    return list(zip(values, labels))
+
+
+def _axis_range_from_ticks(ticks):
+    if not ticks:
+        return ""
+    if len(ticks) == 1:
+        return ticks[0][1]
+    return f"{ticks[0][1]} \u2192 {ticks[-1][1]}"
+
+
+__all__ = [
+    "cube_from_dataarray",
+    "_guess_axis_name",
+    "_infer_axis_ticks",
+    "_axis_range_from_ticks",
+]
+

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import html
 from pathlib import Path
 from typing import Any, Dict, List, Sequence
 
@@ -34,6 +35,28 @@ def _colorbar_labels(breaks: Sequence[float] | None, labels: Sequence[str] | Non
     return "".join(spans)
 
 
+def _axis_section(axis: Dict[str, Any] | None) -> str:
+    if not axis:
+        return ""
+    name = axis.get("name")
+    if not name:
+        return ""
+    range_text = axis.get("range") or ""
+    ticks = axis.get("ticks") or []
+    ticks_html = ""
+    if ticks:
+        tick_labels = " \u00b7 ".join(html.escape(str(t)) for t in ticks)
+        ticks_html = f"<div class='axis-ticks'>{tick_labels}</div>"
+    range_html = f"<span class='axis-range'>{html.escape(str(range_text))}</span>" if range_text else ""
+    return (
+        "<div class='axis-row'>"
+        f"<span class='axis-title'>{html.escape(str(name))}:</span>"
+        f"{range_html}"
+        f"{ticks_html}"
+        "</div>"
+    )
+
+
 def write_css_cube_static(
     *,
     out_html: str = "cube_da.html",
@@ -50,6 +73,7 @@ def write_css_cube_static(
     colorbar_labels: Sequence[str] | None = None,
     coord: Any | None = None,
     annotations: Sequence[Any] | None = None,
+    axis_info: Dict[str, Any] | None = None,
 ) -> Path:
     """Write a standalone HTML page with a simple CSS-based cube skeleton.
 
@@ -99,6 +123,18 @@ def write_css_cube_static(
 
     tick_block = _colorbar_labels(colorbar_breaks, colorbar_labels)
 
+    axis_info = axis_info or {}
+    axis_rows = [
+        _axis_section(axis_info.get("time")),
+        _axis_section(axis_info.get("y")),
+        _axis_section(axis_info.get("x")),
+    ]
+    axis_info_html = (
+        "<div class=\"cube-axis-info\">" + "".join([row for row in axis_rows if row]) + "</div>"
+        if any(axis_rows)
+        else ""
+    )
+
     html = f"""
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -122,46 +158,55 @@ def write_css_cube_static(
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
-      padding: 24px 12px 32px 12px;
+      padding: 28px 14px 32px 14px;
       width: 100%;
       height: 100%;
       background: var(--cube-bg-color);
       color: var(--cube-axis-color);
       font-family: var(--cube-font-family);
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
       overflow: hidden;
       user-select: none;
     }}
-    .cube-wrapper {{
+    .cube-figure {{
+      width: min(1180px, 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      transform: scale(var(--zoom, 1));
-      transform-origin: center center;
-      transition: transform 120ms ease-out;
-      background: var(--cube-panel-color);
-      padding: 12px;
-      border-radius: 12px;
-      box-shadow: 0 16px 40px rgba(0,0,0,var(--cube-shadow-strength));
     }}
     .cube-title {{
       font-size: var(--cube-title-font-size);
       letter-spacing: 0.04em;
-      font-weight: 600;
+      font-weight: 700;
       text-align: center;
       color: var(--cube-title-color);
+      margin-bottom: 4px;
     }}
-    .scene {{
+    .cube-main {{
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }}
+    .cube-inner {{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }}
+    .cube-scene {{
       position: relative;
       width: 900px;
-      height: 700px;
+      height: 680px;
       display: flex;
       align-items: center;
       justify-content: center;
       perspective: 1600px;
+      transform: scale(var(--cube-zoom, 1));
+      transform-origin: center center;
+      transition: transform 120ms ease-out;
     }}
     #cube {{
       position: relative;
@@ -204,28 +249,67 @@ def write_css_cube_static(
       border: 1px solid rgba(0,0,0,0.08);
       pointer-events: none;
       color: var(--cube-axis-color);
-      background: rgba(0,0,0,0.08);
+      background: rgba(255,255,255,0.08);
       transform-style: preserve-3d;
+      backdrop-filter: blur(3px);
     }}
     .cube-label-time {{
-      transform: translate3d(-40px, 50%, {half}px) rotateY(90deg) rotateX(90deg);
+      transform: translate3d(-44px, 50%, {half}px) rotateY(90deg) rotateX(90deg);
     }}
     .cube-label-y {{
-      transform: translate3d({half}px, -40px, 0px) rotateX(90deg);
+      transform: translate3d({half}px, -46px, 0px) rotateX(90deg);
     }}
     .cube-label-x {{
-      transform: translate3d(0px, {half + 10}px, {half}px) rotateY(0deg);
+      transform: translate3d(0px, {half + 14}px, {half}px) rotateY(0deg);
+    }}
+    .cube-axis-info {{
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+      color: var(--cube-axis-color);
+      font-size: var(--cube-axis-font-size);
+    }}
+    .axis-row {{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }}
+    .axis-title {{
+      font-weight: 700;
+      color: var(--cube-axis-color);
+      text-transform: lowercase;
+    }}
+    .axis-range {{
+      opacity: 0.95;
+    }}
+    .axis-ticks {{
+      font-size: calc(var(--cube-axis-font-size) * 0.95);
+      opacity: 0.85;
+    }}
+    .cube-legend-panel {{
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      margin-top: 6px;
+    }}
+    .cube-legend-card {{
+      background: #ffffff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      min-width: min(420px, 90%);
     }}
     .colorbar-wrapper {{
-      width: min(520px, 70vw);
-      align-self: center;
+      width: 100%;
     }}
     .colorbar-title {{
       font-size: var(--cube-legend-font-size);
       font-weight: 600;
       color: var(--cube-legend-color);
       text-align: center;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
       font-family: var(--cube-font-family);
     }}
     .colorbar-img {{
@@ -236,11 +320,11 @@ def write_css_cube_static(
       display: block;
     }}
     .colorbar-labels {{
-      width: min(520px, 70vw);
+      width: 100%;
       display: flex;
       justify-content: space-between;
       font-size: var(--cube-legend-font-size);
-      margin-top: 4px;
+      margin-top: 6px;
       align-self: center;
       color: var(--cube-legend-color);
       gap: 6px;
@@ -254,24 +338,34 @@ def write_css_cube_static(
 </head>
 <body>
 
-<div class=\"cube-wrapper\" id=\"cube-wrapper\">
+<div class=\"cube-figure\" id=\"cube-figure\">
   <div class=\"cube-title\">{title}</div>
-  <div class=\"scene\" id=\"scene\">
-    <div id=\"cube\">
-      <div id=\"front\"  class=\"face\"></div>
-      <div id=\"back\"   class=\"face\"></div>
-      <div id=\"right\"  class=\"face\"></div>
-      <div id=\"left\"   class=\"face\"></div>
-      <div id=\"top\"    class=\"face\"></div>
-      <div id=\"bottom\" class=\"face\"></div>
-      <div class=\"cube-outline\"></div>
-      <div class=\"cube-label cube-label-time\">{time_label} \u2192</div>
-      <div class=\"cube-label cube-label-y\">{y_label} \u2191</div>
-      <div class=\"cube-label cube-label-x\">{x_label} \u2192</div>
+  <div class=\"cube-main\">
+    <div class=\"cube-inner\" id=\"cube-inner\">
+      <div class=\"cube-scene\" id=\"cube-scene\">
+        <div id=\"cube\">
+          <div id=\"front\"  class=\"face\"></div>
+          <div id=\"back\"   class=\"face\"></div>
+          <div id=\"right\"  class=\"face\"></div>
+          <div id=\"left\"   class=\"face\"></div>
+          <div id=\"top\"    class=\"face\"></div>
+          <div id=\"bottom\" class=\"face\"></div>
+          <div class=\"cube-outline\"></div>
+          <div class=\"cube-label cube-label-time\">{time_label}</div>
+          <div class=\"cube-label cube-label-y\">{y_label}</div>
+          <div class=\"cube-label cube-label-x\">{x_label}</div>
+        </div>
+      </div>
+      {axis_info_html}
     </div>
   </div>
-  <div class=\"colorbar-wrapper\">{legend_block}{colorbar}</div>
-  <div class=\"colorbar-labels\">{tick_block}</div>
+  <div class=\"cube-legend-panel\">
+    <div class=\"cube-legend-card\">
+      {legend_block}
+      <div class=\"colorbar-wrapper\">{colorbar}</div>
+      <div class=\"colorbar-labels\">{tick_block}</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -279,8 +373,7 @@ class CubeScene {{
   constructor(config) {{
     this.config = config || {{}};
     this.cube = document.getElementById("cube");
-    this.wrapper = document.getElementById("cube-wrapper");
-    this.scene = document.getElementById("scene");
+    this.scene = document.getElementById("cube-scene");
     this.rotX = parseFloat(document.body.getAttribute("data-rot-x") || 20);
     this.rotY = parseFloat(document.body.getAttribute("data-rot-y") || -30);
     this.zoom = parseFloat(document.body.getAttribute("data-zoom") || 1.0);
@@ -294,7 +387,7 @@ class CubeScene {{
   apply() {{
     this.cube.style.setProperty("--rotX", this.rotX + "deg");
     this.cube.style.setProperty("--rotY", this.rotY + "deg");
-    this.wrapper.style.setProperty("--zoom", this.zoom);
+    this.scene.style.setProperty("--cube-zoom", this.zoom);
   }}
 
   bind() {{
