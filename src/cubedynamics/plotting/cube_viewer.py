@@ -18,9 +18,25 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     from cubedynamics.plotting.cube_plot import CoordCube, CubeAnnotation
 
 
-def _array_to_png_base64(
-    arr: np.ndarray, *, cmap: str, fill_limits: tuple[float, float]
-) -> str:
+def _apply_vase_tint(rgb_arr: np.ndarray, mask_2d: np.ndarray, color_rgb: tuple[int, int, int], alpha: float) -> np.ndarray:
+    """
+    Apply an overlay color to ``rgb_arr`` wherever ``mask_2d`` is True.
+
+    This mutates a copy of the input and returns the tinted array.
+    """
+
+    overlay = np.zeros_like(rgb_arr, dtype=np.float32)
+    overlay[..., 0] = color_rgb[0]
+    overlay[..., 1] = color_rgb[1]
+    overlay[..., 2] = color_rgb[2]
+
+    mask_exp = np.broadcast_to(mask_2d[..., None], rgb_arr.shape)
+    blended = rgb_arr.astype(np.float32)
+    blended[mask_exp] = (1 - alpha) * blended[mask_exp] + alpha * overlay[mask_exp]
+    return blended.astype(np.uint8)
+
+
+def _colormap_to_rgba(arr: np.ndarray, *, cmap: str, fill_limits: tuple[float, float]) -> np.ndarray:
     arr = arr.astype("float32")
     mask = np.isfinite(arr)
     if mask.any():
@@ -29,10 +45,20 @@ def _array_to_png_base64(
         norm = mcolors.Normalize(vmin=-1, vmax=1)
     cmap_obj = colormaps.get_cmap(cmap)
     rgba = cmap_obj(norm(arr))
-    img = (rgba * 255).astype("uint8")
+    return (rgba * 255).astype("uint8")
+
+
+def _rgba_to_png_base64(rgba: np.ndarray) -> str:
     buf = io.BytesIO()
-    Image.fromarray(img).save(buf, format="PNG", compress_level=1)
+    Image.fromarray(rgba).save(buf, format="PNG", compress_level=1)
     return base64.b64encode(buf.getvalue()).decode("ascii")
+
+
+def _array_to_png_base64(
+    arr: np.ndarray, *, cmap: str, fill_limits: tuple[float, float]
+) -> str:
+    rgba = _colormap_to_rgba(arr, cmap=cmap, fill_limits=fill_limits)
+    return _rgba_to_png_base64(rgba)
 
 
 def _colorbar_labels(breaks, labels) -> str:
@@ -523,6 +549,8 @@ def cube_from_dataarray(
     fill_mode: str = "shell",
     volume_density: Dict[str, int] | None = None,
     volume_downsample: Dict[str, int] | None = None,
+    vase_mask: xr.DataArray | None = None,
+    vase_outline: Any | None = None,
 ):
     volume_density = volume_density or {"time": 6, "x": 2, "y": 2}
     volume_downsample = volume_downsample or {"time": 4, "space": 4}
@@ -625,13 +653,67 @@ def cube_from_dataarray(
             vmin -= 1.0
             vmax += 1.0
 
+    apply_vase_overlay = vase_mask is not None and vase_outline is not None
+    mask_slices: Dict[str, np.ndarray] = {}
+    vase_color_rgb: tuple[int, int, int] | None = None
+    if apply_vase_overlay:
+        if not all(dim in vase_mask.dims for dim in (t_dim, y_dim, x_dim)):
+            raise ValueError(
+                "vase_mask must include the cube dimensions for time, y, and x"
+            )
+        from matplotlib.colors import to_rgb
+
+        vase_color_rgb = tuple(int(255 * c) for c in to_rgb(vase_outline.color))
+        mask_slices["front"] = np.asarray(
+            vase_mask.isel({t_dim: t_indices[-1]}).transpose(y_dim, x_dim).values,
+            dtype=bool,
+        )
+        mask_slices["back"] = np.flip(
+            np.asarray(
+                vase_mask.isel({t_dim: t_indices[0]}).transpose(y_dim, x_dim).values,
+                dtype=bool,
+            ),
+            axis=1,
+        )
+        mask_slices["left"] = np.asarray(
+            vase_mask.isel({x_dim: 0, t_dim: t_indices}).transpose(y_dim, t_dim).values,
+            dtype=bool,
+        )
+        mask_slices["right"] = np.asarray(
+            vase_mask.isel({x_dim: -1, t_dim: t_indices}).transpose(y_dim, t_dim).values,
+            dtype=bool,
+        )
+        mask_slices["top"] = np.asarray(
+            vase_mask.isel({y_dim: -1, t_dim: t_indices}).transpose(x_dim, t_dim).values,
+            dtype=bool,
+        )
+        mask_slices["bottom"] = np.asarray(
+            vase_mask.isel({y_dim: 0, t_dim: t_indices}).transpose(x_dim, t_dim).values,
+            dtype=bool,
+        )
+
     face_kwargs = {"cmap": cmap, "fill_limits": (vmin, vmax)}
-    front_b64 = _array_to_png_base64(front_spatial, **face_kwargs)
-    back_b64 = _array_to_png_base64(back_spatial, **face_kwargs)
-    left_b64 = _array_to_png_base64(left_time_y, **face_kwargs)
-    right_b64 = _array_to_png_base64(right_time_y, **face_kwargs)
-    top_b64 = _array_to_png_base64(top_time_x, **face_kwargs)
-    bottom_b64 = _array_to_png_base64(bottom_time_x, **face_kwargs)
+
+    def _face_to_png(arr: np.ndarray, mask_key: str | None) -> str:
+        rgba = _colormap_to_rgba(arr, **face_kwargs)
+        if apply_vase_overlay and vase_color_rgb is not None and mask_key:
+            mask_slice = mask_slices.get(mask_key)
+            if mask_slice is not None:
+                tinted_rgb = _apply_vase_tint(
+                    rgba[..., :3],
+                    mask_slice.astype(bool),
+                    vase_color_rgb,
+                    vase_outline.alpha,
+                )
+                rgba = np.concatenate([tinted_rgb, rgba[..., 3:4]], axis=2)
+        return _rgba_to_png_base64(rgba)
+
+    front_b64 = _face_to_png(front_spatial, "front")
+    back_b64 = _face_to_png(back_spatial, "back")
+    left_b64 = _face_to_png(left_time_y, "left")
+    right_b64 = _face_to_png(right_time_y, "right")
+    top_b64 = _face_to_png(top_time_x, "top")
+    bottom_b64 = _face_to_png(bottom_time_x, "bottom")
 
     faces = {
         "front": f"data:image/png;base64,{front_b64}",

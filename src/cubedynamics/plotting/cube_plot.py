@@ -311,6 +311,7 @@ class CubePlot:
         default_factory=lambda: {"time": 4, "space": 4}
     )
     vase_mask: Optional[xr.DataArray] = None
+    vase_outline: Any = None
 
     def __post_init__(self) -> None:
         if self.aes is None:
@@ -390,6 +391,12 @@ class CubePlot:
         self.vase_mask = mask
         return self
 
+    def geom_vase_outline(self, color: str = "limegreen", alpha: float = 0.6) -> "CubePlot":
+        from .geom import GeomVaseOutline
+
+        self.vase_outline = GeomVaseOutline(color=color, alpha=alpha)
+        return self
+
     def to_html(self) -> str:
         da = self.data
         if not isinstance(da, xr.DataArray):
@@ -460,6 +467,8 @@ class CubePlot:
                 fill_mode=self.fill_mode,
                 volume_density=self.volume_density,
                 volume_downsample=self.volume_downsample,
+                vase_mask=self.vase_mask,
+                vase_outline=self.vase_outline,
             )
             return viewer_obj
 
