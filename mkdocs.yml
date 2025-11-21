@@ -21,7 +21,7 @@ nav:
       - LexCube (legacy): lexcube.md
       - Themes and Studio Defaults: design_philosophy.md
       - Captions & Legends: captions_legends.md
-      - Faceting: facet wrap/grid: concepts/faceting.md
+      - "Faceting: facet wrap/grid": concepts/faceting.md
       - Saving & Exporting: ops_io.md
   - Examples & Recipes:
       - PRISM JJA variance: examples/prism_jja_variance.md
