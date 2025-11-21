@@ -79,4 +79,7 @@ def test_plot_pipe_still_works():
 
     result = pipe(cube) | v.plot()
 
-    assert result.unwrap() is cube
+    viewer = result.unwrap()
+
+    assert isinstance(viewer, CubePlot)
+    assert viewer.data.identical(cube)
