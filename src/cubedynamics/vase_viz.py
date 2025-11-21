@@ -25,7 +25,7 @@ def extract_vase_points(
     y_dim: str = "y",
     x_dim: str = "x",
 ):
-    """Extract coordinates and values for voxels where mask == True.
+    """Extract coordinates and values for voxels where ``mask`` is ``True``.
 
     Returns a dict:
         {
@@ -34,6 +34,10 @@ def extract_vase_points(
             "x":    np.ndarray,
             "value": np.ndarray,
         }
+
+    The mask should come from :func:`cubedynamics.vase.build_vase_mask` (or
+    :func:`cubedynamics.verbs.vase.vase_mask`), keeping visualization aligned
+    with the grammar/cube viewer overlays.
 
     This MUST be streaming-friendly:
         - Do not call cube.values on the full cube.
@@ -72,8 +76,9 @@ def vase_scatter_plot(
 ):
     """3-D scientific scatter plot of voxels inside the vase.
 
-    Requires pyvista.
-    Raise ImportError if pyvista is not installed.
+    Requires ``pyvista`` and consumes the same vase mask used by the
+    grammar-of-graphics viewer. Raise ``ImportError`` if ``pyvista`` is not
+    installed.
 
     Axes:
         x-axis = cube[x_dim]
@@ -119,7 +124,9 @@ def vase_to_mesh(
 ):
     """Convert VaseDefinition into a 3-D mesh using a sweep (loft) of polygons.
 
-    Requires trimesh.
+    Requires ``trimesh`` and mirrors the vase geometry used by the cube viewer
+    and verbs. This is an optional scientific helper and not required for
+    standard CubePlot usage.
 
     - time_scale rescales time → z-axis.
     - Polygons are assumed to have identical vertex order for interpolation.
@@ -163,8 +170,9 @@ def vase_scatter_with_hull(
 ):
     """Overlay vase scatter points with a translucent hull mesh.
 
-    Combines PyVista scatter rendering with a trimesh-derived hull when both
-    optional dependencies are available.
+    Combines PyVista scatter rendering with a ``trimesh``-derived hull when both
+    optional dependencies are available, using the same mask produced by
+    :func:`cubedynamics.vase.build_vase_mask`.
     """
 
     try:

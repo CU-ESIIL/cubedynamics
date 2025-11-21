@@ -12,8 +12,13 @@ def vase_mask(
     y_dim: str = "y",
     x_dim: str = "x",
 ) -> xr.DataArray:
-    """
-    Compute a boolean vase mask. Streaming-safe: does not touch cube.values.
+    """Compute a boolean vase mask for a time-varying polygon hull.
+
+    This verb wraps :func:`cubedynamics.vase.build_vase_mask` so it can be used
+    inline with ``pipe(...)``. It only inspects coordinate arrays and streams
+    over time slices, leaving dask-backed cubes lazy.
+
+    Parameters match the cube's dimension names and default to ``("time", "y", "x")``.
     """
     return build_vase_mask(
         cube,
@@ -31,8 +36,12 @@ def vase_extract(
     y_dim: str = "y",
     x_dim: str = "x",
 ) -> xr.DataArray:
-    """
-    Mask cube so that values outside the vase become NaN.
+    """Mask a cube so that values outside the vase become ``NaN``.
+
+    Under the hood this computes the same boolean mask as :func:`vase_mask`
+    (via :func:`cubedynamics.vase.build_vase_mask`) and applies ``cube.where``
+    to preserve laziness. Use it when you want a cube restricted to the vase
+    volume while keeping the streaming-first pipeline intact.
     """
     mask = build_vase_mask(
         cube,

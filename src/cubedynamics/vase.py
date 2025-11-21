@@ -15,7 +15,12 @@ TimeLike = Union[np.datetime64, float, int]
 
 @dataclass
 class VaseSection:
-    """Single cross-section of a vase at a given time."""
+    """Single cross-section of a vase at a given time.
+
+    The polygon is defined in `(x, y)` space while ``time`` is a separate axis,
+    allowing the same geometry vocabulary across cubes. Sections can be listed
+    in any order; ``VaseDefinition`` will sort them by time.
+    """
 
     time: TimeLike
     polygon: Polygon
@@ -23,7 +28,13 @@ class VaseSection:
 
 @dataclass
 class VaseDefinition:
-    """Collection of vase sections with interpolation rules."""
+    """Collection of vase sections with interpolation rules.
+
+    The sections describe how a 2-D polygon cross-section should evolve through
+    time, creating a 3-D "vase volume" once lofted across the cube. ``interp``
+    controls whether polygons are snapped to the nearest timestamp or
+    interpolated vertex-by-vertex (when shapes share the same vertex layout).
+    """
 
     sections: List[VaseSection]
     interp: str = "nearest"
@@ -53,7 +64,8 @@ def _polygon_at_time(vase: VaseDefinition, t: TimeLike) -> Polygon:
     For ``nearest`` interpolation the polygon from the nearest section is
     returned. For ``linear`` interpolation, polygons are interpolated vertex by
     vertex between the bracketing sections. When ``t`` is outside the provided
-    time range, the nearest section polygon is used.
+    time range, the nearest section polygon is used. ``t`` can be numeric or
+    datetime-like, matching the cube's time coordinate type.
     """
 
     vase_sorted = vase.sorted_sections()
@@ -99,9 +111,17 @@ def build_vase_mask(
 ) -> xr.DataArray:
     """Build a boolean mask for voxels inside a time-varying vase.
 
-    The mask matches ``cube`` shape over ``(time, y, x)``. It operates per time
-    slice using only coordinate values, keeping the implementation
-    streaming-friendly and compatible with dask-backed arrays.
+    A **vase volume** is formed by lofting time-stamped polygons through the
+    cube's time axis. This helper evaluates the appropriate polygon for each
+    time coordinate and marks `(y, x)` locations that fall inside it.
+
+    Notes
+    -----
+    - The mask matches ``cube`` shape over ``(time, y, x)`` and carries the name
+      ``"vase_mask"``.
+    - Computation streams over time slices using coordinate arrays only (no
+      ``cube.values``), keeping memory use low and working with dask-backed
+      cubes or ``VirtualCube`` sources.
     """
 
     for dim in (time_dim, y_dim, x_dim):

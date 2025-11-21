@@ -16,6 +16,9 @@ The cube viewer is designed for massive NEON, Sentinel-2, PRISM, and gridMET cub
 - Combines min/max ranges after all slices for consistent color scales
 - Shows a progress indicator (`progress_style="bar"` or `"pulse"`)
 
+Vase volumes reuse the same pattern: `build_vase_mask` walks time slices using coordinates only, so face overlays from
+`geom_vase_outline` keep the streaming pipeline intact. See [Vase Volumes & Arbitrary 3-D Subsets](vase-volumes.md) for details.
+
 ## Faceting with streaming
 
 Facets subset the cube one panel at a time while sharing scales:

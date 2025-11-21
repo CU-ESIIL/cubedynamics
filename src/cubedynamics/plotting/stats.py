@@ -15,8 +15,12 @@ class StatVase:
     x_dim: str = "x"
 
     def compute(self, cube: xr.DataArray):
-        """
-        Returns (masked_cube, mask) without triggering full cube load.
+        """Return ``(masked_cube, mask)`` without triggering full cube load.
+
+        This stat is intended for use inside ``CubePlot.stat_vase``. It
+        delegates to :func:`cubedynamics.vase.build_vase_mask` to maintain the
+        streaming-first contract, then applies ``cube.where(mask)`` so geoms can
+        work with the masked data while preserving the mask for overlays.
         """
         mask = build_vase_mask(
             cube,
