@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+import logging
 import html
 import os
 import string
@@ -25,6 +26,9 @@ import pandas as pd
 from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 from cubedynamics.vase import VaseDefinition
 from cubedynamics.utils import _infer_time_y_x_dims
+
+
+logger = logging.getLogger(__name__)
 
 
 class _CubePlotMeta(type):
@@ -847,6 +851,7 @@ class CubePlot(metaclass=_CubePlotMeta):
         raise NotImplementedError(f"Unsupported export format '{fmt}'. Supported: html, png (stub)")
 
     def _repr_html_(self) -> str:  # pragma: no cover - exercised in notebooks
+        logger.info("CubePlot._repr_html_ called for %s", getattr(self.data, "name", None))
         return self.to_html()
 
 

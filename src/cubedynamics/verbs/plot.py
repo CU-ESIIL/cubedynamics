@@ -5,6 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import overload
 
+import logging
+
 import xarray as xr
 
 from cubedynamics.plotting.cube_plot import CubePlot, ScaleFillContinuous
@@ -14,6 +16,9 @@ from ..piping import Verb
 from ..vase import extract_vase_from_attrs
 
 __all__ = ["plot"]
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -102,6 +107,10 @@ def plot(
                 "v.plot expects an xarray.DataArray or VirtualCube. "
                 f"Got type {type(da_value)!r}."
             )
+
+        logger.info(
+            "v.plot() called with da name=%s dims=%s", getattr(da_value, "name", None), da_value.dims
+        )
 
         t_dim, y_dim, x_dim = _infer_time_y_x_dims(da_value)
         resolved_time = opts.time_dim or t_dim

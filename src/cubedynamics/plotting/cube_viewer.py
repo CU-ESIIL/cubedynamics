@@ -372,6 +372,8 @@ def _render_cube_html(
   </div>
 
   <script>
+    console.log('[CubeViewer] script starting');
+    try {{
     (function() {{
         const canvas = document.getElementById("cube-canvas-{fig_id}");
         const gl = canvas.getContext("webgl");
@@ -528,6 +530,9 @@ def _render_cube_html(
           }}
         draw();
     }})();
+    }} catch (err) {{
+      console.error('[CubeViewer] top-level error', err);
+    }}
 
     const cbMin = document.body.getAttribute("data-cb-min");
     const cbMax = document.body.getAttribute("data-cb-max");
