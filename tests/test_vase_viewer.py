@@ -40,6 +40,24 @@ def test_cubeplot_with_vase_outline(tmp_path):
     assert "data:image/png" in html
 
 
+def test_vase_chain_with_geom_cube(tmp_path):
+    data = xr.DataArray(
+        np.arange(8).reshape(2, 2, 2), dims=("time", "y", "x"), name="demo"
+    )
+    triangle = Polygon([(0, 0), (1, 0), (0.5, 1)])
+    vase_def = VaseDefinition([VaseSection(time=0, polygon=triangle)])
+
+    plot_obj = (
+        CubePlot(data, show_progress=False, out_html=str(tmp_path / "vase_geom.html"))
+        .stat_vase(vase_def)
+        .geom_cube()
+        .geom_vase_outline(color="limegreen", alpha=0.7)
+    )
+
+    html = plot_obj.to_html()
+    assert "data:image/png" in html
+
+
 def test_vase_tint_called_for_each_face(monkeypatch, tmp_path):
     data = xr.DataArray(np.ones((2, 2, 2)), dims=("time", "y", "x"))
     mask = xr.DataArray(np.ones_like(data, dtype=bool), dims=data.dims)

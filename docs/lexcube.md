@@ -56,10 +56,8 @@ This call:
   - Click-and-drag to rotate.
   - Scroll to zoom.
 - Displays a colorbar at the bottom with dynamic min/max labels.
-
-### Loading screen behavior
-
-For large cubes, `v.plot(kind="cube")` shows a full-screen loading page immediately (a black background with a simple progress bar) while Python computes faces and writes the HTML. Once ready, the cube replaces the loading page in the notebook cell.
+- Adds Lexcube-style axis labels around the cube, with axis names near the edges and min/max tick labels tucked beside each axis rather than in a tall block below the viewer.
+- Streams progress inline in the notebook cell without a blocking loading overlay, so subsequent cells stay responsive while faces are being encoded.
 
 ### Customization
 

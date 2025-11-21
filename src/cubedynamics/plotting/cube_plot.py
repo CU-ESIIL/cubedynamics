@@ -19,8 +19,12 @@ import string
 
 import xarray as xr
 
+import numpy as np
+import pandas as pd
+
 from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 from cubedynamics.vase import VaseDefinition
+from cubedynamics.utils import _infer_time_y_x_dims
 
 
 @dataclass
@@ -272,6 +276,93 @@ def _build_caption(caption: Optional[Dict[str, Any]]) -> str:
     return "".join(parts)
 
 
+def _format_time_label(value: Any) -> str:
+    try:
+        ts = pd.to_datetime(value)
+        return ts.strftime("%d.%m.%Y")
+    except Exception:
+        return str(value)
+
+
+def _format_lat(value: Any) -> str:
+    try:
+        val = float(value)
+    except Exception:
+        return str(value)
+    hemi = "N" if val >= 0 else "S"
+    return f"{abs(val):.0f}°{hemi}"
+
+
+def _format_lon(value: Any) -> str:
+    try:
+        val = float(value)
+    except Exception:
+        return str(value)
+    hemi = "E" if val >= 0 else "W"
+    return f"{abs(val):.0f}°{hemi}"
+
+
+def _format_numeric(value: Any) -> str:
+    try:
+        return f"{float(value):.2f}"
+    except Exception:
+        return str(value)
+
+
+def _looks_like_lat(values: np.ndarray, units: str, dim_name: str) -> bool:
+    name_lower = dim_name.lower()
+    units_lower = units.lower()
+    if "lat" in name_lower or "latitude" in name_lower:
+        return True
+    if name_lower == "y":
+        try:
+            numeric = values.astype(float)
+            finite = np.isfinite(numeric)
+            if finite.any():
+                within_range = np.nanmin(numeric[finite]) >= -90.5 and np.nanmax(numeric[finite]) <= 90.5
+                has_fraction = np.any(np.mod(numeric[finite], 1) != 0)
+                if within_range and has_fraction:
+                    return True
+        except Exception:
+            pass
+    if any(k in units_lower for k in ["lat", "north", "degrees_north", "deg"]):
+        try:
+            numeric = values.astype(float)
+            finite = np.isfinite(numeric)
+            if finite.any():
+                return np.nanmin(numeric[finite]) >= -90.5 and np.nanmax(numeric[finite]) <= 90.5
+        except Exception:
+            return False
+    return False
+
+
+def _looks_like_lon(values: np.ndarray, units: str, dim_name: str) -> bool:
+    name_lower = dim_name.lower()
+    units_lower = units.lower()
+    if "lon" in name_lower or "longitude" in name_lower:
+        return True
+    if name_lower == "x":
+        try:
+            numeric = values.astype(float)
+            finite = np.isfinite(numeric)
+            if finite.any():
+                within_range = np.nanmin(numeric[finite]) >= -360.5 and np.nanmax(numeric[finite]) <= 360.5
+                has_fraction = np.any(np.mod(numeric[finite], 1) != 0)
+                if within_range and has_fraction:
+                    return True
+        except Exception:
+            pass
+    if any(k in units_lower for k in ["lon", "east", "west", "degrees_east", "deg"]):
+        try:
+            numeric = values.astype(float)
+            finite = np.isfinite(numeric)
+            if finite.any():
+                return np.nanmin(numeric[finite]) >= -360.5 and np.nanmax(numeric[finite]) <= 360.5
+        except Exception:
+            return False
+    return False
+
+
 @dataclass
 class CubePlot:
     """Internal object model for cube visualizations.
@@ -285,6 +376,7 @@ class CubePlot:
     aes: Optional[CubeAes] = None
     layers: List[CubeLayer] = field(default_factory=list)
     title: Optional[str] = None
+    fig_title: Optional[str] = None
     legend_title: Optional[str] = None
     theme: CubeTheme = field(default_factory=theme_cube_studio)
     caption: Optional[Dict[str, Any]] = None
@@ -312,6 +404,7 @@ class CubePlot:
     )
     vase_mask: Optional[xr.DataArray] = None
     vase_outline: Any = None
+    axis_meta: Dict[str, Dict[str, str]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.aes is None:
@@ -330,6 +423,85 @@ class CubePlot:
             self.fill_scale.palette = "diverging"
         if self.alpha_scale is None:
             self.alpha_scale = ScaleAlphaContinuous()
+        if self.caption is None and self.fig_title is not None:
+            self.caption = {"title": self.fig_title}
+        if isinstance(self.data, xr.DataArray):
+            self.axis_meta = self.axis_meta or self._build_axis_meta(self.data)
+
+    def _resolve_dims(self, data: xr.DataArray) -> tuple[str | None, str | None, str | None]:
+        if self.time_dim:
+            t_dim = self.time_dim
+            remaining = [d for d in data.dims if d != t_dim]
+            y_dim, x_dim = (remaining + [None, None])[-2:]
+            return t_dim, y_dim, x_dim
+        return _infer_time_y_x_dims(data)
+
+    def _build_axis_meta(self, data: xr.DataArray) -> Dict[str, Dict[str, str]]:
+        def _entry(dim: str | None, kind_hint: str, label_override: Optional[str]) -> tuple[str, Dict[str, str]] | None:
+            if dim is None:
+                return None
+            coord = data.coords.get(dim)
+            dim_name = str(dim)
+            if coord is not None and coord.size > 0:
+                values = np.asarray(coord.values)
+                units = str(coord.attrs.get("units", ""))
+            else:
+                values = np.arange(data.sizes.get(dim, 0))
+                units = ""
+
+            kind = kind_hint
+            if kind_hint == "y":
+                if _looks_like_lat(values, units, dim_name):
+                    kind = "lat"
+                elif _looks_like_lon(values, units, dim_name):
+                    kind = "lon"
+                else:
+                    kind = "generic"
+            elif kind_hint == "x":
+                if _looks_like_lon(values, units, dim_name):
+                    kind = "lon"
+                elif _looks_like_lat(values, units, dim_name):
+                    kind = "lat"
+                else:
+                    kind = "generic"
+            elif kind_hint == "time":
+                kind = "time"
+
+            name_lookup = {"time": "Time", "lat": "Latitude", "lon": "Longitude"}
+            base_name = label_override or name_lookup.get(kind) or str(dim).title()
+
+            if values.size == 0:
+                min_label = max_label = ""
+            else:
+                min_val = values.min()
+                max_val = values.max()
+                if kind == "time":
+                    min_label = _format_time_label(min_val)
+                    max_label = _format_time_label(max_val)
+                elif kind == "lat":
+                    min_label = _format_lat(min_val)
+                    max_label = _format_lat(max_val)
+                elif kind == "lon":
+                    min_label = _format_lon(min_val)
+                    max_label = _format_lon(max_val)
+                else:
+                    min_label = _format_numeric(min_val)
+                    max_label = _format_numeric(max_val)
+
+            return str(kind_hint), {"name": base_name, "min": min_label, "max": max_label}
+
+        t_dim, y_dim, x_dim = self._resolve_dims(data)
+        meta: Dict[str, Dict[str, str]] = {}
+        for dim, kind, label in (
+            (t_dim, "time", self.time_label),
+            (y_dim, "y", self.y_label),
+            (x_dim, "x", self.x_label),
+        ):
+            entry = _entry(dim, kind, label)
+            if entry:
+                key, value = entry
+                meta[key] = value
+        return meta
 
     def scale_fill_continuous(self, **kwargs: Any) -> "CubePlot":
         self.fill_scale = ScaleFillContinuous(**kwargs)
@@ -364,6 +536,11 @@ class CubePlot:
     def add_layer(self, layer: CubeLayer) -> "CubePlot":
         self.layers.append(layer)
         return self
+
+    def geom_cube(self, **params: Any) -> "CubePlot":
+        """Explicitly add a cube geometry layer."""
+
+        return self.add_layer(geom_cube(**params))
 
     def stat_vase(
         self,
@@ -442,6 +619,7 @@ class CubePlot:
             *,
             facet_idx: int = 0,
             show_legend: bool = True,
+            axis_meta: Optional[Dict[str, Dict[str, str]]] = None,
         ) -> str:
             base, ext = os.path.splitext(self.out_html)
             panel_path = f"{base}_facet{facet_idx}{ext or '.html'}" if self.facet else self.out_html
@@ -472,6 +650,7 @@ class CubePlot:
                 volume_downsample=self.volume_downsample,
                 vase_mask=self.vase_mask,
                 vase_outline=self.vase_outline,
+                axis_meta=axis_meta,
             )
             return viewer_obj
 
@@ -510,7 +689,10 @@ class CubePlot:
                 if base_legend_title and fill_scale.units
                 else base_legend_title
             )
-            viewer_html = _render_viewer(stat_data, fill_scale, legend_title)
+            axis_meta = self.axis_meta or self._build_axis_meta(stat_data)
+            viewer_html = _render_viewer(
+                stat_data, fill_scale, legend_title, axis_meta=axis_meta
+            )
             return (
                 "<div class='cube-figure' style="
                 f"font-family:{self.theme.title_font_family}; background:{self.theme.bg_color}; padding:16px; border-radius:12px; box-shadow:0 16px 40px rgba(0,0,0,{self.theme.shadow_strength});"
@@ -588,7 +770,15 @@ class CubePlot:
         panel_html = []
         for idx, (label_meta, stat_data) in enumerate(zip(facet_panels, stat_arrays)):
             title_text, _ = label_meta
-            viewer_html = _render_viewer(stat_data, fill_scale, legend_title, facet_idx=idx, show_legend=idx == 0)
+            axis_meta = self.axis_meta or self._build_axis_meta(stat_data)
+            viewer_html = _render_viewer(
+                stat_data,
+                fill_scale,
+                legend_title,
+                facet_idx=idx,
+                show_legend=idx == 0,
+                axis_meta=axis_meta,
+            )
             panel_html.append(
                 "<div class='cube-facet-panel'>" + _panel_label(idx, title_text) + viewer_html + "</div>"
             )

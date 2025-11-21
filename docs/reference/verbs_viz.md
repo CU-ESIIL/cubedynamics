@@ -34,7 +34,7 @@ Generic plotting verb.
   - For 2D arrays, uses the existing 2D plotting (Matplotlib) behavior.
 
 - `kind="cube"`:
-  - Uses the new HTML cube viewer from `vis_cube_html.cube_with_loading`.
+  - Uses the HTML cube viewer with streaming, non-blocking progress text and Lexcube-style axis labels.
   - Parameters forwarded:
     - `out_html`, `cmap`, `size_px`, `thin_time_factor`.
 

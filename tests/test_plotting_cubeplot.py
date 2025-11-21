@@ -9,6 +9,7 @@ from cubedynamics.plotting.cube_viewer import (
     _render_cube_html,
     cube_from_dataarray,
 )
+from cubedynamics.verbs import plot
 
 
 def test_cubeplot_to_html_includes_caption_and_theme(tmp_path):
@@ -95,6 +96,60 @@ def test_axis_tick_inference_includes_units_and_time_format(tmp_path):
     assert any("degrees_north" in label for _, label in y_ticks)
     assert any(label.startswith("2020-") for _, label in time_ticks)
     assert "→" in _axis_range_from_ticks(time_ticks)
+
+
+def test_plot_returns_cubeplot_without_full_values(monkeypatch):
+    data = xr.DataArray(np.arange(27).reshape(3, 3, 3), dims=("time", "y", "x"))
+
+    original_getter = xr.DataArray.values.fget
+
+    def guarded_values(self):
+        if self.ndim > 2:
+            raise AssertionError("Full values access")
+        return original_getter(self)
+
+    monkeypatch.setattr(xr.DataArray, "values", property(guarded_values))
+
+    viewer = plot()(data)
+    assert isinstance(viewer, CubePlot)
+
+
+def test_axis_meta_formats_time_and_latlon():
+    times = pd.to_datetime(["1979-01-05", "1979-01-15"])
+    lats = xr.DataArray([45.2, -12.7], dims=("y",))
+    lons = xr.DataArray([100.4, -80.2], dims=("x",))
+    data = xr.DataArray(
+        np.arange(8).reshape(2, 2, 2),
+        dims=("time", "y", "x"),
+        coords={"time": times, "y": lats, "x": lons},
+        name="demo",
+    )
+
+    cube_plot = CubePlot(data, show_progress=False)
+    axis_meta = cube_plot.axis_meta
+
+    assert axis_meta["time"]["min"] == "05.01.1979"
+    assert axis_meta["time"]["max"] == "15.01.1979"
+    assert axis_meta["y"]["min"].endswith("S")
+    assert axis_meta["y"]["max"].endswith("N")
+    assert axis_meta["x"]["min"].endswith("W")
+    assert axis_meta["x"]["max"].endswith("E")
+
+
+def test_axis_meta_generic_numeric():
+    times = pd.to_datetime(["2020-01-01", "2020-02-01"])
+    data = xr.DataArray(
+        np.arange(16).reshape(2, 2, 4),
+        dims=("time", "row", "col"),
+        coords={"time": times, "row": [0, 1], "col": [10.0, 20.0, 30.0, 40.0]},
+    )
+
+    cube_plot = CubePlot(data, show_progress=False)
+    meta = cube_plot.axis_meta
+
+    assert meta["y"]["name"] == "Row"
+    assert meta["x"]["name"] == "Col"
+    assert meta["x"]["max"].startswith("40.")
 
 
 def test_cube_layout_structure_includes_new_containers(tmp_path):

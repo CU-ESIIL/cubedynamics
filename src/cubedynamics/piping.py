@@ -11,6 +11,16 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
+class Verb(Generic[T, U]):
+    """Wrapper for callables used in pipe chains."""
+
+    def __init__(self, func: Callable[[T], U]):
+        self.func = func
+
+    def __call__(self, value: T) -> U:
+        return self.func(value)
+
+
 class Pipe(Generic[T]):
     """Wrap a value so it can flow through ``|`` pipe stages."""
 
@@ -60,4 +70,4 @@ def pipe(value: T) -> Pipe[T]:
     return Pipe(value)
 
 
-__all__ = ["Pipe", "pipe"]
+__all__ = ["Pipe", "pipe", "Verb"]

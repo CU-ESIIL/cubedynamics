@@ -9,7 +9,7 @@ import pandas as pd
 import xarray as xr
 from matplotlib import colormaps, colors as mcolors
 from PIL import Image
-from IPython.display import HTML, IFrame, display, update_display
+from IPython.display import HTML
 
 from cubedynamics.utils import _infer_time_y_x_dims
 from cubedynamics.plotting.progress import _CubeProgress
@@ -71,39 +71,6 @@ def _colorbar_labels(breaks, labels) -> str:
     return "".join(spans)
 
 
-def _axis_section(axis: Dict[str, Any] | None) -> str:
-    if not axis:
-        return ""
-    name = axis.get("name")
-    if not name:
-        return ""
-    range_text = axis.get("range") or ""
-    ticks = axis.get("ticks") or []
-    ticks_html = ""
-    if ticks:
-        tick_labels = " \u00b7 ".join(str(t) for t in ticks)
-        ticks_html = f"<div class='axis-ticks'>{tick_labels}</div>"
-    range_html = f"<span class='axis-range'>{range_text}</span>" if range_text else ""
-    return (
-        "<div class='axis-row'>"
-        f"<span class='axis-title'>{name}:</span>"
-        f"{range_html}"
-        f"{ticks_html}"
-        "</div>"
-    )
-
-
-def _build_axis_info_html(axis_info: Dict[str, Any]) -> str:
-    axis_rows = [
-        _axis_section(axis_info.get("time")),
-        _axis_section(axis_info.get("y")),
-        _axis_section(axis_info.get("x")),
-    ]
-    if not any(axis_rows):
-        return ""
-    return "<div class=\"cube-axis-info\">" + "".join([row for row in axis_rows if row]) + "</div>"
-
-
 def _build_legend_html(
     *,
     legend_title: str | None,
@@ -158,9 +125,8 @@ def _render_cube_html(
     coord: "CoordCube" | None,
     legend_html: str,
     title_html: str,
-    axes_html: str,
     size_px: int,
-    axis_labels: Dict[str, str],
+    axis_meta: Dict[str, Dict[str, str]] | None,
     color_limits: tuple[float, float],
     interior_meta: Dict[str, int],
 ) -> str:
@@ -196,6 +162,11 @@ def _render_cube_html(
     elev = getattr(coord, "elev", 15.0)
     azim = getattr(coord, "azim", -25.0)
     zoom = getattr(coord, "zoom", 1.0)
+
+    axis_meta = axis_meta or {}
+    time_meta = axis_meta.get("time", {})
+    x_meta = axis_meta.get("x", {})
+    y_meta = axis_meta.get("y", {})
 
     html = f"""
 <!DOCTYPE html>
@@ -303,53 +274,57 @@ def _render_cube_html(
       border: 1px solid rgba(255,255,255,0.15);
       pointer-events: none;
     }}
-    .cube-label {{
+    .cube-axis-label {{
       position: absolute;
-      font-size: var(--cube-axis-font-size);
-      letter-spacing: 0.04em;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid rgba(0,0,0,0.08);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
       pointer-events: none;
-      color: var(--cube-axis-color);
-      background: rgba(255,255,255,0.08);
-      transform-style: preserve-3d;
-      backdrop-filter: blur(3px);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.45);
     }}
-    .cube-label-time {{
-      transform: translate3d(-44px, 50%, {half}px) rotateY(90deg) rotateX(90deg);
+    .cube-axis-time-name {{
+      left: 10%;
+      bottom: 20%;
     }}
-    .cube-label-y {{
-      transform: translate3d({half}px, -46px, 0px) rotateX(90deg);
+    .cube-axis-time-min {{
+      left: 8%;
+      bottom: 5%;
     }}
-    .cube-label-x {{
-      transform: translate3d(0px, {half + 14}px, {half}px) rotateY(0deg);
+    .cube-axis-time-max {{
+      left: 8%;
+      top: 5%;
     }}
-    .cube-axis-info {{
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      align-items: center;
-      color: var(--cube-axis-color);
-      font-size: var(--cube-axis-font-size);
+
+    .cube-axis-x-name {{
+      left: 40%;
+      bottom: 5%;
     }}
-    .axis-row {{
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
+    .cube-axis-x-min {{
+      left: 25%;
+      bottom: 3%;
     }}
-    .axis-title {{
-      font-weight: 700;
-      color: var(--cube-axis-color);
-      text-transform: lowercase;
+    .cube-axis-x-max {{
+      right: 8%;
+      bottom: 3%;
     }}
-    .axis-range {{
-      opacity: 0.95;
+
+    .cube-axis-y-name {{
+      right: 5%;
+      top: 40%;
+      transform: rotate(-90deg);
+      transform-origin: center;
     }}
-    .axis-ticks {{
-      font-size: calc(var(--cube-axis-font-size) * 0.95);
-      opacity: 0.85;
+    .cube-axis-y-min {{
+      right: 2%;
+      bottom: 10%;
+      transform: rotate(-90deg);
+      transform-origin: center;
+    }}
+    .cube-axis-y-max {{
+      right: 2%;
+      top: 5%;
+      transform: rotate(-90deg);
+      transform-origin: center;
     }}
     .cube-legend-panel {{
       width: 100%;
@@ -396,37 +371,9 @@ def _render_cube_html(
       flex: 1;
       text-align: center;
     }}
-    #cube-loading-overlay {{
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      z-index: 9999;
-      font-family: system-ui, sans-serif;
-    }}
-    .cube-spinner {{
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      border: 6px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      animation: cube-spin 0.9s linear infinite;
-      margin-bottom: 12px;
-    }}
-    .cube-loading-text {{
-      color: white;
-      font-size: 14px;
-    }}
-    @keyframes cube-spin {{
-      to {{ transform: rotate(360deg); }}
-    }}
   </style>
 </head>
 <body data-cb-min=\"{color_limits[0]:.2f}\" data-cb-max=\"{color_limits[1]:.2f}\" data-rot-x=\"{elev}\" data-rot-y=\"{azim}\" data-zoom=\"{zoom}\">\n\
-  <div id=\"cube-loading-overlay\">\n    <div class=\"cube-spinner\"></div>\n    <div class=\"cube-loading-text\">Loading cube…</div>\n  </div>\n
   <div class=\"cube-figure\" id=\"cube-figure\">{title_html}
     <div class=\"cube-main\">
       <div class=\"cube-inner\" id=\"cube-inner\">
@@ -440,23 +387,23 @@ def _render_cube_html(
             <div id=\"bottom\" class=\"face\"></div>\n\
             {interior_html}
             <div class=\"cube-outline\"></div>
-            <div class=\"cube-label cube-label-time\">{axis_labels.get('time','time')}</div>
-            <div class=\"cube-label cube-label-y\">{axis_labels.get('y','y')}</div>
-            <div class=\"cube-label cube-label-x\">{axis_labels.get('x','x')}</div>
           </div>
+          <div class=\"cube-axis-label cube-axis-time-name\">{time_meta.get('name','')}</div>
+          <div class=\"cube-axis-label cube-axis-time-min\">{time_meta.get('min','')}</div>
+          <div class=\"cube-axis-label cube-axis-time-max\">{time_meta.get('max','')}</div>
+          <div class=\"cube-axis-label cube-axis-x-name\">{x_meta.get('name','')}</div>
+          <div class=\"cube-axis-label cube-axis-x-min\">{x_meta.get('min','')}</div>
+          <div class=\"cube-axis-label cube-axis-x-max\">{x_meta.get('max','')}</div>
+          <div class=\"cube-axis-label cube-axis-y-name\">{y_meta.get('name','')}</div>
+          <div class=\"cube-axis-label cube-axis-y-min\">{y_meta.get('min','')}</div>
+          <div class=\"cube-axis-label cube-axis-y-max\">{y_meta.get('max','')}</div>
         </div>
-        {axes_html}
       </div>
     </div>
     {legend_html}
   </div>
 
   <script>
-    window.addEventListener("load", function() {{
-      var overlay = document.getElementById("cube-loading-overlay");
-      if (overlay) overlay.style.display = "none";
-    }});
-
     class CubeScene {{
       constructor() {{
         this.cube = document.getElementById("cube");
@@ -551,6 +498,7 @@ def cube_from_dataarray(
     volume_downsample: Dict[str, int] | None = None,
     vase_mask: xr.DataArray | None = None,
     vase_outline: Any | None = None,
+    axis_meta: Dict[str, Dict[str, str]] | None = None,
 ):
     volume_density = volume_density or {"time": 6, "x": 2, "y": 2}
     volume_downsample = volume_downsample or {"time": 4, "space": 4}
@@ -579,21 +527,21 @@ def cube_from_dataarray(
     x_ticks = _infer_axis_ticks(da, x_dim, n_ticks=space_tick_count)
     y_ticks = _infer_axis_ticks(da, y_dim, n_ticks=space_tick_count)
 
-    axis_info = {
+    axis_meta = axis_meta or {
         "time": {
-            "name": _guess_axis_name(da, t_dim),
-            "range": _axis_range_from_ticks(time_ticks),
-            "ticks": [label for _, label in time_ticks],
+            "name": (time_label or _guess_axis_name(da, t_dim)).title(),
+            "min": time_ticks[0][1] if time_ticks else "",
+            "max": time_ticks[-1][1] if time_ticks else "",
         },
         "x": {
-            "name": _guess_axis_name(da, x_dim),
-            "range": _axis_range_from_ticks(x_ticks),
-            "ticks": [label for _, label in x_ticks],
+            "name": (x_label or _guess_axis_name(da, x_dim)).title(),
+            "min": x_ticks[0][1] if x_ticks else "",
+            "max": x_ticks[-1][1] if x_ticks else "",
         },
         "y": {
-            "name": _guess_axis_name(da, y_dim),
-            "range": _axis_range_from_ticks(y_ticks),
-            "ticks": [label for _, label in y_ticks],
+            "name": (y_label or _guess_axis_name(da, y_dim)).title(),
+            "min": y_ticks[0][1] if y_ticks else "",
+            "max": y_ticks[-1][1] if y_ticks else "",
         },
     }
 
@@ -742,20 +690,6 @@ def cube_from_dataarray(
     if not show_legend:
         legend_title = None
 
-    def _axis_label(axis_key: str, fallback: str) -> str:
-        axis_meta = axis_info.get(axis_key, {})
-        axis_name = axis_meta.get("name") or fallback
-        axis_range = axis_meta.get("range")
-        if axis_range:
-            return f"{axis_name}: {axis_range}"
-        return axis_name
-
-    axis_labels = {
-        "time": time_label or _axis_label("time", t_dim or "time"),
-        "x": x_label or _axis_label("x", x_dim),
-        "y": y_label or _axis_label("y", y_dim),
-    }
-
     css_vars: Dict[str, str] = {
         "--cube-bg-color": getattr(theme, "bg_color", "#000"),
         "--cube-panel-color": getattr(theme, "panel_color", "#000"),
@@ -779,12 +713,11 @@ def cube_from_dataarray(
         fill_breaks=fill_breaks,
         fill_labels=fill_labels,
     )
-    axes_html = _build_axis_info_html(axis_info)
     title_html = f"<div class=\"cube-title\">{derived_title}</div>"
 
     interior_meta = {"nt": nt, "ny": ny, "nx": nx}
-    if fill_mode in ("shell", "progressive"):
-        shell_html = _render_cube_html(
+    if fill_mode == "shell":
+        full_html = _render_cube_html(
             front=faces["front"],
             back=faces["back"],
             left=faces["left"],
@@ -796,18 +729,16 @@ def cube_from_dataarray(
             coord=coord,
             legend_html=legend_html,
             title_html=title_html,
-            axes_html=axes_html,
             size_px=size_px,
-            axis_labels=axis_labels,
+            axis_meta=axis_meta,
             color_limits=(vmin, vmax),
             interior_meta=interior_meta,
         )
-        handle = display(HTML(shell_html), display_id=True)
-        display_id = getattr(handle, "display_id", None)
-        if fill_mode == "shell":
-            with open(out_html, "w", encoding="utf-8") as f:
-                f.write(shell_html)
-            return shell_html if return_html else handle
+        with open(out_html, "w", encoding="utf-8") as f:
+            f.write(full_html)
+        if return_html:
+            return full_html
+        return HTML(full_html)
 
     ts = volume_density.get("time", 6)
     xs = volume_density.get("x", 2)
@@ -867,27 +798,18 @@ def cube_from_dataarray(
         coord=coord,
         legend_html=legend_html,
         title_html=title_html,
-        axes_html=axes_html,
         size_px=size_px,
-        axis_labels=axis_labels,
+        axis_meta=axis_meta,
         color_limits=(vmin, vmax),
         interior_meta=interior_meta,
     )
-
-    if fill_mode == "progressive":
-        if display_id:
-            update_display(HTML(full_html), display_id=display_id)
-        else:
-            handle = display(HTML(full_html))
-    else:
-        handle = display(HTML(full_html))
 
     with open(out_html, "w", encoding="utf-8") as f:
         f.write(full_html)
 
     if return_html:
         return full_html
-    return handle if fill_mode == "progressive" else IFrame(out_html, width=900, height=900)
+    return HTML(full_html)
 
 
 def _guess_axis_name(da: xr.DataArray, dim: str) -> str:

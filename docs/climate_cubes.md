@@ -81,9 +81,10 @@ This call:
 - Applies a colormap and unified color scaling based on the 2nd and 98th percentiles of all face values.
 - Renders a CSS 3D cube that you can rotate (drag) and zoom (scroll) with a colorbar at the bottom.
 
-### Loading screen behavior
+### Viewer experience
 
-For large cubes, `v.plot(kind="cube")` shows a full-screen loading page immediately while Python computes faces and writes the HTML. The cube then replaces the loading view inside the notebook cell.
+- Lexcube-style axis labels sit just outside the cube so names and min/max endpoints are visible without a tall block of axis text beneath the figure.
+- Progress prints inline in the notebook output while faces are encoded instead of displaying a blocking loading screen.
 
 ### Customization
 
