@@ -50,4 +50,9 @@ def vase_extract(
         y_dim=y_dim,
         x_dim=x_dim,
     )
-    return cube.where(mask)
+    da_out = cube.where(mask)
+
+    # Attach the vase definition so plotting helpers can auto-detect it later
+    da_out.attrs["vase"] = vase
+
+    return da_out

@@ -1,17 +1,17 @@
-"""Plotting verb for displaying the default cube viewer."""
+"""Plotting verb for displaying cubes via :class:`CubePlot`."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, overload
+from typing import overload
 
 import xarray as xr
 
 from cubedynamics.plotting.cube_plot import CubePlot, ScaleFillContinuous
 from cubedynamics.streaming import VirtualCube
 from cubedynamics.utils import _infer_time_y_x_dims
-from cubedynamics.piping import Verb
-
+from ..piping import Verb
+from ..vase import extract_vase_from_attrs
 
 __all__ = ["plot"]
 
@@ -26,6 +26,7 @@ class PlotOptions:
     clim: tuple[float, float] | None = None
     fig_id: int | None = None
     fig_title: str | None = None
+    fig_text: str | None = None
 
 
 @overload
@@ -76,7 +77,7 @@ def plot(
 ):
     """Plot a cube or return a plotting verb.
 
-    When ``da`` is provided this function displays the cube viewer while passing
+    When ``da`` is provided this function builds a :class:`CubePlot` and passes
     the original object through unchanged so pipe chains can continue. Without a
     ``da`` argument a :class:`~cubedynamics.piping.Verb` is returned for use with
     ``pipe(...) | v.plot(...)``.
@@ -91,6 +92,7 @@ def plot(
         clim=clim,
         fig_id=fig_id,
         fig_title=fig_title,
+        fig_text=fig_text,
     )
 
     def _plot(value: xr.DataArray | VirtualCube):
@@ -106,9 +108,10 @@ def plot(
         default_title = da_value.name or f"{resolved_time} × {y_dim} × {x_dim} cube"
 
         caption_payload = None
-        if opts.fig_id is not None or opts.fig_title is not None or fig_text is not None:
-            caption_payload = {"id": opts.fig_id, "title": opts.fig_title, "text": fig_text}
+        if opts.fig_id is not None or opts.fig_title is not None or opts.fig_text is not None:
+            caption_payload = {"id": opts.fig_id, "title": opts.fig_title, "text": opts.fig_text}
 
+        # 1. Build CubePlot for this cube
         cube = CubePlot(
             da_value,
             title=opts.title or default_title,
@@ -121,10 +124,19 @@ def plot(
             fig_title=opts.fig_title,
         )
 
-        try:
-            setattr(value, "_cd_last_viewer", cube)
-        except Exception:
-            pass
+        # 2. Draw cube
+        cube = cube.geom_cube(cmap=opts.cmap)
+
+        # 3. If a vase is present, overlay outline
+        vase = extract_vase_from_attrs(da_value)
+        if vase is not None:
+            cube = cube.stat_vase(vase).geom_vase_outline(
+                color="limegreen",
+                alpha=0.6,
+            )
+
+        # 4. Apply studio theme with tight axes (implementation in CubePlot)
+        cube = cube.theme_cube_studio(tight_axes=True)
 
         return cube
 

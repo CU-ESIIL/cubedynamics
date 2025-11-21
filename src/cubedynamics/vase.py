@@ -12,6 +12,8 @@ from shapely.prepared import prep
 
 TimeLike = Union[np.datetime64, float, int]
 
+__all__ = ["VaseSection", "VaseDefinition", "build_vase_mask", "extract_vase_from_attrs"]
+
 
 @dataclass
 class VaseSection:
@@ -152,3 +154,13 @@ def build_vase_mask(
     )
     mask.attrs["description"] = "Boolean mask for vase volume"
     return mask
+
+
+def extract_vase_from_attrs(da: xr.DataArray):
+    """
+    Return the VaseDefinition attached to this DataArray, if any.
+
+    ``v.vase_extract`` stores it in ``attrs["vase"]``.
+    """
+
+    return da.attrs.get("vase", None)

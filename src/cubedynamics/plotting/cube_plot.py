@@ -68,7 +68,7 @@ class CubeTheme:
     panel_padding: int = 10
 
 
-def theme_cube_studio() -> CubeTheme:
+def theme_cube_studio(tight_axes: bool | None = False, **kwargs: Any) -> CubeTheme:
     """Return the default "studio" theme."""
 
     return CubeTheme()
@@ -533,6 +533,10 @@ class CubePlot(metaclass=_CubePlotMeta):
 
     def facet_grid(self, row: Optional[str] = None, col: Optional[str] = None) -> "CubePlot":
         self.facet = CubeFacet(row=row, col=col)
+        return self
+
+    def theme_cube_studio(self, tight_axes: bool | None = False, **kwargs: Any) -> "CubePlot":
+        self.theme = theme_cube_studio(tight_axes=tight_axes, **kwargs)
         return self
 
     def annot_plane(self, axis: str, value: float, text: Optional[str] = None) -> "CubePlot":
