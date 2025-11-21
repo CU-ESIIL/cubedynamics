@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from IPython.display import display, update_display
+from IPython.display import HTML, display, update_display
 
 
 class _CubeProgress:
@@ -15,7 +15,10 @@ class _CubeProgress:
         self.completed = 0
         self.display_id = None
         if self.enabled:
-            self.display_id = display(self._render(0.0), display_id=True)
+            html = self._render(0.0)
+            handle = display(HTML(html), display_id=True)
+            self.display_id = handle.display_id
+            self._handle = handle
 
     def _render(self, pct: float) -> str:
         pct_clamped = max(0.0, min(1.0, pct))
@@ -36,12 +39,14 @@ class _CubeProgress:
             return
         self.completed += 1
         pct = self.completed / self.total if self.total else 1.0
-        update_display(self._render(pct), display_id=self.display_id)
+        html = self._render(pct)
+        update_display(HTML(html), display_id=self.display_id)
 
     def done(self) -> None:
         if not self.enabled or self.display_id is None:
             return
-        update_display(self._render(1.0), display_id=self.display_id)
+        html = self._render(1.0)
+        update_display(HTML(html), display_id=self.display_id)
 
 
 __all__ = ["_CubeProgress"]
