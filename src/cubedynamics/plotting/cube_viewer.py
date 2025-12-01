@@ -231,6 +231,7 @@ def _render_cube_html(
       inset: 0;
       perspective: 950px;
       transform-style: preserve-3d;
+      touch-action: none;
     }}
 
     .cube-rotation {{
@@ -448,7 +449,10 @@ def _render_cube_html(
 
         if (dragSurface) {{
             dragSurface.style.cursor = "grab";
+            dragSurface.style.touchAction = "none";
             dragSurface.addEventListener("pointerdown", e => {{
+                e.preventDefault();
+                e.stopPropagation();
                 dragging = true;
                 dragSurface.setPointerCapture(e.pointerId);
                 dragSurface.style.cursor = "grabbing";
