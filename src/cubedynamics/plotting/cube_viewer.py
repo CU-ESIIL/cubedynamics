@@ -430,9 +430,8 @@ def _render_cube_html(
         const canvas = document.getElementById("cube-canvas-{fig_id}");
         const cubeRotation = document.getElementById("cube-rotation-{fig_id}");
         const dragSurface = document.getElementById("cube-wrapper-{fig_id}") || canvas;
-        const gl = canvas.getContext("webgl");
-
         const body = document.body;
+        const gl = canvas.getContext("webgl");
         let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
         let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
         const zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
@@ -443,6 +442,39 @@ def _render_cube_html(
         }}
 
         applyCubeRotation();
+
+        let dragging = false;
+        let lastX = 0, lastY = 0;
+
+        if (dragSurface) {{
+            dragSurface.style.cursor = "grab";
+            dragSurface.addEventListener("pointerdown", e => {{
+                dragging = true;
+                dragSurface.setPointerCapture(e.pointerId);
+                dragSurface.style.cursor = "grabbing";
+                lastX = e.clientX;
+                lastY = e.clientY;
+            }});
+        }}
+
+        window.addEventListener("pointerup", e => {{
+            dragging = false;
+            if (dragSurface && dragSurface.hasPointerCapture(e.pointerId)) {{
+                dragSurface.releasePointerCapture(e.pointerId);
+                dragSurface.style.cursor = "grab";
+            }}
+        }});
+
+        window.addEventListener("pointermove", e => {{
+            if (!dragging) return;
+            let dx = e.clientX - lastX;
+            let dy = e.clientY - lastY;
+            rotationY += dx * 0.01;
+            rotationX += dy * 0.01;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            applyCubeRotation();
+        }});
 
         if (!gl) {{
             console.warn('[CubeViewer] WebGL unavailable; rendering CSS cube only.');
@@ -496,39 +528,6 @@ def _render_cube_html(
         const posLoc = gl.getAttribLocation(program, "pos");
         gl.enableVertexAttribArray(posLoc);
         gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
-
-        let dragging = false;
-        let lastX = 0, lastY = 0;
-
-        if (dragSurface) {{
-            dragSurface.style.cursor = "grab";
-            dragSurface.addEventListener("pointerdown", e => {{
-                dragging = true;
-                dragSurface.setPointerCapture(e.pointerId);
-                dragSurface.style.cursor = "grabbing";
-                lastX = e.clientX;
-                lastY = e.clientY;
-            }});
-        }}
-
-        window.addEventListener("pointerup", e => {{
-            dragging = false;
-            if (dragSurface && dragSurface.hasPointerCapture(e.pointerId)) {{
-                dragSurface.releasePointerCapture(e.pointerId);
-                dragSurface.style.cursor = "grab";
-            }}
-        }});
-
-        window.addEventListener("pointermove", e => {{
-            if (!dragging) return;
-            let dx = e.clientX - lastX;
-            let dy = e.clientY - lastY;
-            rotationY += dx * 0.01;
-            rotationX += dy * 0.01;
-            lastX = e.clientX;
-            lastY = e.clientY;
-            applyCubeRotation();
-        }});
 
         function resize() {{
             const rect = canvas.parentElement.getBoundingClientRect();
