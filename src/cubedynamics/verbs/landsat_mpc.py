@@ -1,8 +1,27 @@
-"""Landsat-8 streaming via Microsoft Planetary Computer (MPC)."""
+"""Landsat-8 streaming via Microsoft Planetary Computer (MPC).
+
+The :func:`landsat8_mpc` verb streams Landsat 8 Collection 2 Level-2 surface
+reflectance from the Microsoft Planetary Computer STAC catalog. It returns a
+lazy, dask-backed :class:`xarray.DataArray` with dimensions ``(time, band, y,
+x)`` so downstream computations can be composed without loading the full
+dataset into memory.
+
+Example
+-------
+>>> from cubedynamics import pipe, verbs as v
+>>> bbox = [-105.35, 39.9, -105.15, 40.1]
+>>> cube = pipe(None) | v.landsat8_mpc(
+...     bbox=bbox,
+...     start="2019-07-01",
+...     end="2019-08-01",
+... )
+>>> da = cube.unwrap()
+"""
 
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
+from functools import wraps
 from typing import Iterable
 
 import numpy as np
@@ -11,12 +30,32 @@ import rioxarray as rxr
 import xarray as xr
 from pystac_client import Client
 
+from ..piping import Verb
+
 MPC_STAC_URL = "https://planetarycomputer.microsoft.com/api/stac/v1"
 
 BAND_MAP: Mapping[str, str] = {
     "red": "SR_B4",
     "nir": "SR_B5",
 }
+
+
+def pipeable(func):
+    """Decorator that makes a verb callable or pipe-friendly.
+
+    When called without the first positional argument, a :class:`Verb` is
+    returned so the function can be used in ``pipe(...) | v.some_verb(...)``
+    chains. When called with a ``value`` argument, the function executes
+    immediately.
+    """
+
+    @wraps(func)
+    def _wrapper(*args, **kwargs):
+        if args:
+            return func(*args, **kwargs)
+        return Verb(lambda value: func(value, **kwargs))
+
+    return _wrapper
 
 
 def landsat8_mpc_stream(
@@ -111,40 +150,50 @@ def landsat8_mpc_stream(
     return cube
 
 
-# The underscore parameter allows this verb to be the first stage in a pipe chain.
+@pipeable
 def landsat8_mpc(
-    _: object | None,
-    bbox: Sequence[float],
-    start: str,
-    end: str,
-    band_aliases: Iterable[str] = ("red", "nir"),
-    max_cloud_cover: float = 50,
-    chunks_xy: Mapping[str, int] | None = None,
-    stac_url: str = MPC_STAC_URL,
-) -> xr.DataArray:
-    """Pipeable verb that streams Landsat-8 from Microsoft Planetary Computer.
+    value,
+    *,
+    bbox,
+    start,
+    end,
+    band_aliases=("red", "nir"),
+    max_cloud_cover=50,
+    chunks_xy=None,
+    stac_url="https://planetarycomputer.microsoft.com/api/stac/v1",
+):
+    """
+    Landsat 8 (MPC) streaming verb for cubedynamics.
 
     Parameters
     ----------
-    bbox : sequence[float]
-        [minx, miny, maxx, maxy] in lon/lat used for STAC search.
-    start, end : str
-        ISO date strings, e.g. "2019-01-01".
-    band_aliases : tuple[str, ...]
-        Band names like ("red", "nir"). Must be keys in BAND_MAP.
-    max_cloud_cover : float
-        Maximum allowable eo:cloud_cover percentage.
+    value : Any
+        Required for pipeable verbs but unused here.
+    bbox : list[float]
+        [min_lon, min_lat, max_lon, max_lat]
+    start : str
+        ISO start date (YYYY-MM-DD)
+    end : str
+        ISO end date (YYYY-MM-DD)
+    band_aliases : tuple[str]
+        Bands to extract (e.g., ("red","nir"))
+    max_cloud_cover : int
+        Maximum cloud cover percentage
     chunks_xy : dict or None
-        Dask chunking for x and y (passed to rioxarray.open_rasterio).
+        Dask spatial chunking, e.g. {"x": 1024, "y": 1024}
     stac_url : str
-        STAC API endpoint. Defaults to MPC STAC.
-    """
+        STAC endpoint, defaults to the Microsoft Planetary Computer.
 
+    Returns
+    -------
+    xarray.DataArray
+        DataArray with dims (time, band, y, x).
+    """
     return landsat8_mpc_stream(
         bbox=bbox,
         start=start,
         end=end,
-        band_aliases=tuple(band_aliases),
+        band_aliases=band_aliases,
         max_cloud_cover=max_cloud_cover,
         chunks_xy=chunks_xy,
         stac_url=stac_url,

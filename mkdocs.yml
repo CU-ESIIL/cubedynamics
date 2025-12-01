@@ -14,6 +14,9 @@ nav:
   - Semantic variable loaders: semantic_variables.md
   - Virtual Cubes: virtual_cubes.md
   - Pipe syntax & verbs: pipe_verbs.md
+  - Verbs:
+      - Overview: verbs/index.md
+      - Landsat 8 (MPC): verbs/landsat8_mpc.md
   - Operations:
       - Transform verbs: ops_transforms.md
       - Stats verbs: ops_stats.md
