@@ -166,6 +166,7 @@ def _render_cube_html(
     rot_x = getattr(coord, "elev", 30.0)
     rot_y = getattr(coord, "azim", 45.0)
     zoom = getattr(coord, "zoom", 1.0)
+    initial_transform = f"rotateX({rot_x:.4f}deg) rotateY({rot_y:.4f}deg) scale({1/zoom})"
 
     html = f"""
 <!DOCTYPE html>
@@ -401,7 +402,7 @@ def _render_cube_html(
         <div class=\"cube-container\">
           <div id=\"cube-wrapper-{fig_id}\" class=\"cube-wrapper\">
             <canvas class=\"cube-canvas\" id=\"cube-canvas-{fig_id}\"></canvas>
-            <div class=\"cube-rotation\" id=\"cube-rotation-{fig_id}\">
+            <div class=\"cube-rotation\" id=\"cube-rotation-{fig_id}\" style=\"transform: {initial_transform};\">
               {cube_faces_html}
               {interior_html}
             </div>
