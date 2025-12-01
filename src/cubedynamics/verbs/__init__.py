@@ -14,6 +14,7 @@ from ..ops.transforms import month_filter
 from .custom import apply
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
+from .landsat_mpc import landsat8_mpc
 from .plot import plot
 from .vase import vase_extract, vase_mask
 from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
@@ -69,6 +70,7 @@ __all__ = [
     "to_netcdf",
     "zscore",
     "ndvi_from_s2",
+    "landsat8_mpc",
     "show_cube_lexcube",
     "fit_model",
     "plot",

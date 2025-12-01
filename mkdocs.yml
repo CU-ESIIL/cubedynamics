@@ -28,6 +28,7 @@ nav:
       - PRISM JJA variance: examples/prism_jja_variance.md
       - gridMET AOI variance: examples/gridmet_aoi_variance.md
       - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md
+      - Landsat-8 MPC streaming: examples/landsat8_mpc.md
       - Climate–NDVI correlation cube: examples/climate_ndvi_correlation.md
       - Examples Gallery: examples_gallery.md
       - Streaming notebook tour: streaming_large_data.md

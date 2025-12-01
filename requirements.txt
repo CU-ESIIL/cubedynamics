@@ -5,6 +5,10 @@ dask
 matplotlib
 Pillow
 crc32c
+planetary-computer
+rasterio
+rioxarray
+pystac-client
 lexcube
 cubo
 pytest
