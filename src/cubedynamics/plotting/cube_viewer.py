@@ -234,6 +234,15 @@ def _render_cube_html(
       touch-action: none;
     }}
 
+    .cube-drag-surface {{
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      cursor: grab;
+      background: transparent;
+      touch-action: none;
+    }}
+
     .cube-rotation {{
       position: absolute;
       inset: 0;
@@ -402,6 +411,7 @@ def _render_cube_html(
       <div class=\"cube-inner\" id=\"cube-inner\">
         <div class=\"cube-container\">
           <div id=\"cube-wrapper-{fig_id}\" class=\"cube-wrapper\">
+              <div class=\"cube-drag-surface\" id=\"cube-drag-{fig_id}\"></div>
             <canvas class=\"cube-canvas\" id=\"cube-canvas-{fig_id}\"></canvas>
             <div class=\"cube-rotation\" id=\"cube-rotation-{fig_id}\" style=\"transform: {initial_transform};\">
               {cube_faces_html}
@@ -430,7 +440,9 @@ def _render_cube_html(
     (function() {{
         const canvas = document.getElementById("cube-canvas-{fig_id}");
         const cubeRotation = document.getElementById("cube-rotation-{fig_id}");
-        const dragSurface = document.getElementById("cube-wrapper-{fig_id}") || canvas;
+        const dragSurface = document.getElementById("cube-drag-{fig_id}")
+          || document.getElementById("cube-wrapper-{fig_id}")
+          || canvas;
         const body = document.body;
         const gl = canvas.getContext("webgl");
         let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;

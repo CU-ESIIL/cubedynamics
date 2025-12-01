@@ -52,6 +52,13 @@ pipe(ndvi) | v.plot(title="NDVI")
 you can keep working with in-memory arrays, dask-backed cubes, or `VirtualCube`
 streams.
 
+**Interaction tips:**
+
+- Rotate by dragging anywhere in the cube frame (faces or transparent padding).
+  A dedicated drag surface captures the pointer so rotation keeps flowing even if
+  your cursor slips outside the canvas mid-gesture.
+- Zoom with a trackpad pinch or mouse scroll.
+
 ## Why a grammar of graphics for climate cubes?
 
 Climate cubes are small stacks of maps through time (typically `(time, y, x)` and optional `band`). A grammar keeps the visualization expressive while staying readable:
