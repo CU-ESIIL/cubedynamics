@@ -43,4 +43,33 @@ ndvi = (
 - **Parameters**: `nir_band`, `red_band` – band names present in the cube.
 - **Notes**: Works with cubes loaded via `cd.load_sentinel2_cube` (legacy alias `load_s2_cube`) or `cubo.create`.
 
+### `v.landsat8_mpc(...)`
+
+Stream Landsat-8 Collection 2 Level-2 surface reflectance from Microsoft Planetary Computer. The verb pulls SR_B4 (red) and SR_B5 (nir) by default, stacks them into a `(time, band, y, x)` cube, and leaves the data lazy/dask-backed for downstream math like NDVI.
+
+```python
+from cubedynamics import pipe, verbs as v
+
+bbox = [-105.35, 39.9, -105.15, 40.1]
+
+cube = (
+    pipe(None)
+    | v.landsat8_mpc(
+        bbox=bbox,
+        start="2019-07-01",
+        end="2019-08-01",
+        band_aliases=("red", "nir"),
+        max_cloud_cover=50,
+        chunks_xy={"x": 1024, "y": 1024},
+    )
+).unwrap()
+
+red = cube.sel(band="red")
+nir = cube.sel(band="nir")
+ndvi = (nir - red) / (nir + red)
+```
+
+- **Parameters**: `bbox`, `start`, `end`, `band_aliases`, `max_cloud_cover`, `chunks_xy`, `stac_url`.
+- **Notes**: Uses MPC's STAC API and `planetary_computer.pc.sign` for HTTPS COGs; no AWS credentials required.
+
 Use these verbs as building blocks ahead of stats like variance or correlation. Rolling synchrony helpers such as `cubedynamics.rolling_corr_vs_center` and `cubedynamics.rolling_tail_dep_vs_center` live outside the `verbs` namespace.

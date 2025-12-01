@@ -94,6 +94,28 @@ pipe(variance_ts) | v.plot_timeseries()
 
 The code mirrors small-cube examples. VirtualCube handles tiling so the variance runs in memory-safe chunks.
 
+## Data Streams
+
+The CubeDynamics grammar can stream multiple data sources into time–space cubes:
+
+- PRISM climate grids
+- gridMET climate grids
+- Sentinel-2 imagery (where available)
+- **Landsat-8 Collection 2 Level-2 from Microsoft Planetary Computer** via `landsat8_mpc`
+
+```python
+from cubedynamics import pipe, verbs as v
+
+cube = (
+    pipe(None)
+    | v.landsat8_mpc(
+        bbox=[-105.35, 39.9, -105.15, 40.1],
+        start="2019-07-01",
+        end="2019-08-01",
+    )
+).unwrap()
+```
+
 ## How to force or inspect streaming
 
 Most users never need to touch these options, but they are here when you want to debug:
