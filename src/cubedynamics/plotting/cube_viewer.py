@@ -689,6 +689,10 @@ def cube_from_dataarray(
     }
 
     t_indices = list(range(0, nt, max(1, thin_time_factor)))
+    if nt > 1 and len(t_indices) == 1:
+        # Avoid rendering a degenerate "flat" cube when thinning skips all but one time slice.
+        t_indices = [0, nt - 1]
+
     nt_eff = len(t_indices)
 
     progress = _CubeProgress(total=nt_eff, enabled=show_progress, style=progress_style)
