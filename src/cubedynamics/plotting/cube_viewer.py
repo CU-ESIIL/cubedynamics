@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import io
+import logging
 import uuid
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
@@ -18,6 +19,8 @@ from cubedynamics.plotting.progress import _CubeProgress
 if TYPE_CHECKING:  # pragma: no cover - typing only
     from cubedynamics.plotting.cube_plot import CoordCube, CubeAnnotation
 
+
+logger = logging.getLogger(__name__)
 
 def _apply_vase_tint(rgb_arr: np.ndarray, mask_2d: np.ndarray, color_rgb: tuple[int, int, int], alpha: float) -> np.ndarray:
     """
@@ -149,6 +152,17 @@ def _render_cube_html(
     y_meta = axis_meta.get("y", {})
     fig_id = uuid.uuid4().hex
 
+    cube_faces_html = f"""
+        <div class=\"cd-cube\" id=\"cube-{fig_id}\">
+          <div class=\"cd-face cd-front\" style=\"background-image: url('{front}');\"></div>
+          <div class=\"cd-face cd-back\" style=\"background-image: url('{back}');\"></div>
+          <div class=\"cd-face cd-left\" style=\"background-image: url('{left}');\"></div>
+          <div class=\"cd-face cd-right\" style=\"background-image: url('{right}');\"></div>
+          <div class=\"cd-face cd-top\" style=\"background-image: url('{top}');\"></div>
+          <div class=\"cd-face cd-bottom\" style=\"background-image: url('{bottom}');\"></div>
+        </div>
+    """
+
     rot_x = getattr(coord, "elev", 30.0)
     rot_y = getattr(coord, "azim", 45.0)
     zoom = getattr(coord, "zoom", 1.0)
@@ -217,6 +231,40 @@ def _render_cube_html(
       perspective: 950px;
       transform-style: preserve-3d;
     }}
+
+    .cube-rotation {{
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+    }}
+
+    .cd-cube {{
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      width: 100%;
+      height: 100%;
+      transform: translateZ(calc(var(--cube-size) / -2));
+    }}
+
+    .cd-face {{
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      backface-visibility: hidden;
+      border: 1px solid rgba(0,0,0,0.08);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+    }}
+
+    .cd-front {{ transform: translateZ(calc(var(--cube-size) / 2)); }}
+    .cd-back {{ transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2)); }}
+    .cd-right {{ transform: rotateY(90deg) translateZ(calc(var(--cube-size) / 2)); }}
+    .cd-left {{ transform: rotateY(-90deg) translateZ(calc(var(--cube-size) / 2)); }}
+    .cd-top {{ transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2)); }}
+    .cd-bottom {{ transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2)); }}
 
     .cube-canvas {{
       width: 100%;
@@ -353,7 +401,10 @@ def _render_cube_html(
         <div class=\"cube-container\">
           <div id=\"cube-wrapper-{fig_id}\" class=\"cube-wrapper\">
             <canvas class=\"cube-canvas\" id=\"cube-canvas-{fig_id}\"></canvas>
-            {interior_html}
+            <div class=\"cube-rotation\" id=\"cube-rotation-{fig_id}\">
+              {cube_faces_html}
+              {interior_html}
+            </div>
           </div>
 
           <div class=\"axis-label cube-label cube-label-x axis-x-min\">{x_meta.get('min','')}</div>
@@ -376,19 +427,25 @@ def _render_cube_html(
     try {{
     (function() {{
         const canvas = document.getElementById("cube-canvas-{fig_id}");
+        const cubeRotation = document.getElementById("cube-rotation-{fig_id}");
         const gl = canvas.getContext("webgl");
 
-        if (!gl) return;
+        const body = document.body;
+        let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
+        let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
+        const zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
 
-        // Resize
-        function resize() {{
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        function applyCubeRotation() {{
+            if (!cubeRotation) return;
+            cubeRotation.style.transform = 'rotateX(' + rotationX + 'rad) rotateY(' + rotationY + 'rad) scale(' + (1/zoom) + ')';
         }}
-        resize();
-        window.addEventListener('resize', resize);
+
+        applyCubeRotation();
+
+        if (!gl) {{
+            console.warn('[CubeViewer] WebGL unavailable; rendering CSS cube only.');
+            return;
+        }}
 
         // Basic cube vertex shader + fragment shader (colored faces)
         const vs = `
@@ -438,11 +495,6 @@ def _render_cube_html(
         gl.enableVertexAttribArray(posLoc);
         gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
 
-        const body = document.body;
-        let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
-        let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
-        const zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
-
         let dragging = false;
         let lastX = 0, lastY = 0;
 
@@ -462,7 +514,17 @@ def _render_cube_html(
             rotationX += dy * 0.01;
             lastX = e.clientX;
             lastY = e.clientY;
+            applyCubeRotation();
         }});
+
+        function resize() {{
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        }}
+        resize();
+        window.addEventListener('resize', resize);
 
         function draw() {{
             gl.clearColor(1,1,1,0);
@@ -757,6 +819,11 @@ def cube_from_dataarray(
         "bottom": f"data:image/png;base64,{bottom_b64}",
     }
 
+    logger.debug(
+        "Cube faces generated (base64 lengths): %s",
+        {k: len(v) for k, v in faces.items()},
+    )
+
     gradient = np.linspace(0, 1, 256).reshape(1, -1)
     grad_rgba = colormaps.get_cmap(cmap)(gradient)
     grad_img = (grad_rgba * 255).astype("uint8")
@@ -798,6 +865,7 @@ def cube_from_dataarray(
 
     interior_meta = {"nt": nt, "ny": ny, "nx": nx}
     if fill_mode == "shell":
+        logger.debug("Rendering shell cube viewer (no interior planes)")
         full_html = _render_cube_html(
             front=faces["front"],
             back=faces["back"],
@@ -867,6 +935,7 @@ def cube_from_dataarray(
     progress2.done()
 
     interior_meta = {"nt": nt_down, "ny": ny_down, "nx": nx_down}
+    logger.debug("Rendering volume cube viewer with %d interior planes", len(interior_planes))
     full_html = _render_cube_html(
         front=faces["front"],
         back=faces["back"],
