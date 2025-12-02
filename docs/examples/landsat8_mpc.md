@@ -28,8 +28,8 @@ nir = cube.sel(band="nir")
 ndvi = (nir - red) / (nir + red)
 ndvi.name = "NDVI"
 
-# Plot the first timestep
-ndvi.isel(time=0).plot.imshow()
+# Plot all timesteps with the CubePlot viewer
+pipe(ndvi) | v.plot(time_dim="time")
 ```
 
 Because the underlying arrays are dask-backed, nothing is fully loaded into memory until you compute or plot.
