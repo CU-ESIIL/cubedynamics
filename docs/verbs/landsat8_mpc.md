@@ -39,6 +39,9 @@ After streaming, compute NDVI from the red and near-infrared bands:
 red = cube.sel(band="red")
 nir = cube.sel(band="nir")
 ndvi = (nir - red) / (nir + red)
+
+# Visualize the time series interactively
+pipe(ndvi) | v.plot(time_dim="time")
 ```
 
 ## Notes

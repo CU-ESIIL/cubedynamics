@@ -586,13 +586,6 @@ def _render_cube_html(
                 stopDragging(e);
             }});
 
-            dragSurface.addEventListener("pointercancel", e => {{
-                if (onPointerMove) {{
-                    dragSurface.removeEventListener("pointermove", onPointerMove);
-                }}
-                stopDragging(e);
-            }});
-
             dragSurface.addEventListener("wheel", e => {{
                 e.preventDefault();
                 const delta = e.deltaY;
