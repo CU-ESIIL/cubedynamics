@@ -13,6 +13,14 @@ write_cube_viewer(ndvi, "ndvi_cube.html")
 The output HTML bundles all JavaScript and textures so it can be opened directly in
 a browser or embedded into a notebook with `IFrame("ndvi_cube.html", width=900, height=900)`.
 
+### Notebook usage
+
+The viewer is fully interactive inside Jupyter (classic or Lab) because it renders a self-contained
+`IPython.display.HTML` block. Dragging and scroll/trackpad events are wired to the transparent drag
+surface layered over the cube, so you can rotate and zoom the cube inline without needing any extra
+widgets or extensions. If you prefer a static export, write the HTML to disk and open it separately
+as shown above.
+
 ### Multi-band cubes
 
 If your DataArray includes a `band` dimension (e.g., `(time, band, y, x)`), the cube viewer

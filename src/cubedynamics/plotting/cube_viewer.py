@@ -527,7 +527,9 @@ def _render_cube_html(
         const gl = canvas.getContext("webgl");
         let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
         let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
-        const zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
+        let zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
+        const zoomMin = 0.35;
+        const zoomMax = 6.0;
 
         function applyCubeRotation() {{
             if (!cubeRotation) return;
@@ -538,38 +540,80 @@ def _render_cube_html(
 
         let dragging = false;
         let lastX = 0, lastY = 0;
+        let onPointerMove = null;
+
+        function stopDragging(e) {{
+            if (!dragging) return;
+            dragging = false;
+            if (dragSurface && dragSurface.hasPointerCapture(e.pointerId)) {{
+                dragSurface.releasePointerCapture(e.pointerId);
+            }}
+            if (dragSurface) {{
+                dragSurface.style.cursor = "grab";
+            }}
+        }}
 
         if (dragSurface) {{
             dragSurface.style.cursor = "grab";
             dragSurface.style.touchAction = "none";
+
+            onPointerMove = e => {{
+                if (!dragging) return;
+                const dx = e.clientX - lastX;
+                const dy = e.clientY - lastY;
+                rotationY += dx * 0.01;
+                rotationX += dy * 0.01;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                applyCubeRotation();
+            }};
+
             dragSurface.addEventListener("pointerdown", e => {{
                 e.preventDefault();
                 e.stopPropagation();
                 dragging = true;
-                dragSurface.setPointerCapture(e.pointerId);
-                dragSurface.style.cursor = "grabbing";
                 lastX = e.clientX;
                 lastY = e.clientY;
+                dragSurface.setPointerCapture(e.pointerId);
+                dragSurface.style.cursor = "grabbing";
+                dragSurface.addEventListener("pointermove", onPointerMove);
             }});
+
+            dragSurface.addEventListener("pointerup", e => {{
+                if (onPointerMove) {{
+                    dragSurface.removeEventListener("pointermove", onPointerMove);
+                }}
+                stopDragging(e);
+            }});
+
+            dragSurface.addEventListener("pointercancel", e => {{
+                if (onPointerMove) {{
+                    dragSurface.removeEventListener("pointermove", onPointerMove);
+                }}
+                stopDragging(e);
+            }});
+
+            dragSurface.addEventListener("wheel", e => {{
+                e.preventDefault();
+                const delta = e.deltaY;
+                const zoomFactor = Math.exp(delta * 0.0015);
+                zoom = Math.min(zoomMax, Math.max(zoomMin, zoom * zoomFactor));
+                applyCubeRotation();
+            }}, {{ passive: false }});
         }}
 
         window.addEventListener("pointerup", e => {{
-            dragging = false;
-            if (dragSurface && dragSurface.hasPointerCapture(e.pointerId)) {{
-                dragSurface.releasePointerCapture(e.pointerId);
-                dragSurface.style.cursor = "grab";
+            if (dragSurface && onPointerMove) {{
+                dragSurface.removeEventListener("pointermove", onPointerMove);
             }}
+            stopDragging(e);
         }});
 
-        window.addEventListener("pointermove", e => {{
-            if (!dragging) return;
-            let dx = e.clientX - lastX;
-            let dy = e.clientY - lastY;
-            rotationY += dx * 0.01;
-            rotationX += dy * 0.01;
-            lastX = e.clientX;
-            lastY = e.clientY;
-            applyCubeRotation();
+        window.addEventListener("pointercancel", e => {{
+            if (dragSurface && onPointerMove) {{
+                dragSurface.removeEventListener("pointermove", onPointerMove);
+            }}
+            stopDragging(e);
         }});
 
         if (!gl) {{
