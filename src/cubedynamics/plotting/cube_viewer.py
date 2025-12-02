@@ -502,12 +502,12 @@ def _render_cube_html(
     </div>
     <div class=\"cube-js-warning hidden\" id=\"cube-js-warning-{fig_id}\" aria-live=\"polite\">
       <div class=\"dot\"></div>
-      <div><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
+      <div class=\"cube-warning-text\"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
     </div>
     <noscript>
       <div class=\"cube-js-warning\" aria-live=\"polite\">
         <div class=\"dot\"></div>
-        <div><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
+        <div class=\"cube-warning-text\"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
       </div>
     </noscript>
     {legend_html}
@@ -524,6 +524,7 @@ def _render_cube_html(
           || canvas;
         const body = document.body;
         const jsWarning = document.getElementById("cube-js-warning-{fig_id}");
+        const jsWarningText = jsWarning ? jsWarning.querySelector(".cube-warning-text") : null;
         const gl = canvas.getContext("webgl");
         let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
         let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
@@ -612,10 +613,12 @@ def _render_cube_html(
         if (!gl) {{
             console.warn('[CubeViewer] WebGL unavailable; rendering CSS cube only.');
             if (jsWarning) {{
+                if (jsWarningText) {{
+                    jsWarningText.innerHTML = '<strong>WebGL unavailable.</strong> Falling back to CSS-only cube rendering (rotation and zoom still work).';
+                }}
                 jsWarning.classList.remove("hidden");
             }}
-            return;
-        }}
+        }} else {{
 
         // Basic cube vertex shader + fragment shader (colored faces)
         const vs = `
@@ -739,6 +742,7 @@ def _render_cube_html(
             requestAnimationFrame(draw);
           }}
         draw();
+        }}
     }})();
     }} catch (err) {{
       console.error('[CubeViewer] top-level error', err);
