@@ -4,6 +4,7 @@ import base64
 import io
 import logging
 import uuid
+import warnings
 from typing import Any, Dict, Optional, TYPE_CHECKING
 
 import numpy as np
@@ -21,6 +22,50 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
 
 
 logger = logging.getLogger(__name__)
+
+
+def _reduce_to_3d_time_y_x(da: xr.DataArray) -> xr.DataArray:
+    """
+    Ensure the DataArray has dims (time, y, x) for the cube viewer.
+
+    - If a ``band`` dimension exists and has size 1, squeeze it away.
+    - If ``band`` has multiple entries, default to the first band with a warning.
+    - If there are more than 3 dims without ``band``, raise a clear error.
+    """
+
+    dims = tuple(da.dims)
+
+    if "band" not in dims and len(dims) == 3:
+        return da
+
+    if "band" in dims:
+        if da.sizes["band"] == 1:
+            return da.squeeze("band", drop=True)
+
+        band_coord = da.coords.get("band")
+        if band_coord is not None:
+            band_label = band_coord.values[0]
+            warnings.warn(
+                "cube_from_dataarray received a DataArray with a 'band' dimension; "
+                f"defaulting to the first band: {band_label!r}",
+                UserWarning,
+            )
+            return da.sel(band=band_label)
+
+        warnings.warn(
+            "cube_from_dataarray received a DataArray with a 'band' dimension but no "
+            "'band' coordinate; defaulting to band index 0.",
+            UserWarning,
+        )
+        return da.isel(band=0)
+
+    if len(dims) > 3:
+        raise ValueError(
+            "cube_from_dataarray expects data with dims (time, y, x) or (time, band, y, x). "
+            f"Got dims: {dims!r}. Please select or reduce your extra dimensions."
+        )
+
+    return da
 
 def _apply_vase_tint(rgb_arr: np.ndarray, mask_2d: np.ndarray, color_rgb: tuple[int, int, int], alpha: float) -> np.ndarray:
     """
@@ -673,6 +718,8 @@ def cube_from_dataarray(
 ):
     volume_density = volume_density or {"time": 6, "x": 2, "y": 2}
     volume_downsample = volume_downsample or {"time": 4, "space": 4}
+
+    da = _reduce_to_3d_time_y_x(da)
 
     if time_dim:
         if time_dim not in da.dims:

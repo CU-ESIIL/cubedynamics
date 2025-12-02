@@ -13,6 +13,18 @@ write_cube_viewer(ndvi, "ndvi_cube.html")
 The output HTML bundles all JavaScript and textures so it can be opened directly in
 a browser or embedded into a notebook with `IFrame("ndvi_cube.html", width=900, height=900)`.
 
+### Multi-band cubes
+
+If your DataArray includes a `band` dimension (e.g., `(time, band, y, x)`), the cube viewer
+will automatically select a single band for display. When there is only one band, it is used
+directly; when there are multiple bands, the viewer defaults to the first band and emits a
+warning. To control which band is visualized, select it before plotting:
+
+```python
+red = cube.sel(band="red")
+pipe(red) | v.plot(time_dim="time")
+```
+
 ### Mouse/trackpad controls
 
 - **Rotate:** click-and-drag anywhere in the cube frame (faces or the transparent padding). The drag surface captures the pointer so rotation keeps flowing even if the cursor leaves the canvas mid-drag.
