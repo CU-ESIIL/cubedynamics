@@ -540,18 +540,50 @@ def _render_cube_html(
 
         let dragging = false;
         let lastX = 0, lastY = 0;
+        let onPointerMove = null;
+
+        function stopDragging(e) {{
+            if (!dragging) return;
+            dragging = false;
+            if (dragSurface && dragSurface.hasPointerCapture(e.pointerId)) {{
+                dragSurface.releasePointerCapture(e.pointerId);
+            }}
+            if (dragSurface) {{
+                dragSurface.style.cursor = "grab";
+            }}
+        }}
 
         if (dragSurface) {{
             dragSurface.style.cursor = "grab";
             dragSurface.style.touchAction = "none";
+
+            onPointerMove = e => {{
+                if (!dragging) return;
+                const dx = e.clientX - lastX;
+                const dy = e.clientY - lastY;
+                rotationY += dx * 0.01;
+                rotationX += dy * 0.01;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                applyCubeRotation();
+            }};
+
             dragSurface.addEventListener("pointerdown", e => {{
                 e.preventDefault();
                 e.stopPropagation();
                 dragging = true;
-                dragSurface.setPointerCapture(e.pointerId);
-                dragSurface.style.cursor = "grabbing";
                 lastX = e.clientX;
                 lastY = e.clientY;
+                dragSurface.setPointerCapture(e.pointerId);
+                dragSurface.style.cursor = "grabbing";
+                dragSurface.addEventListener("pointermove", onPointerMove);
+            }});
+
+            dragSurface.addEventListener("pointerup", e => {{
+                if (onPointerMove) {{
+                    dragSurface.removeEventListener("pointermove", onPointerMove);
+                }}
+                stopDragging(e);
             }});
 
             dragSurface.addEventListener("wheel", e => {{
@@ -564,22 +596,17 @@ def _render_cube_html(
         }}
 
         window.addEventListener("pointerup", e => {{
-            dragging = false;
-            if (dragSurface && dragSurface.hasPointerCapture(e.pointerId)) {{
-                dragSurface.releasePointerCapture(e.pointerId);
-                dragSurface.style.cursor = "grab";
+            if (dragSurface && onPointerMove) {{
+                dragSurface.removeEventListener("pointermove", onPointerMove);
             }}
+            stopDragging(e);
         }});
 
-        window.addEventListener("pointermove", e => {{
-            if (!dragging) return;
-            let dx = e.clientX - lastX;
-            let dy = e.clientY - lastY;
-            rotationY += dx * 0.01;
-            rotationX += dy * 0.01;
-            lastX = e.clientX;
-            lastY = e.clientY;
-            applyCubeRotation();
+        window.addEventListener("pointercancel", e => {{
+            if (dragSurface && onPointerMove) {{
+                dragSurface.removeEventListener("pointermove", onPointerMove);
+            }}
+            stopDragging(e);
         }});
 
         if (!gl) {{
