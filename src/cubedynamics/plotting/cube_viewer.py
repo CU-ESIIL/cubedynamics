@@ -500,10 +500,16 @@ def _render_cube_html(
         </div>
       </div>
     </div>
-    <div class=\"cube-js-warning\" id=\"cube-js-warning-{fig_id}\">
+    <div class=\"cube-js-warning hidden\" id=\"cube-js-warning-{fig_id}\" aria-live=\"polite\">
       <div class=\"dot\"></div>
       <div><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
     </div>
+    <noscript>
+      <div class=\"cube-js-warning\" aria-live=\"polite\">
+        <div class=\"dot\"></div>
+        <div><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
+      </div>
+    </noscript>
     {legend_html}
   </div>
 
@@ -566,12 +572,11 @@ def _render_cube_html(
             applyCubeRotation();
         }});
 
-        if (jsWarning) {{
-            jsWarning.classList.add("hidden");
-        }}
-
         if (!gl) {{
             console.warn('[CubeViewer] WebGL unavailable; rendering CSS cube only.');
+            if (jsWarning) {{
+                jsWarning.classList.remove("hidden");
+            }}
             return;
         }}
 
@@ -700,6 +705,10 @@ def _render_cube_html(
     }})();
     }} catch (err) {{
       console.error('[CubeViewer] top-level error', err);
+      const jsWarning = document.getElementById("cube-js-warning-{fig_id}");
+      if (jsWarning) {{
+        jsWarning.classList.remove("hidden");
+      }}
     }}
 
     const cbMin = document.body.getAttribute("data-cb-min");
