@@ -213,6 +213,30 @@ def _render_cube_html(
       display: flex;
       justify-content: center;
     }}
+    .cube-js-warning {{
+      width: min(1180px, 100%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 6px auto 0 auto;
+      padding: 10px 12px;
+      background: #fff4d4;
+      color: #5c4300;
+      border: 1px solid #f2d27c;
+      border-radius: 10px;
+      font-size: var(--cube-axis-font-size, 13px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }}
+    .cube-js-warning.hidden {{
+      display: none;
+    }}
+    .cube-js-warning .dot {{
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.2);
+    }}
     .cube-inner {{
       display: flex;
       flex-direction: column;
@@ -431,6 +455,10 @@ def _render_cube_html(
         </div>
       </div>
     </div>
+    <div class=\"cube-js-warning\" id=\"cube-js-warning-{fig_id}\">
+      <div class=\"dot\"></div>
+      <div><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
+    </div>
     {legend_html}
   </div>
 
@@ -444,6 +472,7 @@ def _render_cube_html(
           || document.getElementById("cube-wrapper-{fig_id}")
           || canvas;
         const body = document.body;
+        const jsWarning = document.getElementById("cube-js-warning-{fig_id}");
         const gl = canvas.getContext("webgl");
         let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
         let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
@@ -491,6 +520,10 @@ def _render_cube_html(
             lastY = e.clientY;
             applyCubeRotation();
         }});
+
+        if (jsWarning) {{
+            jsWarning.classList.add("hidden");
+        }}
 
         if (!gl) {{
             console.warn('[CubeViewer] WebGL unavailable; rendering CSS cube only.');
