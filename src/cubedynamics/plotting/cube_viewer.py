@@ -527,7 +527,9 @@ def _render_cube_html(
         const gl = canvas.getContext("webgl");
         let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
         let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
-        const zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
+        let zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
+        const zoomMin = 0.35;
+        const zoomMax = 6.0;
 
         function applyCubeRotation() {{
             if (!cubeRotation) return;
@@ -551,6 +553,14 @@ def _render_cube_html(
                 lastX = e.clientX;
                 lastY = e.clientY;
             }});
+
+            dragSurface.addEventListener("wheel", e => {{
+                e.preventDefault();
+                const delta = e.deltaY;
+                const zoomFactor = Math.exp(delta * 0.0015);
+                zoom = Math.min(zoomMax, Math.max(zoomMin, zoom * zoomFactor));
+                applyCubeRotation();
+            }}, {{ passive: false }});
         }}
 
         window.addEventListener("pointerup", e => {{
