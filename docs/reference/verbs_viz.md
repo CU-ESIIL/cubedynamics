@@ -37,6 +37,9 @@ Generic plotting verb.
   - Uses the HTML cube viewer with streaming, non-blocking progress text and Lexcube-style axis labels.
   - Parameters forwarded:
     - `out_html`, `cmap`, `size_px`, `thin_time_factor`.
+  - Notebook outputs must be trusted so the embedded JavaScript can run; when scripting is blocked the
+    viewer displays an inline warning (“Interactive controls need JavaScript”) instead of silently
+    staying static.
 
 - `kind="slice"`:
   - Old behavior: 2D map with time slider (ipywidgets + Matplotlib), if still kept for backward compatibility.

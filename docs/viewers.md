@@ -21,6 +21,13 @@ surface layered over the cube, so you can rotate and zoom the cube inline withou
 widgets or extensions. If you prefer a static export, write the HTML to disk and open it separately
 as shown above.
 
+> **JavaScript required.** Notebook outputs must be trusted (and any script blockers temporarily
+> disabled) for rotation/zoom to work. When scripts are blocked or required elements are missing,
+> the viewer now surfaces an inline “Interactive controls need JavaScript” warning instead of
+> silently falling back to a static cube. Each rendered cube scopes its scripts and colorbar metadata
+> to its own figure container, so multiple cubes in the same notebook remain interactive
+> independently.
+
 ### Multi-band cubes
 
 If your DataArray includes a `band` dimension (e.g., `(time, band, y, x)`), the cube viewer

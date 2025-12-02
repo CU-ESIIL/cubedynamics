@@ -196,6 +196,7 @@ def _render_cube_html(
     x_meta = axis_meta.get("x", {})
     y_meta = axis_meta.get("y", {})
     fig_id = uuid.uuid4().hex
+    figure_id = f"cube-figure-{fig_id}"
 
     cube_faces_html = f"""
         <div class=\"cd-cube\" id=\"cube-{fig_id}\">
@@ -474,8 +475,8 @@ def _render_cube_html(
     }}
   </style>
 </head>
-<body data-cb-min=\"{color_limits[0]:.2f}\" data-cb-max=\"{color_limits[1]:.2f}\" data-rot-x=\"{rot_x:.1f}\" data-rot-y=\"{rot_y:.1f}\" data-zoom=\"{zoom}\">\n\
-  <div class=\"cube-figure\" id=\"cube-figure\">{title_html}
+<body>\n\
+  <div class=\"cube-figure\" id=\"{figure_id}\" data-cb-min=\"{color_limits[0]:.2f}\" data-cb-max=\"{color_limits[1]:.2f}\" data-rot-x=\"{rot_x:.1f}\" data-rot-y=\"{rot_y:.1f}\" data-zoom=\"{zoom}\">{title_html}
     <div class=\"cube-main\">
       <div class=\"cube-inner\" id=\"cube-inner\">
         <div class=\"cube-container\">
@@ -517,20 +518,39 @@ def _render_cube_html(
     console.log('[CubeViewer] script starting');
     try {{
     (function() {{
-        const canvas = document.getElementById("cube-canvas-{fig_id}");
-        const cubeRotation = document.getElementById("cube-rotation-{fig_id}");
-        const dragSurface = document.getElementById("cube-drag-{fig_id}")
-          || document.getElementById("cube-wrapper-{fig_id}")
+        const root = document.getElementById("{figure_id}")
+          || (typeof document !== 'undefined' ? document.currentScript?.previousElementSibling : null);
+        if (!root) {{
+            console.warn('[CubeViewer] could not find viewer root');
+            return;
+        }}
+
+        const canvas = root.querySelector("#cube-canvas-{fig_id}");
+        const cubeRotation = root.querySelector("#cube-rotation-{fig_id}");
+        const dragSurface = root.querySelector("#cube-drag-{fig_id}")
+          || root.querySelector("#cube-wrapper-{fig_id}")
           || canvas;
-        const body = document.body;
-        const jsWarning = document.getElementById("cube-js-warning-{fig_id}");
+        const jsWarning = root.querySelector("#cube-js-warning-{fig_id}");
         const jsWarningText = jsWarning ? jsWarning.querySelector(".cube-warning-text") : null;
-        const gl = canvas.getContext("webgl");
-        let rotationX = (parseFloat(body.getAttribute("data-rot-x")) || 0) * Math.PI / 180;
-        let rotationY = (parseFloat(body.getAttribute("data-rot-y")) || 0) * Math.PI / 180;
-        let zoom = parseFloat(body.getAttribute("data-zoom")) || 1;
+
+        const data = root.dataset || {{}};
+        let rotationX = (parseFloat(data.rotX) || 0) * Math.PI / 180;
+        let rotationY = (parseFloat(data.rotY) || 0) * Math.PI / 180;
+        let zoom = parseFloat(data.zoom) || 1;
         const zoomMin = 0.35;
         const zoomMax = 6.0;
+
+        if (!canvas || !cubeRotation) {{
+            if (jsWarning) {{
+                if (jsWarningText) {{
+                    jsWarningText.innerHTML = '<strong>Interactive controls unavailable.</strong> Viewer elements failed to initialize.';
+                }}
+                jsWarning.classList.remove("hidden");
+            }}
+            return;
+        }}
+
+        const gl = canvas.getContext("webgl");
 
         function applyCubeRotation() {{
             if (!cubeRotation) return;
@@ -746,20 +766,22 @@ def _render_cube_html(
     }})();
     }} catch (err) {{
       console.error('[CubeViewer] top-level error', err);
-      const jsWarning = document.getElementById("cube-js-warning-{fig_id}");
+      const root = document.getElementById("{figure_id}");
+      const jsWarning = root ? root.querySelector("#cube-js-warning-{fig_id}") : null;
       if (jsWarning) {{
         jsWarning.classList.remove("hidden");
       }}
     }}
 
-    const cbMin = document.body.getAttribute("data-cb-min");
-    const cbMax = document.body.getAttribute("data-cb-max");
+    const root = document.getElementById("{figure_id}");
+    const cbMin = root ? root.getAttribute("data-cb-min") : null;
+    const cbMax = root ? root.getAttribute("data-cb-max") : null;
     if (cbMin !== null) {{
-      const minEl = document.getElementById("cb-min");
+      const minEl = root ? root.querySelector("#cb-min") : null;
       if (minEl) minEl.innerText = cbMin;
     }}
     if (cbMax !== null) {{
-      const maxEl = document.getElementById("cb-max");
+      const maxEl = root ? root.querySelector("#cb-max") : null;
       if (maxEl) maxEl.innerText = cbMax;
     }}
   </script>
