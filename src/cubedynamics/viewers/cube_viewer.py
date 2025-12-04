@@ -106,7 +106,7 @@ def write_cube_viewer(
     vmin: float | None = None,
     vmax: float | None = None,
     title: str = "Cube Viewer",
-) -> Path:
+    ) -> Path:
     """Generate a standalone HTML/JS cube viewer for a 3D DataArray.
 
     Parameters
@@ -137,6 +137,15 @@ def write_cube_viewer(
 
     top, front, side = _extract_faces(da, time_dim, y_dim, x_dim)
 
+    size_time = float(da.sizes[time_dim])
+    size_y = float(da.sizes[y_dim])
+    size_x = float(da.sizes[x_dim])
+    max_size = max(size_time, size_y, size_x)
+
+    scale_time = size_time / max_size if max_size else 1.0
+    scale_y = size_y / max_size if max_size else 1.0
+    scale_x = size_x / max_size if max_size else 1.0
+
     top_png = _face_to_base64(top, cmap=cmap, vmin=vmin, vmax=vmax)
     front_png = _face_to_base64(front, cmap=cmap, vmin=vmin, vmax=vmax)
     side_png = _face_to_base64(side, cmap=cmap, vmin=vmin, vmax=vmax)
@@ -148,13 +157,14 @@ def write_cube_viewer(
 
     html = (
         template.replace("__TITLE__", title)
-        .replace("__WIDTH__", "900")
-        .replace("__HEIGHT__", "900")
         .replace("__TOP_TEXTURE__", top_png)
         .replace("__FRONT_TEXTURE__", front_png)
         .replace("__SIDE_TEXTURE__", side_png)
         .replace("__COLORBAR_MIN__", str(vmin))
         .replace("__COLORBAR_MAX__", str(vmax))
+        .replace("__SCALE_X__", f"{scale_x:.6f}")
+        .replace("__SCALE_Y__", f"{scale_time:.6f}")
+        .replace("__SCALE_Z__", f"{scale_y:.6f}")
     )
 
     out_path = Path(out_html)

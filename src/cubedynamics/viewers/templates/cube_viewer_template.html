@@ -14,12 +14,16 @@
       color: #fff;
       font-family: Arial, sans-serif;
     }
+    :root {
+      --scale-x: __SCALE_X__;
+      --scale-y: __SCALE_Y__;
+      --scale-z: __SCALE_Z__;
+    }
     #viewer-container {
-      position: relative;
-      width: __WIDTH__px;
-      height: __HEIGHT__px;
-      margin: 0 auto;
+      position: fixed;
+      inset: 0;
       background: #000;
+      touch-action: none;
     }
     canvas {
       width: 100%;
@@ -60,6 +64,7 @@
         #2166ac,
         #053061
       );
+      pointer-events: none;
     }
     #colorbar-labels {
       position: absolute;
@@ -71,6 +76,7 @@
       justify-content: space-between;
       font-size: 12px;
       color: #fff;
+      pointer-events: none;
     }
   </style>
 </head>
@@ -207,6 +213,7 @@
 
     function init() {
       const canvas = document.getElementById('viewer-canvas');
+      const container = document.getElementById('viewer-container');
       const gl = canvas.getContext('webgl');
       if (!gl) {
         alert('WebGL not supported');
@@ -311,13 +318,18 @@
       let lastX = 0;
       let lastY = 0;
 
-      canvas.addEventListener('mousedown', (e) => {
+      container.addEventListener('pointerdown', (e) => {
         dragging = true;
         lastX = e.clientX;
         lastY = e.clientY;
       });
-      window.addEventListener('mouseup', () => (dragging = false));
-      window.addEventListener('mousemove', (e) => {
+      container.addEventListener('pointerup', () => {
+        dragging = false;
+      });
+      container.addEventListener('pointerleave', () => {
+        dragging = false;
+      });
+      window.addEventListener('pointermove', (e) => {
         if (!dragging) return;
         const dx = e.clientX - lastX;
         const dy = e.clientY - lastY;
@@ -327,7 +339,7 @@
         pitch += dy * 0.005;
         pitch = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, pitch));
       });
-      canvas.addEventListener('wheel', (e) => {
+      container.addEventListener('wheel', (e) => {
         e.preventDefault();
         radius += e.deltaY * 0.01;
         radius = Math.max(1.5, Math.min(6.0, radius));
@@ -337,7 +349,7 @@
       resizeCanvas();
 
       function resizeCanvas() {
-        const rect = canvas.getBoundingClientRect();
+        const rect = container.getBoundingClientRect();
         canvas.width = rect.width * window.devicePixelRatio;
         canvas.height = rect.height * window.devicePixelRatio;
         gl.viewport(0, 0, canvas.width, canvas.height);
@@ -412,38 +424,49 @@
       });
     }
 
+    function getScales() {
+      const rootStyles = getComputedStyle(document.documentElement);
+      return {
+        halfX: 0.5 * parseFloat(rootStyles.getPropertyValue('--scale-x')),
+        halfY: 0.5 * parseFloat(rootStyles.getPropertyValue('--scale-y')),
+        halfZ: 0.5 * parseFloat(rootStyles.getPropertyValue('--scale-z')),
+      };
+    }
+
     function createCubeBuffers(gl) {
+      const { halfX, halfY, halfZ } = getScales();
+
       const positions = [
         // Top (+Y)
-        -0.5, 0.5, 0.5,
-         0.5, 0.5, 0.5,
-         0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5,
+        -halfX, halfY, halfZ,
+         halfX, halfY, halfZ,
+         halfX, halfY, -halfZ,
+        -halfX, halfY, -halfZ,
         // Bottom (-Y)
-        -0.5, -0.5, -0.5,
-         0.5, -0.5, -0.5,
-         0.5, -0.5, 0.5,
-        -0.5, -0.5, 0.5,
+        -halfX, -halfY, -halfZ,
+         halfX, -halfY, -halfZ,
+         halfX, -halfY, halfZ,
+        -halfX, -halfY, halfZ,
         // Front (+Z)
-        -0.5, 0.5, 0.5,
-         0.5, 0.5, 0.5,
-         0.5, -0.5, 0.5,
-        -0.5, -0.5, 0.5,
+        -halfX, halfY, halfZ,
+         halfX, halfY, halfZ,
+         halfX, -halfY, halfZ,
+        -halfX, -halfY, halfZ,
         // Back (-Z)
-        0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,
-         0.5, -0.5, -0.5,
+        halfX, halfY, -halfZ,
+        -halfX, halfY, -halfZ,
+        -halfX, -halfY, -halfZ,
+         halfX, -halfY, -halfZ,
         // Right (+X)
-        0.5, 0.5, 0.5,
-        0.5, 0.5, -0.5,
-        0.5, -0.5, -0.5,
-        0.5, -0.5, 0.5,
+        halfX, halfY, halfZ,
+        halfX, halfY, -halfZ,
+        halfX, -halfY, -halfZ,
+        halfX, -halfY, halfZ,
         // Left (-X)
-        -0.5, 0.5, -0.5,
-        -0.5, 0.5, 0.5,
-        -0.5, -0.5, 0.5,
-        -0.5, -0.5, -0.5,
+        -halfX, halfY, -halfZ,
+        -halfX, halfY, halfZ,
+        -halfX, -halfY, halfZ,
+        -halfX, -halfY, -halfZ,
       ];
 
       const uvs = [];
@@ -494,22 +517,23 @@
     }
 
     function createEdgeBuffer(gl) {
+      const { halfX, halfY, halfZ } = getScales();
       const edges = [
         // Top square
-        -0.5, 0.5, 0.5,   0.5, 0.5, 0.5,
-         0.5, 0.5, 0.5,   0.5, 0.5, -0.5,
-         0.5, 0.5, -0.5, -0.5, 0.5, -0.5,
-        -0.5, 0.5, -0.5, -0.5, 0.5, 0.5,
+        -halfX, halfY, halfZ,   halfX, halfY, halfZ,
+         halfX, halfY, halfZ,   halfX, halfY, -halfZ,
+         halfX, halfY, -halfZ, -halfX, halfY, -halfZ,
+        -halfX, halfY, -halfZ, -halfX, halfY, halfZ,
         // Bottom square
-        -0.5, -0.5, 0.5,  0.5, -0.5, 0.5,
-         0.5, -0.5, 0.5,  0.5, -0.5, -0.5,
-         0.5, -0.5, -0.5,-0.5, -0.5, -0.5,
-        -0.5, -0.5, -0.5,-0.5, -0.5, 0.5,
+        -halfX, -halfY, halfZ,  halfX, -halfY, halfZ,
+         halfX, -halfY, halfZ,  halfX, -halfY, -halfZ,
+         halfX, -halfY, -halfZ,-halfX, -halfY, -halfZ,
+        -halfX, -halfY, -halfZ,-halfX, -halfY, halfZ,
         // Verticals
-        -0.5, -0.5, 0.5, -0.5, 0.5, 0.5,
-         0.5, -0.5, 0.5,  0.5, 0.5, 0.5,
-         0.5, -0.5, -0.5, 0.5, 0.5, -0.5,
-        -0.5, -0.5, -0.5,-0.5, 0.5, -0.5,
+        -halfX, -halfY, halfZ, -halfX, halfY, halfZ,
+         halfX, -halfY, halfZ,  halfX, halfY, halfZ,
+         halfX, -halfY, -halfZ, halfX, halfY, -halfZ,
+        -halfX, -halfY, -halfZ,-halfX, halfY, -halfZ,
       ];
 
       const buffer = gl.createBuffer();
