@@ -39,11 +39,12 @@ So `v.plot()` still returns a `CubePlot` object. 【27a0d3†L1-L2】
 - **H3:** Slowness likely comes from full-face `.values` extraction and color mapping for each face plus interior downsampling; large cubes will still materialize multiple slices eagerly before rendering. 【F:src/cubedynamics/plotting/cube_viewer.py†L638-L718】【F:src/cubedynamics/plotting/cube_viewer.py†L828-L868】
 
 ## 9. Interaction regressions (2025-03)
-- **What changed?** Drag setup was refactored to share pointer/mouse/touch start logic and attach move/end listeners to `window` so rotation keeps flowing even if the pointer leaves the drag surface. Pointer capture is attempted on the drag overlay but gracefully skipped when unsupported. 【F:src/cubedynamics/plotting/cube_viewer.py†L353-L472】
+- **What changed?** Drag setup was refactored to share pointer/mouse/touch start logic and attach move/end listeners to `window` so rotation keeps flowing even if the pointer leaves the drag surface. Pointer capture is attempted on the drag overlay but gracefully skipped when unsupported. Drag sessions now track the active pointer/touch identifier and clear any stale listeners before beginning a new drag to prevent cross-pointer interference. 【F:src/cubedynamics/plotting/cube_viewer.py†L353-L472】
 - **How to debug:**
   - Open DevTools and watch for `[CubeViewer] drag start/move/end` console logs when interacting with the cube. Absence of logs suggests the event listeners are not attaching (e.g., scripts blocked) or the drag surface is not present.
   - Verify the transparent drag surface exists with `document.getElementById("cube-drag-surface-<fig_id>")`; rotation depends on this element being on top of the cube.
   - Pointer capture failures are expected on some touch devices; the viewer falls back to window-level listeners. If moves stop mid-drag, confirm the move/end listeners are on `window` via `getEventListeners(window)` (in Chromium-based devtools) or by adding `window.addEventListener` breakpoints.
+  - If drag motion stutters on multi-touch devices, inspect `activePointerId`/`activeTouchId` in the embedded script to ensure the move handler is gating events to the current pointer ID; stale listeners are cleared at drag start, so seeing multiple active IDs usually means the drag surface never received `pointerup/touchend`.
   - Zoom uses the wheel handler on the drag surface; if scroll-to-zoom stops working, inspect whether the `wheel` listener is blocked by the notebook or page-level scroll container.
 
 ## 10. Rotation/zoom expectations (2025-03)

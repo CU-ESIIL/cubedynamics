@@ -564,23 +564,31 @@ def _render_cube_html(
         let dragging = false;
         let cleanupDragListeners = null;
         let lastX = 0, lastY = 0;
+        let activePointerId = null;
+        let activeTouchId = null;
 
-        function stopDragging(e) {{
+        function clearDragListeners() {{
             if (cleanupDragListeners) {{
                 cleanupDragListeners();
                 cleanupDragListeners = null;
             }}
+        }}
+
+        function stopDragging(e) {{
+            clearDragListeners();
             if (!dragging) return;
+            const pointerId = (e && e.pointerId !== undefined) ? e.pointerId : activePointerId;
             dragging = false;
+            activePointerId = null;
+            activeTouchId = null;
             if (
                 dragSurface &&
-                e &&
+                pointerId !== null &&
                 typeof dragSurface.hasPointerCapture === "function" &&
-                e.pointerId !== undefined &&
-                dragSurface.hasPointerCapture(e.pointerId)
+                dragSurface.hasPointerCapture(pointerId)
             ) {{
                 try {{
-                    dragSurface.releasePointerCapture(e.pointerId);
+                    dragSurface.releasePointerCapture(pointerId);
                 }} catch (err) {{
                     console.warn('[CubeViewer] releasePointerCapture failed', err);
                 }}
@@ -618,13 +626,17 @@ def _render_cube_html(
                     if (!e.isPrimary) return;
                     e.preventDefault();
                     e.stopPropagation();
-                    if (cleanupDragListeners) {{
-                        cleanupDragListeners();
-                        cleanupDragListeners = null;
-                    }}
+                    clearDragListeners();
+                    activePointerId = e.pointerId;
                     startDragging(e.clientX, e.clientY);
-                    const onPointerMove = ev => handleDragMove(ev.clientX, ev.clientY);
-                    const endPointerDrag = ev => stopDragging(ev);
+                    const onPointerMove = ev => {{
+                        if (ev.pointerId !== activePointerId) return;
+                        handleDragMove(ev.clientX, ev.clientY);
+                    }};
+                    const endPointerDrag = ev => {{
+                        if (ev.pointerId !== activePointerId) return;
+                        stopDragging(ev);
+                    }};
                     cleanupDragListeners = () => {{
                         window.removeEventListener("pointermove", onPointerMove);
                         window.removeEventListener("pointerup", endPointerDrag);
@@ -644,10 +656,7 @@ def _render_cube_html(
             }} else {{
                 dragSurface.addEventListener("mousedown", e => {{
                     e.preventDefault();
-                    if (cleanupDragListeners) {{
-                        cleanupDragListeners();
-                        cleanupDragListeners = null;
-                    }}
+                    clearDragListeners();
                     startDragging(e.clientX, e.clientY);
                     const onMouseMove = ev => handleDragMove(ev.clientX, ev.clientY);
                     const endMouseDrag = ev => stopDragging(ev);
@@ -662,20 +671,21 @@ def _render_cube_html(
                 dragSurface.addEventListener("touchstart", e => {{
                     if (!e.touches || e.touches.length === 0) return;
                     e.preventDefault();
-                    if (cleanupDragListeners) {{
-                        cleanupDragListeners();
-                        cleanupDragListeners = null;
-                    }}
+                    clearDragListeners();
                     const touch = e.touches[0];
+                    activeTouchId = touch.identifier;
                     startDragging(touch.clientX, touch.clientY);
                     const onTouchMove = ev => {{
                         if (!ev.touches || ev.touches.length === 0) return;
-                        const current = ev.touches[0];
+                        const current = Array.from(ev.touches).find(t => t.identifier === activeTouchId);
+                        if (!current) return;
                         handleDragMove(current.clientX, current.clientY);
                     }};
                     const endTouchDrag = ev => {{
-                        const endTouch = ev.changedTouches ? ev.changedTouches[0] : ev;
-                        stopDragging(endTouch);
+                        const endTouch = ev.changedTouches
+                          ? Array.from(ev.changedTouches).find(t => t.identifier === activeTouchId)
+                          : ev;
+                        stopDragging(endTouch || ev);
                     }};
                     cleanupDragListeners = () => {{
                         window.removeEventListener("touchmove", onTouchMove);
