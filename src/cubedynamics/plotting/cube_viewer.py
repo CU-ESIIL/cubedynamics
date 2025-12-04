@@ -198,6 +198,11 @@ def _render_cube_html(
     x_meta = axis_meta.get("x", {})
     y_meta = axis_meta.get("y", {})
     fig_id = uuid.uuid4().hex
+    js_warning_text = (
+        "<strong>Interactive controls need JavaScript.</strong> Trust this "
+        "notebook/output and temporarily disable script blockers to rotate "
+        "and zoom the cube."
+    )
     figure_id = f"cube-figure-{fig_id}"
 
     cube_faces_html = f"""
@@ -505,12 +510,12 @@ def _render_cube_html(
     </div>
     <div class=\"cube-js-warning hidden\" id=\"cube-js-warning-{fig_id}\" aria-live=\"polite\">
       <div class=\"dot\"></div>
-      <div class=\"cube-warning-text\"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
+      <div class=\"cube-warning-text\">{js_warning_text}</div>
     </div>
     <noscript>
       <div class=\"cube-js-warning\" aria-live=\"polite\">
         <div class=\"dot\"></div>
-        <div class=\"cube-warning-text\"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
+        <div class=\"cube-warning-text\">{js_warning_text}</div>
       </div>
     </noscript>
     {legend_html}
