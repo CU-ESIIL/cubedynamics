@@ -4,6 +4,7 @@ This example shows how to use the `landsat8_mpc` verb to stream Landsat-8 Collec
 
 ```python
 from cubedynamics import pipe, verbs as v
+from cubedynamics.verbs import landsat_ndvi_plot
 
 # Boulder-ish bounding box
 bbox = [-105.35, 39.9, -105.15, 40.1]
@@ -30,8 +31,17 @@ ndvi.name = "NDVI"
 
 # Plot all timesteps with the CubePlot viewer
 pipe(ndvi) | v.plot(time_dim="time")
+
+# For visualization-friendly downsampling/cropping, prefer the helper:
+landsat_ndvi_plot(
+    bbox=bbox,
+    start="2019-07-01",
+    end="2019-08-01",
+)
 ```
 
 Because the underlying arrays are dask-backed, nothing is fully loaded into memory until you compute or plot.
+
+`landsat_ndvi_plot` (and its underlying `landsat_vis_ndvi` helper) trims all-NaN borders and downsamples big scenes so the cube viewer stays responsive. Use the raw `v.landsat8_mpc` output for analysis-heavy workflows where you want the full-resolution data.
 
 Note: This verb uses Microsoft Planetary Computer’s STAC API and signed COG URLs via the planetary_computer Python SDK. No AWS credentials are needed.

@@ -172,8 +172,13 @@ class ScaleFillContinuous:
     def infer_limits(self, data: xr.DataArray) -> tuple[float, float]:
         if self.limits is not None:
             return self.limits
-        finite_min = float(data.min(skipna=True))
-        finite_max = float(data.max(skipna=True))
+        arr = np.asarray(data.values)
+        finite = np.isfinite(arr)
+        if finite.any():
+            finite_min = float(np.nanmin(arr[finite]))
+            finite_max = float(np.nanmax(arr[finite]))
+        else:
+            finite_min, finite_max = -1.0, 1.0
         if self.center is not None:
             spread = max(abs(finite_min - self.center), abs(finite_max - self.center))
             finite_min = self.center - spread

@@ -44,6 +44,20 @@ ndvi = (nir - red) / (nir + red)
 pipe(ndvi) | v.plot(time_dim="time")
 ```
 
+For visualization, you can avoid loading huge rotated footprints by using the downsampling helper:
+
+```python
+from cubedynamics.verbs import landsat_ndvi_plot
+
+landsat_ndvi_plot(
+    bbox=bbox,
+    start="2019-07-01",
+    end="2019-08-01",
+)
+```
+
+The `landsat_vis_ndvi`/`landsat_ndvi_plot` helpers crop all-NaN borders and coarsen the cube so `v.plot` remains responsive, while the raw `v.landsat8_mpc` output stays available for analysis at full resolution.
+
 ## Notes
 - This verb uses MPC-signed STAC assets; no additional credentials are required.
 - Because the DataArray is dask-backed, subsequent analysis and visualization remain lazy until execution.

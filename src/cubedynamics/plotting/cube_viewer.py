@@ -94,6 +94,8 @@ def _colormap_to_rgba(arr: np.ndarray, *, cmap: str, fill_limits: tuple[float, f
         norm = mcolors.Normalize(vmin=-1, vmax=1)
     cmap_obj = colormaps.get_cmap(cmap)
     rgba = cmap_obj(norm(arr))
+    if not mask.all():
+        rgba[~mask, 3] = 0.0
     return (rgba * 255).astype("uint8")
 
 
@@ -879,10 +881,10 @@ def cube_from_dataarray(
 
     front_spatial: Optional[np.ndarray] = None
     back_spatial: Optional[np.ndarray] = None
-    left_time_y = np.zeros((ny, nt_eff), dtype="float32")
-    right_time_y = np.zeros((ny, nt_eff), dtype="float32")
-    top_time_x = np.zeros((nx, nt_eff), dtype="float32")
-    bottom_time_x = np.zeros((nx, nt_eff), dtype="float32")
+    left_time_y = np.full((ny, nt_eff), np.nan, dtype="float32")
+    right_time_y = np.full((ny, nt_eff), np.nan, dtype="float32")
+    top_time_x = np.full((nx, nt_eff), np.nan, dtype="float32")
+    bottom_time_x = np.full((nx, nt_eff), np.nan, dtype="float32")
 
     for idx, t_idx in enumerate(t_indices):
         frame = da.isel({t_dim: t_idx}).transpose(y_dim, x_dim)

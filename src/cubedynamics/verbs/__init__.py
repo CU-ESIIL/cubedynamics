@@ -31,6 +31,22 @@ def landsat8_mpc(*args, **kwargs):
     return _landsat8_mpc(*args, **kwargs)
 
 
+def landsat_vis_ndvi(*args, **kwargs):
+    """Lazy import wrapper for a visualization-friendly Landsat NDVI cube."""
+
+    from .landsat_mpc import landsat_vis_ndvi as _landsat_vis_ndvi
+
+    return _landsat_vis_ndvi(*args, **kwargs)
+
+
+def landsat_ndvi_plot(*args, **kwargs):
+    """Lazy import wrapper for Landsat NDVI plotting."""
+
+    from .landsat_mpc import landsat_ndvi_plot as _landsat_ndvi_plot
+
+    return _landsat_ndvi_plot(*args, **kwargs)
+
+
 def show_cube_lexcube(**kwargs):
     """Render a Lexcube widget as a side-effect and return the original cube.
 
@@ -82,6 +98,8 @@ __all__ = [
     "zscore",
     "ndvi_from_s2",
     "landsat8_mpc",
+    "landsat_vis_ndvi",
+    "landsat_ndvi_plot",
     "show_cube_lexcube",
     "fit_model",
     "plot",
