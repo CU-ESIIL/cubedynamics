@@ -579,16 +579,15 @@ def _render_cube_html(
             if (!dragging) return;
             const pointerId = (e && e.pointerId !== undefined) ? e.pointerId : activePointerId;
             dragging = false;
-            activePointerId = null;
-            activeTouchId = null;
             if (
                 dragSurface &&
-                pointerId !== null &&
+                e &&
                 typeof dragSurface.hasPointerCapture === "function" &&
-                dragSurface.hasPointerCapture(pointerId)
+                e.pointerId !== undefined &&
+                dragSurface.hasPointerCapture(e.pointerId)
             ) {{
                 try {{
-                    dragSurface.releasePointerCapture(pointerId);
+                    dragSurface.releasePointerCapture(e.pointerId);
                 }} catch (err) {{
                     console.warn('[CubeViewer] releasePointerCapture failed', err);
                 }}
@@ -614,34 +613,17 @@ def _render_cube_html(
             dragSurface.style.cursor = "grab";
             dragSurface.style.touchAction = "none";
 
-            const startDragging = (x, y) => {{
-                dragging = true;
-                lastX = x;
-                lastY = y;
-                dragSurface.style.cursor = "grabbing";
+            onPointerMove = e => {{
+                handleDragMove(e.clientX, e.clientY);
             }};
 
             if (supportsPointer) {{
                 dragSurface.addEventListener("pointerdown", e => {{
-                    if (!e.isPrimary) return;
                     e.preventDefault();
                     e.stopPropagation();
-                    clearDragListeners();
-                    activePointerId = e.pointerId;
-                    startDragging(e.clientX, e.clientY);
-                    const onPointerMove = ev => {{
-                        if (ev.pointerId !== activePointerId) return;
-                        handleDragMove(ev.clientX, ev.clientY);
-                    }};
-                    const endPointerDrag = ev => {{
-                        if (ev.pointerId !== activePointerId) return;
-                        stopDragging(ev);
-                    }};
-                    cleanupDragListeners = () => {{
-                        window.removeEventListener("pointermove", onPointerMove);
-                        window.removeEventListener("pointerup", endPointerDrag);
-                        window.removeEventListener("pointercancel", endPointerDrag);
-                    }};
+                    dragging = true;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
                     if (typeof dragSurface.setPointerCapture === "function" && e.pointerId !== undefined) {{
                         try {{
                             dragSurface.setPointerCapture(e.pointerId);
@@ -649,53 +631,73 @@ def _render_cube_html(
                             console.warn('[CubeViewer] setPointerCapture failed', err);
                         }}
                     }}
-                    window.addEventListener("pointermove", onPointerMove);
-                    window.addEventListener("pointerup", endPointerDrag);
-                    window.addEventListener("pointercancel", endPointerDrag);
+                    dragSurface.style.cursor = "grabbing";
+                    dragSurface.addEventListener("pointermove", onPointerMove);
+                }});
+
+                dragSurface.addEventListener("pointerup", e => {{
+                    if (onPointerMove) {{
+                        dragSurface.removeEventListener("pointermove", onPointerMove);
+                    }}
+                    stopDragging(e);
+                }});
+
+                dragSurface.addEventListener("pointercancel", e => {{
+                    if (onPointerMove) {{
+                        dragSurface.removeEventListener("pointermove", onPointerMove);
+                    }}
+                    stopDragging(e);
+                }});
+
+                window.addEventListener("pointerup", e => {{
+                    if (dragSurface && onPointerMove) {{
+                        dragSurface.removeEventListener("pointermove", onPointerMove);
+                    }}
+                    stopDragging(e);
+                }});
+
+                window.addEventListener("pointercancel", e => {{
+                    if (dragSurface && onPointerMove) {{
+                        dragSurface.removeEventListener("pointermove", onPointerMove);
+                    }}
+                    stopDragging(e);
                 }});
             }} else {{
+                const onMouseMove = e => handleDragMove(e.clientX, e.clientY);
+                const onMouseUp = e => {{
+                    window.removeEventListener("mousemove", onMouseMove);
+                    stopDragging(e);
+                }};
+
                 dragSurface.addEventListener("mousedown", e => {{
                     e.preventDefault();
-                    clearDragListeners();
-                    startDragging(e.clientX, e.clientY);
-                    const onMouseMove = ev => handleDragMove(ev.clientX, ev.clientY);
-                    const endMouseDrag = ev => stopDragging(ev);
-                    cleanupDragListeners = () => {{
-                        window.removeEventListener("mousemove", onMouseMove);
-                        window.removeEventListener("mouseup", endMouseDrag);
-                    }};
+                    dragging = true;
+                    lastX = e.clientX;
+                    lastY = e.clientY;
+                    dragSurface.style.cursor = "grabbing";
                     window.addEventListener("mousemove", onMouseMove);
-                    window.addEventListener("mouseup", endMouseDrag);
+                    window.addEventListener("mouseup", onMouseUp, {{ once: true }});
                 }});
 
                 dragSurface.addEventListener("touchstart", e => {{
                     if (!e.touches || e.touches.length === 0) return;
                     e.preventDefault();
-                    clearDragListeners();
                     const touch = e.touches[0];
-                    activeTouchId = touch.identifier;
-                    startDragging(touch.clientX, touch.clientY);
-                    const onTouchMove = ev => {{
-                        if (!ev.touches || ev.touches.length === 0) return;
-                        const current = Array.from(ev.touches).find(t => t.identifier === activeTouchId);
-                        if (!current) return;
-                        handleDragMove(current.clientX, current.clientY);
-                    }};
-                    const endTouchDrag = ev => {{
-                        const endTouch = ev.changedTouches
-                          ? Array.from(ev.changedTouches).find(t => t.identifier === activeTouchId)
-                          : ev;
-                        stopDragging(endTouch || ev);
-                    }};
-                    cleanupDragListeners = () => {{
-                        window.removeEventListener("touchmove", onTouchMove);
-                        window.removeEventListener("touchend", endTouchDrag);
-                        window.removeEventListener("touchcancel", endTouchDrag);
-                    }};
-                    window.addEventListener("touchmove", onTouchMove, {{ passive: false }});
-                    window.addEventListener("touchend", endTouchDrag);
-                    window.addEventListener("touchcancel", endTouchDrag);
+                    dragging = true;
+                    lastX = touch.clientX;
+                    lastY = touch.clientY;
+                    dragSurface.style.cursor = "grabbing";
                 }}, {{ passive: false }});
+
+                dragSurface.addEventListener("touchmove", e => {{
+                    if (!dragging || !e.touches || e.touches.length === 0) return;
+                    const touch = e.touches[0];
+                    handleDragMove(touch.clientX, touch.clientY);
+                }}, {{ passive: false }});
+
+                dragSurface.addEventListener("touchend", e => {{
+                    stopDragging(e.changedTouches ? e.changedTouches[0] : e);
+                }});
             }}
 
             dragSurface.addEventListener("wheel", e => {{
