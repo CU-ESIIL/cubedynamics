@@ -966,12 +966,25 @@ _CUBEPLOT_HTML_TEMPLATE = string.Template(
     this.program = null;
     this._animating = true;
     this._animate = this._animate.bind(this);
+    this.cubeOffsets = [];
 
+    this._initCubeOffsets();
     this._bindEvents();
     this._initGL();
     this.resize();
     requestAnimationFrame(this._animate);
   }
+
+  CubePlotScene.prototype._initCubeOffsets = function() {
+    if (this.config && this.config.mode === "paired" && Array.isArray(this.config.cubes)) {
+      const count = this.config.cubes.length;
+      const spacing = 2.4;
+      const start = -spacing * (count - 1) / 2;
+      this.cubeOffsets = Array.from({ length: count }, (_, idx) => start + idx * spacing);
+      return;
+    }
+    this.cubeOffsets = [0];
+  };
 
   CubePlotScene.prototype._bindEvents = function() {
     if (!this.canvas) return;
@@ -1118,6 +1131,13 @@ _CUBEPLOT_HTML_TEMPLATE = string.Template(
       0,0,0,1
     ]);
 
+    const translate = (x,y,z) => new Float32Array([
+      1,0,0,x,
+      0,1,0,y,
+      0,0,1,z,
+      0,0,0,1
+    ]);
+
     const mul = (a,b) => {
       const o=new Float32Array(16);
       for (let i=0;i<4;i++)
@@ -1128,12 +1148,15 @@ _CUBEPLOT_HTML_TEMPLATE = string.Template(
       }
       return o;
     };
-    const mvp = mul(proj, mul(scale, mul(ry, rx)));
+    const baseMvp = mul(proj, mul(scale, mul(ry, rx)));
 
     const loc = gl.getUniformLocation(this.program,"mvp");
-    gl.uniformMatrix4fv(loc,false,mvp);
-
-    gl.drawElements(gl.LINES, this.lines.length, gl.UNSIGNED_SHORT, 0);
+    for (let idx = 0; idx < this.cubeOffsets.length; idx++) {
+      const offset = this.cubeOffsets[idx] || 0;
+      const mvp = mul(baseMvp, translate(offset, 0, 0));
+      gl.uniformMatrix4fv(loc,false,mvp);
+      gl.drawElements(gl.LINES, this.lines.length, gl.UNSIGNED_SHORT, 0);
+    }
   };
 
   CubePlotScene.prototype._animate = function() {
@@ -1162,6 +1185,11 @@ _CUBEPLOT_HTML_TEMPLATE = string.Template(
   if (!canvas) return;
 
   const config = {config_json};
+
+  const overlayLabel = root.querySelector(".cubeplot-scale-label");
+  if (overlayLabel) {
+    overlayLabel.textContent = (config && (config.title || (config.options && config.options.title))) || "scale";
+  }
 
   if (typeof window.CubePlotScene !== "function") {
     console.error("CubePlotScene is not defined on window");
