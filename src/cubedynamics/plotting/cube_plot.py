@@ -612,16 +612,24 @@ class CubePlot(metaclass=_CubePlotMeta):
         if not isinstance(da, xr.DataArray):
             raise TypeError("CubePlot expects an xarray.DataArray")
 
-        return {
+        payload = {
+            "name": da.name or "",
             "shape": list(da.shape),
             "dims": list(da.dims),
+            "coords": {k: v.values.tolist() for k, v in da.coords.items()},
+            "values": da.data.tolist(),
             "attrs": dict(getattr(da, "attrs", {})),
+        }
+
+        return {
+            "mode": "single",
+            "data": payload,
+            "title": self.title,
             "options": {
                 "size_px": self.size_px,
                 "width_px": self.viewer_width,
                 "height_px": self.viewer_height,
                 "thin_time_factor": self.thin_time_factor,
-                "title": self.title,
                 "time_label": self.time_label,
                 "x_label": self.x_label,
                 "y_label": self.y_label,
@@ -951,6 +959,7 @@ _CUBEPLOT_HTML_TEMPLATE = string.Template(
   if (typeof global.CubePlotScene === "function") return;
 
   function CubePlotScene(canvas, config) {
+    console.log("CubePlotScene config:", config);
     this.canvas = canvas;
     this.config = config || {};
     this.rotationX = 0.7;
@@ -968,22 +977,78 @@ _CUBEPLOT_HTML_TEMPLATE = string.Template(
     this._animate = this._animate.bind(this);
     this.cubeOffsets = [];
 
-    this._initCubeOffsets();
     this._bindEvents();
     this._initGL();
+    this._initScene();
     this.resize();
     requestAnimationFrame(this._animate);
   }
 
-  CubePlotScene.prototype._initCubeOffsets = function() {
+  CubePlotScene.prototype._dimsToScale = function(payload) {
+    const dims = payload && Array.isArray(payload.shape) ? payload.shape.slice(-3) : [1, 1, 1];
+    const maxDim = Math.max(...dims.map(v => Math.max(1, Math.abs(v))));
+    if (!maxDim) return [1, 1, 1];
+    return dims.map(v => (v / maxDim) || 1);
+  };
+
+  CubePlotScene.prototype._buildWireframe = function(scaleVec) {
+    if (!this.gl) return;
+    const gl = this.gl;
+    const sx = (scaleVec && scaleVec[0]) || 1;
+    const sy = (scaleVec && scaleVec[1]) || 1;
+    const sz = (scaleVec && scaleVec[2]) || 1;
+
+    const cubeVerts = new Float32Array([
+      -sx, -sy, -sz,   sx, -sy, -sz,   sx,  sy, -sz,   -sx,  sy, -sz,
+      -sx, -sy,  sz,   sx, -sy,  sz,   sx,  sy,  sz,   -sx,  sy,  sz
+    ]);
+
+    this.lines = new Uint16Array([
+      0,1, 1,2, 2,3, 3,0,
+      4,5, 5,6, 6,7, 7,4,
+      0,4, 1,5, 2,6, 3,7
+    ]);
+
+    const vbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, cubeVerts, gl.STATIC_DRAW);
+
+    const lbo = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lbo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.lines, gl.STATIC_DRAW);
+
+    const posLoc = gl.getAttribLocation(this.program, "pos");
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+
+    console.log("Added wireframe cube to scene");
+  };
+
+  CubePlotScene.prototype._buildSingleCube = function(payload) {
+    console.log("CubePlotScene _buildSingleCube payload:", payload);
+    this.cubeOffsets = [0];
+    const scaleVec = this._dimsToScale(payload || {});
+    this._buildWireframe(scaleVec);
+  };
+
+  CubePlotScene.prototype._buildPairedCubes = function(cubes) {
+    console.log("CubePlotScene _buildPairedCubes payload:", cubes);
+    const count = Array.isArray(cubes) ? cubes.length : 0;
+    const spacing = 2.4;
+    const start = -spacing * (count - 1) / 2;
+    this.cubeOffsets = Array.from({ length: count || 1 }, (_, idx) => start + idx * spacing);
+    const firstPayload = count > 0 ? (cubes[0].data || cubes[0]) : {};
+    const scaleVec = this._dimsToScale(firstPayload || {});
+    this._buildWireframe(scaleVec);
+  };
+
+  CubePlotScene.prototype._initScene = function() {
     if (this.config && this.config.mode === "paired" && Array.isArray(this.config.cubes)) {
-      const count = this.config.cubes.length;
-      const spacing = 2.4;
-      const start = -spacing * (count - 1) / 2;
-      this.cubeOffsets = Array.from({ length: count }, (_, idx) => start + idx * spacing);
+      this._buildPairedCubes(this.config.cubes);
       return;
     }
-    this.cubeOffsets = [0];
+    const payload = (this.config && (this.config.data || this.config)) || {};
+    this._buildSingleCube(payload);
   };
 
   CubePlotScene.prototype._bindEvents = function() {
