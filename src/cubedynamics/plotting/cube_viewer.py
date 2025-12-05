@@ -964,6 +964,7 @@ def _render_cube_html(
     console.log('[CubeViewer] script starting');
     try {{
       (function() {{
+        const figureId = "{figure_id}";
         const config = {bootstrap_config};
         const registry = (typeof window !== "undefined") ? (window.CUBE_PLOTS = window.CUBE_PLOTS || {{}}) : {{}};
         const root = document.getElementById(config.figureId) || (typeof document !== 'undefined' ? document.currentScript?.previousElementSibling : null);
