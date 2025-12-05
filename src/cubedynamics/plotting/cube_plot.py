@@ -15,15 +15,18 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import logging
 import html
+import json
 import os
 import string
+import uuid
+from textwrap import dedent
 
 import xarray as xr
 
 import numpy as np
 import pandas as pd
 
-from cubedynamics.plotting.cube_viewer import cube_from_dataarray
+from cubedynamics.plotting.cube_viewer import cube_from_dataarray, _new_cubeplot_dom_id
 from cubedynamics.vase import VaseDefinition
 from cubedynamics.utils import _infer_time_y_x_dims
 
@@ -604,6 +607,30 @@ class CubePlot(metaclass=_CubePlotMeta):
         self.vase_outline = GeomVaseOutline(color=color, alpha=alpha)
         return self
 
+    def _to_config(self) -> dict:
+        da = self.data
+        if not isinstance(da, xr.DataArray):
+            raise TypeError("CubePlot expects an xarray.DataArray")
+
+        return {
+            "shape": list(da.shape),
+            "dims": list(da.dims),
+            "attrs": dict(getattr(da, "attrs", {})),
+            "options": {
+                "size_px": self.size_px,
+                "width_px": self.viewer_width,
+                "height_px": self.viewer_height,
+                "thin_time_factor": self.thin_time_factor,
+                "title": self.title,
+                "time_label": self.time_label,
+                "x_label": self.x_label,
+                "y_label": self.y_label,
+                "legend_title": self.legend_title,
+                "theme": self.theme.to_dict() if hasattr(self.theme, "to_dict") else {},
+                "fill_mode": self.fill_mode,
+            },
+        }
+
     def to_html(self) -> str:
         da = self.data
         if not isinstance(da, xr.DataArray):
@@ -865,7 +892,297 @@ class CubePlot(metaclass=_CubePlotMeta):
 
     def _repr_html_(self) -> str:  # pragma: no cover - exercised in notebooks
         logger.info("CubePlot._repr_html_ called for %s", getattr(self.data, "name", None))
-        return self.to_html()
+        config_json = json.dumps(self._to_config())
+        dom_id = _new_cubeplot_dom_id()
+        return _CUBEPLOT_HTML_TEMPLATE.format(
+            dom_id=dom_id,
+            width=self.viewer_width or self.size_px,
+            height=self.viewer_height or self.size_px,
+            config_json=config_json,
+        )
+
+
+_CUBEPLOT_HTML_TEMPLATE = dedent(
+    """
+<div id="{dom_id}"
+     class="cubeplot-wrapper"
+     style="width: {width}px; height: {height}px;">
+  <canvas class="cubeplot-canvas"></canvas>
+
+  <div class="cubeplot-overlay">
+    <div class="cubeplot-scale-bar">
+      <span class="cubeplot-scale-label">scale</span>
+    </div>
+  </div>
+</div>
+
+<style>
+.cubeplot-wrapper {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+.cubeplot-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.cubeplot-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.cubeplot-scale-bar {
+  position: absolute;
+  bottom: 0.75rem;
+  right: 0.75rem;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+</style>
+
+<script>
+(function(global) {
+  if (typeof global.CubePlotScene === "function") return;
+
+  function CubePlotScene(canvas, config) {
+    this.canvas = canvas;
+    this.config = config || {};
+    this.rotationX = 0.7;
+    this.rotationY = 0.9;
+    this.zoom = 1.1;
+    this.zoomMin = 0.35;
+    this.zoomMax = 6.0;
+    this.dragging = false;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.gl = this.canvas ? this.canvas.getContext("webgl", { antialias: true }) : null;
+    this.lines = null;
+    this.program = null;
+    this._animating = true;
+    this._animate = this._animate.bind(this);
+
+    this._bindEvents();
+    this._initGL();
+    this.resize();
+    requestAnimationFrame(this._animate);
+  }
+
+  CubePlotScene.prototype._bindEvents = function() {
+    if (!this.canvas) return;
+    this.canvas.addEventListener("pointerdown", (ev) => {
+      this.dragging = true;
+      this.lastX = ev.clientX;
+      this.lastY = ev.clientY;
+      this.canvas.setPointerCapture(ev.pointerId);
+    });
+
+    this.canvas.addEventListener("pointerup", (ev) => {
+      this.dragging = false;
+      this.canvas.releasePointerCapture(ev.pointerId);
+    });
+
+    this.canvas.addEventListener("pointermove", (ev) => {
+      if (!this.dragging) return;
+      const dx = ev.clientX - this.lastX;
+      const dy = ev.clientY - this.lastY;
+      this.rotationY += dx * 0.01;
+      this.rotationX += dy * 0.01;
+      this.lastX = ev.clientX;
+      this.lastY = ev.clientY;
+    });
+
+    this.canvas.addEventListener("wheel", (ev) => {
+      ev.preventDefault();
+      const delta = ev.deltaY > 0 ? 0.9 : 1.1;
+      this.zoom = Math.min(this.zoomMax, Math.max(this.zoomMin, this.zoom * delta));
+    }, { passive: false });
+  };
+
+  CubePlotScene.prototype._initGL = function() {
+    if (!this.gl) return;
+    const gl = this.gl;
+    const vertSrc = `
+      attribute vec3 pos;
+      uniform mat4 mvp;
+      void main() {
+        gl_Position = mvp * vec4(pos, 1.0);
+      }
+    `;
+    const fragSrc = `
+      precision mediump float;
+      void main() {
+        gl_FragColor = vec4(0.05, 0.32, 0.55, 1.0);
+      }
+    `;
+
+    function compile(type, src) {
+      const shader = gl.createShader(type);
+      gl.shaderSource(shader, src);
+      gl.compileShader(shader);
+      return shader;
+    }
+
+    const vs = compile(gl.VERTEX_SHADER, vertSrc);
+    const fs = compile(gl.FRAGMENT_SHADER, fragSrc);
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    this.program = program;
+    gl.useProgram(program);
+
+    const cubeVerts = new Float32Array([
+      -1,-1,-1,  1,-1,-1,  1,1,-1,  -1,1,-1,
+      -1,-1, 1,  1,-1, 1,  1,1, 1,  -1,1, 1
+    ]);
+
+    this.lines = new Uint16Array([
+      0,1, 1,2, 2,3, 3,0,
+      4,5, 5,6, 6,7, 7,4,
+      0,4, 1,5, 2,6, 3,7
+    ]);
+
+    const vbo = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, cubeVerts, gl.STATIC_DRAW);
+
+    const lbo = gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, lbo);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.lines, gl.STATIC_DRAW);
+
+    const posLoc = gl.getAttribLocation(this.program, "pos");
+    gl.enableVertexAttribArray(posLoc);
+    gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
+  };
+
+  CubePlotScene.prototype.resize = function(width, height) {
+    if (!this.canvas || !this.gl) return;
+    if (!width || !height) {
+      const rect = this.canvas.getBoundingClientRect();
+      width = rect.width;
+      height = rect.height;
+    }
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.gl.viewport(0, 0, this.gl.drawingBufferWidth, this.gl.drawingBufferHeight);
+  };
+
+  CubePlotScene.prototype._draw = function() {
+    if (!this.gl || !this.canvas || !this.program || !this.lines) return;
+    const gl = this.gl;
+    gl.clearColor(1,1,1,0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    const aspect = this.canvas.width / this.canvas.height;
+    const fov = 1.0;
+    const near = 0.1;
+    const far = 20.0;
+
+    const persp = (a,f,n,r) => {
+      const t = n * Math.tan(f/2);
+      return new Float32Array([
+        n/t,0,0,0,
+        0,n/(t/a),0,0,
+        0,0,-(r+n)/(r-n),-1,
+        0,0,-(2*r*n)/(r-n),0
+      ]);
+    };
+
+    const rotX = a => new Float32Array([
+      1,0,0,0,
+      0, Math.cos(a), -Math.sin(a),0,
+      0, Math.sin(a), Math.cos(a),0,
+      0,0,0,1
+    ]);
+
+    const rotY = a => new Float32Array([
+      Math.cos(a),0, Math.sin(a),0,
+      0,1,0,0,
+      -Math.sin(a),0, Math.cos(a),0,
+      0,0,0,1
+    ]);
+
+    const proj = persp(aspect, fov, near, far);
+    const rx = rotX(this.rotationX);
+    const ry = rotY(this.rotationY);
+    const scale = new Float32Array([
+      this.zoom,0,0,0,
+      0,this.zoom,0,0,
+      0,0,this.zoom,0,
+      0,0,0,1
+    ]);
+
+    const mul = (a,b) => {
+      const o=new Float32Array(16);
+      for (let i=0;i<4;i++)
+      for (let j=0;j<4;j++){
+        o[i*4+j]=0;
+        for (let k=0;k<4;k++)
+          o[i*4+j]+=a[i*4+k]*b[k*4+j];
+      }
+      return o;
+    };
+    const mvp = mul(proj, mul(scale, mul(ry, rx)));
+
+    const loc = gl.getUniformLocation(this.program,"mvp");
+    gl.uniformMatrix4fv(loc,false,mvp);
+
+    gl.drawElements(gl.LINES, this.lines.length, gl.UNSIGNED_SHORT, 0);
+  };
+
+  CubePlotScene.prototype._animate = function() {
+    if (!this._animating) return;
+    requestAnimationFrame(this._animate);
+    this._draw();
+  };
+
+  CubePlotScene.prototype.dispose = function() {
+    this._animating = false;
+  };
+
+  global.CubePlotScene = CubePlotScene;
+})(window);
+</script>
+
+<script>
+(function() {
+  window.CUBE_PLOTS = window.CUBE_PLOTS || {};
+
+  const domId = "{dom_id}";
+  const root = document.getElementById(domId);
+  if (!root) return;
+
+  const canvas = root.querySelector(".cubeplot-canvas");
+  if (!canvas) return;
+
+  const config = {config_json};
+
+  if (typeof window.CubePlotScene !== "function") {
+    console.error("CubePlotScene is not defined on window");
+    return;
+  }
+
+  const scene = new window.CubePlotScene(canvas, config);
+  window.CUBE_PLOTS[domId] = scene;
+
+  function handleResize() {
+    const rect = root.getBoundingClientRect();
+    if (scene && typeof scene.resize === "function") {
+      scene.resize(rect.width, rect.height);
+    }
+  }
+
+  window.addEventListener("resize", handleResize);
+  handleResize();
+})();
+</script>
+"""
+)
 
 
 __all__ = [
