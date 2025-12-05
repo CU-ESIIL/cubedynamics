@@ -32,4 +32,4 @@ ready for export.
 
 Downstream helpers provide rolling correlation, tail dependence, QA plots, and
 hooks for interactive dashboards. See [Climate cubes](climate_cubes.md) and
-[Correlation cubes](correlation_cubes.md) for example notebooks and API usage.
+[Correlation cubes](howto/correlation_cubes.md) for example notebooks and API usage.
