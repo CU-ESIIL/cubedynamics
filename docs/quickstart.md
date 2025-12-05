@@ -82,12 +82,25 @@ When a request is too large for a normal in-memory cube, CubeDynamics:
 
 You do not have to change your code when streaming kicks in.
 
-## Next steps
+## 6. Where to go next
 
-- Browse the [Virtual Cubes](concepts/virtual_cubes.md) page for a full tour of streaming.
-- Read [Streaming Large Data](streaming_large_data.md) for debugging checklists and provider considerations.
-- Grab a semantic loader from [semantic_variables.md](semantic_variables.md) if you want NDVI or temperature without memorizing provider names.
+Now that you have a working cube and basic transformations, explore:
 
----
+- **Concepts**  
+  - [What is a cube?](concepts/cubes.md)  
+  - [Pipe & verbs](concepts/grammar.md)  
+  - [VirtualCubes](concepts/virtual_cubes.md)  
 
-This material has been moved to the Legacy Reference page.
+- **How-to Guides**  
+  - [NDVI anomalies](howto/ndvi_anomalies.md)  
+  - [Climate variance](howto/climate_variance.md)  
+  - [Correlation cubes](howto/correlation_cubes.md)  
+
+- **Visualization**  
+  - [Cube viewer (`v.plot`)](viz/cube_viewer.md)  
+  - [Map viewer (`v.map`)](viz/maps.md)  
+
+- **API Reference**  
+  - [API overview](api/index.md)
+
+CubeDynamics provides a unified, cube-native way to work with spatiotemporal environmental data—simple enough for quick exploration, powerful enough for large-scale scientific analysis.

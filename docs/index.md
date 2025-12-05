@@ -71,6 +71,25 @@ Then explore:
 - [Visualization](viz/index.md) (cube viewer and maps)
 - [API Reference](api.md)
 
+## Choose your path
+
+Different users will enter CubeDynamics from different directions. Here are the recommended starting points:
+
+- **I’m new to cubes and want the big picture**  
+  → Start with [Concepts: What is a cube?](concepts/cubes.md)
+
+- **I want to run a working example in 10 minutes**  
+  → Go to the [Quickstart: 10-minute tour](quickstart.md)
+
+- **I want concrete analysis recipes (NDVI, climate variance, correlations)**  
+  → Browse the [How-to Guides](howto/index.md)
+
+- **I care about scaling, streaming, and VirtualCubes**  
+  → Read [Concepts: VirtualCubes](concepts/virtual_cubes.md) and the climate cubes examples
+
+- **I’m developing or extending CubeDynamics**  
+  → See the [Developer docs](dev/contributing.md) and [Cube viewer invariants](dev/cube_viewer_invariants.md)
+
 ## Scientific mission
 
 CubeDynamics was developed to support data-intensive environmental science at ESIIL and beyond.
