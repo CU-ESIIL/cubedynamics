@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
+import pytest
 
 from cubedynamics.plotting.cube_plot import CubePlot
 from cubedynamics.plotting.cube_viewer import (
@@ -28,6 +29,28 @@ def test_cubeplot_to_html_includes_caption_and_theme(tmp_path):
     assert "Figure 1" in html
     assert "cornflowerblue" in html
     assert "Value \\(x\\)" in html
+
+
+def test_to_config_handles_dask_array():
+    da = pytest.importorskip("dask.array")
+
+    data = da.random.random((4, 8, 8), chunks=(2, 8, 8))
+    cube = xr.DataArray(
+        data,
+        dims=("time", "y", "x"),
+        name="test_cube",
+    )
+
+    cube_plot = CubePlot(cube, show_progress=False)
+    config = cube_plot._to_config()
+    payload = config["data"]
+
+    assert payload["shape"] == list(cube.shape)
+    assert payload["dims"] == list(cube.dims)
+    values = payload["values"]
+    assert isinstance(values, list)
+    assert len(values) == cube.shape[0]
+    assert all(len(row) == cube.shape[1] for row in values)
 
 
 def test_cube_viewer_avoids_full_values(monkeypatch, tmp_path):

@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+import importlib.util
 import logging
 import html
 import json
@@ -32,6 +33,20 @@ from cubedynamics.utils import _infer_time_y_x_dims
 
 
 logger = logging.getLogger(__name__)
+
+_dask_array_spec = importlib.util.find_spec("dask.array")
+if _dask_array_spec is not None:  # pragma: no cover - optional dependency
+    import dask.array as da_mod
+else:  # pragma: no cover - optional dependency
+    da_mod = None
+
+
+def _array_to_list(arr: Any) -> list:
+    """Convert a numpy or dask array to a JSON-serializable list."""
+
+    if da_mod is not None and isinstance(arr, da_mod.Array):
+        arr = arr.compute()
+    return np.asarray(arr).tolist()
 
 
 class _CubePlotMeta(type):
@@ -617,7 +632,7 @@ class CubePlot(metaclass=_CubePlotMeta):
             "shape": list(da.shape),
             "dims": list(da.dims),
             "coords": {k: v.values.tolist() for k, v in da.coords.items()},
-            "values": da.data.tolist(),
+            "values": _array_to_list(da.data),
             "attrs": dict(getattr(da, "attrs", {})),
         }
 
