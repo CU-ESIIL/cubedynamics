@@ -45,7 +45,7 @@ class MultiCubePlot:
                 "name": da.name or "",
                 "shape": list(da.shape),
                 "dims": list(da.dims),
-                "values": da.values.tolist(),
+                "values": da.data.tolist(),
                 "attrs": dict(getattr(da, "attrs", {})),
             }
 
