@@ -15,6 +15,7 @@ from .custom import apply
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
 from .plot import plot
+from .plot_mean import plot_mean
 from .vase import vase_extract, vase_mask
 from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
 
@@ -103,6 +104,7 @@ __all__ = [
     "show_cube_lexcube",
     "fit_model",
     "plot",
+    "plot_mean",
     "vase_extract",
     "vase_mask",
 ]
