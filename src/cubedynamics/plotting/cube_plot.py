@@ -21,6 +21,7 @@ import os
 import string
 import uuid
 from textwrap import dedent
+from datetime import date, datetime
 
 import xarray as xr
 
@@ -47,6 +48,36 @@ def _array_to_list(arr: Any) -> list:
     if da_mod is not None and isinstance(arr, da_mod.Array):
         arr = arr.compute()
     return np.asarray(arr).tolist()
+
+
+def _make_json_safe(obj: Any):
+    """Recursively convert structures into JSON-serializable types."""
+
+    if da_mod is not None and isinstance(obj, da_mod.Array):
+        obj = obj.compute()
+
+    if isinstance(obj, np.generic):
+        return obj.item()
+
+    if isinstance(obj, np.ndarray):
+        return [_make_json_safe(x) for x in obj.tolist()]
+
+    if isinstance(obj, (list, tuple)):
+        return [_make_json_safe(x) for x in obj]
+
+    if isinstance(obj, set):
+        return [_make_json_safe(x) for x in sorted(obj)]
+
+    if isinstance(obj, dict):
+        return {str(k): _make_json_safe(v) for k, v in obj.items()}
+
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+
+    if isinstance(obj, np.datetime64):
+        return np.datetime_as_string(obj)
+
+    return obj
 
 
 class _CubePlotMeta(type):
@@ -627,16 +658,20 @@ class CubePlot(metaclass=_CubePlotMeta):
         if not isinstance(da, xr.DataArray):
             raise TypeError("CubePlot expects an xarray.DataArray")
 
+        coords: Dict[str, Any] = {}
+        for name, coord in da.coords.items():
+            coords[name] = _make_json_safe(coord.values)
+
         payload = {
             "name": da.name or "",
             "shape": list(da.shape),
             "dims": list(da.dims),
-            "coords": {k: v.values.tolist() for k, v in da.coords.items()},
+            "coords": coords,
             "values": _array_to_list(da.data),
-            "attrs": dict(getattr(da, "attrs", {})),
+            "attrs": _make_json_safe(dict(getattr(da, "attrs", {}))),
         }
 
-        return {
+        config = {
             "mode": "single",
             "data": payload,
             "title": self.title,
@@ -653,6 +688,8 @@ class CubePlot(metaclass=_CubePlotMeta):
                 "fill_mode": self.fill_mode,
             },
         }
+
+        return _make_json_safe(config)
 
     def to_html(self) -> str:
         da = self.data

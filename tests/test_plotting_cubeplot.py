@@ -1,3 +1,4 @@
+import json
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -51,6 +52,38 @@ def test_to_config_handles_dask_array():
     assert isinstance(values, list)
     assert len(values) == cube.shape[0]
     assert all(len(row) == cube.shape[1] for row in values)
+
+
+def test_cubeplot_to_config_json_safe_with_sets():
+    da = pytest.importorskip("dask.array")
+
+    data = da.random.random((2, 4, 4), chunks=(1, 4, 4))
+    cube = xr.DataArray(
+        data,
+        dims=("time", "y", "x"),
+        name="test_cube",
+    )
+
+    cube = cube.assign_coords(
+        proj_shape=("time", np.array([{10980}, {21960}], dtype=object))
+    )
+
+    cube_plot = CubePlot(cube, show_progress=False)
+    config = cube_plot._to_config()
+
+    json_str = json.dumps(config)
+    assert "proj_shape" in json_str
+    assert "10980" in json_str
+
+
+def test_cubeplot_to_config_numpy_backed():
+    data = np.random.rand(2, 4, 4)
+    cube = xr.DataArray(data, dims=("time", "y", "x"), name="simple_cube")
+    cube_plot = CubePlot(cube, show_progress=False)
+
+    config = cube_plot._to_config()
+
+    json.dumps(config)
 
 
 def test_cube_viewer_avoids_full_values(monkeypatch, tmp_path):
