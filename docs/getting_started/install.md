@@ -51,7 +51,7 @@ Until then, the GitHub install above is the canonical way to pick up fixes and e
        | v.variance(dim="time")
    ```
 
-3. Continue into the [First PRISM cube guide](first_prism_cube.md) for more context, AOI patterns, and Lexcube screenshots.
+3. Continue into the [First PRISM cube guide](../quickstart.md) for more context, AOI patterns, and Lexcube screenshots.
 
 ## Documentation + notebooks
 

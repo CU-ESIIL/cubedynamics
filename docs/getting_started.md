@@ -1,6 +1,7 @@
 # Getting started with CubeDynamics
+> 🚦 For the latest recommended on-ramp, see the [Quickstart guide](quickstart.md).
 
-**In plain English:**  
+**In plain English:**
 This guide installs CubeDynamics, shows the pipe `|` rhythm, and now explains how VirtualCube streams very large climate or NDVI requests. You get runnable code you can paste into a notebook and tips for debugging huge pulls.
 
 **What this page helps you do:**  
@@ -230,7 +231,7 @@ This pipeline is dimension-agnostic—the verbs accept any axes you provide. `pi
 
 - Read the [Pipe Syntax & Verbs](pipe_syntax.md) page for more callables such as `month_filter`, `to_netcdf`, and how to author your own verbs.
 - Explore future climate streaming examples (PRISM/gridMET/NDVI) as they land in the docs and notebooks.
-- Run the full [CubeDynamics Quickstart notebook](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/quickstart_cubedynamics.ipynb) for a ready-made walkthrough that matches this guide.
+- Run the full [CubeDynamics Quickstart notebook](quickstart.md) for a ready-made walkthrough that matches this guide.
 - Walk through the Sentinel-2 NDVI anomaly tutorial in [notebooks/example_sentinel2_ndvi_zscore.ipynb](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/example_sentinel2_ndvi_zscore.ipynb) to see the vegetation workflow that complements the PRISM and gridMET examples.
 
 ## Worked examples
