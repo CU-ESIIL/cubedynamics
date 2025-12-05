@@ -34,6 +34,44 @@ class PlotOptions:
     fig_text: str | None = None
     debug: bool = False
     viewer_id: str | None = None
+    full_res: bool = False
+
+
+def _decimate_for_view(
+    da: xr.DataArray,
+    *,
+    max_time: int = 120,
+    step_xy: int = 2,
+    xy_threshold: int = 512,
+) -> xr.DataArray:
+    """Return a lighter-weight view for interactive plotting.
+
+    If the cube exceeds ``max_time`` or ``xy_threshold``, subsample time and space
+    so the viewer remains responsive. Intended for visualization only; callers
+    can disable via ``full_res=True`` in :func:`plot`.
+    """
+
+    t_dim, y_dim, x_dim = _infer_time_y_x_dims(da)
+    if t_dim is None or y_dim is None or x_dim is None:
+        return da
+
+    sizes = da.sizes
+    needs_downsample = (
+        sizes.get(t_dim, 0) > max_time
+        or sizes.get(x_dim, 0) > xy_threshold
+        or sizes.get(y_dim, 0) > xy_threshold
+    )
+    if not needs_downsample:
+        return da
+
+    t_step = max(1, sizes[t_dim] // max_time)
+    return da.isel(
+        {
+            t_dim: slice(0, sizes[t_dim], t_step),
+            x_dim: slice(None, None, step_xy),
+            y_dim: slice(None, None, step_xy),
+        }
+    )
 
 
 @overload
@@ -51,6 +89,7 @@ def plot(
     fig_text: str | None = None,
     debug: bool = False,
     viewer_id: str | None = None,
+    full_res: bool = False,
 ) -> xr.DataArray | VirtualCube:
     ...
 
@@ -69,6 +108,7 @@ def plot(
     fig_text: str | None = None,
     debug: bool = False,
     viewer_id: str | None = None,
+    full_res: bool = False,
 ) -> Verb:
     ...
 
@@ -87,6 +127,7 @@ def plot(
     fig_text: str | None = None,
     debug: bool = False,
     viewer_id: str | None = None,
+    full_res: bool = False,
 ):
     """Plot a cube or return a plotting verb.
 
@@ -94,6 +135,10 @@ def plot(
     chains (``pipe(cube) | v.plot()``) can continue with the viewer object. When
     used as a verb (no ``da`` argument), it can be composed in pipes and the
     resulting :class:`CubePlot` is available via ``.unwrap()``.
+
+    For large cubes the viewer automatically decimates to keep rotations smooth
+    (time slices capped around ``max_time=120`` and spatial steps of ``step_xy=2``).
+    Pass ``full_res=True`` to disable this safety net.
     """
 
     opts = PlotOptions(
@@ -108,6 +153,7 @@ def plot(
         fig_text=fig_text,
         debug=debug,
         viewer_id=viewer_id,
+        full_res=full_res,
     )
 
     def _plot(value: xr.DataArray | VirtualCube):
@@ -126,13 +172,21 @@ def plot(
         resolved_time = opts.time_dim or t_dim
         default_title = da_value.name or f"{resolved_time} × {y_dim} × {x_dim} cube"
 
+        da_for_view = da_value if opts.full_res else _decimate_for_view(da_value)
+        if da_for_view is not da_value:
+            logger.info(
+                "Downsampling cube for viewer: original %s -> view %s",
+                da_value.sizes,
+                da_for_view.sizes,
+            )
+
         caption_payload = None
         if opts.fig_id is not None or opts.fig_title is not None or opts.fig_text is not None:
             caption_payload = {"id": opts.fig_id, "title": opts.fig_title, "text": opts.fig_text}
 
         # 1. Build CubePlot for this cube
         cube = CubePlot(
-            da_value,
+            da_for_view,
             title=opts.title or default_title,
             caption=caption_payload,
             size_px=opts.size_px,

@@ -118,6 +118,9 @@ VirtualCube streams large datasets lazily without ever calling `.values` on the 
 - Shows an inline progress bar in notebooks
 - Facets subset cubes one slice at a time with shared scales
 - Works for multi-year NDVI, NEON towers, PRISM and gridMET pulls
+- Automatically downsamples very large cubes for interactive viewing; pass
+  ``full_res=True`` to ``v.plot`` to bypass the decimation when testing
+  full-fidelity outputs.
 
 Performance tips:
 

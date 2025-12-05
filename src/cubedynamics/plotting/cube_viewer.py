@@ -2,6 +2,10 @@ from __future__ import annotations
 
 """Build and emit the interactive cube viewer HTML.
 
+# NOTE: The inline script defined below is injected into notebook outputs via
+# ``CubePlot._repr_html_()`` (used by ``v.plot()``). Keep the template
+# self-contained so Jupyter and exported HTML files share identical behavior.
+
 The viewer flow is:
 
 - ``CubePlot.to_html()`` prepares stats/annotations and calls ``cube_from_dataarray``.
@@ -584,6 +588,8 @@ def _render_cube_html(
         }}
 
         const gl = canvas.getContext("webgl");
+        let needsRedraw = true;
+        let redrawScheduled = false;
 
         debugLog('init viewer', {{ supportsPointer: !!window.PointerEvent, dragSurface, canvas, figureId }});
 
@@ -592,7 +598,21 @@ def _render_cube_html(
             cubeRotation.style.transform = 'rotateX(' + rotationX + 'rad) rotateY(' + rotationY + 'rad) scale(' + zoom + ')';
         }}
 
+        function scheduleDraw() {{
+            if (!gl) return;
+            if (redrawScheduled) return;
+            redrawScheduled = true;
+            requestAnimationFrame(() => {{
+                redrawScheduled = false;
+                if (!needsRedraw) return;
+                needsRedraw = false;
+                debugLog('scheduleDraw -> draw');
+                draw();
+            }});
+        }}
+
         applyCubeRotation();
+        scheduleDraw();
 
         let dragging = false;
         let lastX = 0, lastY = 0;
@@ -644,6 +664,8 @@ def _render_cube_html(
             lastY = clientY;
             debugLog('drag move', dx, dy);
             applyCubeRotation();
+            needsRedraw = true;
+            scheduleDraw();
         }}
 
         if (dragSurface) {{
@@ -727,11 +749,13 @@ def _render_cube_html(
                 const zoomFactor = Math.exp(delta * 0.0015);
                 zoom = Math.min(zoomMax, Math.max(zoomMin, zoom * zoomFactor));
                 applyCubeRotation();
+                needsRedraw = true;
+                scheduleDraw();
             }}, {{ passive: false }});
         }}
 
         if (!gl) {{
-            console.warn('[CubeViewer] WebGL unavailable; rendering CSS cube only.');
+            console.log('[CubeViewer] WebGL unavailable, using CSS-only cube.');
             if (jsWarning) {{
                 if (jsWarningText) {{
                     jsWarningText.innerHTML = '<strong>WebGL unavailable.</strong> Falling back to CSS-only cube rendering (rotation and zoom still work).';
@@ -788,16 +812,8 @@ def _render_cube_html(
         gl.enableVertexAttribArray(posLoc);
         gl.vertexAttribPointer(posLoc, 3, gl.FLOAT, false, 0, 0);
 
-        function resize() {{
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-        }}
-        resize();
-        window.addEventListener('resize', resize);
-
         function draw() {{
+            debugLog('draw start', rotationX, rotationY, zoom);
             gl.clearColor(1,1,1,0);
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -858,10 +874,30 @@ def _render_cube_html(
             gl.uniformMatrix4fv(loc,false,mvp);
 
             gl.drawElements(gl.LINES, lines.length, gl.UNSIGNED_SHORT, 0);
-
-            requestAnimationFrame(draw);
+            debugLog('draw end');
           }}
-        draw();
+
+        function resize() {{
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+        }}
+        resize();
+
+        let resizeTimeout = null;
+        window.addEventListener('resize', () => {{
+            if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
+            resizeTimeout = requestAnimationFrame(() => {{
+                resizeTimeout = null;
+                resize();
+                needsRedraw = true;
+                scheduleDraw();
+            }});
+        }});
+
+        needsRedraw = true;
+        scheduleDraw();
         }}
     }})();
     }} catch (err) {{
