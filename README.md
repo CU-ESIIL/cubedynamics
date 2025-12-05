@@ -35,50 +35,31 @@ ndvi = cd.ndvi(lat=40.0, lon=-105.25, start="2018-01-01", end="2019-12-31")
 )
 ```
 
-## Quickstart: 3-D cube viewer
+## Interactive 3D cube plots
+
+`v.plot()` is the primary way to see a cube’s `(time, y, x)` structure. It renders
+an interactive cube inline in Jupyter and can export standalone HTML for debugging.
 
 ```python
 import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
-# Example: load an NDVI cube (time, y, x)
-ndvi = cd.load_example_ndvi_cube()  # or use an existing helper
+ndvi = cd.ndvi(lat=40.0, lon=-105.25, start="2023-01-01", end="2024-12-31")
 
-pipe(ndvi) | v.plot(title="NDVI")
+pipe(ndvi) | v.plot(title="NDVI cube")
 ```
 
-`v.plot()` is a high-level, streaming-first 3-D viewer. Under the hood it builds a
-`CubePlot` (grammar-of-graphics) and routes frames through the streaming renderer so
-you can keep working with in-memory arrays, dask-backed cubes, or `VirtualCube`
-streams.
+The viewer supports drag-to-rotate and scroll/pinch-to-zoom. Save the returned
+`CubePlot` to HTML for the most reliable interactivity:
 
-**Interaction tips:**
+```python
+plot = pipe(ndvi) | v.plot()
+plot.save("ndvi_cube.html")
+```
 
-- Rotate by dragging anywhere in the cube frame (faces or transparent padding).
-  A dedicated drag surface captures the pointer so rotation keeps flowing even if
-  your cursor slips outside the canvas mid-gesture.
-- Zoom with a trackpad pinch or mouse scroll.
-
-## Troubleshooting interactivity
-
-- Trust the notebook output (Jupyter: *File → Trust Notebook*) so the inline
-  JavaScript that powers the cube viewer can run.
-- Disable script-blocking browser extensions for the notebook domain while
-  testing; the viewer attaches dynamic pointer/mouse/touch listeners.
-- Try a modern browser (Chrome or Firefox). Safari sometimes throttles
-  PointerEvents in embedded outputs; toggling ``debug=True`` surfaces
-  ``[CubeViewer debug]`` logs in the developer console so you can confirm
-  whether events are firing.
-- If interaction still fails, render ``pipe(ndvi) | v.plot(debug=True)`` and
-  watch the console for ``pointerdown``, ``mousedown``, ``touchstart``, and
-  ``wheel`` messages.
-
-## Developer notes
-
-- The helper ``cubedynamics.plotting.cube_viewer._write_demo_html()`` writes a
-  standalone ``cube_demo.html`` with simple color blocks. Open it directly in a
-  browser to confirm dragging/zooming work even outside Jupyter—handy before and
-  after refactors.
+See the [Interactive cube viewer docs](docs/cube_viewer.md) for controls,
+downsampling behavior, debugging steps, and developer invariants. *(Screenshot
+placeholder: rotatable cube with NDVI slices on three faces.)*
 
 ## Why a grammar of graphics for climate cubes?
 
