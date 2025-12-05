@@ -4,56 +4,29 @@ site_author: CubeDynamics Team
 site_url: "https://cu-esiil.github.io/climate_cube_math/"
 
 nav:
-  - Home: index.md
-  - Quickstart: getting_started.md
-  - Plotting & Viewer:
-      - Cube viewer: cube_viewer.md
-      - 3D Cube Grammar: cubeplot_grammar.md
-      - Streaming Renderer: streaming_renderer.md
-      - Vase Volumes: vase_volumes.md
-  - Climate cubes: climate_cubes.md
-  - Semantic variable loaders: semantic_variables.md
-  - Virtual Cubes: virtual_cubes.md
-  - Pipe syntax & verbs: pipe_verbs.md
-  - Verbs:
-      - Overview: verbs/index.md
-      - Landsat 8 (MPC): verbs/landsat8_mpc.md
-  - Operations:
-      - Transform verbs: ops_transforms.md
-      - Stats verbs: ops_stats.md
-      - IO verbs: ops_io.md
-  - Visualization:
-      - LexCube (legacy): lexcube.md
-      - Themes and Studio Defaults: design_philosophy.md
-      - Captions & Legends: captions_legends.md
-      - "Faceting: facet wrap/grid": concepts/faceting.md
-      - Saving & Exporting: ops_io.md
-  - Examples & Recipes:
-      - PRISM JJA variance: examples/prism_jja_variance.md
-      - gridMET AOI variance: examples/gridmet_aoi_variance.md
-      - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md
-      - Landsat-8 MPC streaming: examples/landsat8_mpc.md
-      - Climate–NDVI correlation cube: examples/climate_ndvi_correlation.md
-      - Examples Gallery: examples_gallery.md
-      - Streaming notebook tour: streaming_large_data.md
-      - Sentinel-2 tail-dependence vs center pixel: recipes/s2_tail_dep_manual.md
-  - Detailed Reference:
-      - Concepts overview: concepts.md
+  - Overview: index.md
+  - Quickstart: quickstart.md
+
+  - Concepts:
       - What is a cube?: concepts/cubes.md
-      - Pipe syntax & verbs (original): concepts/pipe_and_verbs.md
-      - Installation & setup: getting_started/install.md
-      - First cube (PRISM): getting_started/first_prism_cube.md
-      - Verbs Reference:
-          - Transform verbs: reference/verbs_transforms.md
-          - Stats verbs: reference/verbs_stats.md
-          - IO verbs: reference/verbs_io.md
-          - Visualization verbs: reference/verbs_viz.md
-          - Models (coming soon): reference/verbs_models.md
-  - Related Work & Ecosystem: related/related_work.md
-  - Development:
+      - Pipe & verbs: concepts/grammar.md
+      - VirtualCubes: concepts/virtual_cubes.md
+
+  - How-to Guides:
+      - NDVI anomalies: howto/ndvi_anomalies.md
+      - Climate variance: howto/climate_variance.md
+      - Correlation cubes: howto/correlation_cubes.md
+
+  - Visualization:
+      - Cube viewer (v.plot): viz/cube_viewer.md
+      - Maps (v.map): viz/maps.md
+
+  - API Reference: api/index.md
+
+  - Developer Docs:
       - Contributing: dev/contributing.md
-      - Roadmap: dev/roadmap.md
-      - Changelog: dev/changelog.md
+      - Cube viewer invariants: dev/cube_viewer_invariants.md
+      - Legacy reference: dev/legacy_reference.md
 
 repo_url: https://github.com/CU-ESIIL/climate_cube_math
 edit_uri: edit/main/docs/

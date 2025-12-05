@@ -61,6 +61,4 @@ pipe(ndvi) | v.variance(dim=("y", "x")) | v.plot_timeseries()
 
 ---
 
-## Legacy Technical Reference (kept for context)
-
-This is a new page; there is no prior content to preserve.
+This material has been moved to the Legacy Reference page.

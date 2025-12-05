@@ -119,6 +119,4 @@ The cube viewer renders the `(time, y, x)` DataArray as a rotatable HTML cube (m
 
 ---
 
-## Legacy Technical Reference (kept for context)
-
-This is a new page; there is no prior content to preserve.
+This material has been moved to the Legacy Reference page.

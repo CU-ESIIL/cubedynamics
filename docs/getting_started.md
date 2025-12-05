@@ -84,7 +84,7 @@ You do not have to change your code when streaming kicks in.
 
 ## Next steps
 
-- Browse the [Virtual Cubes](virtual_cubes.md) page for a full tour of streaming.
+- Browse the [Virtual Cubes](concepts/virtual_cubes.md) page for a full tour of streaming.
 - Read [Streaming Large Data](streaming_large_data.md) for debugging checklists and provider considerations.
 - Grab a semantic loader from [semantic_variables.md](semantic_variables.md) if you want NDVI or temperature without memorizing provider names.
 

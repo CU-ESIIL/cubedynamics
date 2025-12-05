@@ -56,6 +56,6 @@ rolling = rolling_corr_vs_center(ndvi_z, window_days=90, min_t=5)
 
 ## Related documentation
 
-- [Correlation & synchrony cubes](../correlation_cubes.md)
+- [Correlation & synchrony cubes](../howto/correlation_cubes.md)
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zscore.md)
 - [Verbs – Stats](../reference/verbs_stats.md)
