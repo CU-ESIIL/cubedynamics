@@ -221,8 +221,10 @@ def _render_cube_html(
     time_meta = axis_meta.get("time", {})
     x_meta = axis_meta.get("x", {})
     y_meta = axis_meta.get("y", {})
-    token_suffix = uuid.uuid4().hex
-    fig_token = f"{fig_id}-{token_suffix}" if fig_id is not None else token_suffix
+    # Preserve caller-provided fig_id values for backward compatibility while
+    # generating a unique token when no id is supplied (e.g., in notebook
+    # outputs where multiple viewers may be rendered).
+    fig_token = fig_id or uuid.uuid4().hex
     js_warning_text = (
         "<strong>Interactive controls need JavaScript.</strong> Trust this "
         "notebook/output and temporarily disable script blockers to rotate "
