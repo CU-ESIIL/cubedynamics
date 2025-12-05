@@ -26,6 +26,8 @@ class PlotOptions:
     title: str | None = None
     cmap: str = "viridis"
     size_px: int = 260
+    width_px: int | None = None
+    height_px: int | None = None
     thin_time_factor: int = 4
     time_dim: str | None = None
     clim: tuple[float, float] | None = None
@@ -81,6 +83,8 @@ def plot(
     title: str | None = None,
     cmap: str = "viridis",
     size_px: int = 260,
+    width_px: int | None = None,
+    height_px: int | None = None,
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
@@ -100,6 +104,8 @@ def plot(
     title: str | None = None,
     cmap: str = "viridis",
     size_px: int = 260,
+    width_px: int | None = None,
+    height_px: int | None = None,
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
@@ -119,6 +125,8 @@ def plot(
     title: str | None = None,
     cmap: str = "viridis",
     size_px: int = 260,
+    width_px: int | None = None,
+    height_px: int | None = None,
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
@@ -145,6 +153,8 @@ def plot(
         title=title,
         cmap=cmap,
         size_px=size_px,
+        width_px=width_px,
+        height_px=height_px,
         thin_time_factor=thin_time_factor,
         time_dim=time_dim,
         clim=clim,
@@ -190,6 +200,8 @@ def plot(
             title=opts.title or default_title,
             caption=caption_payload,
             size_px=opts.size_px,
+            viewer_width=opts.width_px,
+            viewer_height=opts.height_px,
             cmap=opts.cmap,
             thin_time_factor=opts.thin_time_factor,
             time_dim=resolved_time,
