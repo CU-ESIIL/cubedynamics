@@ -27,12 +27,21 @@ def test_cube_viewer_emits_interactive_markup(tmp_path):
         fig_id="interact-test",
     )
 
+    # DOM structure invariants (documented in docs/cube_viewer.md)
+    assert 'class="cube-figure"' in html
     assert 'id="cube-figure-interact-test"' in html
+    assert 'data-fig-id="interact-test"' in html
+    assert 'id="cube-container"' not in html  # container uses class only
+    assert 'class="cube-container"' in html
+    assert 'id="cube-wrapper-interact-test"' in html
+    assert 'id="cube-rotation-interact-test"' in html
     assert 'id="cube-drag-interact-test"' in html
+    assert 'id="cube-js-warning-interact-test"' in html
     assert 'data-debug="1"' in html
     assert 'addEventListener("pointerdown"' in html
     assert 'addEventListener("mousedown"' in html
     assert 'addEventListener("touchstart"' in html
     assert 'addEventListener("wheel"' in html
+    assert 'passive: false' in html
     assert 'const figureId = "cube-figure-interact-test"' in html
     assert (tmp_path / "viewer.html").exists()

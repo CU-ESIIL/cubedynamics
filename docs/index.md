@@ -50,7 +50,8 @@ ndvi_quiet = cd.ndvi(
 )
 ```
 
-You do not have to toggle anything for large requests—VirtualCube starts streaming tiles automatically.
+You do not have to toggle anything for large requests—VirtualCube starts streaming tiles automatically. See the
+[Interactive cube viewer](cube_viewer.md) page for controls, HTML export, and interactivity troubleshooting.
 
 ## Why VirtualCube exists
 
@@ -142,6 +143,7 @@ Use smaller `time_tile` or `spatial_tile` arguments when you see memory pressure
 
 ## Learn more
 
+- [Interactive cube viewer](cube_viewer.md) collects controls, saving/debug tips, and developer invariants for `v.plot()`.
 - [Virtual Cubes](virtual_cubes.md) explains the tiling model and shows more code.
 - [Streaming Large Data](streaming_large_data.md) covers when streaming activates and how to debug.
 - [Semantic Variable Loaders](semantic_variables.md) gives quick access to NDVI and temperature variables without memorizing provider names.

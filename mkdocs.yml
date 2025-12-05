@@ -7,6 +7,7 @@ nav:
   - Home: index.md
   - Quickstart: getting_started.md
   - Plotting & Viewer:
+      - Cube viewer: cube_viewer.md
       - 3D Cube Grammar: cubeplot_grammar.md
       - Streaming Renderer: streaming_renderer.md
       - Vase Volumes: vase_volumes.md
