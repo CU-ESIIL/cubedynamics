@@ -894,7 +894,7 @@ class CubePlot(metaclass=_CubePlotMeta):
         logger.info("CubePlot._repr_html_ called for %s", getattr(self.data, "name", None))
         config_json = json.dumps(self._to_config())
         dom_id = _new_cubeplot_dom_id()
-        return _CUBEPLOT_HTML_TEMPLATE.format(
+        return _CUBEPLOT_HTML_TEMPLATE.substitute(
             dom_id=dom_id,
             width=self.viewer_width or self.size_px,
             height=self.viewer_height or self.size_px,
@@ -902,11 +902,12 @@ class CubePlot(metaclass=_CubePlotMeta):
         )
 
 
-_CUBEPLOT_HTML_TEMPLATE = dedent(
-    """
-<div id="{dom_id}"
+_CUBEPLOT_HTML_TEMPLATE = string.Template(
+    dedent(
+        """
+<div id="${dom_id}"
      class="cubeplot-wrapper"
-     style="width: {width}px; height: {height}px;">
+     style="width: ${width}px; height: ${height}px;">
   <canvas class="cubeplot-canvas"></canvas>
 
   <div class="cubeplot-overlay">
@@ -1182,6 +1183,7 @@ _CUBEPLOT_HTML_TEMPLATE = dedent(
 })();
 </script>
 """
+    )
 )
 
 
