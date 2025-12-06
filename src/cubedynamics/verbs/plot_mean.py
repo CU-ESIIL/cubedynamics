@@ -5,7 +5,7 @@ from __future__ import annotations
 import xarray as xr
 from IPython.display import display
 
-from cubedynamics.plotting.multicube_plot import MultiCubePlot
+from cubedynamics.plotting.cube_plot import CubePlot
 from cubedynamics.piping import Verb, _attach_viewer
 from cubedynamics.streaming import VirtualCube
 
@@ -41,22 +41,37 @@ def plot_mean(
                 f"Got type {type(da_value)!r}."
             )
 
+        coord_values = da_value.coords.get(dim)
+        coord_placeholder = coord_values.values[0] if coord_values is not None else 0.0
+
         mean_da = da_value.mean(dim=dim, keep_attrs=True)
         var_da = da_value.var(dim=dim, ddof=ddof, keep_attrs=True)
 
         mean_da = mean_da.assign_attrs(**getattr(da_value, "attrs", {}))
         var_da = var_da.assign_attrs(**getattr(da_value, "attrs", {}))
 
-        plot = MultiCubePlot(
-            cubes=[mean_da, var_da],
-            labels=["Mean", "Variance"],
-            title=f"{da_value.name or 'cube'}: mean / variance over {dim}",
-            width=width,
-            height=height,
+        # Keep a time-like dimension so the cube viewer receives 3D input.
+        mean_da = mean_da.expand_dims({dim: [coord_placeholder]})
+        var_da = var_da.expand_dims({dim: [coord_placeholder]})
+
+        mean_plot = CubePlot(
+            mean_da,
+            title=f"{da_value.name or 'cube'}: mean over {dim}",
+            viewer_width=width,
+            viewer_height=height,
             **options,
         )
-        display(plot)
-        _attach_viewer(value, plot)
+        var_plot = CubePlot(
+            var_da,
+            title=f"{da_value.name or 'cube'}: variance over {dim}",
+            viewer_width=width,
+            viewer_height=height,
+            **options,
+        )
+
+        display(mean_plot)
+        display(var_plot)
+        _attach_viewer(value, mean_plot)
 
         return value
 
