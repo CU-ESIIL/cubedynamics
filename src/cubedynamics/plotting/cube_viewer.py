@@ -18,6 +18,7 @@ from PIL import Image
 from cubedynamics.utils import _infer_time_y_x_dims
 from cubedynamics.plotting.progress import _CubeProgress
 from cubedynamics.plotting.viewer import show_cube_viewer
+from cubedynamics.vase import VasePanel
 
 # Cube viewer pipeline:
 # - :func:`cube_from_dataarray` prepares PNG faces and metadata.
@@ -174,6 +175,22 @@ def _interior_plane_transform(axis: str, index: int, meta: Dict[str, int], size_
     return ""
 
 
+def _vase_panel_transform(panel: VasePanel, size_px: int) -> str:
+    half = size_px / 2
+
+    def _offset(norm: float) -> float:
+        return -half + float(norm) * size_px
+
+    x_off = _offset(panel.x)
+    y_off = _offset(panel.y)
+    z_off = _offset(panel.z)
+
+    return (
+        f"translate3d({x_off:.2f}px, {y_off:.2f}px, {z_off:.2f}px) "
+        f"rotateY({panel.yaw:.2f}deg) rotateX(90deg)"
+    )
+
+
 def _render_cube_html(
     *,
     front: str,
@@ -183,6 +200,7 @@ def _render_cube_html(
     top: str,
     bottom: str,
     interior_planes: list[tuple[str, int, str, Dict[str, int]]] | None,
+    vase_panels: list[VasePanel] | None = None,
     theme: Dict[str, str],
     coord: "CoordCube" | None,
     legend_html: str,
@@ -206,6 +224,18 @@ def _render_cube_html(
                 f"style=\"transform: {transform}; background-image: url('data:image/png;base64,{b64}');\"></div>"
             )
     interior_html = "".join(interior_html_parts)
+
+    vase_html_parts = []
+    if vase_panels:
+        for panel in vase_panels:
+            width_px = max(2.0, float(panel.width) * size_px)
+            height_px = max(2.0, float(panel.height) * size_px)
+            transform = _vase_panel_transform(panel, size_px)
+            vase_html_parts.append(
+                "<div class=\"cd-vase-panel\" "
+                f"style=\"width: {width_px:.2f}px; height: {height_px:.2f}px; transform: {transform};\"></div>"
+            )
+    vase_html = "".join(vase_html_parts)
 
     css_vars = " ".join(f"{k}: {v};" for k, v in theme.items())
 
@@ -426,6 +456,17 @@ def _render_cube_html(
       transform-style: preserve-3d;
     }}
 
+    .cd-vase-panel {{
+      position: absolute;
+      transform-style: preserve-3d;
+      backface-visibility: hidden;
+      border-radius: 999px;
+      opacity: 0.9;
+      background: rgba(200, 60, 60, 0.9);
+      box-shadow: 0 0 8px rgba(0, 0, 0, var(--cube-shadow-strength, 0.25));
+      pointer-events: none;
+    }}
+
     .axis-label {{
       position: absolute;
       font-size: var(--cube-axis-font-size, 13px);
@@ -544,6 +585,7 @@ def _render_cube_html(
             <div class=\"cube-rotation\" id=\"cube-rotation-{viewer_id}\">
               {cube_faces_html}
               {interior_html}
+              {vase_html}
             </div>
             <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
           </div>
@@ -760,6 +802,8 @@ def cube_from_dataarray(
     viewer_id = uuid.uuid4().hex
 
     da = _reduce_to_3d_time_y_x(da)
+
+    vase_panels = da.attrs.get("vase_panels")
 
     if time_dim:
         if time_dim not in da.dims:
@@ -1085,6 +1129,7 @@ def cube_from_dataarray(
         top=faces["top"],
         bottom=faces["bottom"],
         interior_planes=interior_planes,
+        vase_panels=vase_panels,
         theme=css_vars,
         coord=coord,
         legend_html=legend_html,

@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import cubedynamics as cd
+import numpy as np
 import xarray as xr
 
-from ..vase import VaseDefinition, build_vase_mask
+from ..utils import _infer_time_y_x_dims
+from ..vase import VaseDefinition, build_vase_mask, build_vase_panels
 from .plot import plot as plot_verb
 
 
@@ -56,6 +58,8 @@ def vase_extract(
 
     # Attach the vase definition so plotting helpers can auto-detect it later
     da_out.attrs["vase"] = vase
+    if "vase_panels" in cube.attrs:
+        da_out.attrs["vase_panels"] = cube.attrs["vase_panels"]
 
     return da_out
 
@@ -96,6 +100,39 @@ def vase(vase=None, outline: bool = True, **plot_kwargs):
                 "v.vase() requires a VaseDefinition, either via the `vase=` argument "
                 "or stored on the DataArray as attrs[\"vase\"]."
             )
+
+        vase_def = da.attrs["vase"]
+
+        # Attach paneled hull metadata for the viewer
+        if isinstance(vase_def, VaseDefinition):
+            if "time_dim" in plot_kwargs and plot_kwargs.get("time_dim") is not None:
+                time_dim = plot_kwargs.get("time_dim")
+                if time_dim not in da.dims:
+                    raise ValueError(
+                        f"Specified time_dim '{time_dim}' not found in DataArray dims {da.dims}"
+                    )
+            else:
+                inferred = _infer_time_y_x_dims(da)
+                time_dim = inferred[0]
+
+            if time_dim is not None:
+                if time_dim in da.coords:
+                    time_vals = da.coords[time_dim].values
+                else:
+                    time_vals = np.arange(da.sizes[time_dim])
+
+                if np.issubdtype(time_vals.dtype, np.datetime64):
+                    time_numeric = time_vals.astype("datetime64[ns]").astype("int64")
+                else:
+                    time_numeric = time_vals.astype(float)
+
+                if time_numeric.size > 0:
+                    panels = build_vase_panels(
+                        vase_def, float(np.nanmin(time_numeric)), float(np.nanmax(time_numeric))
+                    )
+                    if panels:
+                        da = da.copy()
+                        da.attrs["vase_panels"] = panels
 
         # Apply mask using existing helper
         masked = vase_extract(da, da.attrs["vase"])

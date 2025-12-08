@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import math
+
 from dataclasses import dataclass
 from typing import List, Union
 
@@ -12,7 +14,14 @@ from shapely.prepared import prep
 
 TimeLike = Union[np.datetime64, float, int]
 
-__all__ = ["VaseSection", "VaseDefinition", "build_vase_mask", "extract_vase_from_attrs"]
+__all__ = [
+    "VaseSection",
+    "VaseDefinition",
+    "VasePanel",
+    "build_vase_mask",
+    "build_vase_panels",
+    "extract_vase_from_attrs",
+]
 
 
 @dataclass
@@ -60,6 +69,21 @@ class VaseDefinition:
         return VaseDefinition(sorted_secs, interp=self.interp)
 
 
+@dataclass
+class VasePanel:
+    """Rectangular patch approximating a vase hull segment.
+
+    Coordinates are normalized to the cube space [0, 1] along each axis.
+    """
+
+    x: float
+    y: float
+    z: float
+    width: float
+    height: float
+    yaw: float
+
+
 def _polygon_at_time(vase: VaseDefinition, t: TimeLike) -> Polygon:
     """Return the polygon cross-section for a target time ``t``.
 
@@ -102,6 +126,89 @@ def _polygon_at_time(vase: VaseDefinition, t: TimeLike) -> Polygon:
     ratio = float((t - t0) / (t1 - t0)) if t1 != t0 else 0.0
     interp_coords = coords0 + ratio * (coords1 - coords0)
     return Polygon(interp_coords)
+
+
+def _sample_polygon_boundary(polygon: Polygon, n_samples: int) -> np.ndarray:
+    """Sample ``n_samples`` equally spaced points along the polygon boundary."""
+
+    n_samples = max(4, int(n_samples))
+    length = polygon.exterior.length
+    distances = np.linspace(0, length, num=n_samples, endpoint=False)
+    points = [polygon.exterior.interpolate(d).coords[0] for d in distances]
+    return np.asarray(points)
+
+
+def _normalize_value(value: float, vmin: float, vmax: float) -> float:
+    if vmax == vmin:
+        return 0.5
+    return (float(value) - float(vmin)) / float(vmax - vmin)
+
+
+def build_vase_panels(
+    vase: VaseDefinition,
+    time_min: float,
+    time_max: float,
+    *,
+    angle_samples: int = 24,
+) -> List[VasePanel]:
+    """Approximate the vase hull with rectangular panels.
+
+    The panels are laid out by sampling each section's polygon boundary and
+    connecting successive time slices, producing a coarse mesh aligned to the
+    cube's normalized coordinate system.
+    """
+
+    sections = vase.sorted_sections().sections
+    if len(sections) < 2:
+        return []
+
+    # Gather bounds for normalization
+    all_coords = np.vstack([np.asarray(sec.polygon.exterior.coords) for sec in sections])
+    x_min, y_min = all_coords[:, 0].min(), all_coords[:, 1].min()
+    x_max, y_max = all_coords[:, 0].max(), all_coords[:, 1].max()
+
+    panels: List[VasePanel] = []
+
+    for lower, upper in zip(sections[:-1], sections[1:]):
+        pts_lower = _sample_polygon_boundary(lower.polygon, angle_samples)
+        pts_upper = _sample_polygon_boundary(upper.polygon, angle_samples)
+
+        t0_norm = _normalize_value(lower.time, time_min, time_max)
+        t1_norm = _normalize_value(upper.time, time_min, time_max)
+
+        for idx in range(angle_samples):
+            i_next = (idx + 1) % angle_samples
+            p0 = pts_lower[idx]
+            p1 = pts_lower[i_next]
+            p2 = pts_upper[i_next]
+            p3 = pts_upper[idx]
+
+            mid_lower = 0.5 * (p0 + p1)
+            mid_upper = 0.5 * (p3 + p2)
+            center_xy = 0.5 * (mid_lower + mid_upper)
+
+            width_vec = mid_lower - mid_upper
+            width = float(np.linalg.norm(width_vec))
+            height = float(abs(t1_norm - t0_norm))
+
+            x_norm = _normalize_value(center_xy[0], x_min, x_max)
+            y_norm = _normalize_value(center_xy[1], y_min, y_max)
+            z_norm = 0.5 * (t0_norm + t1_norm)
+
+            yaw = math.degrees(math.atan2(width_vec[1], width_vec[0])) if width > 0 else 0.0
+
+            panels.append(
+                VasePanel(
+                    x=x_norm,
+                    y=y_norm,
+                    z=z_norm,
+                    width=_normalize_value(width, 0.0, max(x_max - x_min, y_max - y_min)),
+                    height=height,
+                    yaw=yaw,
+                )
+            )
+
+    return panels
 
 
 def build_vase_mask(

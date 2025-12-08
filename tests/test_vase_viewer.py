@@ -2,6 +2,7 @@ import numpy as np
 import xarray as xr
 from shapely.geometry import Polygon
 
+from cubedynamics import pipe, verbs as v
 from cubedynamics.plotting import cube_viewer
 from cubedynamics.plotting.cube_plot import CubePlot
 from cubedynamics.plotting.geom import GeomVaseOutline
@@ -115,3 +116,19 @@ def test_vase_tint_changes_face_pixels(monkeypatch, tmp_path):
         fill_limits=(-1.0, 1.0),
     )
     assert not np.array_equal(captured[0], baseline_front)
+
+
+def test_vase_panels_added_to_viewer_html(tmp_path):
+    data = xr.DataArray(np.zeros((4, 8, 8)), dims=("time", "y", "x"), name="panel")
+
+    square = Polygon([(0, 0), (2, 0), (2, 2), (0, 2)])
+    smaller = Polygon([(0.5, 0.5), (1.5, 0.5), (1.5, 1.5), (0.5, 1.5)])
+    vase_def = VaseDefinition([
+        VaseSection(time=0, polygon=square),
+        VaseSection(time=3, polygon=smaller),
+    ])
+
+    plot_obj = (pipe(data) | v.vase(vase=vase_def, outline=True)).unwrap()
+    html = plot_obj.to_html()
+
+    assert "cd-vase-panel" in html
