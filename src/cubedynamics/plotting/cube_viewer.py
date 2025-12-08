@@ -181,6 +181,11 @@ def _render_cube_html(
     color_limits: tuple[float, float],
     interior_meta: Dict[str, int],
 ) -> str:
+    # NOTE: This function owns the inline HTML/JS template used both for
+    # notebook embedding (via IPython.display.HTML) and standalone file export.
+    # Keeping the template self contained ensures that v.plot() renders the
+    # exact same viewer in both contexts and avoids iframe sandboxing issues
+    # that would block scripts or pointer events.
     interior_html_parts = []
     if interior_planes:
         for axis, idx, b64, meta in interior_planes:
@@ -313,6 +318,7 @@ def _render_cube_html(
       cursor: grab;
       background: transparent;
       touch-action: none;
+      pointer-events: auto;
     }}
 
     .cube-rotation {{
@@ -561,51 +567,56 @@ def _render_cube_html(
 
         applyCubeRotation();
 
+        // Pointer handling happens on a dedicated grab surface above the cube
+        // so rotation works regardless of which face is visible.
         let dragging = false;
-        let lastX = 0, lastY = 0;
-        let onPointerMove = null;
+        let activePointerId = null;
+        let startX = 0, startY = 0;
+        let startRotX = rotationX, startRotY = rotationY;
+
+        const handlePointerMove = (e) => {
+            if (!dragging || (activePointerId !== null && e.pointerId !== activePointerId)) {
+                return;
+            }
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            rotationY = startRotY + dx * 0.01;
+            rotationX = startRotX + dy * 0.01;
+            applyCubeRotation();
+        };
 
         function stopDragging(e) {{
             if (!dragging) return;
             dragging = false;
-            if (dragSurface && dragSurface.hasPointerCapture(e.pointerId)) {{
-                dragSurface.releasePointerCapture(e.pointerId);
+            window.removeEventListener("pointermove", handlePointerMove);
+            if (dragSurface && activePointerId !== null && dragSurface.hasPointerCapture(activePointerId)) {{
+                dragSurface.releasePointerCapture(activePointerId);
             }}
             if (dragSurface) {{
                 dragSurface.style.cursor = "grab";
             }}
+            activePointerId = null;
         }}
 
         if (dragSurface) {{
             dragSurface.style.cursor = "grab";
             dragSurface.style.touchAction = "none";
 
-            onPointerMove = e => {{
-                if (!dragging) return;
-                const dx = e.clientX - lastX;
-                const dy = e.clientY - lastY;
-                rotationY += dx * 0.01;
-                rotationX += dy * 0.01;
-                lastX = e.clientX;
-                lastY = e.clientY;
-                applyCubeRotation();
-            }};
-
             dragSurface.addEventListener("pointerdown", e => {{
                 e.preventDefault();
                 e.stopPropagation();
                 dragging = true;
-                lastX = e.clientX;
-                lastY = e.clientY;
+                activePointerId = e.pointerId;
+                startX = e.clientX;
+                startY = e.clientY;
+                startRotX = rotationX;
+                startRotY = rotationY;
                 dragSurface.setPointerCapture(e.pointerId);
                 dragSurface.style.cursor = "grabbing";
-                dragSurface.addEventListener("pointermove", onPointerMove);
+                window.addEventListener("pointermove", handlePointerMove);
             }});
 
             dragSurface.addEventListener("pointerup", e => {{
-                if (onPointerMove) {{
-                    dragSurface.removeEventListener("pointermove", onPointerMove);
-                }}
                 stopDragging(e);
             }});
 
@@ -619,16 +630,10 @@ def _render_cube_html(
         }}
 
         window.addEventListener("pointerup", e => {{
-            if (dragSurface && onPointerMove) {{
-                dragSurface.removeEventListener("pointermove", onPointerMove);
-            }}
             stopDragging(e);
         }});
 
         window.addEventListener("pointercancel", e => {{
-            if (dragSurface && onPointerMove) {{
-                dragSurface.removeEventListener("pointermove", onPointerMove);
-            }}
             stopDragging(e);
         }});
 
@@ -1087,6 +1092,8 @@ def cube_from_dataarray(
             f.write(full_html)
         if return_html:
             return full_html
+        # Embed the exact standalone HTML in notebooks so the inline JS runs
+        # without iframe sandboxing and preserves pointer interactivity.
         return HTML(full_html)
 
     ts = volume_density.get("time", 6)
@@ -1159,6 +1166,8 @@ def cube_from_dataarray(
 
     if return_html:
         return full_html
+    # Same embedding strategy as the shell viewer: inject the full HTML so the
+    # notebook and exported file share identical interactivity.
     return HTML(full_html)
 
 
