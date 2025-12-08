@@ -574,16 +574,16 @@ def _render_cube_html(
         let startX = 0, startY = 0;
         let startRotX = rotationX, startRotY = rotationY;
 
-        const handlePointerMove = (e) => {
-            if (!dragging || (activePointerId !== null && e.pointerId !== activePointerId)) {
+        const handlePointerMove = (e) => {{
+            if (!dragging || (activePointerId !== null && e.pointerId !== activePointerId)) {{
                 return;
-            }
+            }}
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
             rotationY = startRotY + dx * 0.01;
             rotationX = startRotX + dy * 0.01;
             applyCubeRotation();
-        };
+        }};
 
         function stopDragging(e) {{
             if (!dragging) return;
