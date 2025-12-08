@@ -6,6 +6,7 @@ site_url: "https://cu-esiil.github.io/climate_cube_math/"
 nav:
   - Overview: index.md
   - Quickstart: quickstart.md
+  - Minimal NDVI vignette: vignette_minimal_ndvi.md
 
   - Concepts:
       - What is a cube?: concepts/cubes.md

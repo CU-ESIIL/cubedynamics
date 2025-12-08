@@ -3,10 +3,13 @@
 **In plain English:**  
 This guide installs CubeDynamics, shows the pipe `|` rhythm, and now explains how VirtualCube streams very large climate or NDVI requests. You get runnable code you can paste into a notebook and tips for debugging huge pulls.
 
-**What this page helps you do:**  
+**What this page helps you do:**
 - Install CubeDynamics from PyPI or GitHub
 - Run your first pipe + verbs chain
 - Stream and inspect very large cubes with VirtualCube
+
+> 🔍 **Just want the shortest possible example?**  
+> See the [Minimal NDVI vignette](vignette_minimal_ndvi.md) for a one-page example that shows install → stream a cube → 3D plot.
 
 ## Quick install steps
 

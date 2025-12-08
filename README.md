@@ -45,12 +45,16 @@ import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
 ndvi = cd.ndvi(
-    lat=40.0, lon=-105.25,
-    start="2020-01-01", end="2020-12-31",
+    lat=40.0,
+    lon=-105.25,
+    start="2023-01-01",
+    end="2024-12-31",
 )
 
-pipe(ndvi) | v.anomaly() | v.plot()
+pipe(ndvi) | v.plot()
 ```
+
+See the Minimal NDVI vignette for a step-by-step version of this example: https://cu-esiil.github.io/climate_cube_math/vignette_minimal_ndvi/
 
 ## Documentation
 
