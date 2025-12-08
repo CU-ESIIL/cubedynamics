@@ -365,6 +365,7 @@ def _render_cube_html(
       width: 100%;
       height: 100%;
       display: block;
+      pointer-events: none;
     }}
 
     .cube-rotation {{
@@ -372,9 +373,9 @@ def _render_cube_html(
       inset: 0;
       transform-style: preserve-3d;
       transform:
-        rotateX(var(--rot-x))
-        rotateY(var(--rot-y))
-        scale(calc(1 / var(--zoom)));
+        rotateX(var(--rot-x, 0rad))
+        rotateY(var(--rot-y, 0rad))
+        scale(calc(1 / var(--zoom, 1)));
     }}
 
     .cube-drag-surface {{
@@ -385,6 +386,10 @@ def _render_cube_html(
       background: transparent;
       touch-action: none;
       pointer-events: auto;
+    }}
+
+    .cube-drag-surface.debug-show {{
+      background: rgba(0, 255, 0, 0.1);
     }}
 
     .cube-scene {{
@@ -399,9 +404,9 @@ def _render_cube_html(
 
     .cube-scene .cube-rotation {{
       transform:
-        rotateX(var(--rot-x))
-        rotateY(var(--rot-y))
-        scale(calc(1 / var(--zoom)));
+        rotateX(var(--rot-x, 0rad))
+        rotateY(var(--rot-y, 0rad))
+        scale(calc(1 / var(--zoom, 1)));
     }}
 
     .scene-drag-surface {{
@@ -421,6 +426,7 @@ def _render_cube_html(
       width: 100%;
       height: 100%;
       transform: translateZ(calc(var(--cube-size) / -2));
+      pointer-events: none;
     }}
 
     .cd-face {{
@@ -433,6 +439,7 @@ def _render_cube_html(
       backface-visibility: hidden;
       border: 1px solid rgba(0,0,0,0.08);
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+      pointer-events: none;
     }}
 
     .cd-front {{ transform: translateZ(calc(var(--cube-size) / 2)); }}
@@ -629,8 +636,9 @@ def _render_cube_html(
       const cubeWrapper = document.getElementById("cube-wrapper-" + viewerId);
       const scene = cubeWrapper ? cubeWrapper.closest(".cube-scene") : null;
       const sceneDragSurface = scene ? scene.querySelector(".scene-drag-surface") : null;
-      const dragSurface = sceneDragSurface
-        || document.getElementById("cube-drag-" + viewerId)
+      const dragSurface =
+        document.getElementById("cube-drag-" + viewerId)
+        || sceneDragSurface
         || cubeWrapper;
       const rotationTarget = scene || cubeWrapper;
       const jsWarning = document.getElementById("cube-js-warning-" + viewerId);
