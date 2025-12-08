@@ -10,6 +10,7 @@ Core goals
 from .version import __version__
 from .piping import Pipe, pipe
 from . import verbs
+from .demo_vase import demo
 import xarray as xr
 
 # Legacy, fully implemented APIs -------------------------------------------------
@@ -89,6 +90,7 @@ __all__ = [
     "Pipe",
     "pipe",
     "verbs",
+    "demo",
     "anomaly",
     "month_filter",
     "variance",
