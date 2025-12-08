@@ -22,8 +22,6 @@ def plot_mean(
     da: xr.DataArray | None = None,
     *,
     dim: str = "time",
-    width: int = 1000,
-    height: int = 500,
     ddof: int = 1,
     **options,
 ):
@@ -57,15 +55,11 @@ def plot_mean(
         mean_plot = CubePlot(
             mean_da,
             title=f"{da_value.name or 'cube'}: mean over {dim}",
-            viewer_width=width,
-            viewer_height=height,
             **options,
         )
         var_plot = CubePlot(
             var_da,
             title=f"{da_value.name or 'cube'}: variance over {dim}",
-            viewer_width=width,
-            viewer_height=height,
             **options,
         )
 
