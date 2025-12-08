@@ -1,0 +1,16 @@
+name: cube-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - numpy<2.0
+  - dask
+  - distributed
+  - rasterio
+  - rioxarray
+  - xarray
+  - pandas
+  - pyproj
+  - matplotlib
+  - requests
+  - pip

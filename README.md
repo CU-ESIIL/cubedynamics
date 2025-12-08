@@ -21,11 +21,17 @@ Environmental questions are rarely purely spatial or purely temporal. They depen
 
 CubeDynamics provides a cube-native grammar of verbs so that these analyses can be expressed directly and clearly.
 
-## Install
+## Installation
+
+The easiest way to get started is with conda and the provided environment file:
 
 ```bash
-pip install cubedynamics
+conda env create -f envs/cube-env.yml
+conda activate cube-env
+pip install --no-deps "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
 ```
+
+See [INSTALL.md](INSTALL.md) for detailed instructions, verification steps, and Docker/cloud notes.
 
 ## 10-minute Tour (Start Here)
 
