@@ -934,43 +934,57 @@ def cube_from_dataarray(
     mask_slices: Dict[str, np.ndarray] = {}
     vase_color_rgb: tuple[int, int, int] | None = None
     if apply_vase_overlay:
-        if not all(dim in vase_mask.dims for dim in (t_dim, y_dim, x_dim)):
-            raise ValueError(
-                "vase_mask must include the cube dimensions for time, y, and x"
-            )
-        from matplotlib.colors import to_rgb
+        try:
+            if not isinstance(vase_mask, xr.DataArray):
+                raise TypeError("vase_mask must be an xarray.DataArray")
 
-        vase_color_rgb = tuple(int(255 * c) for c in to_rgb(vase_outline.color))
-        # Extract per-face mask slices so each PNG face can be tinted before encoding.
-        # Faces follow the viewer convention: front/back in space, left/right through time,
-        # and top/bottom over the two spatial axes.
-        mask_slices["front"] = np.asarray(
-            vase_mask.isel({t_dim: t_indices[-1]}).transpose(y_dim, x_dim).values,
-            dtype=bool,
-        )
-        mask_slices["back"] = np.flip(
-            np.asarray(
-                vase_mask.isel({t_dim: t_indices[0]}).transpose(y_dim, x_dim).values,
+            if not all(dim in vase_mask.dims for dim in (t_dim, y_dim, x_dim)):
+                raise ValueError(
+                    "vase_mask must include the cube dimensions for time, y, and x"
+                )
+
+            for dim, size in ((t_dim, nt), (y_dim, ny), (x_dim, nx)):
+                if vase_mask.sizes.get(dim) != size:
+                    raise ValueError(
+                        f"vase_mask dimension {dim!r} mismatch: expected {size}, got {vase_mask.sizes.get(dim)}"
+                    )
+
+            from matplotlib.colors import to_rgb
+
+            vase_color_rgb = tuple(int(255 * c) for c in to_rgb(vase_outline.color))
+            # Extract per-face mask slices so each PNG face can be tinted before encoding.
+            # Faces follow the viewer convention: front/back in space, left/right through time,
+            # and top/bottom over the two spatial axes.
+            mask_slices["front"] = np.asarray(
+                vase_mask.isel({t_dim: t_indices[-1]}).transpose(y_dim, x_dim).values,
                 dtype=bool,
-            ),
-            axis=1,
-        )
-        mask_slices["left"] = np.asarray(
-            vase_mask.isel({x_dim: 0, t_dim: t_indices}).transpose(y_dim, t_dim).values,
-            dtype=bool,
-        )
-        mask_slices["right"] = np.asarray(
-            vase_mask.isel({x_dim: -1, t_dim: t_indices}).transpose(y_dim, t_dim).values,
-            dtype=bool,
-        )
-        mask_slices["top"] = np.asarray(
-            vase_mask.isel({y_dim: -1, t_dim: t_indices}).transpose(x_dim, t_dim).values,
-            dtype=bool,
-        )
-        mask_slices["bottom"] = np.asarray(
-            vase_mask.isel({y_dim: 0, t_dim: t_indices}).transpose(x_dim, t_dim).values,
-            dtype=bool,
-        )
+            )
+            mask_slices["back"] = np.flip(
+                np.asarray(
+                    vase_mask.isel({t_dim: t_indices[0]}).transpose(y_dim, x_dim).values,
+                    dtype=bool,
+                ),
+                axis=1,
+            )
+            mask_slices["left"] = np.asarray(
+                vase_mask.isel({x_dim: 0, t_dim: t_indices}).transpose(y_dim, t_dim).values,
+                dtype=bool,
+            )
+            mask_slices["right"] = np.asarray(
+                vase_mask.isel({x_dim: -1, t_dim: t_indices}).transpose(y_dim, t_dim).values,
+                dtype=bool,
+            )
+            mask_slices["top"] = np.asarray(
+                vase_mask.isel({y_dim: -1, t_dim: t_indices}).transpose(x_dim, t_dim).values,
+                dtype=bool,
+            )
+            mask_slices["bottom"] = np.asarray(
+                vase_mask.isel({y_dim: 0, t_dim: t_indices}).transpose(x_dim, t_dim).values,
+                dtype=bool,
+            )
+        except Exception as exc:  # pragma: no cover - defensive guard
+            logger.warning("Skipping vase overlay due to incompatible mask: %s", exc)
+            apply_vase_overlay = False
 
     face_kwargs = {"cmap": cmap, "fill_limits": (vmin, vmax)}
 

@@ -13,7 +13,7 @@ from cubedynamics.plotting.cube_plot import CubePlot, ScaleFillContinuous
 from cubedynamics.streaming import VirtualCube
 from cubedynamics.utils import _infer_time_y_x_dims
 from ..piping import Verb
-from ..vase import extract_vase_from_attrs
+from ..vase import VaseDefinition, extract_vase_from_attrs
 
 __all__ = ["plot"]
 
@@ -139,10 +139,19 @@ def plot(
         # 3. If a vase is present, overlay outline
         vase = extract_vase_from_attrs(da_value)
         if vase is not None:
-            cube = cube.stat_vase(vase).geom_vase_outline(
-                color="limegreen",
-                alpha=0.6,
-            )
+            if not isinstance(vase, VaseDefinition):
+                logger.warning(
+                    "Ignoring attrs['vase'] with unexpected type %s; skipping vase overlay",
+                    type(vase).__name__,
+                )
+            else:
+                try:
+                    cube = cube.stat_vase(vase).geom_vase_outline(
+                        color="limegreen",
+                        alpha=0.6,
+                    )
+                except Exception as exc:  # pragma: no cover - defensive guard
+                    logger.warning("Vase overlay failed; continuing without vase: %s", exc)
 
         # 4. Apply studio theme with tight axes (implementation in CubePlot)
         cube = cube.theme_cube_studio(tight_axes=True)

@@ -2,7 +2,7 @@ import numpy as np
 import xarray as xr
 from shapely.geometry import Polygon
 
-import cubedynamics.plotting.cube_viewer as cube_viewer
+from cubedynamics.plotting import cube_viewer
 from cubedynamics.plotting.cube_plot import CubePlot
 from cubedynamics.plotting.geom import GeomVaseOutline
 from cubedynamics.vase import VaseDefinition, VaseSection

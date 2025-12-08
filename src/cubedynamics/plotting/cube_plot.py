@@ -589,7 +589,24 @@ class CubePlot(metaclass=_CubePlotMeta):
             x_dim=x_dim,
         )
 
-        masked_cube, mask = stat.compute(self.data)
+        if vase is None:
+            logger.debug("stat_vase called with no vase; skipping overlay")
+            return self
+        if not isinstance(vase, VaseDefinition):
+            logger.warning(
+                "stat_vase expects a VaseDefinition; got %s. Skipping vase overlay.",
+                type(vase).__name__,
+            )
+            self.vase_mask = None
+            return self
+
+        try:
+            masked_cube, mask = stat.compute(self.data)
+        except Exception as exc:  # pragma: no cover - defensive guard
+            logger.warning("stat_vase failed; skipping vase overlay: %s", exc)
+            self.vase_mask = None
+            return self
+
         self.data = masked_cube
         self.vase_mask = mask
         return self
