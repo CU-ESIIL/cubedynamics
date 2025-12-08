@@ -83,3 +83,46 @@ def test_plot_pipe_still_works():
 
     assert isinstance(viewer, CubePlot)
     assert viewer.data.identical(cube)
+
+
+def test_vase_verb_basic_plot():
+    cube = xr.DataArray(
+        np.arange(8).reshape(2, 2, 2),
+        coords={"time": [0, 1], "y": [0, 1], "x": [0, 1]},
+        dims=("time", "y", "x"),
+    )
+    vase_def = VaseDefinition([VaseSection(time=0, polygon=_square(0, 1, 0, 1))])
+
+    cube.attrs["vase"] = vase_def
+
+    result = pipe(cube) | v.vase()
+    viewer = result.unwrap()
+
+    assert isinstance(viewer, CubePlot)
+    assert viewer.vase_mask is not None
+
+
+def test_vase_verb_argument_attaches_vase():
+    cube = xr.DataArray(
+        np.ones((1, 2, 2)),
+        coords={"time": [0], "y": [0, 1], "x": [0, 1]},
+        dims=("time", "y", "x"),
+    )
+    vase_def = VaseDefinition([VaseSection(time=0, polygon=_square(0, 1, 0, 1))])
+
+    result = pipe(cube) | v.vase(vase=vase_def)
+    viewer = result.unwrap()
+
+    assert isinstance(viewer, CubePlot)
+    assert viewer.vase_mask is not None
+
+
+def test_vase_verb_requires_vase():
+    cube = xr.DataArray(
+        np.ones((1, 2, 2)),
+        coords={"time": [0], "y": [0, 1], "x": [0, 1]},
+        dims=("time", "y", "x"),
+    )
+
+    with pytest.raises(ValueError):
+        pipe(cube) | v.vase()

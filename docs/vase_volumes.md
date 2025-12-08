@@ -17,6 +17,20 @@ Vases describe analytic volumes in `(time, y, x)` by lofting time-stamped polygo
 - `CubePlot.stat_vase(vase)` injects the mask into the grammar; `CubePlot.geom_vase_outline(...)` tints faces where the vase touches.
 - `v.plot()` detects `attrs["vase"]` and overlays the outline automatically.
 
+## Quick vase plot with `v.vase()`
+
+Once you have a `VaseDefinition` on a cube (via `attrs["vase"]` or the `vase=` argument), you can produce a vase-focused 3-D view in one step:
+
+```python
+from cubedynamics import pipe, verbs as v
+
+# Attach vase definition (or pass `vase=` directly)
+ndvi.attrs["vase"] = vase_def
+
+# Vase-focused plot with optional viewer tweaks
+pipe(ndvi) | v.vase(elev=45, azim=35)
+```
+
 ## Example: NDVI inside a vase
 
 ```python
