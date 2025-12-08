@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime as _dt
 import math
 
 from dataclasses import dataclass
@@ -12,7 +13,7 @@ import xarray as xr
 from shapely.geometry import Point, Polygon
 from shapely.prepared import prep
 
-TimeLike = Union[np.datetime64, float, int]
+TimeLike = Union[np.datetime64, float, int, _dt.datetime, _dt.date]
 
 __all__ = [
     "VaseSection",
@@ -138,10 +139,25 @@ def _sample_polygon_boundary(polygon: Polygon, n_samples: int) -> np.ndarray:
     return np.asarray(points)
 
 
-def _normalize_value(value: float, vmin: float, vmax: float) -> float:
-    if vmax == vmin:
+def _to_numeric_time(t: TimeLike) -> float:
+    """Convert datetime-like or numeric time to a float for normalization."""
+
+    if isinstance(t, np.datetime64):
+        return float(t.astype("datetime64[ns]").astype("int64"))
+    if isinstance(t, (_dt.datetime, _dt.date)):
+        return float(np.datetime64(t).astype("datetime64[ns]").astype("int64"))
+    return float(t)
+
+
+def _normalize_value(value: TimeLike, vmin: TimeLike, vmax: TimeLike) -> float:
+    """Normalize ``value`` to [0, 1] between vmin and vmax, handling datetimes."""
+
+    v_num = _to_numeric_time(value)
+    vmin_num = _to_numeric_time(vmin)
+    vmax_num = _to_numeric_time(vmax)
+    if vmax_num == vmin_num:
         return 0.5
-    return (float(value) - float(vmin)) / float(vmax - vmin)
+    return (v_num - vmin_num) / (vmax_num - vmin_num)
 
 
 def build_vase_panels(
