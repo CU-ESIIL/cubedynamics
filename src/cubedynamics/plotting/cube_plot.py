@@ -424,10 +424,6 @@ class CubePlot(metaclass=_CubePlotMeta):
     vase_mask: Optional[xr.DataArray] = None
     vase_outline: Any = None
     axis_meta: Dict[str, Dict[str, str]] = field(default_factory=dict)
-    debug: bool = False
-    viewer_id: Optional[str] = None
-    viewer_width: Optional[int] = None
-    viewer_height: Optional[int] = None
 
     def __post_init__(self) -> None:
         if self.aes is None:
@@ -655,8 +651,6 @@ class CubePlot(metaclass=_CubePlotMeta):
                 out_html=panel_path,
                 cmap=fill_scale.resolved_cmap(),
                 size_px=self.size_px,
-                width_px=self.viewer_width,
-                height_px=self.viewer_height,
                 thin_time_factor=self.thin_time_factor,
                 title=self.title,
                 time_label=self.time_label,
@@ -680,8 +674,6 @@ class CubePlot(metaclass=_CubePlotMeta):
                 vase_mask=self.vase_mask,
                 vase_outline=self.vase_outline,
                 axis_meta=axis_meta,
-                fig_id=self.viewer_id,
-                debug=self.debug,
             )
             return viewer_obj
 
