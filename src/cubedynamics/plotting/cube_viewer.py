@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import io
 import logging
+import math
 import uuid
 import warnings
 from pathlib import Path
@@ -228,7 +229,9 @@ def _render_cube_html(
     rot_x = getattr(coord, "elev", 30.0)
     rot_y = getattr(coord, "azim", 45.0)
     zoom = getattr(coord, "zoom", 1.0)
-    initial_transform = f"rotateX({rot_x:.4f}deg) rotateY({rot_y:.4f}deg) scale({1/zoom})"
+
+    rot_x_rad = math.radians(rot_x)
+    rot_y_rad = math.radians(rot_y)
 
     html = f"""
 <!DOCTYPE html>
@@ -313,27 +316,72 @@ def _render_cube_html(
     }}
 
     .cube-wrapper {{
-      position: absolute;
+      position: relative;
       inset: 0;
+      width: 100%;
+      height: 100%;
       perspective: 950px;
       transform-style: preserve-3d;
       touch-action: none;
+      z-index: 0;
+      --rot-x: 0rad;
+      --rot-y: 0rad;
+      --zoom: 1;
     }}
 
-    .cube-drag-surface {{
+    .cube-canvas {{
       position: absolute;
       inset: 0;
-      z-index: 5;
-      cursor: grab;
-      background: transparent;
-      touch-action: none;
-      pointer-events: auto;
+      width: 100%;
+      height: 100%;
+      display: block;
     }}
 
     .cube-rotation {{
       position: absolute;
       inset: 0;
       transform-style: preserve-3d;
+      transform:
+        rotateX(var(--rot-x))
+        rotateY(var(--rot-y))
+        scale(calc(1 / var(--zoom)));
+    }}
+
+    .cube-drag-surface {{
+      position: absolute;
+      inset: 0;
+      z-index: 999;
+      cursor: grab;
+      background: transparent;
+      touch-action: none;
+      pointer-events: auto;
+    }}
+
+    .cube-scene {{
+      position: relative;
+      inset: 0;
+      perspective: 950px;
+      transform-style: preserve-3d;
+      --rot-x: 0rad;
+      --rot-y: 0rad;
+      --zoom: 1;
+    }}
+
+    .cube-scene .cube-rotation {{
+      transform:
+        rotateX(var(--rot-x))
+        rotateY(var(--rot-y))
+        scale(calc(1 / var(--zoom)));
+    }}
+
+    .scene-drag-surface {{
+      position: absolute;
+      inset: 0;
+      z-index: 999;
+      cursor: grab;
+      background: transparent;
+      touch-action: none;
+      pointer-events: auto;
     }}
 
     .cd-cube {{
@@ -363,12 +411,6 @@ def _render_cube_html(
     .cd-left {{ transform: rotateY(-90deg) translateZ(calc(var(--cube-size) / 2)); }}
     .cd-top {{ transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2)); }}
     .cd-bottom {{ transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2)); }}
-
-    .cube-canvas {{
-      width: 100%;
-      height: 100%;
-      display: block;
-    }}
 
     .interior-plane {{
       position: absolute;
@@ -497,13 +539,13 @@ def _render_cube_html(
     <div class=\"cube-main\">
       <div class=\"cube-inner\">
         <div class=\"cube-container\">
-          <div id=\"cube-wrapper-{viewer_id}\" class=\"cube-wrapper\">
-              <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
+          <div id=\"cube-wrapper-{viewer_id}\" class=\"cube-wrapper\" style=\"--rot-x: {rot_x_rad:.4f}rad; --rot-y: {rot_y_rad:.4f}rad; --zoom: {zoom};\">
             <canvas class=\"cube-canvas\" id=\"cube-canvas-{viewer_id}\"></canvas>
-            <div class=\"cube-rotation\" id=\"cube-rotation-{viewer_id}\" style=\"transform: {initial_transform};\">
+            <div class=\"cube-rotation\" id=\"cube-rotation-{viewer_id}\">
               {cube_faces_html}
               {interior_html}
             </div>
+            <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
           </div>
 
           <div class=\"axis-label cube-label cube-label-x axis-x-min\">{x_meta.get('min','')}</div>
@@ -542,8 +584,13 @@ def _render_cube_html(
 
       const canvas = document.getElementById("cube-canvas-" + viewerId);
       const cubeRotation = document.getElementById("cube-rotation-" + viewerId);
-      const dragSurface = document.getElementById("cube-drag-" + viewerId)
-        || document.getElementById("cube-wrapper-" + viewerId);
+      const cubeWrapper = document.getElementById("cube-wrapper-" + viewerId);
+      const scene = cubeWrapper ? cubeWrapper.closest(".cube-scene") : null;
+      const sceneDragSurface = scene ? scene.querySelector(".scene-drag-surface") : null;
+      const dragSurface = sceneDragSurface
+        || document.getElementById("cube-drag-" + viewerId)
+        || cubeWrapper;
+      const rotationTarget = scene || cubeWrapper;
       const jsWarning = document.getElementById("cube-js-warning-" + viewerId);
       const jsWarningText = jsWarning ? jsWarning.querySelector(".cube-warning-text") : null;
 
@@ -563,15 +610,19 @@ def _render_cube_html(
       const zoomMax = 6.0;
 
       try {{
-        if (!canvas || !cubeRotation) {{
+        if (!canvas || !cubeRotation || !rotationTarget) {{
           showWarning("<strong>Interactive controls unavailable.</strong> Viewer elements failed to initialize.");
           return;
         }}
 
         const gl = canvas.getContext("webgl");
 
+        // Maintain a universal reference frame via CSS variables so scenes with
+        // multiple cubes can share rotation/zoom state.
         function applyCubeRotation() {{
-          cubeRotation.style.transform = 'rotateX(' + rotationX + 'rad) rotateY(' + rotationY + 'rad) scale(' + (1/zoom) + ')';
+          rotationTarget.style.setProperty("--rot-x", rotationX + "rad");
+          rotationTarget.style.setProperty("--rot-y", rotationY + "rad");
+          rotationTarget.style.setProperty("--zoom", zoom);
         }}
 
         applyCubeRotation();
@@ -592,8 +643,9 @@ def _render_cube_html(
           applyCubeRotation();
         }};
 
-        function stopDragging() {{
+        function stopDragging(e) {{
           if (!dragging) return;
+          if (activePointerId !== null && e && e.pointerId !== activePointerId) return;
           dragging = false;
           window.removeEventListener("pointermove", handlePointerMove);
           if (dragSurface && activePointerId !== null && dragSurface.hasPointerCapture(activePointerId)) {{
@@ -623,8 +675,12 @@ def _render_cube_html(
             window.addEventListener("pointermove", handlePointerMove);
           }});
 
-          dragSurface.addEventListener("pointerup", () => {{
-            stopDragging();
+          dragSurface.addEventListener("pointerup", endEvent => {{
+            stopDragging(endEvent);
+          }});
+
+          dragSurface.addEventListener("pointercancel", endEvent => {{
+            stopDragging(endEvent);
           }});
 
           dragSurface.addEventListener("wheel", e => {{
@@ -638,8 +694,8 @@ def _render_cube_html(
           showWarning("<strong>Interactive controls unavailable.</strong> Drag surface missing.");
         }}
 
-        window.addEventListener("pointerup", () => stopDragging());
-        window.addEventListener("pointercancel", () => stopDragging());
+        window.addEventListener("pointerup", endEvent => stopDragging(endEvent));
+        window.addEventListener("pointercancel", endEvent => stopDragging(endEvent));
 
         if (!gl) {{
           console.warn("[CubeViewer] WebGL unavailable; rendering CSS cube only for viewerId", viewerId);
