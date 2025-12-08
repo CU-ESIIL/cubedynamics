@@ -28,6 +28,7 @@ from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 from cubedynamics.vase import VaseDefinition
 from cubedynamics.utils import _infer_time_y_x_dims
 from cubedynamics.plotting.viewer import show_cube_viewer
+from ..utils import drop_bad_assets as _drop_bad_assets
 
 
 logger = logging.getLogger(__name__)
@@ -172,23 +173,62 @@ class ScaleFillContinuous:
         return self._default_cmap()
 
     def infer_limits(self, data: xr.DataArray) -> tuple[float, float]:
+        """
+        Infer limits for continuous fill scales.
+
+        If `self.limits` is set, return that directly. Otherwise, attempt to
+        convert the input DataArray/DataArray-like object to a NumPy array.
+
+        When working with remote-backed dask arrays (e.g., Sentinel-2 STAC
+        cubes via stackstac), individual assets may intermittently raise
+        I/O errors (403, 404, etc.) when accessed. In that case, we
+        defensively attempt to clean the data with `drop_bad_assets`
+        before giving up.
+
+        This makes CubePlot more robust for both "normal" and vase views
+        without requiring users to explicitly pre-clean cubes.
+        """
         if self.limits is not None:
             return self.limits
-        arr = np.asarray(data)
+
+        try:
+            arr = np.asarray(data)
+        except Exception as exc:  # pragma: no cover - depends on remote I/O
+            logger.warning(
+                "ScaleFillContinuous.infer_limits: initial np.asarray() "
+                "failed with %s: %r; attempting to drop bad assets and retry",
+                type(exc).__name__,
+                exc,
+            )
+            try:
+                cleaned = _drop_bad_assets(data)
+                arr = np.asarray(cleaned)
+            except Exception as fallback_exc:  # pragma: no cover
+                logger.error(
+                    "ScaleFillContinuous.infer_limits: fallback after "
+                    "drop_bad_assets() also failed with %s: %r; re-raising",
+                    type(fallback_exc).__name__,
+                    fallback_exc,
+                )
+                raise exc
+
         finite = np.isfinite(arr)
         if finite.any():
-            finite_min = float(np.nanmin(arr[finite]))
-            finite_max = float(np.nanmax(arr[finite]))
-        else:
-            finite_min, finite_max = -1.0, 1.0
-        if self.center is not None:
-            spread = max(abs(finite_min - self.center), abs(finite_max - self.center))
-            finite_min = self.center - spread
-            finite_max = self.center + spread
-        if finite_min == finite_max:
-            finite_min -= 1.0
-            finite_max += 1.0
-        return finite_min, finite_max
+            vmin = float(arr[finite].min())
+            vmax = float(arr[finite].max())
+            if self.center is not None:
+                spread = max(abs(vmin - self.center), abs(vmax - self.center))
+                vmin = self.center - spread
+                vmax = self.center + spread
+            if vmin == vmax:
+                return (vmin, vmax or vmin + 1.0)
+            return (vmin, vmax)
+
+        logger.warning(
+            "ScaleFillContinuous.infer_limits: no finite values found; "
+            "falling back to (0.0, 1.0)"
+        )
+        return (0.0, 1.0)
 
     def infer_breaks(self, limits: tuple[float, float]) -> list[float]:
         if self.breaks is not None:
