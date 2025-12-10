@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import cubedynamics.viz as viz
+import matplotlib.pyplot as plt
+import numpy as np
 import xarray as xr
 from IPython.display import display
 
@@ -10,6 +12,7 @@ from ..config import TIME_DIM, X_DIM, Y_DIM
 from ..ops_fire.time_hull import (
     FireEventDaily,
     TimeHull,
+    Vase,
     compute_time_hull_geometry,
     time_hull_to_vase,
 )
@@ -23,13 +26,14 @@ from ..ops.stats import correlation_cube
 from ..ops.transforms import month_filter
 from ..piping import Verb
 from ..streaming import VirtualCube
+from ..vase import VaseDefinition
 from .custom import apply
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
 from .plot import plot
 from .plot_mean import plot_mean
 from .tubes import tubes
-from .vase import vase, vase_demo, vase_extract, vase_mask
+from .vase import vase as _vase_base, vase_demo, vase_extract, vase_mask
 from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
 
 
@@ -190,6 +194,194 @@ def extract(
     return _op(da)
 
 
+def _plot_time_hull_vase(
+    vase_obj: Vase,
+    da: xr.DataArray,
+    summary: HullClimateSummary | None,
+    **plot_kwargs,
+):
+    """Render a TimeHull-derived vase using matplotlib."""
+
+    verts = np.asarray(vase_obj.verts_km)
+    tris = np.asarray(vase_obj.tris)
+    meta = getattr(vase_obj, "metadata", {}) or {}
+    t_days_vert = np.asarray(meta.get("t_days_vert", []), dtype=float)
+    metrics = meta.get("metrics", {}) or {}
+
+    intensities = None
+    if isinstance(summary, HullClimateSummary):
+        day_vals = np.asarray(summary.per_day_mean.sort_index().values, dtype=float)
+        M = int(metrics.get("days", day_vals.size if day_vals.size else 0) or 0)
+        if M <= 0 and t_days_vert.size:
+            M = int(np.nanmax(t_days_vert)) if np.isfinite(t_days_vert).any() else day_vals.size
+        if M > 0 and day_vals.size:
+            if len(day_vals) < M:
+                day_vals = np.pad(day_vals, (0, M - len(day_vals)), mode="edge")
+            elif len(day_vals) > M:
+                day_vals = day_vals[:M]
+            if t_days_vert.size:
+                layer_indices = np.clip((t_days_vert - 1).astype(int), 0, M - 1)
+                intensities = day_vals[layer_indices]
+
+    from matplotlib import cm
+
+    fig = plt.figure(figsize=plot_kwargs.get("figsize", (6, 4)))
+    ax = fig.add_subplot(111, projection="3d")
+
+    faces = [verts[idx] for idx in tris]
+
+    if intensities is not None and intensities.size:
+        norm = plt.Normalize(vmin=float(np.nanmin(intensities)), vmax=float(np.nanmax(intensities)))
+        face_colors = []
+        for tri in tris:
+            vals = intensities[tri]
+            mean_val = np.nanmean(vals)
+            face_colors.append(cm.viridis(norm(mean_val)))
+    else:
+        face_colors = "steelblue"
+
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    poly = Poly3DCollection(faces, facecolors=face_colors, linewidths=0.4, alpha=0.7)
+    edge_color = plot_kwargs.get("edgecolor", "#2c3e50")
+    poly.set_edgecolor(edge_color)
+    ax.add_collection3d(poly)
+
+    ax.set_xlabel("x (km)")
+    ax.set_ylabel("y (km)")
+    ax.set_zlabel("days")
+
+    if isinstance(summary, HullClimateSummary) and intensities is not None and intensities.size:
+        mappable = cm.ScalarMappable(cmap="viridis", norm=plt.Normalize(vmin=float(np.nanmin(intensities)), vmax=float(np.nanmax(intensities))))
+        mappable.set_array([])
+        fig.colorbar(mappable, ax=ax, label=da.name or "value")
+
+    ax.view_init(
+        elev=plot_kwargs.get("elev", 26),
+        azim=plot_kwargs.get("azim", -58),
+    )
+    ax.set_title(plot_kwargs.get("title", "Fire time-hull vase"))
+    plt.tight_layout()
+    plt.show()
+
+    return fig
+
+
+def vase(
+    da: xr.DataArray | VirtualCube | None = None,
+    *,
+    vase=None,
+    outline: bool = True,
+    **plot_kwargs,
+):
+    """High-level vase plotting verb with TimeHull support."""
+
+    def _inner(value: xr.DataArray | VirtualCube):
+        base_da, _ = _unwrap_dataarray(value)
+
+        vase_obj = vase if vase is not None else base_da.attrs.get("vase", None)
+
+        if vase_obj is None:
+            raise ValueError(
+                "v.vase() requires a vase definition via `vase=` or attrs['vase']."
+            )
+
+        if isinstance(vase_obj, VaseDefinition):
+            return _vase_base(vase=vase_obj, outline=outline, **plot_kwargs)(base_da)
+
+        if isinstance(vase_obj, Vase):
+            summary = base_da.attrs.get("fire_climate_summary")
+            if summary is None:
+                raise ValueError(
+                    "Time-hull vase plotting requires attrs['fire_climate_summary']; run v.extract first."
+                )
+            return _plot_time_hull_vase(vase_obj, base_da, summary, **plot_kwargs)
+
+        return _vase_base(vase=vase_obj, outline=outline, **plot_kwargs)(base_da)
+
+    if da is None:
+        return Verb(_inner)
+    return _inner(da)
+
+
+def climate_hist(
+    da: xr.DataArray | VirtualCube | None = None,
+    *,
+    bins: int = 40,
+    var_label: str | None = None,
+):
+    """
+    Plot histogram of climate inside vs outside fire perimeters.
+
+    This verb expects the underlying DataArray to have:
+        attrs["fire_climate_summary"] = HullClimateSummary(...)
+
+    Typically, this attribute is added by the `extract` verb:
+
+        fired_evt = cd.fired_event(event_id=...)
+        clim = cd.gridmet(...)
+
+        pipe(clim) | v.extract(fired_event=fired_evt) | v.climate_hist()
+
+    Parameters
+    ----------
+    da : DataArray or VirtualCube or None
+        Input cube. If None, the verb should follow the same pattern
+        used by other verbs (e.g. plot) to pull from context.
+    bins : int
+        Number of histogram bins.
+    var_label : str, optional
+        Label for the x-axis. Defaults to the DataArray name.
+    """
+
+    base_da, _ = _unwrap_dataarray(da)
+
+    summary = base_da.attrs.get("fire_climate_summary")
+    if not isinstance(summary, HullClimateSummary):
+        raise ValueError(
+            "climate_hist() requires attrs['fire_climate_summary'] to be a "
+            "HullClimateSummary, typically added by v.extract()."
+        )
+
+    inside = np.asarray(summary.values_inside)
+    outside = np.asarray(summary.values_outside)
+
+    inside = inside[np.isfinite(inside)]
+    outside = outside[np.isfinite(outside)]
+
+    if var_label is None:
+        var_label = base_da.name or "value"
+
+    plt.figure(figsize=(5, 3))
+    if inside.size:
+        plt.hist(
+            inside,
+            bins=bins,
+            alpha=0.6,
+            density=True,
+            label="inside",
+            histtype="stepfilled",
+        )
+    if outside.size:
+        plt.hist(
+            outside,
+            bins=bins,
+            alpha=0.6,
+            density=True,
+            label="outside",
+            histtype="step",
+        )
+
+    plt.xlabel(var_label)
+    plt.ylabel("Density")
+    plt.title(f"{var_label}: inside vs outside fire perimeters")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    return base_da
+
+
 __all__ = [
     "anomaly",
     "apply",
@@ -211,6 +403,7 @@ __all__ = [
     "plot",
     "plot_mean",
     "extract",
+    "climate_hist",
     "tubes",
     "vase",
     "vase_demo",
