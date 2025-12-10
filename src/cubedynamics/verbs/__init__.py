@@ -382,6 +382,151 @@ def climate_hist(
     return base_da
 
 
+def fire_plot(
+    da: xr.DataArray | VirtualCube | None = None,
+    *,
+    fired_event: FireEventDaily,
+    date_col: str = "date",
+    n_ring_samples: int = 100,
+    n_theta: int = 96,
+    bins: int = 40,
+    var_label: str | None = None,
+    show_hist: bool = True,
+    show_vase: bool = True,
+):
+    """
+    High-level convenience verb: fire time-hull × climate visualization.
+
+    This combines:
+      - v.extract(...)    → attach fire/time-hull + climate summary + vase attrs
+      - v.vase(...)       → 3D climate-filled hull
+      - v.climate_hist(...) → inside vs outside climate histogram
+
+    Typical usage
+    -------------
+    >>> import cubedynamics as cd
+    >>> from cubedynamics import pipe, verbs as v
+    >>>
+    >>> fired_evt = cd.fired_event(event_id=21281)
+    >>> clim = cd.gridmet(
+    ...     lat=fired_evt.centroid_lat,
+    ...     lon=fired_evt.centroid_lon,
+    ...     start=str(fired_evt.t0 - pd.Timedelta(days=14)),
+    ...     end=str(fired_evt.t1 + pd.Timedelta(days=14)),
+    ...     variable="tmmx",
+    ... )
+    >>>
+    >>> pipe(clim) | v.fire_plot(fired_event=fired_evt)
+
+    Parameters
+    ----------
+    da : DataArray or VirtualCube or None
+        Input climate cube (e.g., from cd.gridmet). If None, follow the
+        same conventions as other verbs for pulling from context.
+    fired_event : FireEventDaily
+        Fire event describing daily perimeters.
+    date_col : str
+        Date column name for the FIRED GeoDataFrame.
+    n_ring_samples : int
+        Perimeter sampling density for hull reconstruction.
+    n_theta : int
+        Angular resolution of the hull.
+    bins : int
+        Histogram bins passed to climate_hist.
+    var_label : str, optional
+        Label for climate variable; defaults to DataArray name.
+    show_hist : bool
+        If True, show the histogram via v.climate_hist.
+    show_vase : bool
+        If True, show the 3D time-hull via v.vase.
+
+    Returns
+    -------
+    Same type as input (DataArray or VirtualCube)
+        The cube with fire/time-hull attrs attached.
+    """
+
+    def _inner(value: xr.DataArray | VirtualCube):
+        out = extract(
+            value,
+            fired_event=fired_event,
+            date_col=date_col,
+            n_ring_samples=n_ring_samples,
+            n_theta=n_theta,
+        )
+
+        if show_vase:
+            vase(out)
+
+        if show_hist:
+            climate_hist(out, bins=bins, var_label=var_label)
+
+        return out
+
+    if da is None:
+        return Verb(_inner)
+    return _inner(da)
+
+
+def fire_panel(
+    da: xr.DataArray | VirtualCube | None = None,
+    *,
+    fired_event: FireEventDaily,
+    date_col: str = "date",
+    n_ring_samples: int = 100,
+    n_theta: int = 96,
+    bins: int = 40,
+    var_label: str | None = None,
+):
+    """
+    Convenience helper: fire time-hull + climate distribution "panel".
+
+    This is similar to fire_plot(), but returns the figure objects where
+    possible so advanced users can embed them in their own layouts.
+
+    Parameters
+    ----------
+    da : DataArray or VirtualCube or None
+        Input climate cube.
+    fired_event : FireEventDaily
+        Fire event describing daily perimeters.
+    date_col, n_ring_samples, n_theta, bins, var_label :
+        As in fire_plot().
+
+    Returns
+    -------
+    out, fig_vase, fig_hist :
+        out      : same cube type as input (DataArray or VirtualCube).
+        fig_vase : Plotly Figure for the 3D time-hull (or None).
+        fig_hist : Matplotlib Figure for the histogram (or None).
+    """
+
+    def _inner(value: xr.DataArray | VirtualCube):
+        out = extract(
+            value,
+            fired_event=fired_event,
+            date_col=date_col,
+            n_ring_samples=n_ring_samples,
+            n_theta=n_theta,
+        )
+
+        fig_vase = None
+        maybe_fig = vase(out)
+        import plotly.graph_objects as go
+
+        if isinstance(maybe_fig, go.Figure):
+            fig_vase = maybe_fig
+
+        climate_hist(out, bins=bins, var_label=var_label)
+        fig_hist = plt.gcf()
+
+        return out, fig_vase, fig_hist
+
+    if da is None:
+        return Verb(_inner)
+    return _inner(da)
+
+
 __all__ = [
     "anomaly",
     "apply",
@@ -404,6 +549,8 @@ __all__ = [
     "plot_mean",
     "extract",
     "climate_hist",
+    "fire_plot",
+    "fire_panel",
     "tubes",
     "vase",
     "vase_demo",
