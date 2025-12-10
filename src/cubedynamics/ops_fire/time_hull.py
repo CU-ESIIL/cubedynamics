@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Dict
+from typing import Optional, Dict, List, Any
 
 import numpy as np
 import pandas as pd
@@ -62,6 +62,29 @@ class TimeHull:
     t_days_vert: np.ndarray
     t_norm_vert: np.ndarray
     metrics: Dict[str, float]
+
+
+@dataclass
+class Vase:
+    """
+    Simple container for a vase-like surface derived from a TimeHull.
+
+    This is intentionally minimal and internal; it will be consumed by
+    the cube viewer / v.vase logic in a later step.
+
+    Attributes
+    ----------
+    verts_km : (N, 3) array
+        Vertices in (x_km, y_km, time_days) coordinates.
+    tris : (M, 3) array
+        Triangle indices into verts_km.
+    metadata : dict
+        Arbitrary metadata, e.g. TimeHull metrics and event_id.
+    """
+
+    verts_km: np.ndarray
+    tris: np.ndarray
+    metadata: Dict[str, Any]
 
 
 def clean_event_daily_rows(
@@ -435,4 +458,25 @@ def compute_time_hull_geometry(
         t_days_vert=t_days_vert,
         t_norm_vert=t_norm_vert,
         metrics=metrics,
+    )
+
+
+def time_hull_to_vase(hull: TimeHull) -> Vase:
+    """
+    Convert a TimeHull into a vase-like representation suitable for v.vase.
+
+    This helper does not perform any plotting. It just packages the
+    hull geometry and basic metadata into a lightweight object that
+    can be interpreted by the cube viewer in a later step.
+    """
+
+    return Vase(
+        verts_km=hull.verts_km,
+        tris=hull.tris,
+        metadata={
+            "metrics": hull.metrics,
+            "event_id": hull.event.event_id,
+            "t_days_vert": hull.t_days_vert,
+            "t_norm_vert": hull.t_norm_vert,
+        },
     )
