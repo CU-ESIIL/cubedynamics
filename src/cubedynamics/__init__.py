@@ -126,3 +126,9 @@ def plot(
         clim=clim,
         **kwargs,
     )
+
+
+from .ops_io.gridmet_api import gridmet
+from .ops_fire.fired_api import fired_event
+
+__all__ += ["gridmet", "fired_event"]
