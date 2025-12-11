@@ -19,6 +19,7 @@ def fired_event(
     prefer: str = "gpkg",
     min_days: int = 40,
     time_buffer_days: int = 14,
+    verbose: bool = False,
     **kwargs,
 ) -> FireEventDaily:
     """
@@ -43,6 +44,8 @@ def fired_event(
         Minimum duration for auto-selection.
     time_buffer_days : int
         Buffer on both ends of FIRED time window when testing support.
+    verbose : bool, default False
+        If True, print selection and metadata diagnostics.
     **kwargs :
         Passed through to load_fired_conus_ak.
 
@@ -53,7 +56,13 @@ def fired_event(
 
     if event_id is not None:
         gdf = load_fired_conus_ak(which=which, prefer=prefer, **kwargs)
-        return build_fire_event(gdf, event_id)
+        evt = build_fire_event(gdf, event_id)
+        if verbose:
+            print(
+                f"Loaded FIRED event {evt.event_id!r} spanning {evt.t0.date()} .. "
+                f"{evt.t1.date()} (centroid=({evt.centroid_lat:.4f}, {evt.centroid_lon:.4f}))."
+            )
+        return evt
 
     if climate_support is not None:
         return load_fired_event_by_joint_support(
@@ -62,6 +71,7 @@ def fired_event(
             min_days=min_days,
             which=which,
             prefer=prefer,
+            verbose=verbose,
             **kwargs,
         )
 

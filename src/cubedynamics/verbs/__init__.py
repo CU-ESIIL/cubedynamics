@@ -137,6 +137,7 @@ def extract(
     date_col: str = "date",
     n_ring_samples: int = 100,
     n_theta: int = 96,
+    verbose: bool = False,
 ):
     """
     Verb: attach fire time-hull + climate summary (and a vase-like hull)
@@ -164,6 +165,7 @@ def extract(
         da.attrs["vase"]                  = Vase(...)
 
     and the verb will return the same type it received (DataArray or VirtualCube).
+    Pass ``verbose=True`` to print hull metrics and climate sampling summaries.
     """
 
     def _op(value: xr.DataArray | VirtualCube):
@@ -173,12 +175,14 @@ def extract(
             fired_event,
             n_ring_samples=n_ring_samples,
             n_theta=n_theta,
+            verbose=verbose,
         )
 
         summary: HullClimateSummary = build_inside_outside_climate_samples(
             fired_event,
             base_da,
             date_col=date_col,
+            verbose=verbose,
         )
 
         vase_obj = time_hull_to_vase(hull)
@@ -272,6 +276,7 @@ def vase(
     *,
     vase=None,
     outline: bool = True,
+    verbose: bool = False,
     **plot_kwargs,
 ):
     """High-level vase plotting verb with TimeHull support."""
@@ -285,6 +290,9 @@ def vase(
             raise ValueError(
                 "v.vase() requires a vase definition via `vase=` or attrs['vase']."
             )
+
+        if verbose and vase is None:
+            print("Using vase from attrs['vase']")
 
         if isinstance(vase_obj, VaseDefinition):
             return _vase_base(vase=vase_obj, outline=outline, **plot_kwargs)(base_da)
@@ -391,8 +399,9 @@ def fire_plot(
     n_theta: int = 96,
     bins: int = 40,
     var_label: str | None = None,
-    show_hist: bool = True,
+    show_hist: bool = False,
     show_vase: bool = True,
+    verbose: bool = False,
 ):
     """
     High-level convenience verb: fire time-hull × climate visualization.
@@ -418,6 +427,16 @@ def fire_plot(
     >>>
     >>> pipe(clim) | v.fire_plot(fired_event=fired_evt)
 
+    The default call is quiet (no histogram, minimal console chatter) and shows
+    only the interactive 3D hull. To request diagnostics and the histogram,
+    opt in explicitly:
+
+    >>> pipe(clim) | v.fire_plot(
+    ...     fired_event=fired_evt,
+    ...     show_hist=True,
+    ...     verbose=True,
+    ... )
+
     Parameters
     ----------
     da : DataArray or VirtualCube or None
@@ -435,10 +454,12 @@ def fire_plot(
         Histogram bins passed to climate_hist.
     var_label : str, optional
         Label for climate variable; defaults to DataArray name.
-    show_hist : bool
+    show_hist : bool, default False
         If True, show the histogram via v.climate_hist.
-    show_vase : bool
+    show_vase : bool, default True
         If True, show the 3D time-hull via v.vase.
+    verbose : bool, default False
+        If True, print diagnostics during extraction/plotting.
 
     Returns
     -------
@@ -453,10 +474,11 @@ def fire_plot(
             date_col=date_col,
             n_ring_samples=n_ring_samples,
             n_theta=n_theta,
+            verbose=verbose,
         )
 
         if show_vase:
-            vase(out)
+            vase(out, verbose=verbose)
 
         if show_hist:
             climate_hist(out, bins=bins, var_label=var_label)

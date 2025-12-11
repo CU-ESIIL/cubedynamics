@@ -106,6 +106,7 @@ def build_inside_outside_climate_samples(
     da: xr.DataArray,
     *,
     date_col: str = "date",
+    verbose: bool = False,
 ) -> HullClimateSummary:
     """
     Build inside vs outside climate samples using FIRED perimeters and a climate cube.
@@ -122,6 +123,8 @@ def build_inside_outside_climate_samples(
         Climate cube with dims (time, y, x) or (time, lat, lon).
     date_col : str
         Column name for date in event.gdf.
+    verbose : bool, default False
+        If True, print sampling summaries for debugging.
 
     Returns
     -------
@@ -261,6 +264,11 @@ def build_inside_outside_climate_samples(
 
     values_inside = np.concatenate(inside_vals)
     values_outside = np.concatenate(outside_vals) if outside_vals else np.array([], dtype=float)
+    if verbose:
+        print(
+            f"Climate samples collected: inside={values_inside.size}, outside={values_outside.size}, "
+            f"per_day_mean={len(per_day_mean)} entries"
+        )
     per_day_mean_series = pd.Series(per_day_mean).sort_index()
 
     return HullClimateSummary(

@@ -14,6 +14,7 @@ def gridmet(
     variable: str = "tmmx",
     buffer_deg: float = 0.5,
     chunks=None,
+    verbose: bool = False,
 ) -> xr.DataArray:
     """
     Load a GRIDMET variable as an xarray.DataArray suitable for CubePlot.
@@ -30,6 +31,8 @@ def gridmet(
         Degrees of padding around the point AOI.
     chunks : dict or None
         Passed through to xarray.open_mfdataset.
+    verbose : bool, default False
+        If True, print loader diagnostics and show synthetic progress bars.
 
     Returns
     -------
@@ -51,6 +54,7 @@ def gridmet(
         end=end,
         aoi=aoi,
         chunks=chunks,
+        show_progress=verbose,
     )
 
     da = ds[variable]
