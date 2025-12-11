@@ -550,7 +550,7 @@ def fire_panel(
 
 
 # Override legacy fire_plot with the prototype-aligned version
-from .fire import fire_plot  # noqa: E402
+from .fire import fire_plot, fire_derivative  # noqa: E402
 
 
 __all__ = [
@@ -576,6 +576,7 @@ __all__ = [
     "extract",
     "climate_hist",
     "fire_plot",
+    "fire_derivative",
     "fire_panel",
     "tubes",
     "vase",

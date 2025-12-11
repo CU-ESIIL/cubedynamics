@@ -736,3 +736,188 @@ def plot_inside_outside_hist(
     plt.tight_layout()
     plt.show()
 
+
+def _hull_grid(hull: TimeHull) -> tuple[np.ndarray, int, int]:
+    """
+    Recover the (M, T, 3) grid from a TimeHull, where:
+      M = number of days (layers)
+      T = number of angular samples per layer
+
+    Assumes verts_km are laid out as consecutive "rings" over time,
+    as produced by compute_time_hull_geometry.
+    """
+    verts = hull.verts_km  # shape (M*T, 3)
+    days = int(round(hull.metrics.get("days", 0)))
+    if days <= 0:
+        raise ValueError("Hull has non-positive 'days' metric; cannot reshape.")
+
+    n_verts = verts.shape[0]
+    if n_verts % days != 0:
+        raise ValueError(
+            f"Cannot reshape verts into (days, T, 3): "
+            f"{n_verts} vertices not divisible by days={days}"
+        )
+
+    T = n_verts // days
+    P = verts.reshape(days, T, 3)
+    return P, days, T
+
+
+def compute_derivative_hull(
+    hull: TimeHull,
+    *,
+    order: int = 1,
+    eps: float = 1e-6,
+) -> TimeHull:
+    """
+    Build a derivative-based hull from an existing TimeHull.
+
+    Parameters
+    ----------
+    hull
+        Base TimeHull in km,km,days from compute_time_hull_geometry.
+    order
+        1 → derivative hull encodes perimeter *speed* (km/day).
+        2 → derivative hull encodes perimeter *acceleration* (km/day²).
+    eps
+        Small tolerance to avoid division by zero when normalizing.
+
+    Returns
+    -------
+    TimeHull
+        A new hull with the same topology (tris) and time coordinates,
+        but with radius at each (day, theta) proportional to speed or
+        acceleration, respectively.
+    """
+    if order not in (1, 2):
+        raise ValueError("order must be 1 or 2")
+
+    P, M, T = _hull_grid(hull)      # (M, T, 3)
+    xy = P[..., :2]                 # (M, T, 2), km coordinates
+
+    # First derivative of perimeter position in time: km/day
+    dxy_dt = np.gradient(xy, axis=0)  # central differences along time axis
+    speed = np.linalg.norm(dxy_dt, axis=-1)  # (M, T), km/day
+
+    if order == 1:
+        field = speed
+        field_name = "speed_km_per_day"
+    else:
+        # Second derivative of spread speed: km/day²
+        accel = np.gradient(speed, axis=0)
+        field = accel
+        field_name = "accel_km_per_day2"
+
+    # Use derivative magnitude as new radius, preserving angular direction
+    r_orig = np.linalg.norm(xy, axis=-1)  # (M, T)
+    U = np.zeros_like(xy)                 # unit directions (M, T, 2)
+
+    mask = r_orig > eps
+    U[mask] = xy[mask] / r_orig[mask][..., None]
+    U[~mask] = np.array([1.0, 0.0])  # arbitrary direction for degenerate centers
+
+    R_new = np.abs(field)  # radius encodes magnitude of derivative field
+
+    P_new = np.zeros_like(P)
+    P_new[..., :2] = R_new[..., None] * U
+    P_new[..., 2]  = P[..., 2]  # keep same time (days)
+
+    verts_new = P_new.reshape(-1, 3)
+
+    rmax = float(np.nanmax(R_new)) if np.isfinite(R_new).any() else 0.0
+    metrics = {
+        "scale_km": rmax,
+        "days": float(M),
+        "volume_km2_days": np.nan,   # not meaningful for derivatives
+        "surface_km_day": np.nan,    # not meaningful for derivatives
+        "field_name": field_name,
+    }
+
+    return TimeHull(
+        event=hull.event,
+        verts_km=verts_new,
+        tris=hull.tris,
+        t_days_vert=hull.t_days_vert,
+        t_norm_vert=hull.t_norm_vert,
+        metrics=metrics,
+    )
+
+
+def plot_derivative_hull(
+    base_hull: TimeHull,
+    deriv_hull: TimeHull,
+    *,
+    order: int = 1,
+    title_prefix: str = "Fire derivative hull",
+) -> go.Figure:
+    """
+    Plot a derivative hull with color and radius encoding the same
+    derivative quantity (speed or acceleration).
+
+    base_hull is used to recompute the underlying derivative field
+    (speed or acceleration) so that intensity and geometry agree.
+    """
+    P, M, T = _hull_grid(base_hull)
+    xy = P[..., :2]
+
+    # First derivative: km/day
+    dxy_dt = np.gradient(xy, axis=0)
+    speed = np.linalg.norm(dxy_dt, axis=-1)  # (M, T)
+
+    if order == 1:
+        field = speed
+        var_label = "Perimeter speed (km/day)"
+    else:
+        accel = np.gradient(speed, axis=0)
+        field = accel
+        var_label = "Perimeter acceleration (km/day²)"
+
+    intensities = np.abs(field).ravel()
+
+    verts = deriv_hull.verts_km
+    tris  = deriv_hull.tris
+    x, y, z = verts[:, 0], verts[:, 1], verts[:, 2]
+    i, j, k = tris.T
+
+    if np.isfinite(intensities).any():
+        vmin = float(np.nanpercentile(intensities, 5))
+        vmax = float(np.nanpercentile(intensities, 95))
+    else:
+        vmin, vmax = 0.0, 1.0
+
+    mesh = go.Mesh3d(
+        x=x,
+        y=y,
+        z=z,
+        i=i,
+        j=j,
+        k=k,
+        intensity=intensities,
+        colorscale="Viridis",
+        cmin=vmin,
+        cmax=vmax,
+        opacity=0.8,
+        flatshading=True,
+        colorbar=dict(title=var_label),
+        name="Derivative hull",
+    )
+
+    title = (
+        f"{title_prefix} – Event {base_hull.event.event_id} "
+        f"| order={order}"
+    )
+
+    fig = go.Figure(data=[mesh])
+    fig.update_layout(
+        title=title,
+        scene=dict(
+            xaxis=dict(visible=False),
+            yaxis=dict(visible=False),
+            zaxis=dict(visible=False),
+            aspectmode="data",
+        ),
+        margin=dict(l=0, r=0, t=60, b=0),
+        showlegend=False,
+    )
+    return fig
+

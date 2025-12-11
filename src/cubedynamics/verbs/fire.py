@@ -9,10 +9,12 @@ import geopandas as gpd
 from ..fire_time_hull import (
     build_fire_event,
     compute_time_hull_geometry,
+    compute_derivative_hull,
     load_climate_cube_for_event,
     build_inside_outside_climate_samples,
     plot_climate_filled_hull,
     plot_inside_outside_hist,
+    plot_derivative_hull,
     FireEventDaily,
     TimeHull,
     ClimateCube,
@@ -159,5 +161,110 @@ def fire_plot(
         "summary": summary,
         "fig_hull": fig_hull,
         "color_limits": color_limits,
+    }
+
+
+def fire_derivative(
+    da: xr.DataArray | None = None,
+    *,
+    fired_daily: gpd.GeoDataFrame,
+    event_id: Any,
+    order: int = 1,
+    n_ring_samples: int = 200,
+    n_theta: int = 296,
+    save_prefix: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Fire derivative hull visualization verb.
+
+    Builds a time-hull from FIRED daily perimeters and then constructs
+    a derivative hull where radius encodes:
+
+      • order=1 → perimeter spread *speed* (km/day)
+      • order=2 → perimeter spread *acceleration* (km/day²)
+
+    Parameters
+    ----------
+    da
+        Currently unused. Included so this function can be used in a
+        CubeDynamics pipeline, e.g.:
+
+            pipe(ndvi) | v.fire_derivative(fired_daily=..., event_id=...)
+
+    fired_daily
+        FIRED daily GeoDataFrame with 'id', 'date', and 'geometry' columns.
+
+    event_id
+        Event ID in fired_daily.
+
+    order
+        1 for speed hull, 2 for acceleration hull.
+
+    n_ring_samples, n_theta
+        Geometry resolution parameters forwarded to compute_time_hull_geometry.
+
+    save_prefix
+        Optional filename stem to save a PNG/PDF of the derivative hull
+        using Plotly static image export (requires `kaleido`).
+
+    Returns
+    -------
+    dict
+        {
+            "event": FireEventDaily,
+            "base_hull": TimeHull,
+            "derivative_hull": TimeHull,
+            "fig": go.Figure,
+        }
+    """
+    if order not in (1, 2):
+        raise ValueError("order must be 1 (speed) or 2 (acceleration).")
+
+    # 1) Event geometry
+    event = build_fire_event(fired_daily, event_id)
+    print(
+        f"Built FireEventDaily for id={event_id}, "
+        f"t0={event.t0.date()}, t1={event.t1.date()}, "
+        f"centroid=({event.centroid_lat:.3f}, {event.centroid_lon:.3f})"
+    )
+
+    # 2) Base time-hull geometry in km,km,days
+    base_hull = compute_time_hull_geometry(
+        event,
+        n_ring_samples=n_ring_samples,
+        n_theta=n_theta,
+    )
+    print("Base TimeHull metrics:", base_hull.metrics)
+
+    # 3) Derivative hull (speed or acceleration)
+    deriv_hull = compute_derivative_hull(base_hull, order=order)
+    print("Derivative TimeHull metrics:", deriv_hull.metrics)
+
+    # 4) Plot the derivative hull
+    fig = plot_derivative_hull(
+        base_hull,
+        deriv_hull,
+        order=order,
+        title_prefix="Fire time-hull derivative",
+    )
+    fig.show()
+
+    if save_prefix is not None:
+        try:
+            fig.write_image(f"{save_prefix}.png", scale=2)
+            fig.write_image(f"{save_prefix}.pdf")
+            print(f"Saved derivative hull figure to {save_prefix}.png/.pdf")
+        except Exception as e:
+            print(
+                "Could not write PNG/PDF for derivative hull. "
+                "Make sure `kaleido` is installed.\n"
+                f"Error: {e}"
+            )
+
+    return {
+        "event": event,
+        "base_hull": base_hull,
+        "derivative_hull": deriv_hull,
+        "fig": fig,
     }
 
