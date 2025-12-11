@@ -28,8 +28,15 @@ def main():
         variable="tmmx",
     )
 
-    # One-call visualization: extract + 3D vase + histogram
+    # Quiet, hull-only visualization (default): extract + 3D vase
     pipe(clim) | v.fire_plot(fired_event=fired_evt)
+
+    # Opt-in diagnostics and histogram
+    pipe(clim) | v.fire_plot(
+        fired_event=fired_evt,
+        show_hist=True,
+        verbose=True,
+    )
 
     # Panel access: receive figures for custom layouts
     out, fig_vase, fig_hist = v.fire_panel(

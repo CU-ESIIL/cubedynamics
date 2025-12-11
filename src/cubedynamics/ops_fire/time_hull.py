@@ -294,6 +294,7 @@ def compute_time_hull_geometry(
     n_theta: int = 96,
     crs_epsg_xy: int = 5070,
     center_each_day: bool = True,
+    verbose: bool = False,
 ) -> TimeHull:
     """
     Build a 3D ruled time-hull geometry from FIRED daily perimeters.
@@ -321,6 +322,8 @@ def compute_time_hull_geometry(
     center_each_day : bool
         If True, subtract daily centroid from each day's ring so that hull
         is centered around the origin in x,y.
+    verbose : bool, default False
+        If True, print hull metrics for debugging.
 
     Returns
     -------
@@ -454,6 +457,9 @@ def compute_time_hull_geometry(
         "volume_km2_days": hull_volume_km2_days,
         "surface_km_day": hull_surface_km_day,
     }
+
+    if verbose:
+        print("TimeHull metrics:", metrics)
 
     return TimeHull(
         event=event,

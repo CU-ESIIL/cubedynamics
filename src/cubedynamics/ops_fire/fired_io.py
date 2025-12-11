@@ -148,6 +148,7 @@ def pick_event_with_joint_support(
     min_days: int = 3,
     id_col: str = "id",
     date_col: str = "date",
+    verbose: bool = False,
 ):
     """
     Pick a FIRED event whose buffered time window sits inside climate support.
@@ -166,6 +167,8 @@ def pick_event_with_joint_support(
         Event ID column name.
     date_col : str
         Date column name.
+    verbose : bool, default False
+        If True, print selection diagnostics.
 
     Returns
     -------
@@ -206,6 +209,18 @@ def pick_event_with_joint_support(
         )
 
     chosen_id = candidates.index[0]
+
+    if verbose:
+        chosen_row = candidates.loc[chosen_id]
+        dur = int(chosen_row["duration_days"])
+        t0 = chosen_row["t0"]
+        t1 = chosen_row["t1"]
+        buffer = pd.Timedelta(days=time_buffer_days)
+        print(
+            f"Selected event id={chosen_id!r} with t0={t0.date()}, t1={t1.date()} "
+            f"(duration ≈ {dur} days), buffered window "
+            f"[{(t0 - buffer).date()} .. {(t1 + buffer).date()}] is inside climate support."
+        )
     return chosen_id
 
 
@@ -216,6 +231,7 @@ def load_fired_event_by_joint_support(
     min_days: int = 40,
     which: str = "daily",
     prefer: str = "gpkg",
+    verbose: bool = False,
     **kwargs,
 ) -> FireEventDaily:
     """
@@ -234,6 +250,8 @@ def load_fired_event_by_joint_support(
         Which FIRED layer to download.
     prefer : {"gpkg", "shp"}
         Preferred format inside the ZIP.
+    verbose : bool, default False
+        If True, print selection diagnostics.
     **kwargs :
         Additional arguments passed through to load_fired_conus_ak.
 
@@ -247,5 +265,6 @@ def load_fired_event_by_joint_support(
         climate_support=climate_support,
         time_buffer_days=time_buffer_days,
         min_days=min_days,
+        verbose=verbose,
     )
     return build_fire_event(fired_daily, event_id)
