@@ -549,6 +549,10 @@ def fire_panel(
     return _inner(da)
 
 
+# Override legacy fire_plot with the prototype-aligned version
+from .fire import fire_plot  # noqa: E402
+
+
 __all__ = [
     "anomaly",
     "apply",
