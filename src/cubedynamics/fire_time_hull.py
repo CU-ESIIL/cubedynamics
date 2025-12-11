@@ -40,30 +40,74 @@ GRIDMET_SUPPORT = TemporalSupport(
 
 
 def load_fired_conus_ak(
-    which: str = "daily", prefer: str = "gpkg", *, cache_dir: str | Path | None = None
+    which: str = "daily",
+    prefer: str = "gpkg",
+    cache_dir: str | Path | None = None,
 ) -> gpd.GeoDataFrame:
-    """Lightweight loader for FIRED CONUS/AK sample data used in the prototype."""
+    """
+    Load FIRED CONUS+AK polygons from a local cache only.
 
-    base_url = "https://scholar.colorado.edu/downloads"
-    file_map = {
-        "daily": "0r967610j",
-        "events": "r494vn88x",
+    This function no longer performs any HTTP downloads.
+
+    Expected layout (default):
+
+        ~/.fired_cache/
+            fired_conus-ak_daily_nov2001-march2021.gpkg
+            fired_conus-ak_events_nov2001-march2021.gpkg  (optional)
+
+    Parameters
+    ----------
+    which : {"events", "daily"}
+        Which FIRED layer to load.
+    prefer : {"gpkg", "shp"}
+        Kept for backward compatibility but currently only ".gpkg" is
+        supported in the default cache layout.
+    cache_dir :
+        Optional override for the cache directory. Defaults to
+        Path.home() / ".fired_cache".
+
+    Returns
+    -------
+    GeoDataFrame
+        FIRED layer reprojected to EPSG:4326.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the expected FIRED file is not found in the cache directory.
+        In that case, download the FIRED GPKG from CU Scholar on a
+        machine with access, copy it into the cache directory, and then
+        rerun this function.
+    """
+    cache_dir = Path(cache_dir or (Path.home() / ".fired_cache"))
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
+    # Current cache convention: gpkg files only
+    fname_map = {
+        "daily":  "fired_conus-ak_daily_nov2001-march2021.gpkg",
+        "events": "fired_conus-ak_events_nov2001-march2021.gpkg",
     }
-    if which not in file_map:
+    if which not in fname_map:
         raise ValueError("which must be 'daily' or 'events'")
 
-    ext = "gpkg" if prefer == "gpkg" else "geojson"
-    cache_dir = Path(cache_dir or Path.home() / ".cache" / "cubedynamics" / "fired")
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    filename = cache_dir / f"fired_{which}.{ext}"
+    path = cache_dir / fname_map[which]
+    if not path.exists():
+        raise FileNotFoundError(
+            f"FIRED file not found at {path}\n\n"
+            "To use `load_fired_conus_ak` in this environment:\n"
+            "  1. On a machine with browser/access to CU Scholar, download the\n"
+            "     appropriate FIRED GPKG (e.g., fired_conus-ak_daily_nov2001-march2021.gpkg).\n"
+            "  2. Copy that file into this environment at:\n"
+            f"       {path}\n"
+            "  3. Rerun this function.\n"
+        )
 
-    if not filename.exists():
-        url = f"{base_url}/{file_map[which]}.{ext}"
-        resp = requests.get(url, timeout=60)
-        resp.raise_for_status()
-        filename.write_bytes(resp.content)
-
-    return gpd.read_file(filename)
+    gdf = gpd.read_file(path)
+    if gdf.crs:
+        gdf = gdf.to_crs("EPSG:4326")
+    else:
+        gdf = gdf.set_crs("EPSG:4326")
+    return gdf
 
 
 @dataclass
