@@ -13,6 +13,7 @@ import shutil
 import tempfile
 from pathlib import Path
 import zipfile
+import warnings
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -66,11 +67,32 @@ def _download_and_extract_fired_to_cache(
     alt_ext = "shp" if prefer == "gpkg" else "gpkg"
     alt_name = _FIRED_FILE_MAP[(which, alt_ext)]
 
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/125.0 Safari/537.36"
+        ),
+        "Accept": "*/*",
+        "Referer": dataset_page,
+        "Connection": "keep-alive",
+    }
+
     session = requests.Session()
-    session.get(dataset_page, timeout=timeout).raise_for_status()
+    r0 = session.get(dataset_page, headers=headers, timeout=timeout)
+    if r0.status_code not in (200, 304):
+        warnings.warn(
+            f"FIRED landing page returned HTTP {r0.status_code}; "
+            "continuing with direct ZIP download."
+        )
 
     zip_url = f"https://scholar.colorado.edu/downloads/{download_id}"
-    resp = session.get(zip_url, stream=True, timeout=timeout, allow_redirects=True)
+    resp = session.get(
+        zip_url,
+        headers=headers,
+        stream=True,
+        timeout=timeout,
+        allow_redirects=True,
+    )
 
     content_type = resp.headers.get("Content-Type", "")
     if "html" in content_type.lower():
