@@ -9,7 +9,10 @@ from the fire/time-hull prototype used in notebooks.
 """
 
 from dataclasses import dataclass
+import shutil
+import tempfile
 from pathlib import Path
+import zipfile
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -39,15 +42,116 @@ GRIDMET_SUPPORT = TemporalSupport(
 )
 
 
+_FIRED_FILE_MAP = {
+    ("events", "gpkg"): "fired_conus-ak_events_nov2001-march2021.gpkg",
+    ("events", "shp"): "fired_conus-ak_events_nov2001-march2021.shp",
+    ("daily", "gpkg"): "fired_conus-ak_daily_nov2001-march2021.gpkg",
+    ("daily", "shp"): "fired_conus-ak_daily_nov2001-march2021.shp",
+}
+
+
+def _download_and_extract_fired_to_cache(
+    *,
+    which: str,
+    prefer: str,
+    out_path: Path,
+    dataset_page: str,
+    download_id: str,
+    timeout: int,
+) -> None:
+    assert which in ("events", "daily")
+    assert prefer in ("gpkg", "shp")
+
+    primary_name = _FIRED_FILE_MAP[(which, prefer)]
+    alt_ext = "shp" if prefer == "gpkg" else "gpkg"
+    alt_name = _FIRED_FILE_MAP[(which, alt_ext)]
+
+    session = requests.Session()
+    session.get(dataset_page, timeout=timeout).raise_for_status()
+
+    zip_url = f"https://scholar.colorado.edu/downloads/{download_id}"
+    resp = session.get(zip_url, stream=True, timeout=timeout, allow_redirects=True)
+
+    content_type = resp.headers.get("Content-Type", "")
+    if "html" in content_type.lower():
+        raise RuntimeError(
+            "Expected FIRED ZIP download but received HTML; check network/proxy/auth."
+        )
+
+    resp.raise_for_status()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        zpath = Path(tmpdir) / "fired.zip"
+        with open(zpath, "wb") as f:
+            for chunk in resp.iter_content(chunk_size=1 << 20):
+                if chunk:
+                    f.write(chunk)
+
+        with zipfile.ZipFile(zpath, "r") as zf:
+            names = zf.namelist()
+            chosen = None
+            for cand in (primary_name, alt_name):
+                if cand in names:
+                    chosen = cand
+                    break
+
+            if chosen is None:
+                for name in names:
+                    if which in name and (name.endswith(".gpkg") or name.endswith(".shp")):
+                        chosen = name
+                        break
+
+            if chosen is None:
+                raise RuntimeError(
+                    f"Could not find FIRED file inside ZIP for {which} "
+                    f"(tried {primary_name!r} and {alt_name!r})."
+                )
+
+            extraction_dir = Path(tmpdir) / "extracted"
+            extraction_dir.mkdir(parents=True, exist_ok=True)
+
+            zf.extract(chosen, path=extraction_dir)
+            chosen_path = extraction_dir / chosen
+            dest_parent = out_path.parent
+            dest_name = Path(chosen).name
+            dest_path = dest_parent / dest_name
+
+            if chosen_path.suffix == ".shp":
+                base_stem = Path(chosen).stem
+                parent_rel = Path(chosen).parent
+                shap_members = [
+                    name
+                    for name in names
+                    if Path(name).parent == parent_rel and Path(name).stem == base_stem
+                ]
+                for member in shap_members:
+                    member_path = extraction_dir / member
+                    if not member_path.exists():
+                        zf.extract(member, path=extraction_dir)
+                    dest_member = dest_parent / Path(member).name
+                    dest_member.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(member_path, dest_member)
+            else:
+                dest_parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(chosen_path, dest_path)
+
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    if not dest_path.exists():
+        raise FileNotFoundError(f"Expected FIRED file at {dest_path} after download.")
+
+
 def load_fired_conus_ak(
     which: str = "daily",
     prefer: str = "gpkg",
     cache_dir: str | Path | None = None,
+    *,
+    download: bool = False,
+    dataset_page: str = "https://scholar.colorado.edu/concern/datasets/d504rm74m",
+    download_id: str = "h702q749s",
+    timeout: int = 180,
 ) -> gpd.GeoDataFrame:
     """
-    Load FIRED CONUS+AK polygons from a local cache only.
-
-    This function no longer performs any HTTP downloads.
+    Load FIRED CONUS+AK polygons from a local cache, with optional download.
 
     Expected layout (default):
 
@@ -60,11 +164,22 @@ def load_fired_conus_ak(
     which : {"events", "daily"}
         Which FIRED layer to load.
     prefer : {"gpkg", "shp"}
-        Kept for backward compatibility but currently only ".gpkg" is
-        supported in the default cache layout.
+        Preferred file format to load; falls back to the alternate format if
+        the ZIP download is missing the preferred one.
     cache_dir :
         Optional override for the cache directory. Defaults to
         Path.home() / ".fired_cache".
+    download : bool
+        If True, stream the FIRED ZIP from CU Scholar when the expected cache
+        file is missing, then cache and load it. Defaults to False to preserve
+        cache-only behavior.
+    dataset_page : str
+        Landing page for the FIRED dataset on CU Scholar. Used to prime
+        cookies before download.
+    download_id : str
+        Download token for the FIRED ZIP on CU Scholar.
+    timeout : int
+        Timeout (seconds) for HTTP requests when download=True.
 
     Returns
     -------
@@ -77,30 +192,44 @@ def load_fired_conus_ak(
         If the expected FIRED file is not found in the cache directory.
         In that case, download the FIRED GPKG from CU Scholar on a
         machine with access, copy it into the cache directory, and then
-        rerun this function.
+        rerun this function. Set download=True to have this function attempt
+        the download automatically.
     """
+    if which not in {"daily", "events"}:
+        raise ValueError("which must be 'daily' or 'events'")
+    if prefer not in {"gpkg", "shp"}:
+        raise ValueError("prefer must be 'gpkg' or 'shp'")
+
     cache_dir = Path(cache_dir or (Path.home() / ".fired_cache"))
     cache_dir.mkdir(parents=True, exist_ok=True)
 
-    # Current cache convention: gpkg files only
-    fname_map = {
-        "daily":  "fired_conus-ak_daily_nov2001-march2021.gpkg",
-        "events": "fired_conus-ak_events_nov2001-march2021.gpkg",
-    }
-    if which not in fname_map:
-        raise ValueError("which must be 'daily' or 'events'")
-
-    path = cache_dir / fname_map[which]
+    path = cache_dir / _FIRED_FILE_MAP[(which, prefer)]
+    alt_ext = "shp" if prefer == "gpkg" else "gpkg"
+    alt_path = cache_dir / _FIRED_FILE_MAP[(which, alt_ext)]
     if not path.exists():
-        raise FileNotFoundError(
-            f"FIRED file not found at {path}\n\n"
-            "To use `load_fired_conus_ak` in this environment:\n"
-            "  1. On a machine with browser/access to CU Scholar, download the\n"
-            "     appropriate FIRED GPKG (e.g., fired_conus-ak_daily_nov2001-march2021.gpkg).\n"
-            "  2. Copy that file into this environment at:\n"
-            f"       {path}\n"
-            "  3. Rerun this function.\n"
+        if not download:
+            raise FileNotFoundError(
+                f"FIRED file not found at {path}\n\n"
+                "To use `load_fired_conus_ak` in this environment:\n"
+                "  1. On a machine with browser/access to CU Scholar, download the\n"
+                "     appropriate FIRED GPKG (e.g., fired_conus-ak_daily_nov2001-march2021.gpkg).\n"
+                "  2. Copy that file into this environment at:\n"
+                f"       {path}\n"
+                "  3. Rerun this function.\n"
+            )
+
+        _download_and_extract_fired_to_cache(
+            which=which,
+            prefer=prefer,
+            out_path=path,
+            dataset_page=dataset_page,
+            download_id=download_id,
+            timeout=timeout,
         )
+        if not path.exists() and alt_path.exists():
+            path = alt_path
+        elif not path.exists():
+            raise FileNotFoundError(f"Expected FIRED file at {path} after download.")
 
     gdf = gpd.read_file(path)
     if gdf.crs:
@@ -964,4 +1093,3 @@ def plot_derivative_hull(
         showlegend=False,
     )
     return fig
-

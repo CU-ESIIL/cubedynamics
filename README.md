@@ -66,6 +66,21 @@ See the Minimal NDVI vignette for a step-by-step version of this example: https:
 
 Full docs: https://cu-esiil.github.io/climate_cube_math/
 
+## FIRED polygons (CONUS+AK)
+
+Use the `load_fired_conus_ak` helper in `cubedynamics.fire_time_hull` to load the
+FIRED daily or event polygons. By default it reads from a local cache at
+`~/.fired_cache/` and raises a `FileNotFoundError` if the expected file is missing.
+In cloud notebooks, enable download-on-miss:
+
+```python
+from cubedynamics.fire_time_hull import load_fired_conus_ak
+
+fired_daily = load_fired_conus_ak(which="daily", prefer="gpkg", download=True)
+```
+
+Set `cache_dir=` to point the cache somewhere else (for example, a mounted volume).
+
 ## Contributing
 
 See: docs/dev/contributing.md
