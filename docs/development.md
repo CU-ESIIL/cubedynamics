@@ -28,6 +28,7 @@ Tests live under `tests/` and rely on `pytest`. Documentation is built with MkDo
 3. Re-export the verb in `cubedynamics/verbs/__init__.py` (and `cubedynamics/__init__.py` if backward compatibility is needed) so users can `from cubedynamics import verbs as v` and call `v.verb_name` directly.
 4. Document the new function under `docs/ops_*.md` and add examples using the pipe syntax.
 5. Write tests that cover direct invocation and pipe usage.
+6. All spatial verbs **must** follow the [Spatial & CRS Dataset Contract](design/spatial_dataset_contract.md) for dimension detection, CRS inference, and geometry alignment; reuse the shared helpers and fixtures described there.
 
 ## Streaming philosophy
 
