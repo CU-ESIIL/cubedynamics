@@ -317,7 +317,19 @@ class HullClimateSummary:
 
 
 def normalize_dates(values) -> pd.DatetimeIndex:
-    return pd.to_datetime(values, errors="coerce").normalize()
+    result = pd.to_datetime(values, errors="coerce")
+
+    # Series and array-likes expose ``dt`` for datetime operations
+    if hasattr(result, "dt"):
+        return result.dt.normalize()
+
+    # DatetimeIndex has a dedicated ``normalize`` method
+    if hasattr(result, "normalize"):
+        return result.normalize()
+
+    # Scalar timestamps also provide ``normalize``; coerce to DatetimeIndex otherwise
+    ts = pd.to_datetime([result], errors="coerce")
+    return ts.normalize()
 
 
 def clean_event_daily_rows(
