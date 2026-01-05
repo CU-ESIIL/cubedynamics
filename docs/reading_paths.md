@@ -1,22 +1,22 @@
-# How to Use These Docs
+# Reading Paths
 
-Different readers land in Climate Cube Math with different goals. Choose a path that matches your context and time constraints.
+Choose a path that matches your role and time budget.
 
 ![Recommended reading paths](assets/diagrams/reading_paths.png)
 
-## Path 1: First contact (15 minutes)
-- Start with the [Start Here](start_here.md) landing page for the big picture.
-- Skim the [Concepts](concepts/index.md) page to see the cube grammar and terminology.
-- Run the [Quickstart](quickstart.md) to confirm your environment and a minimal verb pipeline.
+## Scientist (analysis-first)
+- Skim [Concepts](concepts/index.md) to align on cube semantics.
+- Run [Getting Started](quickstart.md) and a sample [Recipe](recipes/index.md) for a quick win.
+- Dive into [Datasets](datasets/index.md) to pick sources, then consult [Verbs & Examples](capabilities/textbook_verbs.md).
 
-## Path 2: Building an analysis (1–2 hours)
-- Read through [Capabilities](capabilities.md) and the [Verbs & Examples](capabilities/textbook_verbs.md) overview.
-- Choose a dataset from [Datasets](datasets/index.md) and note its spatial/temporal semantics.
-- Follow a [Recipe](recipes/recipe_template.md) that resembles your workflow, adapting verbs and parameters.
+## Developer (extensibility)
+- Read [Documentation Overview](overview.md) to map the sections.
+- Study [Capabilities](capabilities/index.md) and the [API Reference](api/index.md).
+- Check [Public API & scope](project/public_api.md) and [Deprecation inventory](project/deprecation_inventory.md) before contributing.
 
-## Path 3: Extending or contributing (half day)
-- Review the [Project Scope](project/scope.md) and [Public API](project/public_api.md) boundaries.
-- Check the [Contributing](dev/contributing.md) guidelines and [Development](development.md) notes.
-- Explore the [API Reference](api/index.md) for implementation details and docstrings.
+## Student (learning the model)
+- Start at [Start Here](start_here.md) and the [Concepts Overview](concepts/index.md).
+- Walk through [Getting Started](quickstart.md) and explore the [Cube grammar pipeline](concepts/index.md#cube-grammar-pipeline).
+- Compare data options in [Which dataset should I use?](datasets/which_dataset.md) and visualize with [Visualization Overview](viz/index.md).
 
-Use these paths as starting points; the sidebar and landing pages provide direct access to specific topics when you need them.
+Use these paths as shortcuts; the sidebar and search remain the fastest way to jump to a specific verb or dataset.

@@ -8,33 +8,42 @@ nav:
   - Start Here: start_here.md
   - Documentation Overview: overview.md
   - Reading Paths: reading_paths.md
-  - Why not xarray?: why_not_xarray.md
   - Concepts:
-      - Concepts: concepts/index.md
+      - Overview: concepts/index.md
       - What is a cube?: concepts/cubes.md
-      - Pipe & verbs: concepts/grammar.md
+      - Pipe & verbs: concepts/pipe_and_verbs.md
       - VirtualCubes: concepts/virtual_cubes.md
       - Glossary: concepts/glossary.md
+      - Why not xarray?: why_not_xarray.md
   - Getting Started: quickstart.md
   - Capabilities:
-      - Capabilities: capabilities.md
+      - Overview: capabilities/index.md
       - Verbs & Examples: capabilities/textbook_verbs.md
   - Datasets:
       - Overview: datasets/index.md
-  - Core Verbs:
-      - Verbs Overview: verbs/index.md
-      - Landsat 8 (MPC): verbs/landsat8_mpc.md
+      - Which dataset should I use?: datasets/which_dataset.md
+      - Compatibility matrix: datasets/compatibility.md
+      - Citations: datasets/citations.md
+      - gridMET: datasets/gridmet.md
+      - PRISM: datasets/prism.md
+      - Sentinel-2 NDVI: datasets/sentinel2_ndvi.md
+      - Landsat 8 (MPC): datasets/landsat8_mpc.md
+      - FIRED: datasets/fired.md
   - Recipes / How-tos:
-      - Recipe Template: recipes/recipe_template.md
-      - Minimal NDVI vignette: vignette_minimal_ndvi.md
-      - NDVI anomalies: howto/ndvi_anomalies.md
-      - Climate variance: howto/climate_variance.md
-      - Correlation cubes: howto/correlation_cubes.md
+      - Overview: recipes/index.md
+      - Recipe template: recipes/recipe_template.md
+      - Cube math primitives: recipes/cube_math_primitives.md
+      - gridMET variance cube: recipes/gridmet_variance_cube.md
+      - PRISM variance cube: recipes/prism_variance_cube.md
+      - Sentinel-2 NDVI z-score cube: recipes/s2_ndvi_zcube.md
+      - Sentinel-2 correlation center: recipes/s2_corr_center.md
+      - Sentinel-2 tail dependence (center): recipes/s2_tail_dep_center.md
+      - Sentinel-2 tail dependence (manual): recipes/s2_tail_dep_manual.md
   - Visualization:
+      - Overview: viz/index.md
       - Cube viewer (v.plot): viz/cube_viewer.md
       - Maps (v.map): viz/maps.md
-      - Suitability tubes: tubes.md
-  - Methods & Citation: methods_and_citation.md
+      - Suitability tubes: viz/suitability_tubes.md
   - API Reference: api/index.md
   - Contributing / Development:
       - Contributing: dev/contributing.md

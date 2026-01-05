@@ -1,4 +1,11 @@
-# Concepts
+# Concepts Overview
+
+This section answers: **How does the cube grammar represent space, time, and operations?** It gives you the mental model needed to understand pipelines before choosing verbs or datasets.
+
+You will find:
+- The cube grammar pipeline and why explicit dimensions matter.
+- Explanations of the cube abstraction, VirtualCubes, pipes, and verbs.
+- Pointers to glossary and deeper conceptual references.
 
 ## Cube grammar pipeline
 Climate Cube Math expresses analysis as a sequence of verbs connected by pipes, operating on explicit cube dimensions. This grammar keeps space, time, and scale visible throughout a workflow and ensures that intermediate steps remain inspectable.
@@ -63,7 +70,9 @@ Climate Cube Math makes these explicit:
 
 The goal is not to hide complexity—but to make it legible.
 
-## Where to go next
-- [Getting Started / Quickstart](../quickstart.md)
-- [Core Verbs](../verbs/index.md)
-- [Recipes / How-tos](../howto/index.md)
+## Read next
+- If you are new: [Getting Started](../quickstart.md)
+- If you want operations: [Verbs & Examples](../capabilities/textbook_verbs.md)
+- If you want data: [Datasets Overview](../datasets/index.md)
+- If you want workflows: [Recipes Overview](../recipes/index.md)
+- If you want visualization: [Visualization Overview](../viz/index.md)
