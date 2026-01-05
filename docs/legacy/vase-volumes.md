@@ -1,6 +1,6 @@
 # Vase Volumes & Arbitrary 3-D Subsets
 
-> This page is kept for backward compatibility. See the updated [Vase Volumes guide](vase_volumes.md) for the latest streaming-first examples and API notes.
+> This page is kept for backward compatibility. See the updated [Vase Volumes guide](../vase_volumes.md) for the latest streaming-first examples and API notes.
 
 Vase volumes let you describe arbitrary 3-D regions inside a cube using time-stamped 2-D polygons. A `VaseDefinition` lists cross-sections through `(x, y)`; lofting them across the cube's time dimension produces a 3-D hull. `build_vase_mask` converts that hull into a boolean mask over the cube grid so you can extract, visualize, and share just the voxels you care about.
 
@@ -67,11 +67,11 @@ p  # in a notebook
 - `geom_vase_outline` tells the viewer to tint cube faces wherever the vase touches each slice.
 - This sits naturally inside the grammar: **Data → StatVase → GeomCube + GeomVaseOutline → Scales → CoordCube → Theme**.
 
-See [CubePlot Grammar of Graphics](cubeplot_grammar.md) for the full layering philosophy.
+See [CubePlot Grammar of Graphics](../cubeplot_grammar.md) for the full layering philosophy.
 
 ## Streaming-first behavior
 
-`build_vase_mask` iterates over time using coordinate arrays only—no eager `.values`—so it works on `VirtualCube`, dask-backed cubes, and large archives. The mask slices are reused by the viewer to tint faces without extra full-volume loads. See [Streaming-First Renderer](streaming_renderer.md) for broader context.
+`build_vase_mask` iterates over time using coordinate arrays only—no eager `.values`—so it works on `VirtualCube`, dask-backed cubes, and large archives. The mask slices are reused by the viewer to tint faces without extra full-volume loads. See [Streaming-First Renderer](../streaming_renderer.md) for broader context.
 
 ## Scientific 3-D visualization helpers
 
