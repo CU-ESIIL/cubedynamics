@@ -4,28 +4,27 @@ site_author: CubeDynamics Team
 site_url: "https://cu-esiil.github.io/climate_cube_math/"
 
 nav:
-  - Overview: index.md
-  - Quickstart: quickstart.md
-  - Minimal NDVI vignette: vignette_minimal_ndvi.md
-
+  - Home: index.md
   - Concepts:
+      - Concepts: concepts/index.md
       - What is a cube?: concepts/cubes.md
       - Pipe & verbs: concepts/grammar.md
       - VirtualCubes: concepts/virtual_cubes.md
-
-  - How-to Guides:
+  - Getting Started: quickstart.md
+  - Core Verbs:
+      - Verbs Overview: verbs/index.md
+      - Landsat 8 (MPC): verbs/landsat8_mpc.md
+  - Recipes / How-tos:
+      - Minimal NDVI vignette: vignette_minimal_ndvi.md
       - NDVI anomalies: howto/ndvi_anomalies.md
       - Climate variance: howto/climate_variance.md
       - Correlation cubes: howto/correlation_cubes.md
-
   - Visualization:
       - Cube viewer (v.plot): viz/cube_viewer.md
       - Maps (v.map): viz/maps.md
       - Suitability tubes: tubes.md
-
   - API Reference: api/index.md
-
-  - Developer Docs:
+  - Contributing / Development:
       - Contributing: dev/contributing.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md
       - Legacy reference: dev/legacy_reference.md

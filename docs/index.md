@@ -1,96 +1,113 @@
-# Climate Cube Dynamics
+# 🌍 Climate Cube Math
+**A grammar-of-graphics for spatiotemporal environmental data**
 
-## Climate Cube Dynamics: A Spatiotemporal Analysis System for Environmental Science
+Climate Cube Math is a Python framework for analyzing environmental data as **spatiotemporal volumes**, not disconnected maps and time series. It is designed for scientists and data practitioners who want to reason explicitly about **space, time, scale, and events**—and do so reproducibly, efficiently, and at scale.
 
-Environmental systems vary simultaneously in space, time, and state. Climate forcing, vegetation response, hydrology, fire regimes, and disturbance recovery all unfold as continuous spatiotemporal fields. Yet most scientific workflows still fragment these systems into stacks of rasters, disconnected time series, or collections of files that must be manually aligned.
+## Why Climate Cube Math Exists
+Most environmental datasets already *are* data cubes:
+- climate grids evolving through time  
+- vegetation indices measured repeatedly over landscapes  
+- disturbance footprints (fires, droughts, floods) unfolding in space and time  
 
-A data cube is the simplest object that matches the structure of the real world:
+But most workflows **break the cube apart**:
+- spatial analysis happens in GIS
+- temporal analysis happens in tables
+- statistics happen elsewhere
+- visualization happens last
 
-V(lat, lon, time)
+Climate Cube Math keeps these dimensions **together**.
 
-This representation preserves the spatial and temporal coherence that ecological and climatic processes require. With cubes, we can ask genuinely spatiotemporal scientific questions:
+The result is a framework that lets you ask questions like:
+- *How does climate variability change inside vs. outside an event?*  
+- *Where and when does synchrony emerge across a landscape?*  
+- *How does variance propagate through space over time?*  
 
-- How synchronized are droughts across a watershed or region?
-- How does vegetation recover after a fire—and where does it fail to recover?
-- When do climate anomalies propagate across space, and where do they stop?
-- How variable is a climate variable across scales—seasonal, interannual, decadal?
-- How do climate drivers interact with NDVI, productivity, or phenology at each location?
+These are fundamentally **spatiotemporal questions**—and they require spatiotemporal tools.
 
-These are cube questions, not raster questions.
+## What Is a Climate Data Cube?
+A **climate data cube** is a 3-dimensional object:
 
-## Why a cube-native analysis system?
+```
+value(x, y, time)
+```
 
-Traditional raster calculators let users compute expressions over 2-D layers:
+Instead of treating space and time separately, Climate Cube Math treats them as **co-equal axes** of analysis.
 
-- (NIR - RED) / (NIR + RED)
-- landcover == 5 AND slope > 30
+This allows operations like:
+- computing statistics *through time at every pixel*
+- aggregating *space through time*
+- extracting *volumes* rather than slices
+- defining events as **regions in space–time**
 
-But modern environmental science requires operations that unfold across both space and time:
+The cube is not just a storage format.  
+It is the **unit of reasoning**.
 
-- NDVI_anomaly = (NDVI - NDVI_climatology) / NDVI_std
-- fire_recovery_rate = d(NDVI) / dt after fire
-- synchrony = corr(prcp(t), NDVI(t + lag))
-- variance_ratio = var(temp_monthly) / var(temp_annual)
-- compound_extremes = prcp > 95th AND temp > 90th over 30-year window
+## What Climate Cube Math Enables
+### 🔹 Spatiotemporal Operations
+Operations are defined on the cube itself—not on slices or tables derived from it.
 
-These are cube-level transformations, not raster-level operations.
+Examples:
+- anomalies
+- rolling statistics
+- variance and synchrony
+- trends and seasonality
 
-CubeDynamics provides a cube calculator—a grammar of verbs—so that scientists can express spatiotemporal reasoning directly and clearly.
+### 🔹 Grammar-Based Pipelines
+Analyses are expressed as **composable pipelines**:
 
-## Streaming, scaling, and VirtualCubes
+```python
+from cubedynamics import pipe, verbs as v
 
-Environmental datasets have become too large for memory-bound workflows.
+result = (
+    pipe(cube)
+    | v.anomaly()
+    | v.variance()
+    | v.plot(title="Spatiotemporal Variance")
+)
+```
 
-VirtualCubes allow CubeDynamics to:
+This makes workflows readable, reproducible, inspectable, and easy to extend.
 
-- load climate and remote-sensing data lazily,
-- tile and stream data on demand,
-- compute across massive spatial domains,
-- maintain consistent metadata and alignment, and
-- keep code simple for the analyst.
+### 🔹 Streaming-First by Design
+Large datasets are handled via VirtualCubes that stream data chunk-by-chunk instead of loading everything into memory.
 
-The system handles the logistics; the scientist expresses the question.
+The same code works for:
+- small local datasets
+- continental-scale climate archives
+- cloud-hosted data
 
-## Visualizing cubes in 3D and 2D
+### 🔹 Event-Based Analysis
+Events like fires, droughts, or phenological windows are treated as volumes in space–time, not just polygons or date ranges.
+This enables:
 
-CubeDynamics includes interactive visualization tools:
+- inside vs. outside comparisons
+- event-aligned climate analysis
+- causal framing of spatiotemporal patterns
 
-- v.plot(): an interactive 3D cube viewer that shows spatial faces and time faces together.
-- v.map(): 2-D map visualizations suitable for snapshots and animations.
+## Who This Is For
+Climate Cube Math is designed for:
 
-These tools make the spatiotemporal structure tangible and support exploratory scientific analysis.
+- Climate & Earth system scientists
+- Ecologists and macrosystems researchers
+- Environmental data scientists
+- Anyone working with gridded time series data
 
-## Getting started
+If your data has space and time, and your questions involve structure, scale, or dynamics, this framework is for you.
 
-If you are new to CubeDynamics, start with the 10-minute Quickstart:
-👉 [Quickstart Guide](quickstart.md)
+## A Minimal Example
+```python
+from cubedynamics import pipe, verbs as v
 
-Then explore:
-- [Concepts](concepts/index.md) (What is a cube? How does the pipe & verb grammar work?)
-- [How-to Guides](howto/index.md) (task-based examples)
-- [Visualization](viz/index.md) (cube viewer and maps)
-- [API Reference](api.md)
+result = (
+    pipe(cube)
+    | v.anomaly()
+    | v.variance()
+    | v.plot(title="Spatiotemporal Variance")
+)
+```
 
-## Choose your path
-
-Different users will enter CubeDynamics from different directions. Here are the recommended starting points:
-
-- **I’m new to cubes and want the big picture**  
-  → Start with [Concepts: What is a cube?](concepts/cubes.md)
-
-- **I want to run a working example in 10 minutes**  
-  → Go to the [Quickstart: 10-minute tour](quickstart.md)
-
-- **I want concrete analysis recipes (NDVI, climate variance, correlations)**  
-  → Browse the [How-to Guides](howto/index.md)
-
-- **I care about scaling, streaming, and VirtualCubes**  
-  → Read [Concepts: VirtualCubes](concepts/virtual_cubes.md) and the climate cubes examples
-
-- **I’m developing or extending CubeDynamics**  
-  → See the [Developer docs](dev/contributing.md) and [Cube viewer invariants](dev/cube_viewer_invariants.md)
-
-## Scientific mission
-
-CubeDynamics was developed to support data-intensive environmental science at ESIIL and beyond.
-It aims to make spatiotemporal analysis simple, expressive, scalable, and scientifically aligned with how ecological and climate processes operate.
+## Next Steps
+- [Concepts](concepts/index.md)
+- [Getting Started / Quickstart](quickstart.md)
+- [Recipes / How-tos](howto/index.md)
+- [API Reference](api/index.md)
