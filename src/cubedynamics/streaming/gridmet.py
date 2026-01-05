@@ -1,3 +1,14 @@
+"""Streaming helpers for gridMET subsets.
+
+This module participates in the CubeDynamics "grammar-of-cubes" by providing
+stream-first data accessors that yield dask-friendly ``xarray`` cubes with
+dims ``(time, y, x)``. The functions here are considered advanced utilities
+that back the public :mod:`cubedynamics.data.gridmet` loaders.
+
+Canonical API:
+- :func:`stream_gridmet_to_cube`
+"""
+
 from __future__ import annotations
 
 import io
@@ -174,27 +185,53 @@ def stream_gridmet_to_cube(
     chunks: Optional[Dict[str, int]] = None,
     show_progress: bool = True,
 ) -> xr.DataArray:
-    """
-    Stream a gridMET subset as an xarray.DataArray "cube" for a given AOI.
+    """Stream a gridMET subset as an ``xarray.DataArray`` cube for a given AOI.
 
     Parameters
     ----------
-    aoi_geojson
-        GeoJSON Feature or geometry in EPSG:4326.
-    variable
-        gridMET variable name, e.g. "pr", "tmmx", "tmmn", "vs", "erc", etc.
-    start, end
-        Time range in ISO format, e.g. "2000-01-01".
-    freq
-        Output time frequency. "D" for daily; "MS" for monthly start, etc.
-    chunks
-        Optional dask-style chunk mapping, e.g. {"time": 365}.
+    aoi_geojson : dict
+        GeoJSON Feature or geometry in EPSG:4326 describing the spatial extent.
+    variable : str
+        gridMET variable name, e.g. ``"pr"``, ``"tmmx"``, ``"tmmn"``, ``"vs"``,
+        ``"erc"``.
+    start, end : str
+        Inclusive time range in ISO format, e.g. ``"2000-01-01"``.
+    freq : str, default "D"
+        Output time frequency; passed to ``xarray.resample``.
+    chunks : dict, optional
+        Dask-style chunk mapping (for example ``{"time": 365}``) applied when
+        opening the streamed dataset.
+    show_progress : bool, default True
+        Whether to render a small progress bar while downloading yearly tiles.
 
     Returns
     -------
-    xr.DataArray
-        A cube with dims (time, lat, lon), already cropped to the AOI and
-        resampled to the requested frequency.
+    xarray.DataArray
+        Cube with dims ``(time, lat, lon)`` cropped to the AOI and resampled to
+        the requested frequency. Coordinates remain in EPSG:4326.
+
+    Notes
+    -----
+    - Data are streamed year-by-year from the gridMET endpoint without writing
+      to disk; chunking is preserved when a suitable backend (h5netcdf/netCDF4)
+      is available.
+    - The function keeps outputs lazy when ``chunks`` is provided and will only
+      materialize small index computations such as resampling.
+    - AOIs smaller than the native grid resolution are padded slightly to avoid
+      empty selections.
+
+    Examples
+    --------
+    >>> from cubedynamics.streaming.gridmet import stream_gridmet_to_cube
+    >>> cube = stream_gridmet_to_cube(
+    ...     aoi_geojson={"type": "Polygon", "coordinates": [[(-105.1, 40.0), (-105.0, 40.0), (-105.0, 40.1), (-105.1, 40.1), (-105.1, 40.0)]]},
+    ...     variable="tmmx",
+    ...     start="2001-01-01",
+    ...     end="2001-01-10",
+    ...     chunks={"time": 5},
+    ... )
+    >>> cube.dims
+    ('time', 'lat', 'lon')
     """
     # Parse years from the date strings
     start_year = int(start[:4])

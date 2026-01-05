@@ -9,7 +9,7 @@ import numpy as np
 import xarray as xr
 
 from ..config import STD_EPS, TIME_DIM
-from ..ops.stats import zscore as _zscore
+from ..verbs.stats import zscore as _zscore
 
 
 def zscore_over_time(

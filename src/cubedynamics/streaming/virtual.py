@@ -22,20 +22,39 @@ class VirtualCube:
 
     Parameters
     ----------
-    dims:
-        The expected dimension order of the cube (e.g., ("time", "y", "x")).
-    coords_metadata:
-        Minimal metadata needed to reconstruct coordinates if necessary. This
-        is intentionally lightweight; tiles returned by ``loader`` carry the
-        authoritative coordinate values.
-    loader:
-        Callable that loads a concrete ``xarray.DataArray`` tile when invoked
-        with ``loader_kwargs`` merged with the kwargs yielded by the tilers.
-    loader_kwargs:
+    dims : tuple of str
+        Expected dimension order of the cube, e.g., ``("time", "y", "x")``.
+    coords_metadata : dict
+        Lightweight metadata used to reconstruct coordinates when needed;
+        individual tiles supply authoritative coordinate values.
+    loader : callable
+        Function that returns a concrete ``xarray.DataArray`` for a tile.
+    loader_kwargs : dict
         Base keyword arguments forwarded to ``loader`` for every tile request.
-    time_tiler, spatial_tiler:
-        Callables that accept ``loader_kwargs`` and yield dictionaries of extra
-        keyword arguments describing each tile along the time or spatial axes.
+    time_tiler, spatial_tiler : callable
+        Functions that accept ``loader_kwargs`` and yield dictionaries of tile
+        keyword arguments along the time or spatial axes.
+
+    Notes
+    -----
+    - A ``VirtualCube`` keeps all data lazy until ``materialize`` is called.
+    - ``iter_tiles`` combines time and spatial tilers deterministically so
+      callers can stream through subsets without holding the whole cube.
+    - Returned tiles should be compatible for ``xarray.combine_by_coords``.
+
+    Examples
+    --------
+    >>> tiler = make_time_tiler("2001-01-01", "2001-01-10", freq="5D")
+    >>> vc = VirtualCube(
+    ...     dims=("time", "y", "x"),
+    ...     coords_metadata={},
+    ...     loader=lambda start, end: xr.DataArray([], coords={"time": []}),
+    ...     loader_kwargs={},
+    ...     time_tiler=tiler,
+    ...     spatial_tiler=lambda kwargs: [{}],
+    ... )
+    >>> list(vc.iter_time_tiles())  # doctest: +ELLIPSIS
+    []
     """
 
     dims: Tuple[str, ...]
@@ -94,9 +113,24 @@ class VirtualCube:
 def make_time_tiler(start: Any, end: Any, freq: str = "A") -> Callable[[Dict[str, Any]], Iterable[Dict[str, Any]]]:
     """Create a deterministic time tiler.
 
-    The tiler yields ``{"start": chunk_start, "end": chunk_end}`` dictionaries
-    splitting the interval ``[start, end]`` into regular ``freq`` increments.
-    The final chunk always ends exactly at ``end``.
+    Parameters
+    ----------
+    start, end : Any
+        Boundary values convertible by ``pandas.to_datetime``.
+    freq : str, default "A"
+        Frequency string understood by ``pandas.date_range``.
+
+    Returns
+    -------
+    callable
+        Function that yields ``{"start": chunk_start, "end": chunk_end}``
+        dictionaries spanning the requested interval; the final chunk ends
+        exactly at ``end``.
+
+    Notes
+    -----
+    Passing ``None`` for either boundary defers to values in ``loader_kwargs``
+    supplied at iteration time, which is useful for factories.
     """
 
     def tiler(kwargs: Mapping[str, Any]) -> Iterable[Dict[str, Any]]:
@@ -125,7 +159,22 @@ def make_spatial_tiler(
     dlon: float = 2.0,
     dlat: float = 2.0,
 ) -> Callable[[Dict[str, Any]], Iterable[Dict[str, Any]]]:
-    """Create a deterministic spatial tiler for a bounding box."""
+    """Create a deterministic spatial tiler for a bounding box.
+
+    Parameters
+    ----------
+    bbox : any
+        Bounding box tuple ``(xmin, ymin, xmax, ymax)`` or ``None`` to defer to
+        ``loader_kwargs``.
+    dlon, dlat : float, default 2.0
+        Step size in degrees for splitting the bounds along longitude/latitude.
+
+    Returns
+    -------
+    callable
+        Function yielding ``{"bbox": (xmin, ymin, xmax, ymax)}`` dictionaries
+        suitable for tiling spatial requests.
+    """
 
     def tiler(kwargs: Mapping[str, Any]) -> Iterable[Dict[str, Any]]:
         bb = bbox if bbox is not None else kwargs.get("bbox")

@@ -7,23 +7,43 @@ from collections.abc import Iterable
 import xarray as xr
 
 from ..verbs.stats import anomaly as _anomaly
+from ..deprecations import warn_deprecated
 
 
 def anomaly(dim: str = "time", *, keep_dim: bool = True):
-    """Deprecated shim forwarding to :func:`cubedynamics.verbs.stats.anomaly`."""
+    """Deprecated. Use :func:`cubedynamics.verbs.anomaly` instead.
 
+    This shim exists for backward compatibility and simply forwards arguments
+    to the canonical verb implementation.
+    """
+
+    warn_deprecated(
+        "cubedynamics.ops.transforms.anomaly",
+        "cubedynamics.verbs.anomaly",
+        since="0.2.0",
+        removal="0.3.0",
+    )
     return _anomaly(dim=dim, keep_dim=keep_dim)
 
 
 def month_filter(months: Iterable[int]):
-    """Factory for filtering calendar months from a ``time`` coordinate.
+    """Deprecated. Use :func:`cubedynamics.verbs.month_filter` instead.
+
+    This shim exists for backward compatibility. It keeps only the requested
+    calendar months on a ``time`` coordinate with datetime-like values.
 
     Parameters
     ----------
     months:
-        Sequence of integers (1-12) to keep. Requires that the object has a
-        ``time`` coordinate with datetime-like values.
+        Sequence of integers (1-12) to keep.
     """
+
+    warn_deprecated(
+        "cubedynamics.ops.transforms.month_filter",
+        "cubedynamics.verbs.month_filter",
+        since="0.2.0",
+        removal="0.3.0",
+    )
 
     months = tuple(int(m) for m in months)
 

@@ -282,6 +282,15 @@ class TimeHull:
 
 
 @dataclass
+class Vase:
+    """Vase-like container derived from a ``TimeHull`` for visualization."""
+
+    verts_km: np.ndarray
+    tris: np.ndarray
+    metadata: Dict[str, Any]
+
+
+@dataclass
 class ClimateCube:
     da: xr.DataArray
 
@@ -439,6 +448,50 @@ def compute_time_hull_geometry(
     center_each_day: bool = True,
     verbose: bool = False,
 ) -> TimeHull:
+    """
+    Build a 3-D time hull mesh from per-day fire perimeters.
+
+    Parameters
+    ----------
+    event
+        FIRED daily perimeter bundle produced by :func:`build_fire_event`.
+    date_col
+        Name of the date column in the GeoDataFrame. Dates are normalized
+        to midnight before processing.
+    z_col
+        Column encoding monotonic time progression for the z axis. When
+        missing, a sequential index is used instead.
+    n_ring_samples
+        Number of equally spaced samples taken along each daily perimeter.
+    n_theta
+        Number of angular steps for the convex hull reconstruction.
+    crs_epsg_xy
+        EPSG code used to project perimeter geometry for distance-preserving
+        sampling. ``None`` skips reprojection and uses the input CRS.
+    center_each_day
+        If True, centers each perimeter ring around its own centroid before
+        stacking into the hull grid.
+    verbose
+        If True, prints derived hull metrics for debugging.
+
+    Returns
+    -------
+    TimeHull
+        A mesh representation containing vertices in kilometers, triangle
+        indices, normalized time coordinates, and summary metrics.
+
+    Notes
+    -----
+    Geometry sampling is purely numerical and does not trigger any external
+    I/O. The returned structure is ready for plotting or conversion to a
+    vase via :func:`time_hull_to_vase`.
+
+    Examples
+    --------
+    >>> hull = compute_time_hull_geometry(event, n_ring_samples=64, n_theta=128)
+    >>> hull.metrics["surface_km_day"] > 0
+    True
+    """
     eg = event.gdf.copy()
     eg[date_col] = pd.to_datetime(eg[date_col], errors="coerce")
     eg = eg.sort_values(date_col).reset_index(drop=True)
@@ -561,6 +614,45 @@ def compute_time_hull_geometry(
         t_days_vert=t_days_vert,
         t_norm_vert=t_norm_vert,
         metrics=metrics,
+    )
+
+
+def time_hull_to_vase(hull: TimeHull) -> Vase:
+    """
+    Convert a :class:`TimeHull` into a minimal vase representation.
+
+    Parameters
+    ----------
+    hull
+        Hull mesh produced by :func:`compute_time_hull_geometry`.
+
+    Returns
+    -------
+    Vase
+        Lightweight container with vertices, triangles, and metadata for
+        visualization utilities.
+
+    Notes
+    -----
+    This helper performs no computation beyond copying arrays into the
+    vase structure so it is safe to call in lazy plotting pipelines.
+
+    Examples
+    --------
+    >>> vase = time_hull_to_vase(hull)
+    >>> sorted(vase.metadata.keys())
+    ['event_id', 'metrics', 't_days_vert', 't_norm_vert']
+    """
+
+    return Vase(
+        verts_km=hull.verts_km,
+        tris=hull.tris,
+        metadata={
+            "metrics": hull.metrics,
+            "event_id": hull.event.event_id,
+            "t_days_vert": hull.t_days_vert,
+            "t_norm_vert": hull.t_norm_vert,
+        },
     )
 
 
@@ -723,8 +815,42 @@ def build_inside_outside_climate_samples(
     cube: ClimateCube,
     *,
     date_col: str = "date",
+    verbose: bool = False,
 ) -> HullClimateSummary:
-    da = cube.da
+    """
+    Sample climate values inside and outside daily fire perimeters.
+
+    Parameters
+    ----------
+    event
+        Fire event bundle with per-day perimeters and time range metadata.
+    cube
+        Climate cube aligned on ``(time, y, x)`` containing the variable of
+        interest for the event window.
+    date_col
+        Column in ``event.gdf`` that carries the daily perimeter date.
+    verbose
+        Unused flag preserved for compatibility with legacy wrappers.
+
+    Returns
+    -------
+    HullClimateSummary
+        Flattened arrays of inside and outside climate samples plus per-day
+        mean values used for hull coloring.
+
+    Notes
+    -----
+    The cube is sliced to the event time window before sampling. Spatial
+    intersection uses polygon containment; if grid spacing is available the
+    routine accounts for cell area when constructing polygons.
+
+    Examples
+    --------
+    >>> summary = build_inside_outside_climate_samples(event, cube)
+    >>> summary.values_inside.size >= 0 and summary.values_outside.size >= 0
+    True
+    """
+    da = cube.da if hasattr(cube, "da") else cube
     time_vals = pd.to_datetime(da["time"].values)
     dates_clim = time_vals.normalize()
 

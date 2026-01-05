@@ -50,11 +50,43 @@ def _broadcast_like(
 
 
 def mean(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True):
-    """Return a pipe-ready reducer computing the mean along ``dim``.
+    """Summary
+    Compute the mean along a dimension while keeping cubes pipe-ready.
 
-    When ``keep_dim`` is True the reduced dimension is preserved with length 1 so
-    that the resulting object keeps a (time, y, x) cube layout and remains
-    Lexcube-ready.
+    Grammar contract
+    Reducer verb (cube → cube with reduced dim). Direct-call and pipe-ready.
+
+    Parameters
+    dim : str, default "time"
+        Dimension to reduce.
+    keep_dim : bool, default True
+        Preserve the reduced dimension with length 1 to keep a (time, y, x)
+        layout when applicable.
+    skipna : bool | None, default True
+        Whether to ignore NaN values during reduction.
+
+    Returns
+    xr.Dataset | xr.DataArray | VirtualCube
+        Reduced cube with attrs preserved; VirtualCube inputs stay lazy.
+
+    Notes
+    Streaming VirtualCube inputs are processed tile-by-tile without forcing a
+    full load. Dask-backed arrays remain lazy. When ``keep_dim`` is False the
+    reduced dimension is dropped.
+
+    Examples
+    --------
+    >>> import xarray as xr
+    >>> import numpy as np
+    >>> from cubedynamics import pipe, verbs as v
+    >>> da = xr.DataArray(np.random.rand(3, 2, 2), dims=("time", "y", "x"))
+    >>> smoothed = pipe(da) | v.mean()
+    >>> smoothed.unwrap().dims
+    ('time', 'y', 'x')
+
+    See Also
+    --------
+    cubedynamics.verbs.stats.variance, cubedynamics.verbs.stats.anomaly
     """
 
     def _op(obj: xr.Dataset | xr.DataArray | VirtualCube) -> xr.Dataset | xr.DataArray:

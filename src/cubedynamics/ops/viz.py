@@ -6,6 +6,7 @@ from typing import Any, Optional, Tuple
 
 import xarray as xr
 
+from ..deprecations import warn_deprecated
 from ..verbs.plot import plot as _plot_verb
 
 
@@ -15,13 +16,20 @@ def plot(
     clim: Optional[Tuple[float, float]] = None,
     aspect: str = "equal",
 ):
-    """Legacy wrapper for the interactive plotting verb.
+    """Deprecated. Use :func:`cubedynamics.verbs.plot` instead.
 
-    Delegates to :func:`cubedynamics.verbs.plot` to keep behavior consistent
-    for callers importing from ``cubedynamics.ops.viz``.
+    This wrapper exists for backward compatibility and forwards arguments to
+    the canonical plotting verb while preserving historical validation.
     """
 
     def _inner(cube: Any):
+        warn_deprecated(
+            "cubedynamics.ops.viz.plot",
+            "cubedynamics.verbs.plot",
+            since="0.2.0",
+            removal="0.3.0",
+        )
+
         # Preserve backwards-compatible validation for callers still using this module.
         if not isinstance(cube, xr.DataArray):
             raise TypeError(

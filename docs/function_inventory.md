@@ -3,6 +3,19 @@ Generated: 2026-01-05T20:43:00Z
 
 This page summarizes the user-facing CubeDynamics surface area in a verb-first layout. It links to the dedicated API pages for details and examples.
 
+## Interpretation
+
+- **Canonical paths**: prefer `cubedynamics.verbs.*` for operations, `cubedynamics.data.*` for loaders, and `cubedynamics.plotting.*` under the hood of plotting verbs. The `cubedynamics.piping` module is the authoritative pipe infrastructure.
+- **Legacy shims**: modules in `cubedynamics.ops*`, `cubedynamics.sentinel`, and `cubedynamics.viewers` remain importable but forward to the canonical implementations and raise `DeprecationWarning` when called.
+- **Backwards compatibility**: public names continue to resolve, but new work should target the canonical modules so pipelines stay consistent.
+
+| Deprecated wrapper | Canonical target |
+| --- | --- |
+| `cubedynamics.sentinel.*` | `cubedynamics.data.sentinel2.*` / `cubedynamics.variables.ndvi` |
+| `cubedynamics.ops.*` | `cubedynamics.verbs.*` |
+| `cubedynamics.ops_fire.*` | `cubedynamics.fire_time_hull.*` |
+| `cubedynamics.viewers.cube_viewer.write_cube_viewer` | `cubedynamics.verbs.plot` / `cubedynamics.plotting.viewer.show_cube_viewer` |
+
 - [Pipe API](api/pipe.md)
 - [Verbs API](api/verbs.md)
 - [Data loaders & variables](api/data.md)
