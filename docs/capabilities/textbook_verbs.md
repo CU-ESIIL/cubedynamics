@@ -1,12 +1,11 @@
-# Capabilities & Verbs  
+# Capabilities & Verbs
 *A textbook-style reference for Climate Cube Math*
 
 Climate Cube Math expresses spatiotemporal analysis as a **grammar**:
 
 > **Data → Transformations → Statistics → Events → Visualization**
 
-This page walks through that grammar step by step.  
-Each verb is presented with:
+This page walks through that grammar step by step. Each verb is presented with:
 1. **The scientific operation (math)**
 2. **A copy-paste Python example**
 
@@ -26,529 +25,169 @@ cube = cd.ndvi(
     end="2023-01-01",
 )
 ```
-1. Aggregation verbs (collapse time)
-These verbs reduce a spatiotemporal cube
-X
-(
-x
-,
-y
-,
-t
-)
-X(x,y,t)
-into a spatial field by aggregating over time.
-v.mean
-Science
-허
-(
-x
-,
-y
-)
-=
-1
-T
-∑
 
-t
-=
-1
-T
-X
-(
-x
-,
-y
-,
-t
-)
-허(x,y)= 
-T
-1
-​
- 
-t=1
-헇
-T
-​
- X(x,y,t)
+---
+
+## 1. Aggregation verbs (collapse time)
+These verbs reduce a spatiotemporal cube \(X(x,y,t)\) into a spatial field by aggregating over time.
+
+### `v.mean`
+\[
+\bar{X}(x,y)=\frac{1}{T}\sum_{t=1}^T X(x,y,t)
+\]
+```python
 pipe(cube) | v.mean() | v.plot(title="Mean NDVI")
-v.sum
-S
-(
-x
-,
-y
-)
-=
-∑
+```
 
-t
-=
-1
-T
-X
-(
-x
-,
-y
-,
-t
-)
-S(x,y)= 
-t=1
-헇
-T
-​
- X(x,y,t)
+### `v.sum`
+\[
+S(x,y)=\sum_{t=1}^T X(x,y,t)
+\]
+```python
 pipe(cube) | v.sum() | v.plot(title="Cumulative NDVI")
-v.min / v.max
-min
-⁡
+```
 
-t
-X
-(
-x
-,
-y
-,
-t
-)
-,
-max
-⁡
-
-t
-X
-(
-x
-,
-y
-,
-t
-)
-t
-min
-​
- X(x,y,t), 
-t
-max
-​
- X(x,y,t)
+### `v.min` / `v.max`
+\[
+\min_t X(x,y,t), \quad \max_t X(x,y,t)
+\]
+```python
 pipe(cube) | v.max() | v.plot(title="Maximum NDVI")
-2. Distributional & tail behavior
-v.quantile
-Q
-q
-(
-x
-,
-y
-)
-=
-inf
-⁡
-{
-z
-:
-P
-(
-X
-(
-x
-,
-y
-,
-t
-)
-≤
-z
-)
-≥
-q
-}
-Q 
-q
-​
- (x,y)=inf{z:P(X(x,y,t)≤z)≥q}
-pipe(cube) | v.quantile(0.9) | v.plot(title="90th percentile NDVI")
-v.lower_tail
-X
-L
-(
-x
-,
-y
-,
-t
-)
-=
-X
-(
-x
-,
-y
-,
-t
-)
-∣
-X
-≤
-Q
-q
-(
-x
-,
-y
-)
-X 
-L
-​
- (x,y,t)=X(x,y,t)∣X≤Q 
-q
-​
- (x,y)
-pipe(cube) | v.lower_tail(q=0.1) | v.plot(title="Lower-tail NDVI")
-v.upper_tail
-X
-U
-(
-x
-,
-y
-,
-t
-)
-=
-X
-(
-x
-,
-y
-,
-t
-)
-∣
-X
-≥
-Q
-q
-(
-x
-,
-y
-)
-X 
-U
-​
- (x,y,t)=X(x,y,t)∣X≥Q 
-q
-​
- (x,y)
-pipe(cube) | v.upper_tail(q=0.9) | v.plot(title="Upper-tail NDVI")
-3. Variability & synchrony
-v.variance
-V
-a
-r
-(
-x
-,
-y
-)
-=
-1
-T
-−
-1
-∑
+```
 
-t
-=
-1
-T
-(
-X
-(
-x
-,
-y
-,
-t
-)
-−
-허
-(
-x
-,
-y
-)
-)
-2
-Var(x,y)= 
-T−1
-1
-​
- 
-t=1
-헇
-T
-​
- (X(x,y,t)−허(x,y)) 
-2
- 
+---
+
+## 2. Distributional & tail behavior
+
+### `v.quantile`
+\[
+Q_q(x,y)=\inf \{ z : P(X(x,y,t) \le z) \ge q \}
+\]
+```python
+pipe(cube) | v.quantile(0.9) | v.plot(title="90th percentile NDVI")
+```
+
+### `v.lower_tail`
+\[
+X_L(x,y,t)=X(x,y,t)\mid X \le Q_q(x,y)
+\]
+```python
+pipe(cube) | v.lower_tail(q=0.1) | v.plot(title="Lower-tail NDVI")
+```
+
+### `v.upper_tail`
+\[
+X_U(x,y,t)=X(x,y,t)\mid X \ge Q_q(x,y)
+\]
+```python
+pipe(cube) | v.upper_tail(q=0.9) | v.plot(title="Upper-tail NDVI")
+```
+
+---
+
+## 3. Variability & synchrony
+
+### `v.variance`
+\[
+\operatorname{Var}(x,y)=\frac{1}{T-1}\sum_{t=1}^T\big(X(x,y,t)-\bar{X}(x,y)\big)^2
+\]
+```python
 pipe(cube) | v.variance() | v.plot(title="NDVI Variability")
-v.std
-σ
-(
-x
-,
-y
-)
-=
-V
-a
-r
-(
-x
-,
-y
-)
-σ(x,y)= 
-Var(x,y)
-​
- 
+```
+
+### `v.std`
+\[
+\sigma(x,y)=\sqrt{\operatorname{Var}(x,y)}
+\]
+```python
 pipe(cube) | v.std() | v.plot(title="NDVI Std Dev")
-v.synchrony
-핍
-=
-V
-a
-r
-(
-∑
-i
-X
-i
-(
-t
-)
-)
-∑
-i
-V
-a
-r
-(
-X
-i
-(
-t
-)
-)
-핍= 
-∑ 
-i
-​
- Var(X 
-i
-​
- (t))
-Var(∑ 
-i
-​
- X 
-i
-​
- (t))
-​
- 
+```
+
+### `v.synchrony`
+\[
+\phi = \frac{\operatorname{Var}\left(\sum_i X_i(t)\right)}{\sum_i \operatorname{Var}\big(X_i(t)\big)}
+\]
+```python
 pipe(cube) | v.synchrony() | v.plot(title="Spatial Synchrony")
-4. Temporal structure
-v.climatology
-X
-ˉ
-(
-x
-,
-y
-,
-d
-)
-=
-E
-[
-X
-(
-x
-,
-y
-,
-t
-)
-∣
- d
-]
-X
-ˉ
- (x,y,d)=E[X(x,y,t)∣d]
+```
+
+---
+
+## 4. Temporal structure
+
+### `v.climatology`
+\[
+\bar{X}(x,y,d)=\mathbb{E}[X(x,y,t)\mid d]
+\]
+```python
 pipe(cube) | v.climatology()
-v.anomaly
-A
-(
-x
-,
-y
-,
-t
-)
-=
-X
-(
-x
-,
-y
-,
-t
-)
-−
-X
-ˉ
-(
-x
-,
-y
-,
-t
-)
-A(x,y,t)=X(x,y,t)− 
-X
-ˉ
- (x,y,t)
+```
+
+### `v.anomaly`
+\[
+A(x,y,t)=X(x,y,t)-\bar{X}(x,y,t)
+\]
+```python
 pipe(cube) | v.anomaly() | v.plot(title="NDVI Anomalies")
-v.rolling
-허
-w
-(
-x
-,
-y
-,
-t
-)
-=
-1
-w
-∑
-k
-=
-0
-w
-−
-1
-X
-(
-x
-,
-y
-,
-t
-−
-k
-)
-허 
-w
-​
- (x,y,t)= 
-w
-1
-​
- 
- k=0
-헇
-w−1
-​
- X(x,y,t−k)
+```
+
+### `v.rolling`
+\[
+\bar{X}_w(x,y,t)=\frac{1}{w}\sum_{k=0}^{w-1} X(x,y,t-k)
+\]
+```python
 pipe(cube) | v.rolling(window=30) | v.mean()
-v.detrend
-X
-′
-(
-x
-,
-y
-,
-t
-)
-=
-X
-(
-x
-,
-y
-,
-t
-)
-−
-(
-α
-t
-+
-β
-)
-X 
-′
- (x,y,t)=X(x,y,t)−(αt+β)
+```
+
+### `v.detrend`
+\[
+X'(x,y,t)=X(x,y,t)-(\alpha t+\beta)
+\]
+```python
 pipe(cube) | v.detrend() | v.plot(title="Detrended NDVI")
-5. Event & hull-based operations
-v.vase
-X
-황
-=
-X
-(
-x
-,
-y
-,
-t
-)
-⋅
-1
-(
-x
-,
-y
-,
-t
-)
-∈
-황
-X 
-황
-​
- =X(x,y,t)⋅1 
-(x,y,t)∈황
-​
- 
+```
+
+---
+
+## 5. Event & hull-based operations
+
+### `v.vase`
+\[
+X^{\mathcal{V}} = X(x,y,t) \cdot \mathbf{1}_{(x,y,t)\in \mathcal{V}}
+\]
+```python
 from cubedynamics.fire_time_hull import load_fired_conus_ak
 
 fired = load_fired_conus_ak(which="daily")
 event_geom = fired.geometry.iloc[0]
 
 pipe(cube) | v.vase(vase=event_geom) | v.plot()
-6. Visualization verbs
-v.plot
+```
+
+---
+
+## 6. Visualization verbs
+
+### `v.plot`
+```python
 pipe(cube) | v.mean() | v.plot()
-v.lexcube
+```
+
+### `v.lexcube`
+```python
 pipe(cube) | v.lexcube()
-Event visualization
+```
+
+### Event visualization
+```python
 pipe(cube) | v.vase(vase=event_geom) | v.lexcube()
-Putting it all together
+```
+
+### Putting it all together
+```python
 pipe(cube) \
-| v.anomaly() \
-| v.variance() \
-| v.vase(vase=event_geom) \
-| v.lexcube()
+    | v.anomaly() \
+    | v.variance() \
+    | v.vase(vase=event_geom) \
+    | v.lexcube()
+```
