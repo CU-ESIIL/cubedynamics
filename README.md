@@ -1,88 +1,119 @@
-# climate_cube_math
+# Climate Cube Math
 
-## What is CubeDynamics?
+![Tests](https://github.com/CU-ESIIL/climate_cube_math/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/CU-ESIIL/climate_cube_math/actions/workflows/pages.yml/badge.svg)
 
-CubeDynamics (the climate_cube_math package) is a spatiotemporal analysis system for environmental science. It treats climate, NDVI, and other geospatial datasets as data cubes—variables defined over latitude, longitude, and time:
+**A grammar-of-graphics for spatiotemporal environmental data**
 
-V(lat, lon, time)
+Climate Cube Math (also referred to as **CubeDynamics**) is a Python framework for analyzing environmental data as **spatiotemporal cubes**, rather than disconnected maps and time series.
 
-This cube representation preserves spatial and temporal coherence and supports scientific questions that require full spatiotemporal context.
+It is designed for scientists and data practitioners who want to reason explicitly about **space, time, scale, and events**—and to do so reproducibly and efficiently, even for large datasets.
 
-## Why use a cube-based framework?
+---
 
-Environmental questions are rarely purely spatial or purely temporal. They depend on patterns that unfold across both:
+## Why this project exists
 
-- drought synchrony
-- seasonal and interannual variability
-- disturbance recovery
-- climate–vegetation coupling
-- propagating anomalies
-- compound extreme events
+Most environmental datasets already form data cubes:
+- climate grids evolving through time
+- vegetation indices measured repeatedly over landscapes
+- disturbance events unfolding in space and time
 
-CubeDynamics provides a cube-native grammar of verbs so that these analyses can be expressed directly and clearly.
+Yet most workflows break these dimensions apart:
+- spatial analysis in GIS
+- temporal analysis in tables
+- statistics elsewhere
+- visualization last
 
-## Installation
+Climate Cube Math keeps **space and time together**, making spatiotemporal structure a first-class part of the analysis.
 
-The easiest way to get started is with conda and the provided environment file:
+---
 
-```bash
-conda env create -f envs/cube-env.yml
-conda activate cube-env
-pip install --no-deps "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
-```
+## What Climate Cube Math enables
 
-See [INSTALL.md](INSTALL.md) for detailed instructions, verification steps, and Docker/cloud notes.
+- **Spatiotemporal cube operations** (means, variance, anomalies, synchrony)
+- **Grammar-based pipelines** using `pipe | verb | verb`
+- **Streaming-first analysis** via VirtualCubes for large datasets
+- **Event- and hull-based workflows** (fires, droughts, phenology)
+- **Integrated visualization** of space–time structure
 
-## 10-minute Tour (Start Here)
+---
 
-See the full Quickstart guide:
-👉 https://cu-esiil.github.io/climate_cube_math/quickstart/
-
-Minimal example:
+## Minimal example
 
 ```python
-import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
+import cubedynamics as cd
 
-ndvi = cd.ndvi(
+cube = cd.ndvi(
     lat=40.0,
     lon=-105.25,
-    start="2023-01-01",
-    end="2024-12-31",
+    start="2022-01-01",
+    end="2023-01-01",
 )
 
-pipe(ndvi) | v.plot()
+pipe(cube) | v.anomaly() | v.variance() | v.plot()
 ```
 
-See the Minimal NDVI vignette for a step-by-step version of this example: https://cu-esiil.github.io/climate_cube_math/vignette_minimal_ndvi/
+This pipeline:
+- loads a spatiotemporal cube
+- computes anomalies through time
+- measures variability at each spatial location
+- visualizes the result
+
+---
 
 ## Documentation
 
-- [Quickstart](https://cu-esiil.github.io/climate_cube_math/quickstart/)
-- [Concepts](https://cu-esiil.github.io/climate_cube_math/concepts/)
-- [How-to Guides](https://cu-esiil.github.io/climate_cube_math/howto/)
-- [Visualization](https://cu-esiil.github.io/climate_cube_math/viz/)
-- [API Reference](https://cu-esiil.github.io/climate_cube_math/api/)
+📘 Full documentation website 👉 https://cu-esiil.github.io/climate_cube_math/
 
-Full docs: https://cu-esiil.github.io/climate_cube_math/
+Key entry points:
+- Concepts – cube abstraction, pipes & verbs, streaming
+- Getting Started – first success in minutes
+- Capabilities & Verbs – complete textbook-style reference
+- Datasets – supported data sources, fields, citations
+- Recipes – end-to-end scientific workflows
 
-## FIRED polygons (CONUS+AK)
+---
 
-Use the `load_fired_conus_ak` helper in `cubedynamics.fire_time_hull` to load the
-FIRED daily or event polygons. By default it reads from a local cache at
-`~/.fired_cache/` and raises a `FileNotFoundError` if the expected file is missing.
-In cloud notebooks, enable download-on-miss:
+## Installation
 
-```python
-from cubedynamics.fire_time_hull import load_fired_conus_ak
-
-fired_daily = load_fired_conus_ak(which="daily", prefer="gpkg", download=True)
+```bash
+pip install cubedynamics
 ```
 
-Set `cache_dir=` to point the cache somewhere else (for example, a mounted volume).
+See the documentation for optional extras, large-data workflows, and examples.
+
+---
+
+## Project status & scope
+
+- Active development
+- APIs are stabilizing; deprecations follow a warn-first policy
+- Focused on spatiotemporal environmental analysis
+- Built on top of xarray and related ecosystem tools
+
+See the documentation for the public API and stability guarantees.
+
+---
+
+## Citation
+
+If you use Climate Cube Math in academic work, please cite:
+
+Climate Cube Math. CU ESIIL.  
+https://github.com/CU-ESIIL/climate_cube_math
+
+(See the documentation for dataset-specific citations.)
+
+---
 
 ## Contributing
 
-See: docs/dev/contributing.md
+Contributions are welcome.
+- See CONTRIBUTING.md for development guidelines
+- Open issues for bugs, questions, or feature discussions
 
-Developer invariants for the cube viewer and verbs: docs/dev/cube_viewer_invariants.md
+---
+
+## License
+
+MIT License (see [LICENSE](LICENSE)).
