@@ -39,7 +39,15 @@ nav:
       - Cube viewer (v.plot): viz/cube_viewer.md
       - Maps (v.map): viz/maps.md
       - Suitability tubes: viz/suitability_tubes.md
-  - API Reference: api/index.md
+  - API:
+      - Overview: api/index.md
+      - Pipe: api/pipe.md
+      - Verbs: api/verbs.md
+      - Data: api/data.md
+      - Visualization: api/viz.md
+      - Inventory (User): function_inventory.md
+      - Inventory (Full / Dev): api/inventory_full.md
+      - Reference: api/reference.md
   - Contributing / Development:
       - Contributing: dev/contributing.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md

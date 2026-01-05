@@ -1,4 +1,8 @@
 # `cubedynamics` API Reference
+> **See also:**  \
+> - [API Reference](reference.md)  \
+> - [Inventory (User)](../function_inventory.md)  \
+> - [Inventory (Full / Dev)](inventory_full.md)
 
 This page documents the main public modules and functions of the
 `cubedynamics` package. The API is auto-generated from the docstrings
