@@ -53,7 +53,7 @@ cube = cd.load_gridmet_cube(
 
 Remote-sensing chips stream into the same pipe + verbs grammar, so you can
 combine vegetation signals with climate anomalies. All Sentinel helpers require
-the `cubo` package.
+the `cubo` package, which is installed automatically with `cubedynamics`.
 
 ### All or selected bands
 

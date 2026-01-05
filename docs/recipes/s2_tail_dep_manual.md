@@ -7,12 +7,12 @@ The example uses a fixed 90-day window, optional spatial coarsening and time
 striding to stay within memory limits, and visualizes the bottom-tail, top-tail,
 and difference cubes with Lexcube.
 
-> **Dependencies**: `cubo`, `lexcube`, `xarray`, `rioxarray`, `matplotlib`.
-> Uncomment the `pip install` line if needed.
+> **Dependencies**: `cubo` (installed with `cubedynamics`), `lexcube`, `xarray`,
+> `rioxarray`, `matplotlib`. Uncomment the `pip install` line if needed.
 
 ```python
 # Requirements (uncomment if needed in your environment):
-# !pip install -q cubo lexcube xarray rioxarray
+# !pip install -q lexcube xarray rioxarray
 
 from __future__ import annotations
 import warnings
