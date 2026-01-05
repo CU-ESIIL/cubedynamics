@@ -12,6 +12,7 @@ from pyproj import CRS, Transformer
 
 from . import verbs as v
 from .piping import pipe
+from .deprecations import warn_deprecated
 
 
 def load_sentinel2_cube(
@@ -188,10 +189,11 @@ def load_sentinel2_ndvi_zscore_cube(
     older APIs retain a single-call experience.
     """
 
-    warnings.warn(
-        "load_sentinel2_ndvi_zscore_cube is deprecated; load raw NDVI and apply v.zscore(dim='time') instead.",
-        DeprecationWarning,
-        stacklevel=2,
+    warn_deprecated(
+        "cubedynamics.sentinel.load_sentinel2_ndvi_zscore_cube",
+        "load_sentinel2_ndvi_cube(...); then v.zscore(dim='time')",
+        since="0.1.0",
+        removal="0.2.0",
     )
 
     ndvi = load_sentinel2_ndvi_cube(
