@@ -14,6 +14,8 @@ nav:
   - Capabilities:
       - Capabilities: capabilities.md
       - Verbs & Examples: capabilities/textbook_verbs.md
+  - Datasets:
+      - Overview: datasets/index.md
   - Core Verbs:
       - Verbs Overview: verbs/index.md
       - Landsat 8 (MPC): verbs/landsat8_mpc.md
