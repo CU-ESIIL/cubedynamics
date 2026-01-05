@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "CubeDynamics: Streaming Climate Cube Math for Environmental Data Science"
+message: "If you use CubeDynamics, please cite it as described here."
+type: software
+authors:
+  - family-names: Tuff
+    given-names: Ty
+version: 0.1.0
+repository-code: "https://github.com/CU-ESIIL/climate_cube_math"
+keywords:
+  - climate
+  - streaming
+  - data cubes
+  - xarray
+  - dask
+abstract: |
+  CubeDynamics (`cubedynamics`) is a streaming-first Python library for
+  constructing multi-source climate data cubes, computing variance and
+  correlation diagnostics, and exporting derived "lexcubes" for dashboards and
+  climate resilience workflows.

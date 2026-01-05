@@ -1,0 +1,50 @@
+.ccm-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.ccm-card {
+  display: block;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(31, 59, 116, 0.15);
+  border-radius: 8px;
+  background: white;
+  color: inherit;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.ccm-card-title {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.ccm-card-text {
+  margin: 0;
+  color: var(--md-default-fg-color--light, #4a5568);
+}
+
+@media (hover: hover) {
+  .ccm-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.ccm-card:focus-visible {
+  outline: 3px solid var(--md-accent-fg-color, #ff8c42);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(255, 140, 66, 0.25);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ccm-card {
+    transition: none;
+  }
+  .ccm-card:hover {
+    transform: none;
+  }
+}

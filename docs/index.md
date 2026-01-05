@@ -106,6 +106,11 @@ result = (
 )
 ```
 
+## Canonical Example
+A typical analysis computes climate anomalies within an event footprint and compares them to surrounding conditions while preserving space–time structure. The example below summarizes that workflow.
+
+![Fire-related climate cube example](assets/figures/fire_climate_cube.png)
+
 ## Next Steps
 - [Concepts](concepts/index.md)
 - [Getting Started / Quickstart](quickstart.md)
