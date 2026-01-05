@@ -5,7 +5,7 @@ This page maps the documentation layout so you know where to look first. It expl
 ![Docs map](assets/diagrams/docs_map.png)
 
 ## How the sections fit together
-- **Start Here**: a landing page with quick links to major sections.
+- **Home**: primary landing page with quick links to major sections.
 - **Concepts**: mental model of cubes, pipes, and verbs.
 - **Getting Started**: installation, configuration, and a minimal pipeline.
 - **Capabilities**: overview of verbs and what they enable.
@@ -15,7 +15,7 @@ This page maps the documentation layout so you know where to look first. It expl
 - **Reference**: API docs plus scope, deprecations, and legacy notes.
 
 ## Suggested reading order
-1. Visit [Start Here](start_here.md) to pick a destination.
+1. Start at [Home](index.md) to pick a destination.
 2. Skim [Concepts](concepts/index.md) to align on terminology.
 3. Run [Getting Started](quickstart.md) for a first success.
 4. Browse [Capabilities](capabilities/index.md) and [Verbs & Examples](capabilities/textbook_verbs.md) to plan operations.

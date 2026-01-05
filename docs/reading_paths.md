@@ -15,7 +15,7 @@ Choose a path that matches your role and time budget.
 - Check [Public API & scope](project/public_api.md) and [Deprecation inventory](project/deprecation_inventory.md) before contributing.
 
 ## Student (learning the model)
-- Start at [Start Here](start_here.md) and the [Concepts Overview](concepts/index.md).
+- Start at [Home](index.md) and the [Concepts Overview](concepts/index.md).
 - Walk through [Getting Started](quickstart.md) and explore the [Cube grammar pipeline](concepts/index.md#cube-grammar-pipeline).
 - Compare data options in [Which dataset should I use?](datasets/which_dataset.md) and visualize with [Visualization Overview](viz/index.md).
 

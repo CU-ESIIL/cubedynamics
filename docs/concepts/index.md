@@ -1,45 +1,38 @@
 # Concepts Overview
 
-This section answers: **How does the cube grammar represent space, time, and operations?** It gives you the mental model needed to understand pipelines before choosing verbs or datasets.
+This section answers: **How does the cube grammar represent space, time, and operations?** Use it to align on terminology before picking verbs, datasets, or recipes.
 
-You will find:
-- The cube grammar pipeline and why explicit dimensions matter.
-- Explanations of the cube abstraction, VirtualCubes, pipes, and verbs.
-- Pointers to glossary and deeper conceptual references.
+In this section you'll find:
+- How the cube grammar keeps dimensions explicit across a pipeline.
+- The relationship between cubes, pipes, verbs, and VirtualCubes.
+- Pointers to glossary terms and comparisons to other libraries.
+
+Key links:
+- [What is a cube?](cubes.md)
+- [Pipe and verbs](pipe_and_verbs.md)
+- [VirtualCubes](virtual_cubes.md)
+- [Glossary](glossary.md)
+- [Why not xarray?](../why_not_xarray.md)
+- Orientation aids: [Documentation Overview](../overview.md) and [Reading Paths](../reading_paths.md)
 
 ## Cube grammar pipeline
 Climate Cube Math expresses analysis as a sequence of verbs connected by pipes, operating on explicit cube dimensions. This grammar keeps space, time, and scale visible throughout a workflow and ensures that intermediate steps remain inspectable.
 
 ![Cube grammar pipeline](../assets/diagrams/cube_grammar_pipeline.png)
 
-## The Cube Abstraction
-At its core, Climate Cube Math works with xarray-backed DataArrays. But it imposes strong semantics on top of them.
-A cube:
+## Dimensions stay explicit
+At its core, Climate Cube Math works with xarray-backed DataArrays but applies strong semantics:
+- named spatial and temporal dimensions
+- metadata about resolution, alignment, and scale
+- consistency enforced across operations
 
-- has named spatial and temporal dimensions
-- carries metadata about resolution, alignment, and scale
-- enforces consistency across operations
+The goal is to avoid hidden assumptions about where operations run. Dimensions are visible and intentional, making workflows easier to reason about and share.
 
-This avoids a common failure mode in spatiotemporal analysis:
-> “I’m not sure what dimension this operation ran over.”
+## Streaming via VirtualCubes
+Environmental datasets are often too large to load into memory. VirtualCubes represent a cube without materializing it and stream chunks through analysis pipelines. Code stays the same whether you stream or work in memory, so scale becomes a configuration choice.
 
-In Climate Cube Math, dimensions are explicit and intentional.
-
-## VirtualCubes and Streaming
-Environmental datasets are often too large to load into memory. VirtualCubes solve this by:
-
-- representing a cube without materializing it
-- streaming chunks through analysis pipelines
-- preserving the cube abstraction throughout
-
-From the user’s perspective:
-
-- code stays the same
-- operations stay semantic
-- scale becomes a configuration choice, not a rewrite
-
-## Pipes and Verbs: A Grammar of Analysis
-Climate Cube Math uses a grammar-of-graphics–inspired design. Instead of chaining methods, you compose verbs:
+## Pipes and verbs
+Instead of chaining methods, you compose verbs with `pipe(...)` to build declarative workflows:
 
 ```python
 from cubedynamics import pipe, verbs as v
@@ -47,32 +40,11 @@ from cubedynamics import pipe, verbs as v
 pipe(cube) | v.mean() | v.rolling() | v.plot()
 ```
 
-Why this matters:
-
-- verbs are inspectable
-- pipelines are declarative
-- analysis steps are explicit objects
-
-This makes workflows easier to reason about, test, and share.
-
-## Space, Time, and Scale
-Many errors in environmental analysis come from implicit assumptions:
-
-- mismatched resolutions
-- misaligned time steps
-- hidden resampling
-
-Climate Cube Math makes these explicit:
-
-- spatial alignment is visible
-- temporal aggregation is deliberate
-- scale is a first-class concern
-
-The goal is not to hide complexity—but to make it legible.
+Pipelines remain inspectable objects, making it straightforward to debug, document, or extend analyses.
 
 ## Read next
-- If you are new: [Getting Started](../quickstart.md)
-- If you want operations: [Verbs & Examples](../capabilities/textbook_verbs.md)
-- If you want data: [Datasets Overview](../datasets/index.md)
-- If you want workflows: [Recipes Overview](../recipes/index.md)
-- If you want visualization: [Visualization Overview](../viz/index.md)
+- [Getting Started](../quickstart.md)
+- [Verbs & Examples](../capabilities/textbook_verbs.md)
+- [Datasets Overview](../datasets/index.md)
+- [Recipes Overview](../recipes/index.md)
+- [Visualization Overview](../viz/index.md)

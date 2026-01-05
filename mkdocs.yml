@@ -5,9 +5,6 @@ site_url: "https://cu-esiil.github.io/climate_cube_math/"
 
 nav:
   - Home: index.md
-  - Start Here: start_here.md
-  - Documentation Overview: overview.md
-  - Reading Paths: reading_paths.md
   - Concepts:
       - Overview: concepts/index.md
       - What is a cube?: concepts/cubes.md
@@ -23,7 +20,6 @@ nav:
       - Overview: datasets/index.md
       - Which dataset should I use?: datasets/which_dataset.md
       - Compatibility matrix: datasets/compatibility.md
-      - Citations: datasets/citations.md
       - gridMET: datasets/gridmet.md
       - PRISM: datasets/prism.md
       - Sentinel-2 NDVI: datasets/sentinel2_ndvi.md
@@ -31,7 +27,6 @@ nav:
       - FIRED: datasets/fired.md
   - Recipes / How-tos:
       - Overview: recipes/index.md
-      - Recipe template: recipes/recipe_template.md
       - Cube math primitives: recipes/cube_math_primitives.md
       - gridMET variance cube: recipes/gridmet_variance_cube.md
       - PRISM variance cube: recipes/prism_variance_cube.md

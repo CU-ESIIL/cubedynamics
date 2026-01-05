@@ -1,13 +1,47 @@
-# 🌍 Climate Cube Math
+# Climate Cube Math
 **A grammar-of-graphics for spatiotemporal environmental data**
 
-Climate Cube Math is a Python framework for analyzing environmental data as **spatiotemporal volumes**, not disconnected maps and time series. It is designed for scientists and data practitioners who want to reason explicitly about **space, time, scale, and events**—and do so reproducibly, efficiently, and at scale.
+Climate Cube Math keeps spatial and temporal dimensions together so you can reason about **space, time, scale, and events** without breaking your workflow apart. Use it to build reproducible pipelines that stream or analyze cubes in memory.
+
+## Jump into the docs
+<div class="ccm-card-grid">
+  <a class="ccm-card" href="concepts/">
+    <div class="ccm-card-title">Concepts</div>
+    <div class="ccm-card-text">Learn the cube abstraction, pipes, verbs, and the grammar that ties them together.</div>
+  </a>
+  <a class="ccm-card" href="quickstart/">
+    <div class="ccm-card-title">Getting Started</div>
+    <div class="ccm-card-text">Install the package, configure your environment, and run a minimal pipeline.</div>
+  </a>
+  <a class="ccm-card" href="capabilities/">
+    <div class="ccm-card-title">Capabilities</div>
+    <div class="ccm-card-text">Survey available verbs with examples that show how they compose.</div>
+  </a>
+  <a class="ccm-card" href="datasets/">
+    <div class="ccm-card-title">Datasets</div>
+    <div class="ccm-card-text">Find supported sources, their semantics, and how to choose among them.</div>
+  </a>
+  <a class="ccm-card" href="recipes/">
+    <div class="ccm-card-title">Recipes</div>
+    <div class="ccm-card-text">Follow guided workflows and adapt the recipe template to new analyses.</div>
+  </a>
+  <a class="ccm-card" href="viz/">
+    <div class="ccm-card-title">Visualization</div>
+    <div class="ccm-card-text">Use cube-aware plotting and mapping verbs for inspection and reporting.</div>
+  </a>
+</div>
+
+Looking for specific interfaces? Jump to the [API Reference](api/) or the [Contributing / Development](dev/contributing.md) guidelines.
+
+If you feel lost, start with the [Documentation Overview](overview.md) or pick a path from [Reading Paths](reading_paths.md).
+
+Need dataset attribution? See [Dataset citations](datasets/citations.md).
 
 ## Why Climate Cube Math Exists
 Most environmental datasets already *are* data cubes:
-- climate grids evolving through time  
-- vegetation indices measured repeatedly over landscapes  
-- disturbance footprints (fires, droughts, floods) unfolding in space and time  
+- climate grids evolving through time
+- vegetation indices measured repeatedly over landscapes
+- disturbance footprints (fires, droughts, floods) unfolding in space and time
 
 But most workflows **break the cube apart**:
 - spatial analysis happens in GIS
@@ -18,9 +52,9 @@ But most workflows **break the cube apart**:
 Climate Cube Math keeps these dimensions **together**.
 
 The result is a framework that lets you ask questions like:
-- *How does climate variability change inside vs. outside an event?*  
-- *Where and when does synchrony emerge across a landscape?*  
-- *How does variance propagate through space over time?*  
+- *How does climate variability change inside vs. outside an event?*
+- *Where and when does synchrony emerge across a landscape?*
+- *How does variance propagate through space over time?*
 
 These are fundamentally **spatiotemporal questions**—and they require spatiotemporal tools.
 
@@ -39,11 +73,11 @@ This allows operations like:
 - extracting *volumes* rather than slices
 - defining events as **regions in space–time**
 
-The cube is not just a storage format.  
+The cube is not just a storage format.
 It is the **unit of reasoning**.
 
 ## What Climate Cube Math Enables
-### 🔹 Spatiotemporal Operations
+### Spatiotemporal Operations
 Operations are defined on the cube itself—not on slices or tables derived from it.
 
 Examples:
@@ -52,7 +86,7 @@ Examples:
 - variance and synchrony
 - trends and seasonality
 
-### 🔹 Grammar-Based Pipelines
+### Grammar-Based Pipelines
 Analyses are expressed as **composable pipelines**:
 
 ```python
@@ -68,7 +102,7 @@ result = (
 
 This makes workflows readable, reproducible, inspectable, and easy to extend.
 
-### 🔹 Streaming-First by Design
+### Streaming-First by Design
 Large datasets are handled via VirtualCubes that stream data chunk-by-chunk instead of loading everything into memory.
 
 The same code works for:
@@ -76,7 +110,7 @@ The same code works for:
 - continental-scale climate archives
 - cloud-hosted data
 
-### 🔹 Event-Based Analysis
+### Event-Based Analysis
 Events like fires, droughts, or phenological windows are treated as volumes in space–time, not just polygons or date ranges.
 This enables:
 
@@ -114,5 +148,5 @@ A typical analysis computes climate anomalies within an event footprint and comp
 ## Next Steps
 - [Concepts](concepts/index.md)
 - [Getting Started / Quickstart](quickstart.md)
-- [Recipes / How-tos](howto/index.md)
+- [Recipes / How-tos](recipes/index.md)
 - [API Reference](api/index.md)
