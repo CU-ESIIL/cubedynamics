@@ -5,6 +5,10 @@ site_url: "https://cu-esiil.github.io/climate_cube_math/"
 
 nav:
   - Home: index.md
+  - Start Here: start_here.md
+  - Documentation Overview: overview.md
+  - Reading Paths: reading_paths.md
+  - Why not xarray?: why_not_xarray.md
   - Concepts:
       - Concepts: concepts/index.md
       - What is a cube?: concepts/cubes.md
@@ -21,6 +25,7 @@ nav:
       - Verbs Overview: verbs/index.md
       - Landsat 8 (MPC): verbs/landsat8_mpc.md
   - Recipes / How-tos:
+      - Recipe Template: recipes/recipe_template.md
       - Minimal NDVI vignette: vignette_minimal_ndvi.md
       - NDVI anomalies: howto/ndvi_anomalies.md
       - Climate variance: howto/climate_variance.md
@@ -29,12 +34,14 @@ nav:
       - Cube viewer (v.plot): viz/cube_viewer.md
       - Maps (v.map): viz/maps.md
       - Suitability tubes: tubes.md
+  - Methods & Citation: methods_and_citation.md
   - API Reference: api/index.md
   - Contributing / Development:
       - Contributing: dev/contributing.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md
       - Legacy reference: dev/legacy_reference.md
       - Public API & scope: project/public_api.md
+      - Project Scope: project/scope.md
       - Deprecation inventory: project/deprecation_inventory.md
 
 repo_url: https://github.com/CU-ESIIL/climate_cube_math
@@ -56,6 +63,7 @@ theme:
 
 extra_css:
   - css/extra.css
+  - assets/styles/landing_cards.css
 
 plugins:
   - search

@@ -1,5 +1,10 @@
 # Concepts
 
+## Cube grammar pipeline
+Climate Cube Math expresses analysis as a sequence of verbs connected by pipes, operating on explicit cube dimensions. This grammar keeps space, time, and scale visible throughout a workflow and ensures that intermediate steps remain inspectable.
+
+![Cube grammar pipeline](../assets/diagrams/cube_grammar_pipeline.png)
+
 ## The Cube Abstraction
 At its core, Climate Cube Math works with xarray-backed DataArrays. But it imposes strong semantics on top of them.
 A cube:
