@@ -8,7 +8,6 @@ import cubo
 import xarray as xr
 
 from ..config import BAND_DIM, DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
-from ..deprecations import warn_deprecated
 from ..indices.vegetation import compute_ndvi_from_s2
 
 
@@ -34,13 +33,6 @@ def load_s2_cube(
     chunks: Mapping[str, int] | None = None,
 ) -> xr.DataArray:
     """Stream Sentinel-2 L2A data via cubo and return a dask-backed xarray object."""
-
-    warn_deprecated(
-        "cubedynamics.data.sentinel2.load_s2_cube",
-        "cubedynamics.sentinel.load_sentinel2_cube",
-        since="0.1.0",
-        removal="0.2.0",
-    )
 
     selected_bands = list(bands) if bands is not None else ["B04", "B08"]
     cube = cubo.create(
@@ -76,13 +68,6 @@ def load_s2_ndvi_cube(
     chunks: Mapping[str, int] | None = None,
 ) -> xr.DataArray:
     """Stream Sentinel-2 and return an NDVI cube ready for downstream ops."""
-
-    warn_deprecated(
-        "cubedynamics.data.sentinel2.load_s2_ndvi_cube",
-        "cubedynamics.sentinel.load_sentinel2_ndvi_cube",
-        since="0.1.0",
-        removal="0.2.0",
-    )
 
     required_bands = {"B04", "B08"}
     if bands is None:

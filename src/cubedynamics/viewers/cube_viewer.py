@@ -11,6 +11,8 @@ import xarray as xr
 from PIL import Image
 from matplotlib import colormaps
 
+from ..deprecations import warn_deprecated
+
 
 def _infer_dims(da: xr.DataArray) -> Tuple[str, str, str]:
     """Infer time, y, x dims for a 3D DataArray.
@@ -127,6 +129,13 @@ def write_cube_viewer(
     Path
         Path to the written HTML file.
     """
+
+    warn_deprecated(
+        "cubedynamics.viewers.cube_viewer.write_cube_viewer",
+        "cubedynamics.verbs.plot or cubedynamics.plotting.viewer.show_cube_viewer",
+        since="0.2.0",
+        removal="0.3.0",
+    )
 
     time_dim, y_dim, x_dim = _infer_dims(da)
 

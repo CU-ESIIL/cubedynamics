@@ -1,4 +1,24 @@
-"""Namespace exposing pipe-friendly cube verbs."""
+# STANDARD DOCSTRING TEMPLATE (for future verbs):
+# Summary
+# Grammar contract
+# Parameters
+# Returns
+# Notes
+# Examples
+# See Also
+
+"""Namespace exposing pipe-friendly cube verbs.
+
+This module is part of the CubeDynamics "grammar-of-cubes":
+- Data loaders produce xarray objects (often dask-backed) with dims ``(time, y, x)``.
+- Verbs are pipe-friendly transformations: cube → cube (or cube → scalar/plot side-effect).
+- Plotting follows a grammar-of-graphics model (aes, geoms, stats, scales, themes).
+
+Canonical API:
+- Statistical verbs: :func:`mean`, :func:`variance`, :func:`anomaly`, :func:`zscore`
+- Plotting verbs: :func:`plot`, :func:`plot_mean`, :func:`show_cube_lexcube`
+- Fire/vase verbs: :func:`extract`, :func:`vase`, :func:`fire_plot`, :func:`fire_panel`
+"""
 
 from __future__ import annotations
 
@@ -96,9 +116,41 @@ def landsat_ndvi_plot(*args, **kwargs):
 def show_cube_lexcube(**kwargs):
     """Render a Lexcube widget as a side-effect and return the original cube.
 
+    Grammar contract
+    ----------------
+    Side-effect verb (cube → cube, produces output). Returns a pipe-ready
+    callable that displays an interactive Lexcube view while keeping the cube
+    unchanged in the pipe.
+
+    Parameters
+    ----------
+    **kwargs : Any
+        Forwarded directly to :func:`cubedynamics.viz.show_cube_lexcube`.
+
+    Returns
+    -------
+    Verb
+        Pipe-ready verb when used without immediate ``da``; otherwise the
+        original cube after rendering.
+
+    Notes
+    -----
     The incoming object must represent a 3D cube with dims ``(time, y, x)``.
     Reducers such as :func:`mean`, :func:`variance`, :func:`anomaly`, and
-    :func:`zscore` keep the cube Lexcube-ready when ``keep_dim=True``.
+    :func:`zscore` keep the cube Lexcube-ready when ``keep_dim=True``. Dask
+    backing is preserved and only a light viewer object is created.
+
+    Examples
+    --------
+    >>> from cubedynamics import pipe, verbs as v
+    >>> cube = ...  # xarray.DataArray with dims (time, y, x)
+    >>> _ = pipe(cube) | v.show_cube_lexcube()
+    >>> cube  # still available
+
+    See Also
+    --------
+    cubedynamics.verbs.plot.plot
+    cubedynamics.plotting.viewers
     """
 
     def _op(obj):
@@ -139,33 +191,66 @@ def extract(
     n_theta: int = 96,
     verbose: bool = False,
 ):
-    """
-    Verb: attach fire time-hull + climate summary (and a vase-like hull)
-    to a climate cube.
+    """Attach fire time-hull and climate summaries to a cube.
 
-    Typical usage (v1)
-    ------------------
+    Grammar contract
+    ----------------
+    Annotating verb (cube → cube with attrs attached). When called without
+    ``da`` it returns a pipe-ready verb. When called directly it returns the
+    original cube (DataArray or VirtualCube) with fire metadata stored in
+    attributes.
+
+    Parameters
+    ----------
+    da : xarray.DataArray or VirtualCube, optional
+        Input climate cube with dims ``(time, y, x)``. If ``None``, a verb is
+        returned for use in a pipe chain.
+    fired_event : FireEventDaily
+        Fire event describing daily perimeters.
+    date_col : str, default "date"
+        Column name for date stamps in the FIRED GeoDataFrame.
+    n_ring_samples : int, default 100
+        Perimeter sampling density for hull reconstruction.
+    n_theta : int, default 96
+        Angular resolution of the hull.
+    verbose : bool, default False
+        If True, print hull metrics and climate sampling summaries.
+
+    Returns
+    -------
+    xarray.DataArray or VirtualCube or Verb
+        The same type provided on input with additional attrs, or a pipe-ready
+        verb when ``da`` is omitted.
+
+    Notes
+    -----
+    The verb stores:
+    ``attrs["fire_time_hull"]`` → :class:`~cubedynamics.ops_fire.time_hull.TimeHull`
+    ``attrs["fire_climate_summary"]`` → :class:`~cubedynamics.ops_fire.climate_hull_extract.HullClimateSummary`
+    ``attrs["vase"]`` → :class:`~cubedynamics.ops_fire.time_hull.Vase`
+
+    Streaming/laziness: VirtualCube inputs are materialized only to build the
+    summaries; the original VirtualCube is returned to keep downstream streaming
+    intact.
+
+    Examples
+    --------
+    Direct call:
     >>> import cubedynamics as cd
-    >>> from cubedynamics import pipe, verbs as v
-    >>>
-    >>> clim = cd.gridmet(
-    ...     lat=43.11,
-    ...     lon=-122.74,
-    ...     start="2002-07-01",
-    ...     end="2002-09-15",
-    ...     variable="tmmx",
-    ... )
+    >>> from cubedynamics import verbs as v
+    >>> clim = cd.load_gridmet_cube(lat=43.11, lon=-122.74, start="2002-07-01", end="2002-09-15", variable="tmmx")
     >>> fired_evt = cd.fired_event(event_id=21281)
-    >>>
-    >>> cube = pipe(clim) | v.extract(fired_event=fired_evt)
+    >>> annotated = v.extract(clim, fired_event=fired_evt)
 
-    After this call, the underlying DataArray will have:
-        da.attrs["fire_time_hull"]        = TimeHull(...)
-        da.attrs["fire_climate_summary"]  = HullClimateSummary(...)
-        da.attrs["vase"]                  = Vase(...)
+    Pipe style:
+    >>> from cubedynamics import pipe
+    >>> annotated = pipe(clim) | v.extract(fired_event=fired_evt)
 
-    and the verb will return the same type it received (DataArray or VirtualCube).
-    Pass ``verbose=True`` to print hull metrics and climate sampling summaries.
+    See Also
+    --------
+    cubedynamics.verbs.vase
+    cubedynamics.verbs.fire_plot
+    cubedynamics.verbs.fire_panel
     """
 
     def _op(value: xr.DataArray | VirtualCube):
@@ -279,7 +364,55 @@ def vase(
     verbose: bool = False,
     **plot_kwargs,
 ):
-    """High-level vase plotting verb with TimeHull support."""
+    """Plot a vase representation of a fire time-hull or custom vase definition.
+
+    Grammar contract
+    ----------------
+    Side-effect verb (cube → cube, produces output). When called without ``da``
+    it returns a pipe-ready verb. When called directly it produces a Matplotlib
+    or Plotly figure (depending on vase type) and returns the original cube
+    unchanged so pipe chains continue.
+
+    Parameters
+    ----------
+    da : xarray.DataArray or VirtualCube, optional
+        Input cube that carries ``attrs['vase']`` from :func:`extract` or a
+        custom :class:`~cubedynamics.vase.VaseDefinition`. If ``None`` a verb is
+        returned.
+    vase : VaseDefinition or Vase or any, optional
+        Override the vase object; otherwise read from ``da.attrs['vase']``.
+    outline : bool, default True
+        Whether to overlay the vase outline.
+    verbose : bool, default False
+        Print which vase source is being used.
+    **plot_kwargs : Any
+        Passed through to the plotting backend.
+
+    Returns
+    -------
+    xarray.DataArray or VirtualCube or Verb
+        Original cube (or VirtualCube) so additional verbs can follow, or a
+        pipe-ready verb when ``da`` is omitted.
+
+    Notes
+    -----
+    If ``attrs['vase']`` contains a :class:`~cubedynamics.ops_fire.time_hull.Vase`
+    object, the verb will render a 3D hull colored by climate summaries when
+    present. VirtualCube inputs are materialized only for plotting while the
+    returned object preserves streaming behavior.
+
+    Examples
+    --------
+    >>> from cubedynamics import pipe, verbs as v
+    >>> annotated = ...  # result of v.extract(...)
+    >>> _ = pipe(annotated) | v.vase(verbose=True)
+
+    See Also
+    --------
+    cubedynamics.verbs.extract
+    cubedynamics.verbs.fire_plot
+    cubedynamics.vase.vase
+    """
 
     def _inner(value: xr.DataArray | VirtualCube):
         base_da, _ = _unwrap_dataarray(value)
@@ -318,28 +451,46 @@ def climate_hist(
     bins: int = 40,
     var_label: str | None = None,
 ):
-    """
-    Plot histogram of climate inside vs outside fire perimeters.
+    """Plot histogram of climate inside vs outside fire perimeters.
 
-    This verb expects the underlying DataArray to have:
-        attrs["fire_climate_summary"] = HullClimateSummary(...)
-
-    Typically, this attribute is added by the `extract` verb:
-
-        fired_evt = cd.fired_event(event_id=...)
-        clim = cd.gridmet(...)
-
-        pipe(clim) | v.extract(fired_event=fired_evt) | v.climate_hist()
+    Grammar contract
+    ----------------
+    Side-effect verb (cube → cube, produces output). When called without ``da``
+    returns a pipe-ready verb; when called directly it renders a Matplotlib
+    histogram and returns the original cube unchanged.
 
     Parameters
     ----------
-    da : DataArray or VirtualCube or None
-        Input cube. If None, the verb should follow the same pattern
-        used by other verbs (e.g. plot) to pull from context.
-    bins : int
+    da : xarray.DataArray or VirtualCube or None
+        Input cube with ``attrs['fire_climate_summary']`` produced by
+        :func:`extract`. If ``None``, a verb is returned.
+    bins : int, default 40
         Number of histogram bins.
     var_label : str, optional
         Label for the x-axis. Defaults to the DataArray name.
+
+    Returns
+    -------
+    xarray.DataArray or VirtualCube
+        The original cube so the pipe chain can continue.
+
+    Notes
+    -----
+    This verb requires ``attrs['fire_climate_summary']`` to be a
+    :class:`~cubedynamics.ops_fire.climate_hull_extract.HullClimateSummary`.
+    VirtualCube inputs are materialized only to access histogram data; the
+    returned object preserves streaming behavior.
+
+    Examples
+    --------
+    >>> from cubedynamics import pipe, verbs as v
+    >>> annotated = pipe(cube) | v.extract(fired_event=fired_evt)
+    >>> _ = annotated | v.climate_hist(bins=30)
+
+    See Also
+    --------
+    cubedynamics.verbs.extract
+    cubedynamics.verbs.fire_plot
     """
 
     base_da, _ = _unwrap_dataarray(da)

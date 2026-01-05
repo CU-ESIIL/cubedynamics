@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
-from ..verbs.stats import anomaly, mean, variance, zscore
+import xarray as xr
+
+from ..deprecations import warn_deprecated
+from ..verbs import stats as _verbs_stats
 
 
 def correlation_cube(other: xr.DataArray | xr.Dataset | None, dim: str = "time"):
@@ -23,6 +26,64 @@ def correlation_cube(other: xr.DataArray | xr.Dataset | None, dim: str = "time")
         raise NotImplementedError("correlation_cube is not implemented yet.")
 
     return _inner
+
+
+def anomaly(dim: str = "time", *, keep_dim: bool = True):
+    """Deprecated. Use :func:`cubedynamics.verbs.anomaly` instead.
+
+    This shim exists for backward compatibility and forwards to the canonical
+    verb implementation.
+    """
+
+    warn_deprecated(
+        "cubedynamics.ops.stats.anomaly",
+        "cubedynamics.verbs.anomaly",
+        since="0.2.0",
+        removal="0.3.0",
+    )
+    return _verbs_stats.anomaly(dim=dim, keep_dim=keep_dim)
+
+
+def mean(dim: str = "time", *, keep_dim: bool = False):
+    """Deprecated. Use :func:`cubedynamics.verbs.mean` instead.
+
+    This shim exists for backward compatibility and forwards to the canonical
+    reducer verb.
+    """
+
+    warn_deprecated(
+        "cubedynamics.ops.stats.mean",
+        "cubedynamics.verbs.mean",
+        since="0.2.0",
+        removal="0.3.0",
+    )
+    return _verbs_stats.mean(dim=dim, keep_dim=keep_dim)
+
+
+def variance(dim: str = "time", *, keep_dim: bool = False):
+    """Deprecated. Use :func:`cubedynamics.verbs.variance` instead.
+
+    This shim exists for backward compatibility and forwards to the canonical
+    reducer verb.
+    """
+
+    warn_deprecated(
+        "cubedynamics.ops.stats.variance",
+        "cubedynamics.verbs.variance",
+        since="0.2.0",
+        removal="0.3.0",
+    )
+    return _verbs_stats.variance(dim=dim, keep_dim=keep_dim)
+
+
+def zscore(dim: str = "time", *, keep_dim: bool = True):
+    warn_deprecated(
+        "cubedynamics.ops.stats.zscore",
+        "cubedynamics.verbs.zscore",
+        since="0.2.0",
+        removal="0.3.0",
+    )
+    return _verbs_stats.zscore(dim=dim, keep_dim=keep_dim)
 
 
 __all__ = ["anomaly", "mean", "variance", "correlation_cube", "zscore"]

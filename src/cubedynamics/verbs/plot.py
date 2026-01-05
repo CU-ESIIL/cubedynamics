@@ -1,4 +1,14 @@
-"""Plotting verb for displaying cubes via :class:`CubePlot`."""
+"""Plotting verb for displaying cubes via :class:`CubePlot`.
+
+This module is part of the CubeDynamics "grammar-of-cubes":
+- Data loaders produce xarray objects (often dask-backed) with dims ``(time, y, x)``.
+- Verbs are pipe-friendly transformations: cube → cube (or cube → scalar/plot side-effect).
+- Plotting follows a grammar-of-graphics model (aes, geoms, stats, scales, themes).
+
+Canonical API:
+- :func:`cubedynamics.verbs.plot.plot` (side-effect verb returning the viewer)
+- :class:`cubedynamics.plotting.cube_plot.CubePlot`
+"""
 
 from __future__ import annotations
 
@@ -80,12 +90,65 @@ def plot(
     fig_title: str | None = None,
     fig_text: str | None = None,
 ):
-    """Plot a cube or return a plotting verb.
+    """Plot a cube using the CubePlot grammar and keep the cube flowing.
 
-    The helper builds a streaming-first :class:`CubePlot` and returns it so pipe
-    chains (``pipe(cube) | v.plot()``) can continue with the viewer object. When
-    used as a verb (no ``da`` argument), it can be composed in pipes and the
-    resulting :class:`CubePlot` is available via ``.unwrap()``.
+    Grammar contract
+    ----------------
+    Side-effect verb (cube → cube, produces output). When called with ``da`` it
+    immediately builds a :class:`~cubedynamics.plotting.cube_plot.CubePlot` and
+    returns it while leaving the cube unchanged. When called without ``da`` it
+    returns a pipe-ready :class:`~cubedynamics.piping.Verb` so you can write
+    ``pipe(cube) | v.plot(...)``.
+
+    Parameters
+    ----------
+    da : xarray.DataArray or VirtualCube, optional
+        Input cube with dims ``(time, y, x)``. If ``None``, a verb is returned.
+    title : str, optional
+        Override the viewer title. Defaults to ``<name> time × y × x cube``.
+    cmap : str, default "viridis"
+        Colormap used for the fill scale.
+    size_px : int, default 260
+        Pixel size for each facet tile.
+    thin_time_factor : int, default 4
+        Decimation factor for time frames to keep the viewer responsive.
+    time_dim : str, optional
+        Name of the temporal dimension. Inferred when not provided.
+    clim : tuple of float, optional
+        Color limits for the continuous scale.
+    fig_id, fig_title, fig_text : optional
+        Caption metadata used by the viewer export helpers.
+
+    Returns
+    -------
+    CubePlot or Verb
+        Viewer ready for notebook display, or a pipe-ready verb when ``da`` is
+        omitted.
+
+    Notes
+    -----
+    The viewer preserves dask-backed arrays and only samples minimal data for
+    thumbnails, keeping streaming behavior intact. If a vase is attached in
+    ``da.attrs['vase']`` a thin outline overlay is attempted. The original cube
+    is returned unchanged so pipe chains continue.
+
+    Examples
+    --------
+    Direct call:
+    >>> import cubedynamics as cd
+    >>> cube = cd.load_gridmet_cube(lat=40.0, lon=-105.0, start="2005-01-01", end="2005-01-05", variable="tmmx")
+    >>> viewer = cd.verbs.plot.plot(cube, cmap="magma")
+
+    Pipe style:
+    >>> from cubedynamics import pipe, verbs as v
+    >>> viewer = (pipe(cube) | v.plot(cmap="magma")).unwrap()
+    >>> cube  # cube still available
+
+    See Also
+    --------
+    cubedynamics.plotting.cube_plot.CubePlot
+    cubedynamics.verbs.plot_mean.plot_mean
+    cubedynamics.piping.pipe
     """
 
     opts = PlotOptions(

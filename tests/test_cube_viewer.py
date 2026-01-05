@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 import xarray as xr
 
 from cubedynamics.viewers.cube_viewer import _extract_faces, _infer_dims, write_cube_viewer
@@ -9,7 +10,8 @@ def test_write_cube_viewer_creates_html(tmp_path):
     da = xr.DataArray(data, dims=("time", "y", "x"))
 
     out_file = tmp_path / "viewer.html"
-    result = write_cube_viewer(da, out_html=out_file, title="Test Cube")
+    with pytest.warns(DeprecationWarning):
+        result = write_cube_viewer(da, out_html=out_file, title="Test Cube")
 
     assert result.exists()
     text = result.read_text()
