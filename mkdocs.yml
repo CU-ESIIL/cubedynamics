@@ -10,6 +10,7 @@ nav:
       - What is a cube?: concepts/cubes.md
       - Pipe & verbs: concepts/grammar.md
       - VirtualCubes: concepts/virtual_cubes.md
+  - Capabilities: capabilities.md
   - Getting Started: quickstart.md
   - Core Verbs:
       - Verbs Overview: verbs/index.md
