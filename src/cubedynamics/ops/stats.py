@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import xarray as xr
 
+from ..config import STD_EPS
 from ..deprecations import warn_deprecated
 from ..verbs import stats as _verbs_stats
 
@@ -76,14 +77,27 @@ def variance(dim: str = "time", *, keep_dim: bool = False):
     return _verbs_stats.variance(dim=dim, keep_dim=keep_dim)
 
 
-def zscore(dim: str = "time", *, keep_dim: bool = True):
+def zscore(
+    dim: str = "time",
+    *,
+    keep_dim: bool = True,
+    std_eps: float = STD_EPS,
+    skipna: bool | None = True,
+):
+    """Deprecated. Use :func:`cubedynamics.verbs.zscore` instead.
+
+    This wrapper exists for backward compatibility and forwards keyword
+    arguments to the canonical verb implementation so callers relying on the
+    legacy ``std_eps`` parameter continue to work.
+    """
+
     warn_deprecated(
         "cubedynamics.ops.stats.zscore",
         "cubedynamics.verbs.zscore",
         since="0.2.0",
         removal="0.3.0",
     )
-    return _verbs_stats.zscore(dim=dim, keep_dim=keep_dim)
+    return _verbs_stats.zscore(dim=dim, keep_dim=keep_dim, std_eps=std_eps, skipna=skipna)
 
 
 __all__ = ["anomaly", "mean", "variance", "correlation_cube", "zscore"]
