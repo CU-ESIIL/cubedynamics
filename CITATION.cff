@@ -7,14 +7,19 @@ authors:
     given-names: Ty
 version: 0.1.0
 repository-code: "https://github.com/CU-ESIIL/climate_cube_math"
+url: "https://cu-esiil.github.io/climate_cube_math/"
+doi: 10.5281/zenodo.ZENODO_PLACEHOLDER
 keywords:
   - climate
   - streaming
   - data cubes
   - xarray
   - dask
+license: MIT
 abstract: |
   CubeDynamics (`cubedynamics`) is a streaming-first Python library for
   constructing multi-source climate data cubes, computing variance and
   correlation diagnostics, and exporting derived "lexcubes" for dashboards and
   climate resilience workflows.
+  This record includes a Zenodo DOI placeholder that will be updated after the
+  first tagged release is archived.

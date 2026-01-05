@@ -76,8 +76,29 @@ Key entry points:
 
 ## Installation
 
+### Stable release from PyPI
+
 ```bash
 pip install cubedynamics
+```
+
+### Install from a tagged release
+
+For reproducible reviews, install directly from a Git tag:
+
+```bash
+pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@v0.1.0"
+```
+
+Replace `v0.1.0` with the release tag you want to test.
+
+### Developer install
+
+```bash
+git clone https://github.com/CU-ESIIL/climate_cube_math.git
+cd climate_cube_math
+pip install -e .[dev]
+pytest -m "not integration" -q
 ```
 
 See the documentation for optional extras, large-data workflows, and examples.
@@ -95,12 +116,11 @@ See the documentation for the public API and stability guarantees.
 
 ---
 
-## Citation
+## Citing
 
-If you use Climate Cube Math in academic work, please cite:
-
-Climate Cube Math. CU ESIIL.  
-https://github.com/CU-ESIIL/climate_cube_math
+Please cite the project using the guidance in [CITATION.cff](CITATION.cff).
+A Zenodo DOI will be minted after the first tagged release; the placeholder DOI
+in the citation file should be updated once that archive exists.
 
 (See the documentation for dataset-specific citations.)
 
@@ -111,6 +131,16 @@ https://github.com/CU-ESIIL/climate_cube_math
 Contributions are welcome.
 - See CONTRIBUTING.md for development guidelines
 - Open issues for bugs, questions, or feature discussions
+
+## Release (for JOSS)
+
+- Create a Git tag (e.g., `v0.1.0`) and push it to GitHub.
+- Draft a GitHub Release from the tag; Zenodo will archive the release and mint
+  a DOI once connected.
+- Update `CITATION.cff`, `.zenodo.json`, and `paper/paper.md` with the minted
+  DOI after the archive appears.
+- Ensure tests pass and documentation builds for the tagged version.
+- Submit to JOSS with the tag, Zenodo DOI, and `paper/` directory included.
 
 ---
 

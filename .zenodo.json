@@ -1,0 +1,26 @@
+{
+  "title": "CubeDynamics: Streaming Climate Cube Math for Environmental Data Science",
+  "description": "CubeDynamics (climate_cube_math) is a streaming-first Python library for building spatiotemporal climate data cubes, composing verbs, and analyzing environmental change.",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Ty Tuff"
+    }
+  ],
+  "license": "MIT",
+  "keywords": [
+    "climate",
+    "streaming",
+    "data cubes",
+    "xarray",
+    "dask",
+    "geospatial"
+  ],
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/CU-ESIIL/climate_cube_math",
+      "scheme": "url"
+    }
+  ]
+}
