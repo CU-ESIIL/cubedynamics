@@ -13,7 +13,7 @@ You will find:
 - [PRISM variance cube](prism_variance_cube.md): terrain-aware climate variability using PRISM inputs.
 - [Cube math primitives](cube_math_primitives.md): building blocks and patterns.
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zcube.md) and [correlation center](s2_corr_center.md): vegetation condition and synchrony.
-- [Tail dependence walkthroughs](s2_tail_dep_center.md, s2_tail_dep_manual.md): advanced distributional patterns.
+- [Tail dependence walkthrough (center)](s2_tail_dep_center.md) and [manual tuning](s2_tail_dep_manual.md): advanced distributional patterns.
 - [Suitability tubes visualization](../viz/suitability_tubes.md): pair tube discovery with recipe outputs.
 
 ## Read next
