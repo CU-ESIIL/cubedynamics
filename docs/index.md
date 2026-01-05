@@ -33,7 +33,7 @@ CubeDynamics keeps spatial and temporal dimensions together so you can reason ab
   </a>
 </div>
 
-Looking for specific interfaces? Jump to the [API Reference](api/) or the [Contributing / Development](dev/contributing.md) guidelines.
+Looking for specific interfaces? Jump to the [API Reference](api/index.md) or the [Contributing / Development](dev/contributing.md) guidelines.
 
 If you feel lost, start with the [Documentation Overview](overview.md) or pick a path from [Reading Paths](reading_paths.md).
 
