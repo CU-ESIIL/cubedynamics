@@ -22,9 +22,23 @@ import xarray as xr
 import geopandas as gpd
 import plotly.graph_objects as go
 import requests
-from shapely.geometry import LineString, MultiPolygon, Polygon
+from shapely.geometry import LineString, MultiPolygon, Point, Polygon
 from shapely.ops import unary_union
 from shapely.prepared import prep
+
+
+def _union_all(geoms):
+    try:
+        from shapely import union_all  # type: ignore
+
+        return union_all(geoms)
+    except Exception:
+        return unary_union(geoms)
+
+
+def log(verbose: bool, *args) -> None:
+    if verbose:
+        print(*args)
 
 
 @dataclass
@@ -302,6 +316,22 @@ class HullClimateSummary:
     per_day_mean: pd.Series
 
 
+def normalize_dates(values) -> pd.DatetimeIndex:
+    result = pd.to_datetime(values, errors="coerce")
+
+    # Series and array-likes expose ``dt`` for datetime operations
+    if hasattr(result, "dt"):
+        return result.dt.normalize()
+
+    # DatetimeIndex has a dedicated ``normalize`` method
+    if hasattr(result, "normalize"):
+        return result.normalize()
+
+    # Scalar timestamps also provide ``normalize``; coerce to DatetimeIndex otherwise
+    ts = pd.to_datetime([result], errors="coerce")
+    return ts.normalize()
+
+
 def clean_event_daily_rows(
     gdf_daily: gpd.GeoDataFrame,
     event_id,
@@ -312,7 +342,7 @@ def clean_event_daily_rows(
     if eg.empty:
         return None
 
-    eg[date_col] = pd.to_datetime(eg[date_col], errors="coerce").dt.normalize()
+    eg[date_col] = normalize_dates(eg[date_col])
     eg = eg.sort_values(date_col)
 
     rows: list[pd.Series] = []
@@ -403,12 +433,19 @@ def pick_event_with_joint_support(
     raise ValueError("No event found with requested joint temporal support")
 
 
-def build_fire_event(
-    fired_daily: gpd.GeoDataFrame,
-    event_id,
+def build_fire_event_daily(
     *,
+    fired_daily: Optional[gpd.GeoDataFrame] = None,
+    event_id=None,
+    fired_event: Optional[FireEventDaily] = None,
     date_col: str = "date",
 ) -> FireEventDaily:
+    if fired_event is not None:
+        return fired_event
+
+    if fired_daily is None or event_id is None:
+        raise ValueError("fired_daily and event_id are required when fired_event is not provided")
+
     eg_clean = clean_event_daily_rows(fired_daily, event_id, id_col="id", date_col=date_col)
     if eg_clean is None or eg_clean.empty:
         raise ValueError(f"No usable daily perimeters found for event_id={event_id!r}")
@@ -418,11 +455,11 @@ def build_fire_event(
     elif eg_clean.crs.to_string().upper() != "EPSG:4326":
         eg_clean = eg_clean.to_crs("EPSG:4326")
 
-    dates = pd.to_datetime(eg_clean[date_col], errors="coerce").dt.normalize()
+    dates = normalize_dates(eg_clean[date_col])
     t0 = dates.min()
     t1 = dates.max()
 
-    union_geom = unary_union(eg_clean.geometry.values)
+    union_geom = _union_all(eg_clean.geometry.values)
     centroid = union_geom.centroid
     centroid_lat = float(centroid.y)
     centroid_lon = float(centroid.x)
@@ -435,6 +472,20 @@ def build_fire_event(
         centroid_lat=centroid_lat,
         centroid_lon=centroid_lon,
     )
+
+
+def build_fire_event(
+    fired_daily: gpd.GeoDataFrame,
+    event_id,
+    *,
+    date_col: str = "date",
+) -> FireEventDaily:
+    warnings.warn(
+        "build_fire_event is deprecated; use build_fire_event_daily(fired_daily=..., event_id=...) instead",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return build_fire_event_daily(fired_daily=fired_daily, event_id=event_id, date_col=date_col)
 
 
 def compute_time_hull_geometry(
@@ -617,6 +668,127 @@ def compute_time_hull_geometry(
     )
 
 
+def sample_inside_outside(
+    event: FireEventDaily,
+    cube_da: xr.DataArray,
+    *,
+    date_col: str = "date",
+    fast: bool = False,
+    verbose: bool = False,
+) -> HullClimateSummary:
+    da = cube_da
+    y_dim, x_dim = infer_spatial_dims(da)
+    epsg = infer_epsg(da)
+    if epsg is None:
+        raise ValueError("Could not infer EPSG for cube; provide metadata or lat/lon dims")
+
+    y_vals = np.asarray(da[y_dim].values)
+    x_vals = np.asarray(da[x_dim].values)
+    ny, nx = y_vals.size, x_vals.size
+
+    dy = float(np.nanmedian(np.diff(y_vals))) if ny > 1 else 0.0
+    dx = float(np.nanmedian(np.diff(x_vals))) if nx > 1 else 0.0
+    dy = abs(dy)
+    dx = abs(dx)
+
+    dates_clim = normalize_dates(da["time"].values)
+    event_gdf = event.gdf.copy()
+    event_gdf["date_norm"] = normalize_dates(event_gdf[date_col])
+    cube_crs = f"EPSG:{epsg}"
+    if event_gdf.crs is None:
+        event_gdf = event_gdf.set_crs("EPSG:4326")
+    if event_gdf.crs.to_string().upper() != cube_crs.upper():
+        event_gdf = event_gdf.to_crs(cube_crs)
+
+    half_dx = dx / 2.0 if dx else 0.0
+    half_dy = dy / 2.0 if dy else 0.0
+
+    XX, YY = np.meshgrid(x_vals, y_vals)
+    cell_polys = None
+    use_polys = dx > 0 and dy > 0
+    if use_polys:
+        cell_polys = [
+            [
+                Polygon(
+                    [
+                        (xc - half_dx, yc - half_dy),
+                        (xc + half_dx, yc - half_dy),
+                        (xc + half_dx, yc + half_dy),
+                        (xc - half_dx, yc + half_dy),
+                    ]
+                )
+                for xc in x_vals
+            ]
+            for yc in y_vals
+        ]
+
+    values_inside: list[np.ndarray] = []
+    values_outside: list[np.ndarray] = []
+    per_day_mean: dict[pd.Timestamp, float] = {}
+
+    for idx, t_val in enumerate(dates_clim):
+        eg_mask = event_gdf[event_gdf["date_norm"] <= t_val]
+        if eg_mask.empty:
+            continue
+        latest = eg_mask.sort_values("date_norm").iloc[-1]
+        poly = _largest_polygon(latest.geometry)
+        if poly is None:
+            continue
+
+        if fast:
+            try:
+                import rasterio.features
+                from affine import Affine
+
+                transform = Affine.translation(x_vals.min() - dx / 2.0, y_vals.min() - dy / 2.0) * Affine.scale(dx or 1.0, dy or 1.0)
+                mask = rasterio.features.rasterize(
+                    [(poly, 1)],
+                    out_shape=(ny, nx),
+                    transform=transform,
+                    fill=0,
+                    dtype="uint8",
+                    all_touched=True,
+                ).astype(bool)
+            except Exception:
+                mask = None
+        else:
+            mask = None
+
+        if mask is None:
+            poly_prep = prep(poly)
+            if use_polys and cell_polys is not None:
+                mask = np.zeros((ny, nx), dtype=bool)
+                for iy in range(ny):
+                    for ix in range(nx):
+                        mask[iy, ix] = poly_prep.covers(cell_polys[iy][ix])
+                if not mask.any():
+                    pts = [Point(xc, yc) for xc, yc in zip(XX.ravel(), YY.ravel())]
+                    inside = np.array([poly_prep.covers(p) for p in pts])
+                    mask = inside.reshape((ny, nx))
+            else:
+                pts = [Point(xc, yc) for xc, yc in zip(XX.ravel(), YY.ravel())]
+                inside = np.array([poly_prep.covers(p) for p in pts])
+                mask = inside.reshape((ny, nx))
+
+        da_slice = da.isel(time=idx)
+        vals = da_slice.values
+        vals_inside = vals[mask]
+        vals_outside = vals[~mask]
+
+        per_day_mean[t_val] = float(np.nanmean(vals_inside)) if vals_inside.size else np.nan
+        values_inside.append(vals_inside.ravel())
+        values_outside.append(vals_outside.ravel())
+
+    values_inside_flat = np.concatenate(values_inside) if values_inside else np.array([])
+    values_outside_flat = np.concatenate(values_outside) if values_outside else np.array([])
+
+    return HullClimateSummary(
+        values_inside=values_inside_flat,
+        values_outside=values_outside_flat,
+        per_day_mean=pd.Series(per_day_mean),
+    )
+
+
 def time_hull_to_vase(hull: TimeHull) -> Vase:
     """
     Convert a :class:`TimeHull` into a minimal vase representation.
@@ -766,7 +938,7 @@ def load_climate_cube_for_event(
     return ClimateCube(da=da)
 
 
-def _infer_spatial_dims(da: xr.DataArray) -> Tuple[str, str]:
+def infer_spatial_dims(da: xr.DataArray) -> Tuple[str, str]:
     if "y" in da.dims and "x" in da.dims:
         return "y", "x"
     if "lat" in da.dims and "lon" in da.dims:
@@ -774,7 +946,7 @@ def _infer_spatial_dims(da: xr.DataArray) -> Tuple[str, str]:
     raise ValueError(f"Cannot infer spatial dims from {da.dims}")
 
 
-def _infer_cube_epsg(da: xr.DataArray) -> Optional[int]:
+def infer_epsg(da: xr.DataArray) -> Optional[int]:
     epsg = None
     if "epsg" in da.attrs:
         try:
@@ -807,6 +979,23 @@ def _infer_cube_epsg(da: xr.DataArray) -> Optional[int]:
         except Exception:
             epsg = None
 
+    if epsg is None:
+        try:
+            y_dim, x_dim = infer_spatial_dims(da)
+        except Exception:
+            y_dim, x_dim = None, None
+
+        if y_dim == "lat" and x_dim == "lon":
+            epsg = 4326
+        elif y_dim == "y" and x_dim == "x":
+            x_vals = np.asarray(da[x_dim].values)
+            y_vals = np.asarray(da[y_dim].values)
+            if np.nanmax(np.abs(x_vals)) <= 180 and np.nanmax(np.abs(y_vals)) <= 90:
+                epsg = 4326
+
+    if epsg is None:
+        raise ValueError("Could not infer EPSG; add attrs['epsg'] or coordinate metadata")
+
     return epsg
 
 
@@ -817,143 +1006,14 @@ def build_inside_outside_climate_samples(
     date_col: str = "date",
     verbose: bool = False,
 ) -> HullClimateSummary:
-    """
-    Sample climate values inside and outside daily fire perimeters.
-
-    Parameters
-    ----------
-    event
-        Fire event bundle with per-day perimeters and time range metadata.
-    cube
-        Climate cube aligned on ``(time, y, x)`` containing the variable of
-        interest for the event window.
-    date_col
-        Column in ``event.gdf`` that carries the daily perimeter date.
-    verbose
-        Unused flag preserved for compatibility with legacy wrappers.
-
-    Returns
-    -------
-    HullClimateSummary
-        Flattened arrays of inside and outside climate samples plus per-day
-        mean values used for hull coloring.
-
-    Notes
-    -----
-    The cube is sliced to the event time window before sampling. Spatial
-    intersection uses polygon containment; if grid spacing is available the
-    routine accounts for cell area when constructing polygons.
-
-    Examples
-    --------
-    >>> summary = build_inside_outside_climate_samples(event, cube)
-    >>> summary.values_inside.size >= 0 and summary.values_outside.size >= 0
-    True
-    """
     da = cube.da if hasattr(cube, "da") else cube
-    time_vals = pd.to_datetime(da["time"].values)
-    dates_clim = time_vals.normalize()
-
-    mask_time = (dates_clim >= event.t0) & (dates_clim <= event.t1)
+    time_vals = normalize_dates(da["time"].values)
+    mask_time = (time_vals >= event.t0) & (time_vals <= event.t1)
     if not mask_time.any():
         raise ValueError("Climate cube has no timesteps overlapping the fire time window.")
 
     da_evt = da.isel(time=np.where(mask_time)[0])
-    dates_evt = dates_clim[mask_time]
-
-    y_dim, x_dim = _infer_spatial_dims(da_evt)
-    y_vals = da_evt[y_dim].values
-    x_vals = da_evt[x_dim].values
-
-    ny = y_vals.size
-    nx = x_vals.size
-
-    XX, YY = np.meshgrid(x_vals, y_vals)
-
-    dy = float(np.abs(y_vals[1] - y_vals[0])) if ny > 1 else 0.0
-    dx = float(np.abs(x_vals[1] - x_vals[0])) if nx > 1 else 0.0
-    use_area = dx > 0 and dy > 0
-
-    cell_polys = None
-    if use_area:
-        half_dx = dx / 2.0
-        half_dy = dy / 2.0
-
-        def cell_poly(xc, yc) -> Polygon:
-            return Polygon(
-                [
-                    (xc - half_dx, yc - half_dy),
-                    (xc + half_dx, yc - half_dy),
-                    (xc + half_dx, yc + half_dy),
-                    (xc - half_dx, yc + half_dy),
-                ]
-            )
-
-        cell_polys = [
-            [cell_poly(XX[i, j], YY[i, j]) for j in range(nx)] for i in range(ny)
-        ]
-
-    eg = event.gdf.copy()
-
-    cube_epsg = _infer_cube_epsg(da_evt)
-    if cube_epsg is None:
-        cube_crs_str = "EPSG:4326"
-    else:
-        cube_crs_str = f"EPSG:{cube_epsg}"
-
-    if eg.crs is None:
-        eg = eg.set_crs("EPSG:4326")
-    if eg.crs.to_string().upper() != cube_crs_str.upper():
-        eg = eg.to_crs(cube_crs_str)
-
-    eg["date_norm"] = pd.to_datetime(eg[date_col], errors="coerce").dt.normalize()
-
-    values_inside: list[float] = []
-    values_outside: list[float] = []
-    per_day_mean: dict[pd.Timestamp, float] = {}
-
-    for idx_t, t_date in enumerate(dates_evt):
-        mask_day = eg["date_norm"] == t_date
-        if not mask_day.any():
-            continue
-        g_row = eg.loc[mask_day].iloc[0]
-        poly = _largest_polygon(g_row.geometry)
-        if poly is None:
-            continue
-
-        poly_prep = prep(poly)
-        da_slice = da_evt.isel(time=idx_t)
-        vals = da_slice.values
-
-        inside_mask = np.zeros((ny, nx), dtype=bool)
-        if use_area and cell_polys is not None:
-            for i in range(ny):
-                for j in range(nx):
-                    inside_mask[i, j] = poly_prep.intersects(cell_polys[i][j])
-        else:
-            pts = [Polygon([(xx, yy)]) for xx, yy in zip(XX.ravel(), YY.ravel())]
-            inside_flat = np.array([poly_prep.contains(p.centroid) for p in pts])
-            inside_mask = inside_flat.reshape((ny, nx))
-
-        vals_inside = vals[inside_mask]
-        vals_outside = vals[~inside_mask]
-
-        if vals_inside.size:
-            per_day_mean[t_date] = float(np.nanmean(vals_inside))
-        else:
-            per_day_mean[t_date] = np.nan
-
-        values_inside.append(vals_inside.ravel())
-        values_outside.append(vals_outside.ravel())
-
-    values_inside_flat = np.concatenate(values_inside) if values_inside else np.array([])
-    values_outside_flat = np.concatenate(values_outside) if values_outside else np.array([])
-
-    return HullClimateSummary(
-        values_inside=values_inside_flat,
-        values_outside=values_outside_flat,
-        per_day_mean=pd.Series(per_day_mean),
-    )
+    return sample_inside_outside(event, da_evt, date_col=date_col, fast=False, verbose=verbose)
 
 
 def plot_climate_filled_hull(

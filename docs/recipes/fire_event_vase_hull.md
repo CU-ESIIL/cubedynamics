@@ -25,6 +25,7 @@ Hull metrics (scale, duration, volume, surface) make it easy to summarize, compa
 gridMET has fixed temporal support. To ensure the fire window (plus buffer) sits inside that support, use **`GRIDMET_SUPPORT`** and **`pick_event_with_joint_support`**. They enforce that the chosen FIRED event can be paired with the requested climate buffer before running `fire_plot`.
 
 ## Quickstart
+Cube-first usage is recommended: load your climate cube (gridMET, PRISM, Sentinel-2 NDVI, etc.) however you prefer, then pipe it into `v.fire_plot(fired_event=...)`.
 ```python
 from cubedynamics import verbs as v
 from cubedynamics.fire_time_hull import (
