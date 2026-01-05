@@ -56,6 +56,8 @@ nav:
       - Public API & scope: project/public_api.md
       - Project Scope: project/scope.md
       - Deprecation inventory: project/deprecation_inventory.md
+  - Design:
+      - Spatial & CRS Dataset Contract: design/spatial_dataset_contract.md
 
 repo_url: https://github.com/CU-ESIIL/climate_cube_math
 edit_uri: edit/main/docs/
