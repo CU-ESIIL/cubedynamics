@@ -4,43 +4,13 @@ import pytest
 import xarray as xr
 
 from cubedynamics.data.gridmet import load_gridmet_cube
+from cubedynamics.verbs import fire as fire_verbs
 
-
-@pytest.mark.parametrize("allow_synthetic", [False, True])
-def test_gridmet_empty_time_handling(allow_synthetic):
-    start = "2018-07-17"
-    end = "2018-07-25"
-
-    if not allow_synthetic:
-        with pytest.raises(RuntimeError, match="freq='MS'"):
-            load_gridmet_cube(
-                lat=40.0,
-                lon=-105.0,
-                start=start,
-                end=end,
-                variable="tmmx",
-                freq="MS",
-                prefer_streaming=False,
-                show_progress=False,
-                allow_synthetic=False,
-            )
-    else:
-        ds = load_gridmet_cube(
-            lat=40.0,
-            lon=-105.0,
-            start=start,
-            end=end,
-            variable="tmmx",
-            freq="MS",
-            prefer_streaming=False,
-            show_progress=False,
-            allow_synthetic=True,
-        )
-        assert ds.sizes.get("time", 0) > 0
-        assert ds.attrs.get("is_synthetic") is True
-        assert ds.attrs.get("source") == "synthetic"
-        assert "freq" in ds.attrs
-        assert "backend_error" in ds.attrs
+from tests.helpers.contracts import (
+    assert_not_all_nan,
+    assert_provenance_attrs,
+    assert_spatiotemporal_cube_contract,
+)
 
 
 @pytest.fixture()
@@ -73,12 +43,126 @@ def _fake_gridmet(monkeypatch):
     return calls
 
 
+def _empty_time_dataset(variable: str = "vpd") -> xr.Dataset:
+    coords = {"time": pd.DatetimeIndex([]), "y": np.array([0.0, 1.0]), "x": np.array([0.0, 1.0])}
+    data = xr.DataArray(
+        np.empty((0, 2, 2)),
+        coords=coords,
+        dims=("time", "y", "x"),
+        name=variable,
+    )
+    return xr.Dataset({variable: data})
+
+
+def _all_nan_dataset(variable: str = "vpd") -> xr.Dataset:
+    coords = {
+        "time": pd.date_range("2018-07-17", periods=3, freq="D"),
+        "y": np.array([0.0, 1.0]),
+        "x": np.array([0.0, 1.0]),
+    }
+    data = xr.DataArray(
+        np.full((3, 2, 2), np.nan),
+        coords=coords,
+        dims=("time", "y", "x"),
+        name=variable,
+    )
+    return xr.Dataset({variable: data})
+
+
+def test_gridmet_freq_ms_short_window_raises_when_not_allowed(monkeypatch):
+    def _stub_streaming(*args, **kwargs):
+        return _empty_time_dataset()
+
+    monkeypatch.setattr("cubedynamics.data.gridmet._open_gridmet_streaming", _stub_streaming)
+
+    with pytest.raises(RuntimeError, match="empty time.*freq.*MS"):
+        load_gridmet_cube(
+            lat=40.0,
+            lon=-105.0,
+            start="2018-07-17",
+            end="2018-07-25",
+            variable="vpd",
+            freq="MS",
+            prefer_streaming=True,
+            show_progress=False,
+            allow_synthetic=False,
+        )
+
+
+def test_gridmet_freq_ms_short_window_allows_synthetic_when_allowed(monkeypatch):
+    def _stub_streaming(*args, **kwargs):
+        return _empty_time_dataset()
+
+    monkeypatch.setattr("cubedynamics.data.gridmet._open_gridmet_streaming", _stub_streaming)
+
+    ds = load_gridmet_cube(
+        lat=40.0,
+        lon=-105.0,
+        start="2018-07-17",
+        end="2018-07-25",
+        variable="vpd",
+        freq="MS",
+        prefer_streaming=True,
+        show_progress=False,
+        allow_synthetic=True,
+    )
+
+    assert_spatiotemporal_cube_contract(ds)
+    assert_provenance_attrs(
+        ds,
+        expected_source="synthetic",
+        expected_is_synthetic=True,
+        require_freq=True,
+    )
+    assert "empty time" in ds.attrs.get("backend_error", "")
+    assert "freq" in ds.attrs.get("backend_error", "")
+
+
+@pytest.mark.parametrize("allow_synthetic", [False, True])
+def test_gridmet_all_nan_handling(monkeypatch, allow_synthetic):
+    def _stub_streaming(*args, **kwargs):
+        return _all_nan_dataset()
+
+    monkeypatch.setattr("cubedynamics.data.gridmet._open_gridmet_streaming", _stub_streaming)
+
+    if not allow_synthetic:
+        with pytest.raises(RuntimeError, match="all-NaN"):
+            load_gridmet_cube(
+                lat=40.0,
+                lon=-105.0,
+                start="2018-07-17",
+                end="2018-07-25",
+                variable="vpd",
+                prefer_streaming=True,
+                show_progress=False,
+                allow_synthetic=False,
+            )
+    else:
+        ds = load_gridmet_cube(
+            lat=40.0,
+            lon=-105.0,
+            start="2018-07-17",
+            end="2018-07-25",
+            variable="vpd",
+            prefer_streaming=True,
+            show_progress=False,
+            allow_synthetic=True,
+        )
+        assert_spatiotemporal_cube_contract(ds)
+        assert_provenance_attrs(
+            ds,
+            expected_source="synthetic",
+            expected_is_synthetic=True,
+            require_freq=True,
+        )
+        assert_not_all_nan(ds)
+        assert "all-NaN" in ds.attrs.get("backend_error", "")
+
+
 @pytest.mark.filterwarnings("ignore:Positional GRIDMET arguments")
 def test_fire_plot_daily_default(monkeypatch, _fake_gridmet):
     import geopandas as gpd
     from shapely.geometry import box
-
-    from cubedynamics.verbs import fire as fire_verbs
 
     dates = pd.date_range("2020-07-01", periods=3, freq="D")
     geoms = [box(-105.1, 40.0, -105.0, 40.1) for _ in dates]
@@ -110,6 +194,7 @@ def test_fire_plot_daily_default(monkeypatch, _fake_gridmet):
 
     assert _fake_gridmet["freq"] == "D"
     cube = results["cube"].da
-    assert cube.sizes.get("time", 0) > 0
+    assert_spatiotemporal_cube_contract(cube)
     assert cube.attrs.get("freq") == "D"
     assert cube.attrs.get("source") == "gridmet_streaming"
+    assert_not_all_nan(cube)

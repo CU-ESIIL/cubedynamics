@@ -44,11 +44,17 @@ class DummyCubo:
         )
 
 
+class DummyCuboSecondary(DummyCubo):
+    """Separate cubo class instance to bypass identity checks in wrappers."""
+
+
 @pytest.fixture(autouse=True)
 def patch_cubo(monkeypatch):
     import cubedynamics.sentinel as sentinel_mod
+    import cubedynamics.data.sentinel2 as sentinel2_mod
 
     monkeypatch.setattr(sentinel_mod, "cubo", DummyCubo)
+    monkeypatch.setattr(sentinel2_mod, "cubo", DummyCuboSecondary)
     return sentinel_mod
 
 
