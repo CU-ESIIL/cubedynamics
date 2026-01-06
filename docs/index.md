@@ -1,6 +1,6 @@
-<p align="center">
-  <img src="assets/img/cubedynamics_logo.png" alt="CubeDynamics" width="520">
-</p>
+<div class="landing-logo">
+  <img src="assets/img/cubedynamics_logo.png" alt="CubeDynamics">
+</div>
 
 # CubeDynamics
 CubeDynamics: a composable grammar of operations for spatiotemporal data cubes.
