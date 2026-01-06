@@ -1,0 +1,58 @@
+:root {
+  --md-primary-fg-color: #0B2A3F;   /* Deep Navy */
+  --md-primary-bg-color: #FFFFFF;
+
+  --md-accent-fg-color: #18C7B7;    /* Bright Teal */
+
+  --md-typeset-a-color: #0FA3A3;    /* Teal links */
+
+  --md-code-bg-color: #F5F8FA;
+  --md-code-fg-color: #0F172A;
+
+  --md-default-bg-color: #F5F8FA;   /* Cool Light */
+  --md-default-fg-color: #0F172A;   /* Near-black text */
+
+  --cd-teal: #0FA3A3;
+  --cd-navy: #0B2A3F;
+}
+
+/* Subtle callout styling */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-left-color: #0FA3A3;
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-left-color: #18C7B7;
+}
+
+[data-md-color-scheme="slate"] {
+  /* Surfaces */
+  --md-default-bg-color: #0B1220;
+  --md-default-fg-color: #E5E7EB;           /* primary text */
+  --md-default-fg-color--light: #B7C2D0;    /* secondary/muted text */
+  --md-default-fg-color--lighter: #9AA8BA;  /* further-muted */
+  --md-default-fg-color--lightest: #7E8FA6; /* very muted */
+
+  /* Header / nav */
+  --md-primary-fg-color: #0B2A3F;
+  --md-primary-bg-color: #0B1220;
+
+  /* Links + accent */
+  --md-typeset-a-color: #66E0D2;
+  --md-accent-fg-color: #18C7B7;
+
+  /* Code blocks */
+  --md-code-bg-color: #0F1A2B;
+  --md-code-fg-color: #E5E7EB;
+
+  /* Optional: improve table borders and hr contrast */
+  --md-typeset-table-color: rgba(229, 231, 235, 0.18);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code,
+[data-md-color-scheme="slate"] code {
+  background-color: var(--md-code-bg-color);
+  color: var(--md-code-fg-color);
+}

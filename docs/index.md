@@ -1,6 +1,4 @@
-<div class="landing-logo">
-  <img src="assets/img/cubedynamics_logo.png" class="cd-logo" alt="CubeDynamics">
-</div>
+![CubeDynamics logo](assets/img/cubedynamics_logo.png)
 
 # CubeDynamics: a composable grammar of operations for spatiotemporal data cubes.
 
