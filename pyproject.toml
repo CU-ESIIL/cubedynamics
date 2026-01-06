@@ -32,9 +32,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/CU-ESIIL/climate_cube_math"
-Documentation = "https://cu-esiil.github.io/climate_cube_math/"
-Source = "https://github.com/CU-ESIIL/climate_cube_math"
+Homepage = "https://github.com/CU-ESIIL/cubedynamics"
+Documentation = "https://cu-esiil.github.io/cubedynamics/"
+Source = "https://github.com/CU-ESIIL/cubedynamics"
 
 [tool.setuptools]
 package-dir = { "" = "src" }

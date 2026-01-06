@@ -13,7 +13,7 @@ CubeDynamics is grounded in a grammar that makes analytical steps explicit. Each
 ## Citing this project
 When publishing results derived from CubeDynamics:
 - Reference the package by name: **CubeDynamics**
-- Include the project repository URL: <https://github.com/CU-ESIIL/climate_cube_math>
+- Include the project repository URL: <https://github.com/CU-ESIIL/cubedynamics>
 - Note the specific verbs or pipelines used in methods sections
 - Record package version and verb parameterization for reproducibility
 

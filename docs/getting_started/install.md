@@ -9,7 +9,7 @@ CubeDynamics (`cubedynamics`) runs anywhere `xarray` does—laptops, clusters, o
 Grab the latest commits straight from `main`. Installing inside a virtual environment (`venv`, Conda, or `uv`) is recommended but optional.
 
 ```bash
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 ```
 
 ### Install from PyPI once released
@@ -58,7 +58,7 @@ Until then, the GitHub install above is the canonical way to pick up fixes and e
 - Read [What is a cube?](../concepts/cubes.md) to align vocabulary.
 - Study [Pipe syntax & verbs](../concepts/pipe_and_verbs.md) for the `pipe(cube) | verbs` grammar.
 - Open the maintained notebooks:
-  - [Quickstart – CubeDynamics](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/quickstart_cubedynamics.ipynb)
-  - [Sentinel-2 NDVI anomaly tutorial](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/example_sentinel2_ndvi_zscore.ipynb)
+  - [Quickstart – CubeDynamics](https://github.com/CU-ESIIL/cubedynamics/blob/main/notebooks/quickstart_cubedynamics.ipynb)
+  - [Sentinel-2 NDVI anomaly tutorial](https://github.com/CU-ESIIL/cubedynamics/blob/main/notebooks/example_sentinel2_ndvi_zscore.ipynb)
 
 These notebooks match the code snippets in the documentation, so you can copy/paste cells or launch them on Binder for a fully hosted workflow.

@@ -5,8 +5,6 @@
 # CubeDynamics
 CubeDynamics: a composable grammar of operations for spatiotemporal data cubes.
 
-> **Naming note (temporary):** The project is branded as **CubeDynamics**, but the repository, documentation URL, and Python package/distribution name still use `climate_cube_math` while we complete the rename. Installation and imports remain unchanged for now.
-
 CubeDynamics keeps spatial and temporal dimensions together so you can reason about **space, time, scale, and events** without breaking your workflow apart. Use it to build reproducible pipelines that stream or analyze cubes in memory.
 
 ## Jump into the docs

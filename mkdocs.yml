@@ -1,7 +1,7 @@
 site_name: "CubeDynamics"
 site_description: "CubeDynamics: a composable grammar of operations for spatiotemporal data cubes."
 site_author: CubeDynamics Team
-site_url: "https://cu-esiil.github.io/climate_cube_math/"
+site_url: "https://cu-esiil.github.io/cubedynamics/"
 
 nav:
   - Home: index.md
@@ -60,7 +60,7 @@ nav:
   - Design:
       - Spatial & CRS Dataset Contract: design/spatial_dataset_contract.md
 
-repo_url: https://github.com/CU-ESIIL/climate_cube_math
+repo_url: https://github.com/CU-ESIIL/cubedynamics
 edit_uri: edit/main/docs/
 
 copyright: 'Copyright \u00a9 2024'

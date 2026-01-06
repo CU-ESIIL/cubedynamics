@@ -13,7 +13,7 @@ pip install cubedynamics
 Or install the latest main branch:
 
 ```bash
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 ```
 
 CubeDynamics runs anywhere `xarray` runs: laptops, HPC clusters, or hosted notebooks.

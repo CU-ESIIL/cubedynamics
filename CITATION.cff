@@ -6,8 +6,8 @@ authors:
   - family-names: Tuff
     given-names: Ty
 version: 0.1.0
-repository-code: "https://github.com/CU-ESIIL/climate_cube_math"
-url: "https://cu-esiil.github.io/climate_cube_math/"
+repository-code: "https://github.com/CU-ESIIL/cubedynamics"
+url: "https://cu-esiil.github.io/cubedynamics/"
 doi: 10.5281/zenodo.ZENODO_PLACEHOLDER
 keywords:
   - climate

@@ -14,13 +14,13 @@ Using `pip` (works in a fresh conda env or a regular Python environment):
 
 ```bash
 pip install --upgrade pip wheel
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 If you prefer conda, you can first create an environment:
 conda create -n cubedynamics-env python=3.10 -y
 conda activate cubedynamics-env
 
 pip install --upgrade pip wheel
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 ```
 
 ## 2. Stream an NDVI cube

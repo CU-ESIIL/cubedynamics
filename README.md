@@ -1,14 +1,12 @@
 # CubeDynamics
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/CU-ESIIL/climate_cube_math/main/docs/assets/img/cubedynamics_logo.png" alt="CubeDynamics" width="520">
+  <img src="https://raw.githubusercontent.com/CU-ESIIL/cubedynamics/main/docs/assets/img/cubedynamics_logo.png" alt="CubeDynamics" width="520">
 </p>
 
-![Tests](https://github.com/CU-ESIIL/climate_cube_math/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/CU-ESIIL/climate_cube_math/actions/workflows/pages.yml/badge.svg)
+![Tests](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/pages.yml/badge.svg)
 
 CubeDynamics: a composable grammar of operations for spatiotemporal data cubes.
-
-> **Naming note (temporary):** The project is branded as **CubeDynamics**, but the repository, documentation URL, and Python package/distribution name still use `climate_cube_math` while we complete the rename. Installation and imports remain unchanged for now.
 
 CubeDynamics is a Python framework for analyzing environmental data as **spatiotemporal cubes**, rather than disconnected maps and time series.
 
@@ -69,7 +67,7 @@ This pipeline:
 
 ## Documentation
 
-📘 Full documentation website 👉 https://cu-esiil.github.io/climate_cube_math/
+📘 Full documentation website 👉 https://cu-esiil.github.io/cubedynamics/
 
 Key entry points:
 - Concepts – cube abstraction, pipes & verbs, streaming
@@ -93,7 +91,7 @@ pip install cubedynamics
 For reproducible reviews, install directly from a Git tag:
 
 ```bash
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@v0.1.0"
+pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@v0.1.0"
 ```
 
 Replace `v0.1.0` with the release tag you want to test.
@@ -101,8 +99,8 @@ Replace `v0.1.0` with the release tag you want to test.
 ### Developer install
 
 ```bash
-git clone https://github.com/CU-ESIIL/climate_cube_math.git
-cd climate_cube_math
+git clone https://github.com/CU-ESIIL/cubedynamics.git
+cd cubedynamics
 pip install -e .[dev]
 pytest -m "not integration" -q
 ```

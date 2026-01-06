@@ -1,6 +1,6 @@
 # Installation Guide
 
-This guide shows how to set up a stable environment for CubeDynamics (the `climate_cube_math` package) using conda/mamba. It avoids dependency thrash by installing heavy geospatial libraries with conda-forge and installing `cubedynamics` separately via pip with `--no-deps`.
+This guide shows how to set up a stable environment for CubeDynamics (the `cubedynamics` package) using conda/mamba. It avoids dependency thrash by installing heavy geospatial libraries with conda-forge and installing `cubedynamics` separately via pip with `--no-deps`.
 
 ## 1. Prerequisites
 - A recent version of **conda** or **mamba** (e.g., Miniconda, Anaconda, or Mambaforge).
@@ -10,8 +10,8 @@ This guide shows how to set up a stable environment for CubeDynamics (the `clima
 ## 2. Quickstart: Create the environment
 ```bash
 # 1. Clone the repo (optional for end users; required for devs)
-git clone https://github.com/CU-ESIIL/climate_cube_math.git
-cd climate_cube_math
+git clone https://github.com/CU-ESIIL/cubedynamics.git
+cd cubedynamics
 
 # 2. Create the conda environment using conda-forge
 conda env create -f envs/cube-env.yml
@@ -28,7 +28,7 @@ We intentionally keep the Python package install separate from the conda environ
 
 ```bash
 # install cubedynamics from GitHub in the active environment
-pip install --no-deps "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+pip install --no-deps "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 ```
 
 Notes:
@@ -79,7 +79,7 @@ COPY envs/cube-env.yml /tmp/
 RUN conda env create -f /tmp/cube-env.yml
 
 # install cubedynamics without touching conda-managed deps
-RUN /opt/conda/envs/cube-env/bin/pip install --no-deps "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+RUN /opt/conda/envs/cube-env/bin/pip install --no-deps "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 ```
 
 This keeps the environment consistent across local machines and containerized deployments.

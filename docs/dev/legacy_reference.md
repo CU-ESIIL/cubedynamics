@@ -231,7 +231,7 @@ Install the package, then try a short pipeline.
 ```bash
 pip install cubedynamics
 # or install straight from GitHub for the freshest commits
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 ```
 
 ```python
@@ -294,7 +294,7 @@ CubeDynamics (`cubedynamics`) runs anywhere `xarray` does—laptops, clusters, o
 Grab the latest commits straight from the main branch. Installing inside a virtual environment (via `venv` or Conda) is recommended but optional.
 
 ```bash
-pip install "git+https://github.com/CU-ESIIL/climate_cube_math.git@main"
+pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 ```
 
 ### Install from PyPI once released
@@ -343,7 +343,7 @@ This pipeline is dimension-agnostic—the verbs accept any axes you provide. `pi
 - Read the [Pipe Syntax & Verbs](../pipe_syntax.md) page for more callables such as `month_filter`, `to_netcdf`, and how to author your own verbs.
 - Explore future climate streaming examples (PRISM/gridMET/NDVI) as they land in the docs and notebooks.
 - Run the full [CubeDynamics Quickstart notebook](../quickstart.md) for a ready-made walkthrough that matches this guide.
-- Walk through the Sentinel-2 NDVI anomaly tutorial in [notebooks/example_sentinel2_ndvi_zscore.ipynb](https://github.com/CU-ESIIL/climate_cube_math/blob/main/notebooks/example_sentinel2_ndvi_zscore.ipynb) to see the vegetation workflow that complements the PRISM and gridMET examples.
+- Walk through the Sentinel-2 NDVI anomaly tutorial in [notebooks/example_sentinel2_ndvi_zscore.ipynb](https://github.com/CU-ESIIL/cubedynamics/blob/main/notebooks/example_sentinel2_ndvi_zscore.ipynb) to see the vegetation workflow that complements the PRISM and gridMET examples.
 
 ## Worked examples
 
@@ -474,7 +474,7 @@ Lexcube widgets run only in live Python environments (JupyterLab, VS Code, Colab
 
 *The SVG is a stylized capture so the documentation can ship a "screenshot" without introducing binary assets.*
 
-[🔗 Launch this example on Binder](https://mybinder.org/v2/gh/CU-ESIIL/climate_cube_math/HEAD?labpath=notebooks/lexcube_example.ipynb)
+[🔗 Launch this example on Binder](https://mybinder.org/v2/gh/CU-ESIIL/cubedynamics/HEAD?labpath=notebooks/lexcube_example.ipynb)
 
 
 ## Legacy Technical Reference (kept for context)
