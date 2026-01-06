@@ -85,7 +85,7 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
-  logo: assets/img/cubedynamics_logo.png
+  logo: assets/img/cubedynamics_banner.png
   favicon: assets/img/cubedynamics_favicon.png
   custom_dir: docs/overrides
 
