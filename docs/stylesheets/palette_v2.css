@@ -1,0 +1,33 @@
+/* CubeDynamics palette overrides using Material scheme scopes */
+
+/* Light scheme (default) */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0b2a3f;
+  --md-accent-fg-color: #18c7b7;
+  --md-typeset-a-color: #0fa3a3;
+
+  --md-default-fg-color: #0f172a;
+  --md-default-fg-color--light: #304259;
+  --md-default-fg-color--lighter: #4a5c73;
+  --md-default-fg-color--lightest: #61738b;
+  --md-default-bg-color: #f5f8fa;
+
+  --md-code-bg-color: #edf2f7;
+  --md-code-fg-color: #0f172a;
+}
+
+/* Dark scheme (slate) */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0b2a3f;
+  --md-accent-fg-color: #66e0d2;
+  --md-typeset-a-color: #66e0d2;
+
+  --md-default-fg-color: #e6edf5;
+  --md-default-fg-color--light: #c2cede;
+  --md-default-fg-color--lighter: #a5b3c7;
+  --md-default-fg-color--lightest: #8a9ab4;
+  --md-default-bg-color: #0b1220;
+
+  --md-code-bg-color: #0f1a2b;
+  --md-code-fg-color: #e6edf5;
+}

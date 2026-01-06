@@ -90,9 +90,9 @@ theme:
   custom_dir: docs/overrides
 
 extra_css:
-  - stylesheets/cubedynamics.css
-  - css/extra.css
-  - assets/styles/landing_cards.css
+  - stylesheets/palette_v2.css
+  - stylesheets/layout_v2.css
+  - assets/styles/landing_cards_v2.css
 
 plugins:
   - search
