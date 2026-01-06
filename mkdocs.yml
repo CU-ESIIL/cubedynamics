@@ -53,6 +53,7 @@ nav:
       - Contributing: dev/contributing.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md
       - Legacy reference: dev/legacy_reference.md
+      - Testing Recon: dev/testing_recon.md
       - Public API & scope: project/public_api.md
       - Project Scope: project/scope.md
       - Deprecation inventory: project/deprecation_inventory.md
