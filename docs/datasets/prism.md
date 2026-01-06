@@ -46,6 +46,10 @@ The PRISM Climate Group at Oregon State University produces the dataset to deliv
 ### How CubeDynamics accesses it
 `load_prism_cube` mirrors the gridMET contract: it first attempts remote streaming, cropping the requested AOI and resampling to the desired temporal frequency, then chunks the result for lazy evaluation. If the streaming backend is unavailable, it falls back to a small synthetic download while preserving coordinate metadata. AOIs can be expressed as point buffers, bounding boxes, or GeoJSON, enabling rapid exploratory analyses without full archive downloads.
 
+!!! important "Temporal frequency and safety"
+    - Daily (`freq="D"`) is preferred for event-scale analyses; monthly end (`"ME"`) windows over a few days can yield zero timestamps.
+    - Keep `allow_synthetic=False` (default) for science use. When `True`, synthetic data are generated and flagged with provenance (`source`, `is_synthetic`, `backend_error`, `freq`, `requested_start`, `requested_end`).
+
 ### Important variables and dimensions
 | Field | Meaning | Units |
 |-----|--------|------|

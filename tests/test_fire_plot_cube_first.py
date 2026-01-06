@@ -81,6 +81,7 @@ def test_cube_first_fire_plot_does_not_fetch(monkeypatch):
         raise RuntimeError("should not fetch")
 
     monkeypatch.setattr(fire_verbs, "load_climate_cube_for_event", _fail)
+    monkeypatch.setattr(fire_verbs, "plot_climate_filled_hull", lambda *args, **kwargs: "fig")
     event = _synthetic_event()
     da = _grid_like_cube()
 

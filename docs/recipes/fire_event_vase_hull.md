@@ -50,6 +50,7 @@ results = v.fire_plot(
     fired_daily=fired_daily,
     event_id=event_id,
     climate_variable="vpd",    # or "tmmx"
+    allow_synthetic=False,      # fail loudly instead of using demo data
     time_buffer_days=1,
     n_ring_samples=200,
     n_theta=296,
@@ -68,6 +69,10 @@ print("Event:", results["event"].event_id)
 print("Hull verts:", hull.verts_km.shape, "tris:", hull.tris.shape)
 print("Cube:", getattr(cube, "da", None).shape if hasattr(cube, "da") else type(cube))
 ```
+
+!!! tip "Daily by default"
+    `fire_plot` now requests daily gridMET/PRISM data for event windows. Explicitly pass
+    `freq="D"` to emphasize daily sampling or a different frequency if needed.
 
 ## What you get back
 `v.fire_plot` returns a dictionary with:
@@ -93,6 +98,22 @@ If `show_hist=True`, a Matplotlib histogram is also drawn (for interactive QA) b
 
 !!! note
     Image placeholder — after running locally, save a screenshot to `docs/assets/workflows/fire_event_vase_hull.png`.
+
+## Data provenance
+Every cube returned by `fire_plot` carries provenance in `cube.da.attrs`:
+
+- `source`: one of `gridmet_streaming`, `gridmet_download`, `prism_streaming`, `prism_download`, or `synthetic`.
+- `is_synthetic`: `True` only when a synthetic fallback was generated.
+- `freq`: temporal frequency actually used (daily by default for gridMET/PRISM).
+- `backend_error`: present only when a fallback occurred (streaming → download or synthetic).
+
+Inspect these fields after running the recipe to confirm that real data were fetched.
+
+## Common pitfalls
+!!! warning
+    - **Empty time axis**: A short window with `freq="MS"` or `freq="ME"` can return zero timestamps. Use `freq="D"` for event-scale analyses.
+    - **Synthetic fallback**: By default `allow_synthetic=False` raises if the backend fails or returns empty/NaN data. Set `allow_synthetic=True` only for demos.
+    - **Backend dependencies**: If streaming is unavailable, install the required optional dependencies or point to cached downloads before retrying.
 
 ## Troubleshooting
 - **FIRED download/cache issues**: check the `load_fired_conus_ak` docstring for cache layout and download guidance; ensure the target file exists or enable `download=True`.

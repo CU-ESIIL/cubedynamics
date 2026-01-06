@@ -32,6 +32,7 @@ def fire_plot(
     fired_daily: gpd.GeoDataFrame | None = None,
     event_id: Any | None = None,
     climate_variable: str = "vpd",
+    freq: str | None = None,
     time_buffer_days: int = 1,
     n_ring_samples: int = 200,
     n_theta: int = 296,
@@ -40,6 +41,8 @@ def fire_plot(
     verbose: bool = False,
     save_prefix: Optional[str] = None,
     fast: bool = False,
+    allow_synthetic: bool = False,
+    prefer_streaming: bool = True,
 ) -> Dict[str, Any]:
     """Fire time-hull + climate visualization verb.
 
@@ -80,8 +83,15 @@ def fire_plot(
             event,
             time_buffer_days=time_buffer_days,
             variable=climate_variable,
+            freq=freq,
+            prefer_streaming=prefer_streaming,
+            allow_synthetic=allow_synthetic,
+            verbose=verbose,
         )
     log(verbose, f"Cube shape {cube.da.shape} dims={cube.da.dims}")
+    if verbose and hasattr(cube, "da"):
+        src = cube.da.attrs.get("source")
+        log(verbose, f"GRIDMET source: {src}")
 
     summary = sample_inside_outside(event, cube.da, fast=fast, verbose=verbose)
     log(

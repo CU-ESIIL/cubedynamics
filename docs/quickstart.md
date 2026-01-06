@@ -98,6 +98,9 @@ When a request is too large for a normal in-memory cube, CubeDynamics:
 - Make sure the requested variable name matches the dataset.
 - Verify dimensions before running large analyses so operations occur over the intended axis.
 - Use streaming defaults for big pulls instead of forcing full materialization.
+- For event windows, request daily frequency (`freq="D"`)—monthly codes like `"MS"`/`"ME"` over short ranges can return an empty time axis.
+- Leave `allow_synthetic=False` unless you explicitly want demo data; provenance (`source`, `is_synthetic`, `backend_error`) on cubes will confirm what you received.
+- A "streaming backend unavailable" warning means CubeDynamics fell back to a download backend. Install optional dependencies or check network access before re-running if you need streaming.
 
 ## Where to go next
 

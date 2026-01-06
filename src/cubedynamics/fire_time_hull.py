@@ -924,18 +924,79 @@ def load_climate_cube_for_event(
     time_buffer_days: int = 14,
     variable: str = "tmmx",
     prefer_synthetic: bool = False,
+    freq: str | None = None,
+    prefer_streaming: bool = True,
+    allow_synthetic: bool = False,
+    verbose: bool = False,
 ) -> ClimateCube:
+    from cubedynamics.data import gridmet as gridmet_loader
+    from cubedynamics.data import prism as prism_loader
+
     start = event.t0 - pd.Timedelta(days=time_buffer_days)
     end = event.t1 + pd.Timedelta(days=time_buffer_days)
-    da = load_gridmet_cube(
-        event.centroid_lat,
-        event.centroid_lon,
-        start,
-        end,
-        variable=variable,
-        prefer_synthetic=prefer_synthetic,
-    )
-    return ClimateCube(da=da)
+    var_lower = variable.lower()
+    allow_synth = allow_synthetic or prefer_synthetic
+
+    gridmet_vars = {
+        "vpd",
+        "tmmx",
+        "tmmn",
+        "rmax",
+        "rmin",
+        "etr",
+        "pr",
+        "erc",
+        "fm100",
+        "fm1000",
+        "pdsi",
+        "pet",
+        "srad",
+        "bi",
+    }
+    sentinel_vars = {"ndvi", "ndvi_zscore"}
+    prism_vars = {"ppt", "tmin", "tmax", "tmean"}
+
+    freq_use = freq
+    ds = None
+    source = "gridmet"
+    if var_lower in prism_vars:
+        freq_use = freq or "D"
+        source = "prism"
+        ds = prism_loader.load_prism_cube(
+            lat=event.centroid_lat,
+            lon=event.centroid_lon,
+            start=start,
+            end=end,
+            variable=variable,
+            freq=freq_use,
+            prefer_streaming=prefer_streaming,
+            show_progress=verbose,
+            allow_synthetic=allow_synth,
+        )
+    elif var_lower in sentinel_vars:
+        raise RuntimeError(
+            "Sentinel-2 NDVI variables must be provided as cubes (cube-first fire_plot) or via the sentinel loaders;"
+            " no implicit download is attempted."
+        )
+    else:
+        freq_use = freq or "D"
+        ds = gridmet_loader.load_gridmet_cube(
+            lat=event.centroid_lat,
+            lon=event.centroid_lon,
+            start=start,
+            end=end,
+            variable=variable,
+            freq=freq_use,
+            prefer_streaming=prefer_streaming,
+            show_progress=verbose,
+            allow_synthetic=allow_synth,
+        )
+
+    target_var = variable if variable in ds.data_vars else next(iter(ds.data_vars))
+    cube_da = ds[target_var]
+    cube_da.attrs.update(ds.attrs)
+    log(verbose, f"{source.upper()} source: {cube_da.attrs.get('source')}")
+    return ClimateCube(da=cube_da)
 
 
 def infer_spatial_dims(da: xr.DataArray) -> Tuple[str, str]:

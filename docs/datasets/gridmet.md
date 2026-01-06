@@ -47,6 +47,10 @@ The dataset is produced by John Abatzoglou and collaborators at the University o
 ### How CubeDynamics accesses it
 `load_gridmet_cube` attempts a streaming backend first, opening yearly NetCDF files over HTTP and subsetting the requested area and time range before chunking into a VirtualCube-like Dask structure. When streaming is unavailable it falls back to a small cached download while preserving the same `(time, y, x)` interface. Users request AOIs by point, bounding box, or GeoJSON, enabling fast analysis without retrieving the full continental archive.
 
+!!! important "Temporal frequency and safety"
+    - Daily (`freq="D"`) is recommended for fire/event windows. Monthly start (`"MS"`) requests over short ranges can produce an empty time axis; the loader now raises with guidance instead of silently returning NaNs.
+    - Set `allow_synthetic=False` (default) to require real data. When `True`, the loader fabricates data and records provenance (`source`, `is_synthetic`, `backend_error`, `freq`, `requested_start`, `requested_end`).
+
 ### Important variables and dimensions
 | Field | Meaning | Units |
 |-----|--------|------|

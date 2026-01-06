@@ -21,6 +21,7 @@ import xarray as xr
 
 from ..config import DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
 from ..progress import progress_bar
+from ..utils import set_cube_provenance
 from .prism import _bbox_mapping_from_geojson, _bbox_mapping_from_sequence, _coerce_aoi
 
 
@@ -40,6 +41,7 @@ def load_gridmet_cube(
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
     show_progress: bool = True,
+    allow_synthetic: bool = False,
 ) -> xr.Dataset:
     """Load a GRIDMET-like climate cube.
 
@@ -109,6 +111,7 @@ def load_gridmet_cube(
             chunks=chunks,
             prefer_streaming=prefer_streaming,
             show_progress=show_progress,
+            allow_synthetic=allow_synthetic,
         )
 
     resolved_freq = freq or time_res or "MS"
@@ -142,6 +145,7 @@ def load_gridmet_cube(
         chunks,
         prefer_streaming,
         show_progress,
+        allow_synthetic,
     )
 
 
@@ -154,11 +158,16 @@ def _load_gridmet_cube_impl(
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
     show_progress: bool = True,
+    allow_synthetic: bool = False,
 ) -> xr.Dataset:
     """Internal implementation shared by legacy and modern entrypoints."""
 
     chunk_map = _resolve_chunks(chunks)
+    backend_error: str | None = None
+    source = "gridmet_streaming"
+    ds: xr.Dataset | None = None
 
+    streaming_error: Exception | None = None
     if prefer_streaming:
         try:
             try:
@@ -168,23 +177,48 @@ def _load_gridmet_cube_impl(
             except TypeError:
                 ds = _open_gridmet_streaming(variables, start, end, aoi, freq)
         except Exception as exc:  # pragma: no cover - exercised via tests
+            streaming_error = exc
+            backend_error = str(exc)
             warnings.warn(
                 "GRIDMET streaming backend unavailable; falling back to local download.",
                 RuntimeWarning,
             )
-            ds = _open_gridmet_download(
-                variables, start, end, aoi, freq, error=exc, show_progress=show_progress
-            )
-    else:
+
+    if ds is None:
+        source = "gridmet_download"
         try:
             ds = _open_gridmet_download(
-                variables, start, end, aoi, freq, show_progress=show_progress
+                variables, start, end, aoi, freq, error=streaming_error, show_progress=show_progress
             )
         except TypeError:
-            ds = _open_gridmet_download(variables, start, end, aoi, freq)
+            try:
+                ds = _open_gridmet_download(variables, start, end, aoi, freq)
+            except Exception as exc:  # pragma: no cover - exercised via tests
+                backend_error = "; ".join(filter(None, [backend_error, str(exc)])) or str(exc)
+                if not allow_synthetic:
+                    raise RuntimeError(
+                        "GRIDMET download backend failed after streaming fallback. "
+                        "Set allow_synthetic=True to permit synthetic data."
+                    ) from exc
+                ds, freq = _build_synthetic_gridmet_cube(
+                    variables, start, end, aoi, freq, show_progress=show_progress
+                )
+                source = "synthetic"
 
     ds = _crop_to_aoi(ds, aoi)
-    return ds.chunk(chunk_map)
+    ds = ds.chunk(chunk_map)
+    return _finalize_gridmet_cube(
+        ds,
+        variables,
+        start,
+        end,
+        freq,
+        allow_synthetic=allow_synthetic,
+        source=source,
+        backend_error=backend_error,
+        show_progress=show_progress,
+        aoi=aoi,
+    )
 
 
 def _load_gridmet_cube_legacy(
@@ -193,6 +227,7 @@ def _load_gridmet_cube_legacy(
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
     show_progress: bool = True,
+    allow_synthetic: bool = False,
 ) -> xr.Dataset:
     if len(legacy_args) < 4:
         raise TypeError(
@@ -235,6 +270,7 @@ def _load_gridmet_cube_legacy(
         chunks,
         prefer_streaming,
         show_progress,
+        allow_synthetic,
     )
 
 
@@ -336,6 +372,43 @@ def _open_gridmet_download(
     return xr.Dataset(data_vars)
 
 
+def _build_synthetic_gridmet_cube(
+    variables: Sequence[str],
+    start: str,
+    end: str,
+    aoi: Mapping[str, float],
+    freq: str | None,
+    *,
+    show_progress: bool = False,
+) -> tuple[xr.Dataset, str]:
+    resolved_freq = freq or "D"
+    times = pd.date_range(start, end, freq=resolved_freq)
+    if not len(times):
+        resolved_freq = "D"
+        times = pd.date_range(start, end, freq=resolved_freq)
+    if not len(times):
+        start_ts = pd.to_datetime(start)
+        times = pd.date_range(start_ts, periods=1, freq="D")
+
+    y_coords, x_coords = _build_coords_for_aoi(aoi)
+    rng = np.random.default_rng(1337)
+    data_vars = {}
+    total = len(variables) if show_progress else None
+    with progress_bar(total=total, description="gridMET synthetic") as advance:
+        for name in variables:
+            data = rng.normal(size=(len(times), len(y_coords), len(x_coords)))
+            data_vars[name] = xr.DataArray(
+                data,
+                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
+                dims=(TIME_DIM, Y_DIM, X_DIM),
+                name=name,
+            )
+            if show_progress:
+                advance(1)
+
+    return xr.Dataset(data_vars), resolved_freq
+
+
 def _build_coords_for_aoi(aoi: Mapping[str, float]) -> tuple[np.ndarray, np.ndarray]:
     """Create evenly spaced coordinate arrays tailored to the AOI."""
 
@@ -363,6 +436,71 @@ def _resolve_chunks(chunks: Mapping[Hashable, int] | None) -> Mapping[Hashable, 
     if chunks is None:
         return DEFAULT_CHUNKS
     return chunks
+
+
+def _finalize_gridmet_cube(
+    ds: xr.Dataset,
+    variables: Sequence[str],
+    start: str,
+    end: str,
+    freq: str,
+    *,
+    allow_synthetic: bool,
+    source: str,
+    backend_error: str | None,
+    show_progress: bool,
+    aoi: Mapping[str, float],
+) -> xr.Dataset:
+    time_len = int(ds.sizes.get(TIME_DIM, 0)) if TIME_DIM in ds.sizes else 0
+    all_nan = False
+    if ds.data_vars:
+        indicators = []
+        for var in ds.data_vars.values():
+            check = var.isnull().all()
+            if hasattr(check, "compute"):
+                check = check.compute()
+            indicators.append(bool(check))
+        all_nan = all(indicators)
+
+    if time_len == 0:
+        message = (
+            "GRIDMET returned empty time axis. This commonly happens when freq='MS' and "
+            "your date window contains no month-start timestamps. Pass freq='D' for daily "
+            "analysis or extend your date range."
+        )
+        if not allow_synthetic:
+            raise RuntimeError(message)
+        backend_error = message if backend_error is None else f"{message} {backend_error}"
+        ds, freq = _build_synthetic_gridmet_cube(
+            variables, start, end, aoi, "D", show_progress=show_progress
+        )
+        source = "synthetic"
+        time_len = int(ds.sizes.get(TIME_DIM, 0))
+        all_nan = False
+
+    if all_nan:
+        nan_message = (
+            "GRIDMET returned all-NaN data; the backend selection may be empty or require "
+            "additional dependencies. Set allow_synthetic=True to permit synthetic data."
+        )
+        if not allow_synthetic:
+            raise RuntimeError(nan_message)
+        backend_error = nan_message if backend_error is None else f"{nan_message} {backend_error}"
+        ds, freq = _build_synthetic_gridmet_cube(
+            variables, start, end, aoi, "D", show_progress=show_progress
+        )
+        source = "synthetic"
+
+    provenance_error = backend_error if source != "gridmet_streaming" else None
+    return set_cube_provenance(
+        ds,
+        source=source,
+        is_synthetic=source == "synthetic",
+        freq=freq,
+        requested_start=start,
+        requested_end=end,
+        backend_error=provenance_error,
+    )
 
 
 __all__ = ["load_gridmet_cube"]
