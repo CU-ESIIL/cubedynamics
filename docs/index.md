@@ -1,5 +1,5 @@
 <div class="landing-logo">
-  <img src="assets/img/cubedynamics_logo.png" alt="CubeDynamics">
+  <img src="assets/img/cubedynamics_logo.png" class="cd-logo" alt="CubeDynamics">
 </div>
 
 # CubeDynamics
