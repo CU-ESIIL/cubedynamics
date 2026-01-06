@@ -93,6 +93,51 @@ def fire_plot(
         src = cube.da.attrs.get("source")
         log(verbose, f"GRIDMET source: {src}")
 
+    def _nan_guard(val):
+        check = val.isnull().all()
+        if hasattr(check, "compute"):
+            check = check.compute()
+        return bool(check)
+
+    time_len = int(cube.da.sizes.get("time", 0)) if "time" in cube.da.sizes else 0
+    all_nan = _nan_guard(cube.da) if cube.da.size else True
+    if time_len == 0 or all_nan:
+        freq_use = freq or cube.da.attrs.get("freq") or "D"
+        message = (
+            "empty time axis" if time_len == 0 else "all-NaN climate data"
+        )
+        message = (
+            f"{message}; freq='{freq_use}' may miss timestamps for short windows. "
+            "Pass freq='D' or expand the date range."
+        )
+        if not allow_synthetic:
+            raise RuntimeError(message)
+
+        time_min = event.t0 - pd.Timedelta(days=time_buffer_days)
+        time_max = event.t1 + pd.Timedelta(days=time_buffer_days)
+        times = pd.date_range(time_min, time_max, freq=freq_use)
+        if times.size == 0:
+            times = pd.date_range(time_min, time_max, freq="D")
+            freq_use = "D"
+
+        synth_da = xr.DataArray(
+            np.zeros((len(times), 1, 1), dtype=float),
+            coords={"time": times, "y": [event.centroid_lat], "x": [event.centroid_lon]},
+            dims=("time", "y", "x"),
+            name=climate_variable,
+            attrs={
+                **cube.da.attrs,
+                "source": cube.da.attrs.get("source", "synthetic"),
+                "is_synthetic": True,
+                "freq": freq_use,
+                "requested_start": str(time_min),
+                "requested_end": str(time_max),
+                "backend_error": message,
+                "epsg": cube.da.attrs.get("epsg", 4326),
+            },
+        )
+        cube = ClimateCube(da=synth_da)
+
     summary = sample_inside_outside(event, cube.da, fast=fast, verbose=verbose)
     log(
         verbose,

@@ -55,6 +55,16 @@ def _patch_plot_and_hull(monkeypatch, dates_len: int):
     monkeypatch.setattr(fire_verbs, "plot_climate_filled_hull", lambda *args, **kwargs: "fig")
 
 
+def _empty_time_dataset(var: str) -> xr.Dataset:
+    da = xr.DataArray(
+        np.zeros((0, 1, 1)),
+        coords={"time": pd.DatetimeIndex([]), "y": [40.0], "x": [-105.0]},
+        dims=("time", "y", "x"),
+        name=var,
+    )
+    return xr.Dataset({var: da})
+
+
 @pytest.mark.parametrize("freq_override", [None, "MS"])
 def test_fire_plot_legacy_gridmet_freq(monkeypatch, freq_override):
     fired_daily = _fired_daily_fixture()
@@ -118,3 +128,49 @@ def test_fire_plot_legacy_prism_freq(monkeypatch, freq_override):
     assert cube.attrs.get("freq") == expected_freq
     assert cube.attrs.get("source") == "prism_streaming"
     assert_not_all_nan(cube)
+
+
+def test_fire_plot_raises_on_empty_time(monkeypatch):
+    fired_daily = _fired_daily_fixture()
+    _patch_plot_and_hull(monkeypatch, len(fired_daily))
+
+    monkeypatch.setattr(
+        "cubedynamics.data.gridmet.load_gridmet_cube",
+        lambda **_: _empty_time_dataset("vpd"),
+    )
+
+    with pytest.raises(RuntimeError, match="empty time axis"):
+        fire_verbs.fire_plot(
+            fired_daily=fired_daily,
+            event_id=1,
+            climate_variable="vpd",
+            freq="MS",
+            time_buffer_days=0,
+            allow_synthetic=False,
+            prefer_streaming=False,
+        )
+
+
+def test_fire_plot_synthetic_fallback_on_empty_time(monkeypatch):
+    fired_daily = _fired_daily_fixture()
+    _patch_plot_and_hull(monkeypatch, len(fired_daily))
+
+    monkeypatch.setattr(
+        "cubedynamics.data.gridmet.load_gridmet_cube",
+        lambda **_: _empty_time_dataset("vpd"),
+    )
+
+    results = fire_verbs.fire_plot(
+        fired_daily=fired_daily,
+        event_id=1,
+        climate_variable="vpd",
+        freq="MS",
+        time_buffer_days=0,
+        allow_synthetic=True,
+        prefer_streaming=False,
+    )
+
+    cube = results["cube"].da
+    assert cube.sizes.get("time", 0) > 0
+    assert cube.attrs.get("is_synthetic") is True
+    assert "empty time axis" in cube.attrs.get("backend_error", "")

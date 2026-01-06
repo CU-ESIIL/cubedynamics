@@ -50,6 +50,7 @@ results = v.fire_plot(
     fired_daily=fired_daily,
     event_id=event_id,
     climate_variable="vpd",    # or "tmmx"
+    freq="D",                   # daily by default; avoid empty monthly windows
     allow_synthetic=False,      # fail loudly instead of using demo data
     time_buffer_days=1,
     n_ring_samples=200,
