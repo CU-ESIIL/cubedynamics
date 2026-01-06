@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 import xarray as xr
 
-from climate_cube_math.data.gridmet import load_gridmet_cube
+from cubedynamics.data.gridmet import load_gridmet_cube
 
 from tests.conftest import assert_is_lazy_xarray
 
@@ -44,7 +44,7 @@ def test_load_gridmet_cube_streaming_default(recwarn):
 
 @pytest.mark.online
 def test_load_gridmet_cube_fallback_download(monkeypatch, recwarn):
-    import climate_cube_math.data.gridmet as gridmet_mod
+    import cubedynamics.data.gridmet as gridmet_mod
 
     def _always_fail(*args, **kwargs):  # pragma: no cover - used in test
         raise RuntimeError("streaming backend offline for test")

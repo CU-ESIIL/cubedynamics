@@ -1,5 +1,11 @@
 # CubeDynamics
 
+**Install:** `pip install cubedynamics`  →  `import cubedynamics`
+
+**Migration note:** this project was renamed from `climate_cube_math` to `cubedynamics`.
+Legacy imports will keep working for now but emit a `DeprecationWarning`; please
+update your code to use the new package name.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/CU-ESIIL/cubedynamics/main/docs/assets/img/cubedynamics_logo.png" alt="CubeDynamics" width="520">
 </p>

@@ -11,6 +11,7 @@ requires-python = ">=3.9"
 authors = [
     { name = "Ty Tuff" },
 ]
+license = { file = "LICENSE" }
 dependencies = [
     "numpy",
     "xarray",
@@ -33,8 +34,9 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/CU-ESIIL/cubedynamics"
+Repository = "https://github.com/CU-ESIIL/cubedynamics"
 Documentation = "https://cu-esiil.github.io/cubedynamics/"
-Source = "https://github.com/CU-ESIIL/cubedynamics"
+Issues = "https://github.com/CU-ESIIL/cubedynamics/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
@@ -44,3 +46,4 @@ package-dir = { "" = "src" }
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["cubedynamics*", "climate_cube_math*"]
