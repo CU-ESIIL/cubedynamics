@@ -74,8 +74,17 @@ theme:
     - content.code.copy
   palette:
     - scheme: default
-      primary: "#1f3b74"
-      accent: "#ff8c42"
+      primary: "#0b1f2a"
+      accent: "#1aa7a0"
+      toggle:
+        icon: material/brightness-4
+        name: Switch to dark mode
+    - scheme: slate
+      primary: "#0b1f2a"
+      accent: "#1aa7a0"
+      toggle:
+        icon: material/brightness-7
+        name: Switch to light mode
   logo: assets/img/cubedynamics_logo.png
   favicon: assets/img/cubedynamics_logo.png
   custom_dir: docs/overrides
