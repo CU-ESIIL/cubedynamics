@@ -44,6 +44,19 @@ pipe(ndvi) | v.plot()
 - The viewer renders into a canvas inside the notebook output. The same HTML
   can be opened standalone for debugging.
 
+## Customizing the view
+
+Pass a Plotly-style camera dict to `v.plot()` to set the initial view. This is
+useful for forcing a front-right swing or zooming out when sharing links.
+
+```python
+from cubedynamics import pipe, verbs as v
+
+plot = pipe(ndvi) | v.plot(
+    camera=dict(eye=dict(x=2.0, y=1.5, z=1.2)),
+)
+```
+
 ## Saving and opening as HTML
 
 Use the returned `CubePlot` to save a standalone HTML file for easier

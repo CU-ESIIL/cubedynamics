@@ -107,6 +107,7 @@ def plot(
     time_dim: str | None = "time",
     cmap: str = "viridis",
     clim: tuple[float, float] | None = None,
+    camera: dict | None = None,
     **kwargs,
 ):
     """Plot a cube without explicitly building a pipe chain.
@@ -123,6 +124,8 @@ def plot(
     clim : tuple of float, optional
         Value limits passed through to the plotting verb for consistent color
         scaling.
+    camera : dict, optional
+        Plotly-style camera configuration for the initial cube view.
     **kwargs : Any
         Forwarded to :func:`cubedynamics.verbs.plot.plot` for advanced layout
         control.
@@ -159,6 +162,7 @@ def plot(
         time_dim=time_dim,
         cmap=cmap,
         clim=clim,
+        camera=camera,
         **kwargs,
     )
 

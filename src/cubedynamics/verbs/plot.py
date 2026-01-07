@@ -19,7 +19,13 @@ import logging
 
 import xarray as xr
 
-from cubedynamics.plotting.cube_plot import CubePlot, ScaleFillContinuous
+from cubedynamics.plotting.cube_plot import (
+    DEFAULT_CAMERA,
+    CubePlot,
+    ScaleFillContinuous,
+    plotly_camera_to_coord,
+    resolve_camera,
+)
 from cubedynamics.streaming import VirtualCube
 from cubedynamics.utils import _infer_time_y_x_dims
 from ..piping import Verb
@@ -39,6 +45,7 @@ class PlotOptions:
     thin_time_factor: int = 4
     time_dim: str | None = None
     clim: tuple[float, float] | None = None
+    camera: dict | None = None
     fig_id: int | None = None
     fig_title: str | None = None
     fig_text: str | None = None
@@ -54,6 +61,7 @@ def plot(
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
+    camera: dict | None = None,
     fig_id: int | None = None,
     fig_title: str | None = None,
     fig_text: str | None = None,
@@ -70,6 +78,7 @@ def plot(
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
+    camera: dict | None = None,
     fig_id: int | None = None,
     fig_title: str | None = None,
     fig_text: str | None = None,
@@ -86,6 +95,7 @@ def plot(
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
+    camera: dict | None = None,
     fig_id: int | None = None,
     fig_title: str | None = None,
     fig_text: str | None = None,
@@ -116,6 +126,9 @@ def plot(
         Name of the temporal dimension. Inferred when not provided.
     clim : tuple of float, optional
         Color limits for the continuous scale.
+    camera : dict, optional
+        Plotly-style camera configuration used to set the initial cube view.
+        When omitted, a front-right, zoomed-out default is applied.
     fig_id, fig_title, fig_text : optional
         Caption metadata used by the viewer export helpers.
 
@@ -158,6 +171,7 @@ def plot(
         thin_time_factor=thin_time_factor,
         time_dim=time_dim,
         clim=clim,
+        camera=camera,
         fig_id=fig_id,
         fig_title=fig_title,
         fig_text=fig_text,
@@ -183,6 +197,9 @@ def plot(
         if opts.fig_id is not None or opts.fig_title is not None or opts.fig_text is not None:
             caption_payload = {"id": opts.fig_id, "title": opts.fig_title, "text": opts.fig_text}
 
+        camera_to_use = resolve_camera(opts.camera or DEFAULT_CAMERA)
+        coord = plotly_camera_to_coord(camera_to_use)
+
         # 1. Build CubePlot for this cube
         cube = CubePlot(
             da_value,
@@ -194,6 +211,8 @@ def plot(
             time_dim=resolved_time,
             fill_scale=ScaleFillContinuous(cmap=opts.cmap, limits=opts.clim),
             fig_title=opts.fig_title,
+            coord=coord,
+            camera=camera_to_use,
         )
 
         # 2. Draw cube

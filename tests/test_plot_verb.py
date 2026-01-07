@@ -4,6 +4,7 @@ import xarray as xr
 from cubedynamics import verbs as v
 from cubedynamics.piping import pipe
 from cubedynamics.plotting import CubePlot
+from cubedynamics.plotting.cube_plot import DEFAULT_CAMERA
 
 
 def _make_tiny_cube():
@@ -30,3 +31,17 @@ def test_plot_does_not_materialize_dask():
     result = (pipe(cube) | v.plot()).unwrap()
     assert isinstance(result, CubePlot)
     assert cube.data.__class__.__name__.lower().startswith("array")
+
+
+def test_plot_default_camera():
+    cube = _make_tiny_cube()
+    result = (pipe(cube) | v.plot()).unwrap()
+    assert result.camera == DEFAULT_CAMERA
+    assert result.camera["eye"]["x"] > 0
+
+
+def test_plot_camera_override():
+    cube = _make_tiny_cube()
+    custom_camera = {"eye": {"x": 2.0, "y": 1.5, "z": 1.2}}
+    result = (pipe(cube) | v.plot(camera=custom_camera)).unwrap()
+    assert result.camera["eye"] == custom_camera["eye"]

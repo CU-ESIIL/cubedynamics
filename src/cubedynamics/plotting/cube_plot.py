@@ -16,6 +16,7 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 import logging
 import html
+import math
 import os
 import string
 
@@ -258,6 +259,53 @@ class CoordCube:
     time_format: str = "%Y-%m-%d"
 
 
+DEFAULT_CAMERA: Dict[str, Dict[str, float]] = {
+    "eye": {"x": 1.8, "y": 1.35, "z": 1.15},
+    "up": {"x": 0.0, "y": 0.0, "z": 1.0},
+    "center": {"x": 0.0, "y": 0.0, "z": 0.0},
+}
+_PLOTLY_DEFAULT_EYE = {"x": 1.25, "y": 1.25, "z": 1.25}
+
+
+def resolve_camera(camera: Optional[Dict[str, Any]]) -> Dict[str, Dict[str, float]]:
+    merged = {
+        "eye": dict(DEFAULT_CAMERA["eye"]),
+        "up": dict(DEFAULT_CAMERA["up"]),
+        "center": dict(DEFAULT_CAMERA["center"]),
+    }
+    if not camera:
+        return merged
+    for key in ("eye", "up", "center"):
+        values = camera.get(key)
+        if isinstance(values, dict):
+            for axis in ("x", "y", "z"):
+                if axis in values:
+                    merged[key][axis] = float(values[axis])
+    return merged
+
+
+def plotly_camera_to_coord(camera: Optional[Dict[str, Any]]) -> CoordCube:
+    resolved = resolve_camera(camera)
+    eye = resolved["eye"]
+    x = float(eye.get("x", 0.0))
+    y = float(eye.get("y", 0.0))
+    z = float(eye.get("z", 0.0))
+
+    azim = math.degrees(math.atan2(y, x)) if (x or y) else 0.0
+    horiz = math.hypot(x, y)
+    elev = math.degrees(math.atan2(z, horiz)) if (horiz or z) else 0.0
+
+    ref = math.sqrt(
+        _PLOTLY_DEFAULT_EYE["x"] ** 2
+        + _PLOTLY_DEFAULT_EYE["y"] ** 2
+        + _PLOTLY_DEFAULT_EYE["z"] ** 2
+    )
+    mag = math.sqrt(x**2 + y**2 + z**2) or ref
+    zoom = mag / ref if ref else 1.0
+
+    return CoordCube(elev=elev, azim=azim, zoom=zoom)
+
+
 @dataclass
 class CubeAnnotation:
     """Simple annotation container for planes/text anchored to cube axes."""
@@ -453,6 +501,7 @@ class CubePlot(metaclass=_CubePlotMeta):
     show_progress: bool = True
     progress_style: str = "bar"
     coord: CoordCube = field(default_factory=CoordCube)
+    camera: Optional[Dict[str, Any]] = None
     annotations: List[CubeAnnotation] = field(default_factory=list)
     out_html: str = "cube_da.html"
     facet: Optional[CubeFacet] = None
@@ -486,6 +535,8 @@ class CubePlot(metaclass=_CubePlotMeta):
             self.alpha_scale = ScaleAlphaContinuous()
         if self.caption is None and self.fig_title is not None:
             self.caption = {"title": self.fig_title}
+        if self.camera is not None:
+            self.coord = plotly_camera_to_coord(self.camera)
         if isinstance(self.data, xr.DataArray):
             self.axis_meta = self.axis_meta or self._build_axis_meta(self.data)
 
