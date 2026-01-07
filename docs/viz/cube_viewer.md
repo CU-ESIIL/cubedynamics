@@ -43,6 +43,8 @@ pipe(ndvi) | v.plot()
 - **Reset view:** not yet implemented; re-run the cell to reset the camera.
 - The viewer renders into a canvas inside the notebook output. The same HTML
   can be opened standalone for debugging.
+- Axis labels are attached to cube edges so they rotate with the scene; the
+  time label runs along the cube’s temporal depth by default.
 
 ## Customizing the view
 
