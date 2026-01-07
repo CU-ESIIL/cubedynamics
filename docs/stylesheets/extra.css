@@ -20,7 +20,7 @@
 /* Constrain hero logo to MkDocs Material content column */
 .hero-logo {
   max-width: 100%;
-  margin: 0 auto 2rem auto;
+  margin: 0 auto 1.5rem auto;
   text-align: center;
 }
 
@@ -29,7 +29,5 @@
   display: block;
   max-width: 100%;
   height: auto;
-
-  /* Prevent excessive vertical dominance */
   max-height: 280px;
 }
