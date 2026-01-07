@@ -260,7 +260,7 @@ class CoordCube:
 
 
 DEFAULT_CAMERA: Dict[str, Dict[str, float]] = {
-    "eye": {"x": 1.8, "y": 1.35, "z": 1.15},
+    "eye": {"x": 3.0, "y": -2.5, "z": -0.7},
     "up": {"x": 0.0, "y": 0.0, "z": 1.0},
     "center": {"x": 0.0, "y": 0.0, "z": 0.0},
 }
