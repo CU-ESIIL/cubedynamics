@@ -24,6 +24,18 @@ ndvi = cd.ndvi(
 pipe(ndvi) | v.plot()
 ```
 
+<div class="interactive-embed">
+  <iframe
+    src="../assets/figures/ndvi_1_year.html"
+    title="Interactive NDVI example (1 year)"
+    loading="lazy"
+    allowfullscreen
+  ></iframe>
+  <p class="interactive-embed__fallback">
+    If the interactive view doesn’t load, <a href="../assets/figures/ndvi_1_year.html" target="_blank" rel="noopener">open it in a new tab</a>.
+  </p>
+</div>
+
 ## Controls
 
 - **Rotate:** click + drag (or touch and drag) anywhere on the cube.

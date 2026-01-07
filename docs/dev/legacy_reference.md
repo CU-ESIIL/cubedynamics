@@ -470,7 +470,7 @@ cd.show_cube_lexcube(cube, cmap="RdBu_r")
 
 Lexcube widgets run only in live Python environments (JupyterLab, VS Code, Colab, Binder). They will not render on the static documentation site, so screenshots and Binder links are provided for reference.
 
-![Stylized Lexcube example](../img/lexcube_example.svg)
+![Stylized Lexcube example](../assets/img/lexcube_hero.png)
 
 *The SVG is a stylized capture so the documentation can ship a "screenshot" without introducing binary assets.*
 
