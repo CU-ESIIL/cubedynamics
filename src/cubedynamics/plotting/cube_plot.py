@@ -260,7 +260,7 @@ class CoordCube:
 
 
 DEFAULT_CAMERA: Dict[str, Dict[str, float]] = {
-    "eye": {"x": 2.6, "y": 2.1, "z": 2.4},
+    "eye": {"x": 3.0, "y": -2.5, "z": -0.7},
     "up": {"x": 0.0, "y": 0.0, "z": 1.0},
     "center": {"x": 0.0, "y": 0.0, "z": 0.0},
 }
@@ -304,23 +304,6 @@ def plotly_camera_to_coord(camera: Optional[Dict[str, Any]]) -> CoordCube:
     zoom = mag / ref if ref else 1.0
 
     return CoordCube(elev=elev, azim=azim, zoom=zoom)
-
-
-def cube_axis_mapping(
-    data: xr.DataArray, *, time_dim: str | None = None
-) -> Dict[str, str | None]:
-    """Return the cube axis mapping for the viewer (x/y/z -> data dims).
-
-    Axis mapping: x -> x_dim, y -> y_dim, z -> time_dim (depth).
-    """
-
-    if time_dim:
-        t_dim = time_dim
-        remaining = [dim for dim in data.dims if dim != t_dim]
-        y_dim, x_dim = (remaining + [None, None])[-2:]
-    else:
-        t_dim, y_dim, x_dim = _infer_time_y_x_dims(data)
-    return {"x": x_dim, "y": y_dim, "z": t_dim}
 
 
 @dataclass
@@ -797,7 +780,6 @@ class CubePlot(metaclass=_CubePlotMeta):
                 fill_breaks=fill_scale.infer_breaks(fill_limits),
                 fill_labels=fill_scale.labels,
                 coord=self.coord,
-                camera=self.camera,
                 annotations=self.annotations,
                 return_html=True,
                 show_legend=show_legend,
@@ -1013,7 +995,6 @@ __all__ = [
     "ScaleFillContinuous",
     "ScaleAlphaContinuous",
     "CoordCube",
-    "cube_axis_mapping",
     "geom_cube",
     "geom_slice",
     "geom_outline",
