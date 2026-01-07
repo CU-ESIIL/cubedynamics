@@ -15,6 +15,7 @@ def plot(
     cmap: str = "viridis",
     clim: Optional[Tuple[float, float]] = None,
     aspect: str = "equal",
+    camera: Optional[dict] = None,
 ):
     """Deprecated. Use :func:`cubedynamics.verbs.plot` instead.
 
@@ -38,19 +39,12 @@ def plot(
             )
 
         # Map legacy args to the newer verb implementation.
-        vmin_vmax = clim if clim is not None else (None, None)
-        plot_kwargs = {"aspect": aspect}
-        if vmin_vmax[0] is not None:
-            plot_kwargs["vmin"] = vmin_vmax[0]
-        if vmin_vmax[1] is not None:
-            plot_kwargs["vmax"] = vmin_vmax[1]
-
         return _plot_verb(
             cube,
             time_dim=time_dim,
             cmap=cmap,
-            kind="auto",
-            **plot_kwargs,
+            clim=clim,
+            camera=camera,
         )
 
     return _inner
