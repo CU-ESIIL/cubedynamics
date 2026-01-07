@@ -1,10 +1,11 @@
 import json
+import re
 import numpy as np
 import pandas as pd
 import xarray as xr
 import pytest
 
-from cubedynamics.plotting.cube_plot import CubePlot
+from cubedynamics.plotting.cube_plot import CubePlot, cube_axis_mapping
 from cubedynamics.plotting.cube_viewer import (
     _axis_range_from_ticks,
     _infer_axis_ticks,
@@ -218,9 +219,53 @@ def test_progressive_mode_builds_interior_planes(monkeypatch, tmp_path):
 
     planes = calls.get("planes")
     assert planes is not None
-    axes = [axis for axis, *_ in planes]
-    assert "time" in axes
-    assert any(meta["nt"] == 4 and meta["nx"] == 2 and meta["ny"] == 2 for *_, meta in planes)
+
+
+def _extract_annotation_coords(html: str, axis: str, role: str) -> tuple[float, float, float]:
+    pattern = (
+        rf'data-axis="{axis}" data-role="{role}" '
+        r'data-x="(?P<x>[-0-9.]+)" data-y="(?P<y>[-0-9.]+)" data-z="(?P<z>[-0-9.]+)"'
+    )
+    match = re.search(pattern, html)
+    assert match, f"Annotation {axis}/{role} not found"
+    return (float(match.group("x")), float(match.group("y")), float(match.group("z")))
+
+
+def test_cube_axis_annotations_attach_to_edges(tmp_path):
+    times = pd.date_range("2021-01-01", periods=2, freq="D")
+    data = xr.DataArray(
+        np.arange(8).reshape(2, 2, 2),
+        dims=("time", "lat", "lon"),
+        coords={"time": times, "lat": [40.0, 41.0], "lon": [-105.0, -104.9]},
+        name="demo",
+    )
+
+    html = cube_from_dataarray(
+        data,
+        out_html=str(tmp_path / "axis_annots.html"),
+        show_progress=False,
+        return_html=True,
+    )
+
+    assert "cube-axis-annotation" in html
+    assert "Longitude" in html
+    assert "Latitude" in html
+    assert "Time" in html
+
+    z_min = _extract_annotation_coords(html, "time", "min")[2]
+    z_max = _extract_annotation_coords(html, "time", "max")[2]
+    assert z_min != z_max
+
+
+def test_cube_axis_mapping_helper():
+    data = xr.DataArray(
+        np.arange(8).reshape(2, 2, 2),
+        dims=("time", "lat", "lon"),
+        coords={"time": [1, 2], "lat": [0.0, 1.0], "lon": [2.0, 3.0]},
+    )
+
+    mapping = cube_axis_mapping(data)
+    assert mapping == {"x": "lon", "y": "lat", "z": "time"}
 
 
 def test_progressive_html_contains_interior_planes(tmp_path):

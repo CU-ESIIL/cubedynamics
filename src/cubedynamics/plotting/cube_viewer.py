@@ -191,6 +191,78 @@ def _vase_panel_transform(panel: VasePanel, size_px: int) -> str:
     )
 
 
+def _axis_annotation_html(
+    *,
+    axis_meta: Dict[str, Dict[str, str]],
+    size_px: int,
+    camera: Dict[str, Any] | None,
+) -> str:
+    entries = _axis_annotation_positions(axis_meta=axis_meta, size_px=size_px, camera=camera)
+    parts: list[str] = []
+    for entry in entries:
+        parts.append(
+            "<div class=\"cube-axis-annotation cube-label\" "
+            f"data-axis=\"{entry['axis']}\" data-role=\"{entry['role']}\" "
+            f"data-x=\"{entry['x']:.2f}\" data-y=\"{entry['y']:.2f}\" data-z=\"{entry['z']:.2f}\" "
+            f"style=\"transform: translate3d({entry['x']:.2f}px, {entry['y']:.2f}px, {entry['z']:.2f}px) "
+            "translate(-50%, -50%);\">"
+            f"{entry['text']}"
+            "</div>"
+        )
+    return "".join(parts)
+
+
+def _axis_annotation_positions(
+    *,
+    axis_meta: Dict[str, Dict[str, str]],
+    size_px: int,
+    camera: Dict[str, Any] | None,
+) -> list[Dict[str, Any]]:
+    half = size_px / 2.0
+    eye = (camera or {}).get("eye", {})
+    eye_x = float(eye.get("x", 1.0))
+    eye_y = float(eye.get("y", 1.0))
+    eye_z = float(eye.get("z", 1.0))
+
+    x_dir = 1.0 if eye_x >= 0 else -1.0
+    y_dir = 1.0 if eye_y >= 0 else -1.0
+    z_dir = 1.0 if eye_z >= 0 else -1.0
+
+    x_front = half * x_dir
+    y_front = half * y_dir
+    z_front = half * z_dir
+
+    x_off = 0.03 * size_px * x_dir
+    y_off = 0.03 * size_px * y_dir
+    z_off = 0.03 * size_px * z_dir
+
+    entries: list[Dict[str, Any]] = []
+
+    def add(axis: str, role: str, text: str, x: float, y: float, z: float) -> None:
+        if text:
+            entries.append(
+                {"axis": axis, "role": role, "text": text, "x": x, "y": y, "z": z}
+            )
+
+    x_meta = axis_meta.get("x", {})
+    y_meta = axis_meta.get("y", {})
+    t_meta = axis_meta.get("time", {})
+
+    add("x", "min", x_meta.get("min", ""), -half, y_front + y_off, z_front + z_off)
+    add("x", "max", x_meta.get("max", ""), half, y_front + y_off, z_front + z_off)
+    add("x", "title", x_meta.get("name", ""), 0.0, y_front + y_off, z_front + z_off)
+
+    add("y", "min", y_meta.get("min", ""), x_front + x_off, -half, z_front + z_off)
+    add("y", "max", y_meta.get("max", ""), x_front + x_off, half, z_front + z_off)
+    add("y", "title", y_meta.get("name", ""), x_front + x_off, 0.0, z_front + z_off)
+
+    add("time", "min", t_meta.get("min", ""), x_front + x_off, y_front + y_off, -half)
+    add("time", "max", t_meta.get("max", ""), x_front + x_off, y_front + y_off, half)
+    add("time", "title", t_meta.get("name", ""), x_front + x_off, y_front + y_off, 0.0)
+
+    return entries
+
+
 def _render_cube_html(
     *,
     front: str,
@@ -210,6 +282,7 @@ def _render_cube_html(
     color_limits: tuple[float, float],
     interior_meta: Dict[str, int],
     viewer_id: str,
+    camera: Dict[str, Any] | None = None,
 ) -> str:
     # NOTE: This function owns the inline HTML/JS template used both for
     # notebook embedding (written to disk and loaded via iframe) and standalone
@@ -240,9 +313,11 @@ def _render_cube_html(
     css_vars = " ".join(f"{k}: {v};" for k, v in theme.items())
 
     axis_meta = axis_meta or {}
-    time_meta = axis_meta.get("time", {})
-    x_meta = axis_meta.get("x", {})
-    y_meta = axis_meta.get("y", {})
+    axis_annotations_html = _axis_annotation_html(
+        axis_meta=axis_meta,
+        size_px=size_px,
+        camera=camera,
+    )
     figure_id = f"cube-figure-{viewer_id}"
 
     cube_faces_html = f"""
@@ -474,67 +549,19 @@ def _render_cube_html(
       pointer-events: none;
     }}
 
-    .axis-label {{
+    .cube-axis-annotation {{
       position: absolute;
-      font-size: var(--cube-axis-font-size, 13px);
-      color: var(--cube-axis-color);
-      pointer-events: none;
-    }}
-
-    .cube-label {{
-      position: absolute;
-      font-size: var(--cube-axis-font-size, 13px);
-      color: var(--cube-axis-color);
-      pointer-events: none;
-      letter-spacing: 0.04em;
-    }}
-
-    /* Tight to each cube face */
-    .axis-x-min {{
-      bottom: 5%;
-      left: 15%;
-    }}
-    .axis-x-max {{
-      bottom: 5%;
-      right: 15%;
-    }}
-    .axis-x-name {{
-      bottom: 0%;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
+      transform-style: preserve-3d;
+      font-size: var(--cube-axis-font-size, 13px);
+      color: var(--cube-axis-color);
+      letter-spacing: 0.04em;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      pointer-events: none;
+      white-space: nowrap;
     }}
 
-    .axis-y-min {{
-      top: 15%;
-      right: 5%;
-      transform: rotate(90deg);
-    }}
-    .axis-y-max {{
-      bottom: 15%;
-      right: 5%;
-      transform: rotate(90deg);
-    }}
-    .axis-y-name {{
-      top: 50%;
-      right: 0%;
-      transform: translateY(-50%) rotate(90deg);
-    }}
-
-    .axis-t-min {{
-      left: 5%;
-      top: 75%;
-      transform: rotate(-90deg);
-    }}
-    .axis-t-max {{
-      left: 5%;
-      top: 25%;
-      transform: rotate(-90deg);
-    }}
-    .axis-t-name {{
-      left: 0%;
-      top: 50%;
-      transform: translateY(-50%) rotate(-90deg);
-    }}
     .cube-legend-panel {{
       width: 100%;
       display: flex;
@@ -597,15 +624,7 @@ def _render_cube_html(
             <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
           </div>
 
-          <div class=\"axis-label cube-label cube-label-x axis-x-min\">{x_meta.get('min','')}</div>
-          <div class=\"axis-label cube-label cube-label-x axis-x-max\">{x_meta.get('max','')}</div>
-          <div class=\"axis-label cube-label cube-label-y axis-y-min\">{y_meta.get('min','')}</div>
-          <div class=\"axis-label cube-label cube-label-y axis-y-max\">{y_meta.get('max','')}</div>
-          <div class=\"axis-label cube-label cube-label-time axis-t-min\">{time_meta.get('min','')}</div>
-          <div class=\"axis-label cube-label cube-label-time axis-t-max\">{time_meta.get('max','')}</div>
-          <div class=\"axis-label cube-label cube-label-x axis-x-name\">{x_meta.get('name','')}</div>
-          <div class=\"axis-label cube-label cube-label-y axis-y-name\">{y_meta.get('name','')}</div>
-          <div class=\"axis-label cube-label cube-label-time axis-t-name\">{time_meta.get('name','')}</div>
+          {axis_annotations_html}
         </div>
       </div>
     </div>
@@ -794,6 +813,7 @@ def cube_from_dataarray(
     fill_breaks: list[float] | None = None,
     fill_labels: list[str] | None = None,
     coord: "CoordCube" | None = None,
+    camera: Dict[str, Any] | None = None,
     annotations: list["CubeAnnotation"] | None = None,
     return_html: bool = False,
     show_legend: bool = True,
@@ -825,6 +845,7 @@ def cube_from_dataarray(
         t_dim, y_dim, x_dim = _infer_time_y_x_dims(da)
     if t_dim is None:
         raise ValueError("cube_from_dataarray expects a time dimension for 3D cubes.")
+    # Axis mapping: x -> x_dim, y -> y_dim, z -> t_dim (time depth).
     da = da.transpose(t_dim, y_dim, x_dim)
 
     nt, ny, nx = da.sizes[t_dim], da.sizes[y_dim], da.sizes[x_dim]
@@ -1147,6 +1168,7 @@ def cube_from_dataarray(
         color_limits=(vmin, vmax),
         interior_meta=interior_meta,
         viewer_id=viewer_id,
+        camera=camera,
     )
 
     with open(out_html, "w", encoding="utf-8") as f:
