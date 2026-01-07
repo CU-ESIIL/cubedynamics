@@ -16,3 +16,20 @@
 .md-typeset h1 {
   color: var(--cube-accent);
 }
+
+/* Constrain hero logo to MkDocs Material content column */
+.hero-logo {
+  max-width: 100%;
+  margin: 0 auto 2rem auto;
+  text-align: center;
+}
+
+/* Responsive image scaling */
+.hero-logo img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+
+  /* Prevent excessive vertical dominance */
+  max-height: 280px;
+}

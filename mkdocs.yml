@@ -91,6 +91,7 @@ theme:
 
 extra_css:
   - stylesheets/brand.css
+  - stylesheets/extra.css
   - assets/styles/landing_cards_v2.css
 
 plugins:
