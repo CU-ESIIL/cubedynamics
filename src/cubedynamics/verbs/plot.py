@@ -20,7 +20,6 @@ import logging
 import xarray as xr
 
 from cubedynamics.plotting.cube_plot import (
-    DEFAULT_CAMERA,
     CubePlot,
     ScaleFillContinuous,
     plotly_camera_to_coord,
@@ -197,7 +196,7 @@ def plot(
         if opts.fig_id is not None or opts.fig_title is not None or opts.fig_text is not None:
             caption_payload = {"id": opts.fig_id, "title": opts.fig_title, "text": opts.fig_text}
 
-        camera_to_use = resolve_camera(opts.camera or DEFAULT_CAMERA)
+        camera_to_use = resolve_camera(opts.camera)
         coord = plotly_camera_to_coord(camera_to_use)
 
         # 1. Build CubePlot for this cube

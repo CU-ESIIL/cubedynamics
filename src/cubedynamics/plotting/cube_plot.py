@@ -536,6 +536,7 @@ class CubePlot(metaclass=_CubePlotMeta):
         if self.caption is None and self.fig_title is not None:
             self.caption = {"title": self.fig_title}
         if self.camera is not None:
+            self.camera = resolve_camera(self.camera)
             self.coord = plotly_camera_to_coord(self.camera)
         if isinstance(self.data, xr.DataArray):
             self.axis_meta = self.axis_meta or self._build_axis_meta(self.data)
@@ -714,6 +715,10 @@ class CubePlot(metaclass=_CubePlotMeta):
         da = self.data
         if not isinstance(da, xr.DataArray):
             raise TypeError("CubePlot expects an xarray.DataArray")
+
+        if self.camera is not None:
+            self.camera = resolve_camera(self.camera)
+            self.coord = plotly_camera_to_coord(self.camera)
 
         def _apply_stat(data_obj: xr.DataArray) -> xr.DataArray:
             primary_layer = self.layers[0] if self.layers else geom_cube()

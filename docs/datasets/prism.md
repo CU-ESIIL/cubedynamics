@@ -21,6 +21,12 @@ cube = cd.load_prism_cube(
 pipe(cube["ppt"]) | v.mean(dim="time") | v.plot()
 ```
 
+### Customizing the view
+
+```python
+pipe(cube["ppt"]) | v.plot(camera={"eye": {"x": 2.2, "y": 1.6, "z": 1.3}})
+```
+
 ### Preview plot
 
 ![PRISM preview](../assets/datasets/prism-preview.png)
