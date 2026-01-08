@@ -54,6 +54,7 @@ nav:
       - CI and Testing: dev/ci_testing.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md
       - Figure backend (v.plot): dev/figure_backend.md
+      - Viewer backend: dev/viewer_backend.md
       - Legacy reference: dev/legacy_reference.md
       - Public API & scope: project/public_api.md
       - Project Scope: project/scope.md
