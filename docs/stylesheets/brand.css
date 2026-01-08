@@ -199,7 +199,8 @@ body {
 .cd-hero-logo img {
   display: block;
   margin: 0 auto;
-  max-width: min(980px, 96vw);
+  width: 100%;
+  max-width: min(980px, 100%);
   height: auto;
 }
 

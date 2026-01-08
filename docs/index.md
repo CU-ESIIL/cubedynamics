@@ -1,5 +1,5 @@
-<div class="hero-logo">
-  <img src="assets/img/cubedynamics_logo.png" alt="CubeDynamics logo">
+<div class="hero-logo cd-hero-logo">
+  <img class="cd-logo" src="assets/img/cubedynamics_logo.png" alt="CubeDynamics logo">
 </div>
 
 # CubeDynamics: a composable grammar of operations for spatiotemporal data cubes.
