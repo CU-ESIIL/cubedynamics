@@ -66,7 +66,7 @@ def test_cube_viewer_axis_rig_html_includes_meta(tmp_path):
     assert "cd-axis-rig-" in html
     assert "cd-axis-rig" in html
     assert "window.__CD_AXIS_META__" in html
-    assert "cd-axis-rig-enabled" in html
+    assert 'data-axis-rig="true"' in html
 
     html_no_rig = cube_from_dataarray(
         da,
@@ -75,4 +75,4 @@ def test_cube_viewer_axis_rig_html_includes_meta(tmp_path):
         show_progress=False,
         axis_rig=False,
     )
-    assert "cd-axis-rig-enabled" not in html_no_rig
+    assert 'data-axis-rig="true"' not in html_no_rig

@@ -281,7 +281,7 @@ def _render_cube_html(
     )
     axis_rig_js_block = axis_rig_js(viewer_id) if axis_rig_spec else ""
 
-    axis_rig_container_class = " cd-axis-rig-enabled" if axis_rig_spec else ""
+    axis_rig_data_attr = " data-axis-rig=\"true\"" if axis_rig_spec else ""
 
     html = f"""
 <!DOCTYPE html>
@@ -605,10 +605,10 @@ def _render_cube_html(
   </style>
 </head>
 <body>\n\
-  <div class=\"cube-figure\" id=\"{figure_id}\" data-cb-min=\"{color_limits[0]:.2f}\" data-cb-max=\"{color_limits[1]:.2f}\" data-rot-x=\"{rot_x:.1f}\" data-rot-y=\"{rot_y:.1f}\" data-zoom=\"{zoom}\">{title_html}
+  <div class=\"cube-figure\" id=\"{figure_id}\"{axis_rig_data_attr} data-cb-min=\"{color_limits[0]:.2f}\" data-cb-max=\"{color_limits[1]:.2f}\" data-rot-x=\"{rot_x:.1f}\" data-rot-y=\"{rot_y:.1f}\" data-zoom=\"{zoom}\">{title_html}
     <div class=\"cube-main\">
       <div class=\"cube-inner\">
-        <div class=\"cube-container{axis_rig_container_class}\">
+        <div class=\"cube-container\">
           <div id=\"cube-wrapper-{viewer_id}\" class=\"cube-wrapper\" style=\"--rot-x: {rot_x_rad:.4f}rad; --rot-y: {rot_y_rad:.4f}rad; --zoom: {zoom};\">
             <canvas class=\"cube-canvas\" id=\"cube-canvas-{viewer_id}\"></canvas>
             <div class=\"cube-rotation\" id=\"cube-rotation-{viewer_id}\">

@@ -272,7 +272,7 @@ def build_axis_rig_meta(
 
 def axis_rig_css(spec: AxisRigSpec) -> str:
     return """
-    .cd-axis-rig-enabled .axis-label {
+    [data-axis-rig="true"] .axis-label {
       display: none;
     }
 
