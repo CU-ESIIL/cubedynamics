@@ -6,6 +6,18 @@
 
 Keep spatial and temporal dimensions together so you can reason about **space, time, scale, and events** without breaking your workflow apart. Use it to build reproducible pipelines that stream or analyze cubes in memory.
 
+<div class="interactive-embed">
+  <iframe
+    src="/cubedynamics/assets/figures/ndvi_1_year.html"
+    title="Interactive NDVI cube (1 year)"
+    loading="lazy"
+  ></iframe>
+  <p class="interactive-embed__fallback">
+    If the interactive view doesn’t load,
+    <a href="/cubedynamics/assets/figures/ndvi_1_year.html" target="_blank" rel="noopener">open it in a new tab</a>.
+  </p>
+</div>
+
 ## Jump into the docs
 <div class="ccm-card-grid">
   <a class="ccm-card" href="concepts/">
