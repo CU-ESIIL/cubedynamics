@@ -300,17 +300,19 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
       height: var(--cd-cube-size, var(--cube-size));
       transform-style: preserve-3d;
       pointer-events: none;
-      color: var(--cd-axis-color, var(--cube-axis-color, rgba(25, 25, 25, 0.9)));
+      color: var(--cd-axis-color);
       font-size: var(--cube-axis-font-size, 13px);
       letter-spacing: 0.04em;
-      --cd-axis-out-x: 6px;
-      --cd-axis-out-y: 8px;
+      /* Axis rig lives in cube-local coords; out-z anchors to front face, Y labels shift left for legibility. */
+      --cd-axis-color: rgba(25, 25, 25, 0.9);
+      --cd-axis-out-x: 16px;
+      --cd-axis-out-y: 14px;
       --cd-axis-front-z: calc(0.5 * var(--cd-cube-size, var(--cube-size)));
       --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px);
       --cd-axis-line-w: 2px;
       --cd-axis-tick-w: 1px;
       --cd-axis-tick-l: 8px;
-      --cd-axis-label-gap: 12px;
+      --cd-axis-label-gap: 16px;
       --cd-axis-end-nudge: 6px;
       --cd-axis-x-name-drop: 18px;
       --cd-axis-time-name-drop: 24px;
@@ -343,7 +345,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
 
     .cd-axis-line {
       position: absolute;
-      background: var(--cd-axis-color, var(--cube-axis-color, rgba(25, 25, 25, 0.9)));
+      background: var(--cd-axis-color);
     }
 
     .cd-axis-ticks {
@@ -357,7 +359,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
 
     .cd-axis-tick-mark {
       position: absolute;
-      background: var(--cd-axis-color, var(--cube-axis-color, rgba(25, 25, 25, 0.9)));
+      background: var(--cd-axis-color);
     }
 
     .cd-axis-label {
