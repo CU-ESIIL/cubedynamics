@@ -12,6 +12,7 @@ from PIL import Image
 from matplotlib import colormaps
 
 from ..deprecations import warn_deprecated
+from ..utils.drift_centering import drift_centering_script
 
 
 def _infer_dims(da: xr.DataArray) -> Tuple[str, str, str]:
@@ -174,6 +175,7 @@ def write_cube_viewer(
         .replace("__SCALE_X__", f"{scale_x:.6f}")
         .replace("__SCALE_Y__", f"{scale_time:.6f}")
         .replace("__SCALE_Z__", f"{scale_y:.6f}")
+        .replace("__CD_DRIFT_CENTER_JS__", drift_centering_script())
     )
 
     out_path = Path(out_html)
