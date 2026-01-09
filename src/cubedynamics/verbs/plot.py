@@ -19,6 +19,7 @@ import logging
 
 import xarray as xr
 
+from cubedynamics.plotting.axis_rig import AxisRigSpec
 from cubedynamics.plotting.cube_plot import (
     CubePlot,
     ScaleFillContinuous,
@@ -45,6 +46,7 @@ class PlotOptions:
     time_dim: str | None = None
     clim: tuple[float, float] | None = None
     camera: dict | None = None
+    axis_rig: bool | AxisRigSpec = True
     fig_id: int | None = None
     fig_title: str | None = None
     fig_text: str | None = None
@@ -61,6 +63,7 @@ def plot(
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
     camera: dict | None = None,
+    axis_rig: bool | AxisRigSpec = True,
     fig_id: int | None = None,
     fig_title: str | None = None,
     fig_text: str | None = None,
@@ -78,6 +81,7 @@ def plot(
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
     camera: dict | None = None,
+    axis_rig: bool | AxisRigSpec = True,
     fig_id: int | None = None,
     fig_title: str | None = None,
     fig_text: str | None = None,
@@ -95,6 +99,7 @@ def plot(
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
     camera: dict | None = None,
+    axis_rig: bool | AxisRigSpec = True,
     fig_id: int | None = None,
     fig_title: str | None = None,
     fig_text: str | None = None,
@@ -171,6 +176,7 @@ def plot(
         time_dim=time_dim,
         clim=clim,
         camera=camera,
+        axis_rig=axis_rig,
         fig_id=fig_id,
         fig_title=fig_title,
         fig_text=fig_text,
@@ -212,6 +218,7 @@ def plot(
             fig_title=opts.fig_title,
             coord=coord,
             camera=camera_to_use,
+            axis_rig=opts.axis_rig,
         )
 
         # 2. Draw cube
