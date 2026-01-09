@@ -25,6 +25,7 @@ import xarray as xr
 import numpy as np
 import pandas as pd
 
+from cubedynamics.plotting.axis_rig import AxisRigSpec
 from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 from cubedynamics.vase import VaseDefinition
 from cubedynamics.utils import _infer_time_y_x_dims
@@ -514,6 +515,7 @@ class CubePlot(metaclass=_CubePlotMeta):
     )
     vase_mask: Optional[xr.DataArray] = None
     vase_outline: Any = None
+    axis_rig: bool | AxisRigSpec = True
     axis_meta: Dict[str, Dict[str, str]] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
@@ -789,6 +791,7 @@ class CubePlot(metaclass=_CubePlotMeta):
                 vase_mask=self.vase_mask,
                 vase_outline=self.vase_outline,
                 axis_meta=axis_meta,
+                axis_rig=self.axis_rig,
             )
             return viewer_obj
 

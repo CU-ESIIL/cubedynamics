@@ -15,6 +15,15 @@ import xarray as xr
 from matplotlib import colormaps, colors as mcolors
 from PIL import Image
 
+from cubedynamics.plotting.axis_rig import (
+    AxisRigSpec,
+    axis_rig_css,
+    axis_rig_html,
+    axis_rig_js,
+    axis_rig_meta_script,
+    build_axis_rig_meta,
+    resolve_axis_rig_spec,
+)
 from cubedynamics.utils import _infer_time_y_x_dims
 from cubedynamics.plotting.progress import _CubeProgress
 from cubedynamics.plotting.viewer import show_cube_viewer
@@ -207,6 +216,8 @@ def _render_cube_html(
     title_html: str,
     size_px: int,
     axis_meta: Dict[str, Dict[str, str]] | None,
+    axis_rig_spec: AxisRigSpec | None,
+    axis_rig_meta: Dict[str, Any] | None,
     color_limits: tuple[float, float],
     interior_meta: Dict[str, int],
     viewer_id: str,
@@ -263,6 +274,15 @@ def _render_cube_html(
     rot_x_rad = math.radians(rot_x)
     rot_y_rad = math.radians(rot_y)
 
+    axis_rig_css_block = axis_rig_css(axis_rig_spec) if axis_rig_spec else ""
+    axis_rig_markup = axis_rig_html(viewer_id, axis_rig_spec) if axis_rig_spec else ""
+    axis_rig_meta_block = (
+        axis_rig_meta_script(viewer_id, axis_rig_meta) if axis_rig_spec and axis_rig_meta else ""
+    )
+    axis_rig_js_block = axis_rig_js(viewer_id) if axis_rig_spec else ""
+
+    axis_rig_data_attr = " data-axis-rig=\"true\"" if axis_rig_spec else ""
+
     html = f"""
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -271,6 +291,7 @@ def _render_cube_html(
   <style>
     :root {{
       --cube-size: {size_px}px;
+      --cd-cube-size: var(--cube-size);
       {css_vars}
     }}
     * {{ box-sizing: border-box; }}
@@ -580,10 +601,11 @@ def _render_cube_html(
       flex: 1;
       text-align: center;
     }}
+    {axis_rig_css_block}
   </style>
 </head>
 <body>\n\
-  <div class=\"cube-figure\" id=\"{figure_id}\" data-cb-min=\"{color_limits[0]:.2f}\" data-cb-max=\"{color_limits[1]:.2f}\" data-rot-x=\"{rot_x:.1f}\" data-rot-y=\"{rot_y:.1f}\" data-zoom=\"{zoom}\">{title_html}
+  <div class=\"cube-figure\" id=\"{figure_id}\"{axis_rig_data_attr} data-cb-min=\"{color_limits[0]:.2f}\" data-cb-max=\"{color_limits[1]:.2f}\" data-rot-x=\"{rot_x:.1f}\" data-rot-y=\"{rot_y:.1f}\" data-zoom=\"{zoom}\">{title_html}
     <div class=\"cube-main\">
       <div class=\"cube-inner\">
         <div class=\"cube-container\">
@@ -593,6 +615,7 @@ def _render_cube_html(
               {cube_faces_html}
               {interior_html}
               {vase_html}
+              {axis_rig_markup}
             </div>
             <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
           </div>
@@ -622,6 +645,7 @@ def _render_cube_html(
     {legend_html}
   </div>
 
+  {axis_rig_meta_block}
   <script>
     (function() {{
       const viewerId = "{viewer_id}";
@@ -643,6 +667,7 @@ def _render_cube_html(
       const rotationTarget = scene || cubeWrapper;
       const jsWarning = document.getElementById("cube-js-warning-" + viewerId);
       const jsWarningText = jsWarning ? jsWarning.querySelector(".cube-warning-text") : null;
+      let updateAxisRigBillboard = null;
 
       const showWarning = (message) => {{
         if (!jsWarning) return;
@@ -658,6 +683,7 @@ def _render_cube_html(
       let zoom = parseFloat(data.zoom) || 1;
       const zoomMin = 0.35;
       const zoomMax = 6.0;
+      {axis_rig_js_block}
 
       try {{
         if (!canvas || !cubeRotation || !rotationTarget) {{
@@ -673,6 +699,9 @@ def _render_cube_html(
           rotationTarget.style.setProperty("--rot-x", rotationX + "rad");
           rotationTarget.style.setProperty("--rot-y", rotationY + "rad");
           rotationTarget.style.setProperty("--zoom", zoom);
+          if (updateAxisRigBillboard) {{
+            updateAxisRigBillboard();
+          }}
         }}
 
         applyCubeRotation();
@@ -803,6 +832,7 @@ def cube_from_dataarray(
     vase_mask: xr.DataArray | None = None,
     vase_outline: Any | None = None,
     axis_meta: Dict[str, Dict[str, str]] | None = None,
+    axis_rig: bool | AxisRigSpec = True,
 ):
     volume_density = volume_density or {"time": 6, "x": 2, "y": 2}
     volume_downsample = volume_downsample or {"time": 4, "space": 4}
@@ -854,6 +884,13 @@ def cube_from_dataarray(
             "max": y_ticks[-1][1] if y_ticks else "",
         },
     }
+
+    axis_rig_spec = resolve_axis_rig_spec(axis_rig)
+    axis_rig_meta = (
+        build_axis_rig_meta(da, t_dim, y_dim, x_dim, axis_meta, axis_rig_spec)
+        if axis_rig_spec
+        else None
+    )
 
     t_indices = list(range(0, nt, max(1, thin_time_factor)))
     if nt > 1 and len(t_indices) == 1:
@@ -1066,6 +1103,8 @@ def cube_from_dataarray(
             title_html=title_html,
             size_px=size_px,
             axis_meta=axis_meta,
+            axis_rig_spec=axis_rig_spec,
+            axis_rig_meta=axis_rig_meta,
             color_limits=(vmin, vmax),
             interior_meta=interior_meta,
             viewer_id=viewer_id,
@@ -1144,6 +1183,8 @@ def cube_from_dataarray(
         title_html=title_html,
         size_px=size_px,
         axis_meta=axis_meta,
+        axis_rig_spec=axis_rig_spec,
+        axis_rig_meta=axis_rig_meta,
         color_limits=(vmin, vmax),
         interior_meta=interior_meta,
         viewer_id=viewer_id,

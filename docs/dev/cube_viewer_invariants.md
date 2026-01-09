@@ -1,39 +1,36 @@
 # Cube viewer invariants
 
-This page is the authoritative source of truth for how the cube viewer must behave. If a change conflicts with these rules, the change is wrong.
+## The cube coordinate convention (the invariant)
 
-## DOM Invariants
+All cube-attached features use the same coordinate convention. This is the single most important rule for avoiding frustration.
 
-- `.cd-cube` exists and is cube-local.
-- Overlays that must rotate live under `.cd-cube`.
+- The cube is centered at the origin of its transform space.
+- Cube edge length is `S = var(--cd-cube-size)` (fallback `--cube-size`).
+- Half size is `H = 0.5 * S`.
 
-## Spatial Invariants
+We refer to corners using **front/back**, **left/right**, **bottom/top**.
 
-- Cube origin is the center.
-- Front face = most recent time.
-- Positive Z points toward the viewer.
+- **Front** is the face closest to the viewer at the default view.
+- **Back** is the opposite face.
+- **Left/Right** are from the viewer’s perspective at the default view.
+- **Bottom/Top** are vertical.
 
-## Axis Invariants
+### Axis rig placement
 
-- Time axis is depth.
-- Ticks must be attached to explicit axis containers.
-- Fallback ticks must not introduce misleading labels.
+We anchor axes at two corners:
 
-## Label Invariants
+- **Origin XY** = **front-bottom-left** corner  
+- **Origin T**  = **front-bottom-right** corner  
 
-- Labels may billboard (face the viewer).
-- Rails always rotate.
+Axis directions:
 
-## Prototyping Invariants
+- **Longitude (X axis)**: along the **front-bottom** edge, left → right  
+- **Latitude (Y axis)**: along the **front-left** edge, bottom → top  
+- **Time (T axis)**: along the **bottom-right** edge, front → back (“depth”)
 
-- Patch both references.
-- Reload before patching.
-- Viewer output is always a string of HTML.
+Time ordering:
 
-## If something looks wrong, check these first
+- **Newest time (tN)** is at the **front** where time meets the longitude corner.
+- **Oldest time (t0)** is at the **back** end of the time axis.
 
-- Is the overlay attached inside `.cd-cube`?
-- Are you reasoning from the cube center, not a corner?
-- Is time placed so the front is newest and the back is oldest?
-- Are ticks anchored to explicit axis containers?
-- Are labels billboarding unintentionally or missing inverse rotation?
+If you change these conventions, update all axis placement math and tick placement logic together.
