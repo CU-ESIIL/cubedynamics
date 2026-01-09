@@ -25,6 +25,7 @@ from cubedynamics.plotting.axis_rig import (
     resolve_axis_rig_spec,
 )
 from cubedynamics.utils import _infer_time_y_x_dims
+from cubedynamics.utils.drift_centering import drift_centering_script
 from cubedynamics.plotting.progress import _CubeProgress
 from cubedynamics.plotting.viewer import show_cube_viewer
 from cubedynamics.vase import VasePanel
@@ -297,12 +298,24 @@ def _render_cube_html(
          --cd-axis-tick-l
          --cd-axis-stroke
       */
+      /* Drift centering tuning (DYNAMIC DRIFT CENTERING V1):
+         --cd-drift-max-px: maximum horizontal drift in pixels.
+         --cd-drift-rot-range-deg: rotation range (deg) that maps to full drift.
+         --cd-drift-scale-in: scale that cancels drift when zoomed in.
+         --cd-drift-scale-out: scale that enables full drift when zoomed out.
+         --cd-drift-smoothing: easing factor for motion smoothing.
+      */
       --cd-cube-size: {cube_size_css};
       --cube-size: var(--cd-cube-size);
       --cd-axis-font: clamp(11px, calc(var(--cd-cube-size) * 0.045), 18px);
       --cd-axis-pill-px: clamp(4px, calc(var(--cd-cube-size) * 0.010), 8px);
       --cd-axis-stroke: clamp(2px, calc(var(--cd-cube-size) * 0.006), 4px);
       --cd-axis-tick-l: clamp(10px, calc(var(--cd-cube-size) * 0.035), 18px);
+      --cd-drift-max-px: 220;
+      --cd-drift-rot-range-deg: 55;
+      --cd-drift-scale-in: 1.25;
+      --cd-drift-scale-out: 0.85;
+      --cd-drift-smoothing: 0.18;
       {css_vars}
     }}
     * {{ box-sizing: border-box; }}
@@ -430,6 +443,8 @@ def _render_cube_html(
     .cube-scene {{
       position: relative;
       inset: 0;
+      width: 100%;
+      height: 100%;
       perspective: 950px;
       transform-style: preserve-3d;
       --rot-x: 0rad;
@@ -452,6 +467,12 @@ def _render_cube_html(
       background: transparent;
       touch-action: none;
       pointer-events: auto;
+    }}
+
+    .cd-drift-center-fallback {{
+      --cd-drift-x: 0px;
+      --cd-drift-base-transform: none;
+      transform: translateX(var(--cd-drift-x, 0px)) var(--cd-drift-base-transform, none);
     }}
 
     .cd-cube {{
@@ -623,26 +644,28 @@ def _render_cube_html(
     <div class=\"cube-main\">
       <div class=\"cube-inner\">
         <div class=\"cube-container\">
-          <div id=\"cube-wrapper-{viewer_id}\" class=\"cube-wrapper\" style=\"--rot-x: {rot_x_rad:.4f}rad; --rot-y: {rot_y_rad:.4f}rad; --zoom: {zoom};\">
-            <canvas class=\"cube-canvas\" id=\"cube-canvas-{viewer_id}\"></canvas>
-            <div class=\"cube-rotation\" id=\"cube-rotation-{viewer_id}\">
-              {cube_faces_html}
-              {interior_html}
-              {vase_html}
-              {axis_rig_markup}
+          <div class=\"cube-scene\" id=\"cube-scene-{viewer_id}\">
+            <div id=\"cube-wrapper-{viewer_id}\" class=\"cube-wrapper\" style=\"--rot-x: {rot_x_rad:.4f}rad; --rot-y: {rot_y_rad:.4f}rad; --zoom: {zoom};\">
+              <canvas class=\"cube-canvas\" id=\"cube-canvas-{viewer_id}\"></canvas>
+              <div class=\"cube-rotation\" id=\"cube-rotation-{viewer_id}\">
+                {cube_faces_html}
+                {interior_html}
+                {vase_html}
+                {axis_rig_markup}
+              </div>
+              <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
             </div>
-            <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
-          </div>
 
-          <div class=\"axis-label cube-label cube-label-x axis-x-min\">{x_meta.get('min','')}</div>
-          <div class=\"axis-label cube-label cube-label-x axis-x-max\">{x_meta.get('max','')}</div>
-          <div class=\"axis-label cube-label cube-label-y axis-y-min\">{y_meta.get('min','')}</div>
-          <div class=\"axis-label cube-label cube-label-y axis-y-max\">{y_meta.get('max','')}</div>
-          <div class=\"axis-label cube-label cube-label-time axis-t-min\">{time_meta.get('min','')}</div>
-          <div class=\"axis-label cube-label cube-label-time axis-t-max\">{time_meta.get('max','')}</div>
-          <div class=\"axis-label cube-label cube-label-x axis-x-name\">{x_meta.get('name','')}</div>
-          <div class=\"axis-label cube-label cube-label-y axis-y-name\">{y_meta.get('name','')}</div>
-          <div class=\"axis-label cube-label cube-label-time axis-t-name\">{time_meta.get('name','')}</div>
+            <div class=\"axis-label cube-label cube-label-x axis-x-min\">{x_meta.get('min','')}</div>
+            <div class=\"axis-label cube-label cube-label-x axis-x-max\">{x_meta.get('max','')}</div>
+            <div class=\"axis-label cube-label cube-label-y axis-y-min\">{y_meta.get('min','')}</div>
+            <div class=\"axis-label cube-label cube-label-y axis-y-max\">{y_meta.get('max','')}</div>
+            <div class=\"axis-label cube-label cube-label-time axis-t-min\">{time_meta.get('min','')}</div>
+            <div class=\"axis-label cube-label cube-label-time axis-t-max\">{time_meta.get('max','')}</div>
+            <div class=\"axis-label cube-label cube-label-x axis-x-name\">{x_meta.get('name','')}</div>
+            <div class=\"axis-label cube-label cube-label-y axis-y-name\">{y_meta.get('name','')}</div>
+            <div class=\"axis-label cube-label cube-label-time axis-t-name\">{time_meta.get('name','')}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -660,6 +683,7 @@ def _render_cube_html(
   </div>
 
   {axis_rig_meta_block}
+  {drift_centering_script(viewer_id)}
   <script>
     (function() {{
       const viewerId = "{viewer_id}";

@@ -37,6 +37,7 @@ def test_cube_viewer_emits_interactive_markup(tmp_path):
     assert 'id="cube-rotation-' in html
     assert 'id="cube-drag-' in html
     assert 'id="cube-js-warning-' in html
+    assert 'id="cd-drift-center-v1-js"' in html
     assert 'addEventListener("pointerdown"' in html
     assert 'addEventListener("wheel"' in html
     assert 'passive: false' in html
