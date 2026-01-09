@@ -282,17 +282,27 @@ def _render_cube_html(
     axis_rig_data_attr = " data-axis-rig=\"true\"" if axis_rig_spec else ""
 
     cube_size_css = (
-        f"{size_px}px" if size_px is not None else "clamp(320px, min(70vh, 70vw), 760px)"
+        f"{size_px}px" if size_px is not None else "clamp(300px, min(58vh, 58vw), 640px)"
     )
     html = f"""
 <!DOCTYPE html>
 <html lang=\"en\">
 <head>
   <meta charset=\"UTF-8\" />
-  <style>
+    <style>
     :root {{
+      /* Viewer override hooks:
+         --cd-cube-size
+         --cd-axis-font
+         --cd-axis-tick-l
+         --cd-axis-stroke
+      */
       --cd-cube-size: {cube_size_css};
       --cube-size: var(--cd-cube-size);
+      --cd-axis-font: clamp(11px, calc(var(--cd-cube-size) * 0.045), 18px);
+      --cd-axis-pill-px: clamp(4px, calc(var(--cd-cube-size) * 0.010), 8px);
+      --cd-axis-stroke: clamp(2px, calc(var(--cd-cube-size) * 0.006), 4px);
+      --cd-axis-tick-l: clamp(10px, calc(var(--cd-cube-size) * 0.035), 18px);
       {css_vars}
     }}
     * {{ box-sizing: border-box; }}
@@ -311,7 +321,10 @@ def _render_cube_html(
       user-select: none;
     }}
     .cube-figure {{
-      width: min(1180px, 100%);
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
       display: flex;
       flex-direction: column;
       align-items: center;

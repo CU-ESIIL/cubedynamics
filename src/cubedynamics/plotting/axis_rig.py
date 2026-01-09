@@ -301,7 +301,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
       transform-style: preserve-3d;
       pointer-events: none;
       color: var(--cd-axis-color);
-      font-size: var(--cube-axis-font-size, 13px);
+      font-size: var(--cd-axis-font, var(--cube-axis-font-size, 13px));
       letter-spacing: 0.04em;
       /* Axis rig lives in cube-local coords; out-z anchors to front face, Y labels shift left for legibility. */
       --cd-axis-color: rgba(25, 25, 25, 0.9);
@@ -309,9 +309,9 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
       --cd-axis-out-y: 14px;
       --cd-axis-front-z: calc(0.5 * var(--cd-cube-size, var(--cube-size)));
       --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px);
-      --cd-axis-line-w: 2px;
-      --cd-axis-tick-w: 1px;
-      --cd-axis-tick-l: 8px;
+      --cd-axis-line-w: var(--cd-axis-stroke, 2px);
+      --cd-axis-tick-w: var(--cd-axis-stroke, 1px);
+      --cd-axis-tick-l: var(--cd-axis-tick-l, 8px);
       --cd-axis-label-gap: 16px;
       --cd-axis-end-nudge: 6px;
       --cd-axis-x-name-drop: 18px;
@@ -369,6 +369,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
 
     .cd-axis-label-face {
       display: inline-block;
+      padding: var(--cd-axis-pill-px, 0px);
       transform-style: preserve-3d;
       transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
     }
