@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class PlotOptions:
     title: str | None = None
     cmap: str = "viridis"
-    size_px: int = 260
+    size_px: int | None = None
     thin_time_factor: int = 4
     time_dim: str | None = None
     clim: tuple[float, float] | None = None
@@ -58,7 +58,7 @@ def plot(
     *,
     title: str | None = None,
     cmap: str = "viridis",
-    size_px: int = 260,
+    size_px: int | None = None,
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
@@ -76,7 +76,7 @@ def plot(
     *,
     title: str | None = None,
     cmap: str = "viridis",
-    size_px: int = 260,
+    size_px: int | None = None,
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
@@ -94,7 +94,7 @@ def plot(
     *,
     title: str | None = None,
     cmap: str = "viridis",
-    size_px: int = 260,
+    size_px: int | None = None,
     thin_time_factor: int = 4,
     time_dim: str | None = None,
     clim: tuple[float, float] | None = None,
@@ -122,8 +122,8 @@ def plot(
         Override the viewer title. Defaults to ``<name> time × y × x cube``.
     cmap : str, default "viridis"
         Colormap used for the fill scale.
-    size_px : int, default 260
-        Pixel size for each facet tile.
+    size_px : int, optional
+        Pixel size for each facet tile. If omitted, the viewer uses responsive sizing.
     thin_time_factor : int, default 4
         Decimation factor for time frames to keep the viewer responsive.
     time_dim : str, optional

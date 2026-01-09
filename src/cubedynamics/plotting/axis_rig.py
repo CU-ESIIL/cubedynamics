@@ -300,18 +300,22 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
       height: var(--cd-cube-size, var(--cube-size));
       transform-style: preserve-3d;
       pointer-events: none;
-      color: var(--cd-axis-color, rgba(25, 25, 25, 0.85));
+      color: var(--cd-axis-color, var(--cube-axis-color, rgba(25, 25, 25, 0.9)));
       font-size: var(--cube-axis-font-size, 13px);
       letter-spacing: 0.04em;
       --cd-axis-out-x: 6px;
       --cd-axis-out-y: 8px;
-      --cd-axis-front-z: calc(var(--cd-cube-size, var(--cube-size)) / 2);
+      --cd-axis-front-z: calc(0.5 * var(--cd-cube-size, var(--cube-size)));
       --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px);
       --cd-axis-line-w: 2px;
       --cd-axis-tick-w: 1px;
       --cd-axis-tick-l: 8px;
       --cd-axis-label-gap: 12px;
       --cd-axis-end-nudge: 6px;
+      --cd-axis-x-name-drop: 18px;
+      --cd-axis-time-name-drop: 24px;
+      --cd-axis-time-label-drop: 18px;
+      --cd-axis-y-extra-left: 22px;
       --cd-bb-rot-x: 0rad;
       --cd-bb-rot-y: 0rad;
     }
@@ -339,7 +343,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
 
     .cd-axis-line {
       position: absolute;
-      background: var(--cd-axis-color, rgba(25, 25, 25, 0.85));
+      background: var(--cd-axis-color, var(--cube-axis-color, rgba(25, 25, 25, 0.9)));
     }
 
     .cd-axis-ticks {
@@ -353,7 +357,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
 
     .cd-axis-tick-mark {
       position: absolute;
-      background: var(--cd-axis-color, rgba(25, 25, 25, 0.85));
+      background: var(--cd-axis-color, var(--cube-axis-color, rgba(25, 25, 25, 0.9)));
     }
 
     .cd-axis-label {
@@ -368,7 +372,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
     }
 
     .cd-axis-label-face--time {
-      transform: rotateY(-90deg) rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
     }
 
     /* X axis (longitude) - front bottom edge */
@@ -409,19 +413,19 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
 
     .cd-axis-x .cd-axis-end--min {
       left: 0;
-      top: calc(-1 * var(--cd-axis-label-gap));
+      top: var(--cd-axis-x-name-drop);
       transform: translateX(calc(-1 * var(--cd-axis-end-nudge)));
     }
 
     .cd-axis-x .cd-axis-end--max {
       left: 100%;
-      top: calc(-1 * var(--cd-axis-label-gap));
+      top: var(--cd-axis-x-name-drop);
       transform: translateX(calc(-100% + var(--cd-axis-end-nudge)));
     }
 
     .cd-axis-x .cd-axis-name {
       left: 50%;
-      top: calc(-1 * (var(--cd-axis-label-gap) + 12px));
+      top: var(--cd-axis-x-name-drop);
       transform: translateX(-50%);
     }
 
@@ -456,27 +460,39 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
 
     .cd-axis-y .cd-axis-tick-label {
       position: absolute;
-      left: calc(-1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l)));
+      left: calc(
+        -1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l) + 12px + var(--cd-axis-y-extra-left))
+      );
       top: 50%;
       transform: translateY(-50%);
     }
 
     .cd-axis-y .cd-axis-end--min {
-      left: calc(-1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l)));
+      left: calc(
+        -1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l) + 12px + var(--cd-axis-y-extra-left))
+      );
       bottom: 0;
       transform: translateY(calc(var(--cd-axis-end-nudge)));
     }
 
     .cd-axis-y .cd-axis-end--max {
-      left: calc(-1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l)));
+      left: calc(
+        -1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l) + 12px + var(--cd-axis-y-extra-left))
+      );
       bottom: 100%;
       transform: translateY(calc(-100% - var(--cd-axis-end-nudge)));
     }
 
     .cd-axis-y .cd-axis-name {
-      left: calc(-1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l) + 12px));
+      left: calc(
+        -1 * (var(--cd-axis-label-gap) + var(--cd-axis-tick-l) + 12px + var(--cd-axis-y-extra-left))
+      );
       bottom: 50%;
       transform: translateY(50%);
+    }
+
+    .cd-axis-y .cd-axis-label-face {
+      transform-origin: 100% 50%;
     }
 
     /* Time axis - bottom right edge, rotated into depth */
@@ -512,25 +528,25 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
     .cd-axis-time .cd-axis-tick-label {
       position: absolute;
       left: 50%;
-      top: calc(-1 * var(--cd-axis-label-gap));
+      top: var(--cd-axis-time-label-drop);
       transform: translateX(-50%);
     }
 
     .cd-axis-time .cd-axis-end--min {
       left: 0;
-      top: calc(-1 * var(--cd-axis-label-gap));
+      top: var(--cd-axis-time-label-drop);
       transform: translateX(calc(-1 * var(--cd-axis-end-nudge)));
     }
 
     .cd-axis-time .cd-axis-end--max {
       left: 100%;
-      top: calc(-1 * var(--cd-axis-label-gap));
+      top: var(--cd-axis-time-label-drop);
       transform: translateX(calc(-100% + var(--cd-axis-end-nudge)));
     }
 
     .cd-axis-time .cd-axis-name {
       left: 50%;
-      top: calc(-1 * (var(--cd-axis-label-gap) + 12px));
+      top: var(--cd-axis-time-name-drop);
       transform: translateX(-50%);
     }
     """

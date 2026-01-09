@@ -164,38 +164,35 @@ def _build_legend_html(
     )
 
 
-def _interior_plane_transform(axis: str, index: int, meta: Dict[str, int], size_px: int) -> str:
-    half = size_px / 2
+def _interior_plane_transform(axis: str, index: int, meta: Dict[str, int], size_css: str) -> str:
     nt = max(meta.get("nt", 1) - 1, 1)
     ny = max(meta.get("ny", 1) - 1, 1)
     nx = max(meta.get("nx", 1) - 1, 1)
     if axis == "time":
         frac = index / nt
-        z = -half + frac * size_px
-        return f"translate3d(0px, 0px, {z:.2f}px)"
+        z = f"calc(-0.5 * {size_css} + {frac:.6f} * {size_css})"
+        return f"translate3d(0px, 0px, {z})"
     if axis == "x":
         frac = index / nx
-        x_off = -half + frac * size_px
-        return f"rotateY(90deg) translateZ({x_off:.2f}px)"
+        x_off = f"calc(-0.5 * {size_css} + {frac:.6f} * {size_css})"
+        return f"rotateY(90deg) translateZ({x_off})"
     if axis == "y":
         frac = index / ny
-        y_off = -half + frac * size_px
-        return f"rotateX(90deg) translateZ({y_off:.2f}px)"
+        y_off = f"calc(-0.5 * {size_css} + {frac:.6f} * {size_css})"
+        return f"rotateX(90deg) translateZ({y_off})"
     return ""
 
 
-def _vase_panel_transform(panel: VasePanel, size_px: int) -> str:
-    half = size_px / 2
-
-    def _offset(norm: float) -> float:
-        return -half + float(norm) * size_px
+def _vase_panel_transform(panel: VasePanel, size_css: str) -> str:
+    def _offset(norm: float) -> str:
+        return f"calc(-0.5 * {size_css} + {float(norm):.6f} * {size_css})"
 
     x_off = _offset(panel.x)
     y_off = _offset(panel.y)
     z_off = _offset(panel.z)
 
     return (
-        f"translate3d({x_off:.2f}px, {y_off:.2f}px, {z_off:.2f}px) "
+        f"translate3d({x_off}, {y_off}, {z_off}) "
         f"rotateY({panel.yaw:.2f}deg) rotateX(90deg)"
     )
 
@@ -214,7 +211,7 @@ def _render_cube_html(
     coord: "CoordCube" | None,
     legend_html: str,
     title_html: str,
-    size_px: int,
+    size_px: int | None,
     axis_meta: Dict[str, Dict[str, str]] | None,
     axis_rig_spec: AxisRigSpec | None,
     axis_rig_meta: Dict[str, Any] | None,
@@ -227,9 +224,10 @@ def _render_cube_html(
     # file export. Keeping the template self contained ensures that v.plot()
     # renders the exact same viewer in both contexts.
     interior_html_parts = []
+    size_css = "var(--cd-cube-size)"
     if interior_planes:
         for axis, idx, b64, meta in interior_planes:
-            transform = _interior_plane_transform(axis, idx, meta or interior_meta, size_px)
+            transform = _interior_plane_transform(axis, idx, meta or interior_meta, size_css)
             interior_html_parts.append(
                 "<div class=\"interior-plane\" "
                 f"style=\"transform: {transform}; background-image: url('data:image/png;base64,{b64}');\"></div>"
@@ -239,12 +237,12 @@ def _render_cube_html(
     vase_html_parts = []
     if vase_panels:
         for panel in vase_panels:
-            width_px = max(2.0, float(panel.width) * size_px)
-            height_px = max(2.0, float(panel.height) * size_px)
-            transform = _vase_panel_transform(panel, size_px)
+            width_px = f"max(2px, calc({float(panel.width):.6f} * {size_css}))"
+            height_px = f"max(2px, calc({float(panel.height):.6f} * {size_css}))"
+            transform = _vase_panel_transform(panel, size_css)
             vase_html_parts.append(
                 "<div class=\"cd-vase-panel\" "
-                f"style=\"width: {width_px:.2f}px; height: {height_px:.2f}px; transform: {transform};\"></div>"
+                f"style=\"width: {width_px}; height: {height_px}; transform: {transform};\"></div>"
             )
     vase_html = "".join(vase_html_parts)
 
@@ -283,6 +281,9 @@ def _render_cube_html(
 
     axis_rig_data_attr = " data-axis-rig=\"true\"" if axis_rig_spec else ""
 
+    cube_size_css = (
+        f"{size_px}px" if size_px is not None else "clamp(320px, min(70vh, 70vw), 760px)"
+    )
     html = f"""
 <!DOCTYPE html>
 <html lang=\"en\">
@@ -290,8 +291,8 @@ def _render_cube_html(
   <meta charset=\"UTF-8\" />
   <style>
     :root {{
-      --cube-size: {size_px}px;
-      --cd-cube-size: var(--cube-size);
+      --cd-cube-size: {cube_size_css};
+      --cube-size: var(--cd-cube-size);
       {css_vars}
     }}
     * {{ box-sizing: border-box; }}
@@ -807,7 +808,7 @@ def cube_from_dataarray(
     da: xr.DataArray,
     out_html: str = "cube_da.html",
     cmap: str = "viridis",
-    size_px: int = 260,
+    size_px: int | None = None,
     thin_time_factor: int = 4,
     title: str | None = None,
     time_label: str | None = None,
@@ -1065,7 +1066,7 @@ def cube_from_dataarray(
         "--cube-panel-color": getattr(theme, "panel_color", "#000"),
         "--cube-shadow-strength": str(getattr(theme, "shadow_strength", 0.2)),
         "--cube-title-color": getattr(theme, "title_color", "#f7f7f7"),
-        "--cube-axis-color": getattr(theme, "axis_color", "#f7f7f7"),
+        "--cube-axis-color": getattr(theme, "axis_color", "rgba(25, 25, 25, 0.9)"),
         "--cube-legend-color": getattr(theme, "legend_color", "#f7f7f7"),
         "--cube-title-font-size": f"{getattr(theme, 'title_font_size', 18)}px",
         "--cube-axis-font-size": f"{getattr(theme, 'title_font_size', 18) * getattr(theme, 'axis_scale', 0.6)}px",
@@ -1113,11 +1114,12 @@ def cube_from_dataarray(
             f.write(full_html)
         if return_html:
             return full_html
+        frame_base = size_px if size_px is not None else 760
         prefix = Path(out_html).stem or "cube_viewer"
         return show_cube_viewer(
             full_html,
-            width=max(850, size_px + 300),
-            height=max(850, size_px + 300),
+            width=max(850, frame_base + 300),
+            height=max(850, frame_base + 300),
             prefix=prefix,
         )
 
@@ -1195,11 +1197,12 @@ def cube_from_dataarray(
 
     if return_html:
         return full_html
+    frame_base = size_px if size_px is not None else 760
     prefix = Path(out_html).stem or "cube_viewer"
     return show_cube_viewer(
         full_html,
-        width=max(850, size_px + 300),
-        height=max(850, size_px + 300),
+        width=max(850, frame_base + 300),
+        height=max(850, frame_base + 300),
         prefix=prefix,
     )
 

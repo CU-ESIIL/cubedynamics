@@ -69,7 +69,7 @@ class CubeTheme:
     legend_scale: float = 0.6
 
     title_color: str = "cornflowerblue"
-    axis_color: str = "firebrick"
+    axis_color: str = "rgba(25, 25, 25, 0.9)"
     legend_color: str = "limegreen"
 
     caption_font_scale: float = 0.8
@@ -490,7 +490,7 @@ class CubePlot(metaclass=_CubePlotMeta):
     legend_title: Optional[str] = None
     theme: CubeTheme = field(default_factory=theme_cube_studio)
     caption: Optional[Dict[str, Any]] = None
-    size_px: int = 260
+    size_px: int | None = None
     cmap: str = "cividis"
     fill_scale: Optional[ScaleFillContinuous] = None
     alpha_scale: Optional[ScaleAlphaContinuous] = None
@@ -977,10 +977,11 @@ class CubePlot(metaclass=_CubePlotMeta):
         logger.info("CubePlot._repr_html_ called for %s", getattr(self.data, "name", None))
         html_out = self.to_html()
         prefix = Path(self.out_html).stem or "cube_viewer"
+        frame_base = self.size_px if self.size_px is not None else 760
         iframe = show_cube_viewer(
             html_out,
-            width=max(850, self.size_px + 300),
-            height=max(850, self.size_px + 300),
+            width=max(850, frame_base + 300),
+            height=max(850, frame_base + 300),
             prefix=prefix,
         )
         self._last_iframe = iframe  # used in tests/notebooks to locate the file
