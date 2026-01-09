@@ -73,6 +73,74 @@ Commonly this is an xarray.DataArray with dims like `("time", "y", "x")`.
 
 If your cube uses different dimension names, `v.plot()` attempts to infer them. You can also override the time dimension via the `time_dim=` argument to `v.plot()` (or the underlying CubePlot).
 
+## Cube Coordinate System (Read This First)
+
+The cube is a 3D scene with a cube-local coordinate system. **Origin `(0, 0, 0)` is the center of the cube.**
+
+Axes:
+
+- +X → right (longitude increases)
+- −Y → up (latitude increases upward)
+- +Z → toward the viewer (out of screen)
+
+Cube faces (with `cube_size` as the total edge length):
+
+- Front face: `z = +0.5 * cube_size`
+- Back face:  `z = -0.5 * cube_size`
+
+Time is mapped to **depth (Z)**.
+
+```
+          -Y (up)
+            ▲
+            |
+            |
+            o ----> +X (right)
+           /
+          /
+       +Z (toward viewer)
+```
+
+**State explicitly:** `.cd-cube` is the *canonical attachment point* for cube-relative visuals. Anything that must rotate and scale with the cube (axes, ticks, overlays) belongs inside `.cd-cube`.
+
+For authoritative rules and invariants, see [Cube viewer invariants](cube_viewer_invariants.md).
+
+## Time Direction Invariant
+
+The cube front always represents the **most recent time**, and the cube back always represents the **oldest time**. Therefore:
+
+- Time axis labels often need to be reversed.
+- `tN` (newest) appears at the front corner.
+- `t0` (oldest) appears at the back.
+
+This is a *design invariant*, not a styling choice. If labels or tick positions disagree, the labels should be adjusted to preserve this invariant.
+
+## What Rotates With the Cube vs What Faces the Viewer
+
+- Geometry (faces, rails, ticks) rotates with `.cube-rotation`.
+- Text labels may optionally **billboard** (face the viewer).
+- Billboarding is implemented by applying inverse rotation to label faces.
+- This keeps text readable without breaking spatial meaning.
+
+## Common Edit Points
+
+| Task | Where to Edit |
+| ---- | ---- |
+| Move axis position | CSS on `.cd-origin-*` to shift the axis origin anchor without changing data mapping. |
+| Change axis length | `--cd-rig-cube-size` to adjust the cube-size reference used by rails/ticks. |
+| Fix tick alignment | `.cd-axis-* .cd-ticks` container to correct spacing or orientation offsets. |
+| Reverse time direction | Time tick placement logic to re-map normalized depth so newest is always at the front. |
+| Make labels face viewer | Label face transforms to apply inverse cube rotation (billboarding). |
+| Add new overlay | Inject inside `.cd-cube` so the overlay rotates with the cube. |
+
+## Debugging checklist
+
+- Is the overlay attached inside `.cd-cube`?
+- Are you reasoning from cube center, not a corner?
+- Are you mixing screen-space offsets with cube-space transforms?
+- Does your time label logic respect “front = newest”?
+- Are tick containers explicitly sized?
+
 ## Coordinate orientation (how the cube is interpreted)
 
 The cube viewer uses a “front face” and “depth axis” convention:
@@ -104,9 +172,22 @@ The low-level `cube_from_dataarray(...)` function returns a complete HTML docume
 
 This design means the viewer output can be saved and shared as a standalone HTML artifact.
 
-## Prototyping without editing the repo (patch workflow)
+## Where to edit what
 
-When iterating quickly, it can be useful to prototype by monkeypatching the viewer function in a notebook session rather than editing the repository.
+Use this mental model:
+
+- Change verb behavior / API surface:
+  - `cubedynamics/verbs/plot.py`
+- Change grammar concepts (layers, scales, themes, captions, faceting):
+  - `cubedynamics/plotting/cube_plot.py`
+- Change rendered HTML/CSS/JS, cube transforms, face layout, overlays:
+  - `cubedynamics/plotting/cube_viewer.py`
+
+## Prototyping & Monkeypatching the Viewer
+
+This section is for **development-only** prototyping without editing the repository. It is intentionally separate from the invariants above.
+
+When iterating quickly, it can be useful to monkeypatch the viewer function in a notebook session rather than editing the repository.
 
 A common pattern is:
 
@@ -157,19 +238,4 @@ This approach lets you experiment quickly with:
 
 …without touching the installed package or the repository.
 
-## Where to edit what
-
-Use this mental model:
-
-- Change verb behavior / API surface:
-  - `cubedynamics/verbs/plot.py`
-- Change grammar concepts (layers, scales, themes, captions, faceting):
-  - `cubedynamics/plotting/cube_plot.py`
-- Change rendered HTML/CSS/JS, cube transforms, face layout, overlays:
-  - `cubedynamics/plotting/cube_viewer.py`
-
-## Debugging tips for viewer development
-
-- Add temporary debug labels to the HTML (e.g., watermark text like “RIG V3”) to confirm you are seeing the patched output.
-- Print short snippets around key DOM nodes (`cd-cube`, `cube-wrapper`, `cube-rotation`) to verify injection points.
-- Keep patch scripts reload-safe to avoid accidental recursion.
+For how semantic data flows into the viewer, see [Figure backend](figure_backend.md).
