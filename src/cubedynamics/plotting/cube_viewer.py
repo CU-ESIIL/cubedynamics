@@ -447,9 +447,6 @@ def _render_cube_html(
       height: 100%;
       perspective: 950px;
       transform-style: preserve-3d;
-      --rot-x: 0rad;
-      --rot-y: 0rad;
-      --zoom: 1;
     }}
 
     .cube-scene .cube-rotation {{
@@ -738,11 +735,6 @@ def _render_cube_html(
             cubeWrapper.style.setProperty("--rot-x", rotationX + "rad");
             cubeWrapper.style.setProperty("--rot-y", rotationY + "rad");
             cubeWrapper.style.setProperty("--zoom", zoom);
-          }}
-          if (scene && scene !== cubeWrapper) {{
-            scene.style.setProperty("--rot-x", rotationX + "rad");
-            scene.style.setProperty("--rot-y", rotationY + "rad");
-            scene.style.setProperty("--zoom", zoom);
           }}
           if (!cubeWrapper && rotationTarget) {{
             rotationTarget.style.setProperty("--rot-x", rotationX + "rad");

@@ -18,6 +18,32 @@ from ..utils import set_cube_provenance
 
 
 _POINT_BUFFER_DEGREES = 0.05
+_PRISM_VARIABLE_METADATA = {
+    "ppt": {
+        "units": "mm",
+        "long_name": "Total precipitation",
+    },
+}
+
+
+def _apply_prism_variable_metadata(
+    ds: xr.Dataset, variables: Sequence[str]
+) -> xr.Dataset:
+    for name in variables:
+        if name not in ds.data_vars:
+            continue
+        meta = _PRISM_VARIABLE_METADATA.get(name.lower())
+        if not meta:
+            continue
+        da = ds[name]
+        units = da.attrs.get("units")
+        if not units or str(units).strip().lower() == "synthetic":
+            da.attrs["units"] = meta["units"]
+        for key, value in meta.items():
+            if key == "units":
+                continue
+            da.attrs.setdefault(key, value)
+    return ds
 
 
 def load_prism_cube(
@@ -570,6 +596,8 @@ def _finalize_prism_cube(
             variables, start, end, aoi, "D", show_progress=show_progress
         )
         source = "synthetic"
+
+    ds = _apply_prism_variable_metadata(ds, variables)
 
     provenance_error = backend_error if source != "prism_streaming" else None
     return set_cube_provenance(
