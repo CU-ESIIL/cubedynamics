@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Hashable, Iterable, Mapping, Sequence
+from typing import Hashable, Iterable, Mapping, Sequence
 
 import warnings
 
@@ -25,7 +25,6 @@ def load_prism_cube(
     lat: float | None = None,
     lon: float | None = None,
     bbox: Sequence[float] | None = None,
-    aoi: Mapping[str, Any] | None = None,
     aoi_geojson: Mapping[str, object] | None = None,
     start: str | pd.Timestamp | None = None,
     end: str | pd.Timestamp | None = None,
@@ -48,9 +47,6 @@ def load_prism_cube(
         fetched for the surrounding area.
     bbox : sequence of float, optional
         Bounding box defined as ``[min_lon, min_lat, max_lon, max_lat]``.
-    aoi : mapping, optional
-        Legacy mapping with ``min_lon``, ``min_lat``, ``max_lon``, and
-        ``max_lat`` keys. Deprecated in favor of ``bbox`` or ``aoi_geojson``.
     aoi_geojson : mapping, optional
         GeoJSON Feature/FeatureCollection describing the area of interest. A
         bounding box is derived from the geometry.
@@ -80,8 +76,7 @@ def load_prism_cube(
 
     if legacy_args:
         if any(
-            value is not None
-            for value in (lat, lon, bbox, aoi, aoi_geojson, start, end, freq)
+            value is not None for value in (lat, lon, bbox, aoi_geojson, start, end, freq)
         ) or variables is not None:
             raise TypeError(
                 "Cannot mix positional PRISM arguments with the keyword-only API."
@@ -116,19 +111,6 @@ def load_prism_cube(
     else:
         variable_spec = variable
     normalized_variables = _normalize_variables(variable_spec)
-
-    if aoi is not None:
-        warnings.warn(
-            "load_prism_cube(aoi=...) is deprecated; use bbox=(min_lon,min_lat,max_lon,max_lat) "
-            "or aoi_geojson=... instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        if any(value is not None for value in (lat, lon, bbox, aoi_geojson)):
-            raise ValueError(
-                "Specify only one AOI via lat/lon, bbox, aoi_geojson, or legacy aoi mapping."
-            )
-        bbox = _coerce_legacy_aoi_to_bbox(aoi)
 
     aoi = _coerce_aoi(lat=lat, lon=lon, bbox=bbox, aoi_geojson=aoi_geojson)
 
@@ -276,28 +258,6 @@ def _normalize_variables(variable_spec: Iterable[str] | str) -> Sequence[str]:
     return [str(val) for val in values]
 
 
-def _coerce_legacy_aoi_to_bbox(aoi: Mapping[str, Any]) -> tuple[float, float, float, float]:
-    if not isinstance(aoi, Mapping):
-        raise ValueError("Legacy PRISM AOI must be a mapping with bounding box keys.")
-    required_keys = {"min_lon", "max_lon", "min_lat", "max_lat"}
-    if not required_keys.issubset(aoi.keys()):
-        raise ValueError(
-            "Legacy AOI missing bounding box keys: {0}".format(
-                ", ".join(sorted(required_keys - set(aoi.keys())))
-            )
-        )
-    try:
-        min_lon = float(aoi["min_lon"])
-        min_lat = float(aoi["min_lat"])
-        max_lon = float(aoi["max_lon"])
-        max_lat = float(aoi["max_lat"])
-    except (TypeError, ValueError) as exc:
-        raise ValueError("Legacy PRISM AOI values must be numeric.") from exc
-    if min_lon >= max_lon or min_lat >= max_lat:
-        raise ValueError("Legacy PRISM AOI min values must be less than max values.")
-    return (min_lon, min_lat, max_lon, max_lat)
-
-
 def _coerce_aoi(
     *,
     lat: float | None,
@@ -406,13 +366,14 @@ def _flatten_geojson_coords(coords: object) -> list[tuple[float, float]]:
 def _coerce_legacy_aoi(aoi: object) -> Mapping[str, float]:
     if not isinstance(aoi, Mapping):
         raise ValueError("Legacy PRISM AOI must be a mapping with bounding box keys.")
-    min_lon, min_lat, max_lon, max_lat = _coerce_legacy_aoi_to_bbox(aoi)
-    return {
-        "min_lon": min_lon,
-        "min_lat": min_lat,
-        "max_lon": max_lon,
-        "max_lat": max_lat,
-    }
+    required_keys = {"min_lon", "max_lon", "min_lat", "max_lat"}
+    if not required_keys.issubset(aoi.keys()):
+        raise ValueError(
+            "Legacy AOI missing bounding box keys: {0}".format(
+                ", ".join(sorted(required_keys - set(aoi.keys())))
+            )
+        )
+    return {key: float(aoi[key]) for key in required_keys}
 
 
 def _open_prism_streaming(
