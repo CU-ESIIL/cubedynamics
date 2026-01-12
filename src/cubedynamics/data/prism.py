@@ -36,7 +36,7 @@ def load_prism_cube(
     prefer_streaming: bool = True,
     show_progress: bool = True,
     allow_synthetic: bool = False,
-) -> xr.Dataset:
+) -> xr.Dataset | xr.DataArray:
     """Load a PRISM-like cube.
 
     Parameters
@@ -54,7 +54,8 @@ def load_prism_cube(
         Temporal extent for the request.
     variable : str or sequence of str, default "ppt"
         PRISM variable(s) to request. ``variables`` may also be used for
-        clarity when passing multiple entries.
+        clarity when passing multiple entries. When a single variable is
+        requested through ``variable``, the loader returns an ``xarray.DataArray``.
     time_res, freq : str, default "ME"
         Temporal frequency code. ``freq`` overrides ``time_res`` when set.
     chunks : mapping, optional
@@ -114,7 +115,7 @@ def load_prism_cube(
 
     aoi = _coerce_aoi(lat=lat, lon=lon, bbox=bbox, aoi_geojson=aoi_geojson)
 
-    return _load_prism_cube_impl(
+    ds = _load_prism_cube_impl(
         normalized_variables,
         start_ts.isoformat(),
         end_ts.isoformat(),
@@ -125,6 +126,12 @@ def load_prism_cube(
         show_progress,
         allow_synthetic,
     )
+    if variables is None and len(normalized_variables) == 1:
+        da = ds[normalized_variables[0]]
+        da = da.copy()
+        da.attrs.update(ds.attrs)
+        return da
+    return ds
 
 
 def _load_prism_cube_impl(

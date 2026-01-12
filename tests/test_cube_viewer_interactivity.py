@@ -45,6 +45,33 @@ def test_cube_viewer_emits_interactive_markup(tmp_path):
     assert (tmp_path / "viewer.html").exists()
 
 
+def test_cube_viewer_rotation_writes_to_wrapper(tmp_path):
+    data = xr.DataArray(
+        np.arange(2 * 3 * 4, dtype=float).reshape(2, 3, 4),
+        dims=("time", "y", "x"),
+        coords={
+            "time": pd.date_range("2023-01-01", periods=2, freq="D"),
+            "y": np.arange(3),
+            "x": np.arange(4),
+        },
+        name="demo",
+    )
+
+    html = cube_from_dataarray(
+        data,
+        out_html=str(tmp_path / "viewer.html"),
+        return_html=True,
+        show_progress=False,
+        thin_time_factor=1,
+    )
+
+    assert "const rotationTarget = cubeWrapper || scene" in html
+    assert "const rotationTarget = scene || cubeWrapper" not in html
+    assert 'cubeWrapper.style.setProperty("--rot-x"' in html
+    assert 'cubeWrapper.style.setProperty("--rot-y"' in html
+    assert 'cubeWrapper.style.setProperty("--zoom"' in html
+
+
 def test_cube_viewer_wraps_html_in_iframe(tmp_path):
     data = xr.DataArray(
         np.arange(4 * 4 * 4, dtype=float).reshape(4, 4, 4),

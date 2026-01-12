@@ -52,7 +52,7 @@ def stub_prism_backends(monkeypatch):
 
 
 def test_load_prism_cube_with_point_aoi(stub_prism_backends):
-    ds = prism.load_prism_cube(
+    da = prism.load_prism_cube(
         lat=40.0,
         lon=-105.25,
         start="2000-01-01",
@@ -60,21 +60,23 @@ def test_load_prism_cube_with_point_aoi(stub_prism_backends):
         variable="ppt",
     )
 
-    assert "ppt" in ds.data_vars
+    assert isinstance(da, xr.DataArray)
+    assert da.name == "ppt"
     aoi = stub_prism_backends["stream"]["aoi"]
     assert aoi["min_lat"] < 40.0 < aoi["max_lat"]
     assert aoi["min_lon"] < -105.25 < aoi["max_lon"]
 
 
 def test_load_prism_cube_with_bbox(stub_prism_backends):
-    ds = prism.load_prism_cube(
+    da = prism.load_prism_cube(
         bbox=[-105.4, 40.0, -105.2, 40.2],
         start="2000-01-01",
         end="2000-12-31",
         variable="ppt",
     )
 
-    assert "ppt" in ds.data_vars
+    assert isinstance(da, xr.DataArray)
+    assert da.name == "ppt"
     assert stub_prism_backends["stream"]["aoi"] == {
         "min_lon": -105.4,
         "min_lat": 40.0,
@@ -99,14 +101,15 @@ def test_load_prism_cube_with_geojson(stub_prism_backends):
         "properties": {"name": "Boulder"},
     }
 
-    ds = prism.load_prism_cube(
+    da = prism.load_prism_cube(
         aoi_geojson=boulder,
         start="2000-01-01",
         end="2000-12-31",
         variable="ppt",
     )
 
-    assert "ppt" in ds.data_vars
+    assert isinstance(da, xr.DataArray)
+    assert da.name == "ppt"
     aoi = stub_prism_backends["stream"]["aoi"]
     assert aoi["min_lon"] == pytest.approx(-105.35)
     assert aoi["max_lon"] == pytest.approx(-105.20)
@@ -145,3 +148,16 @@ def test_load_prism_cube_legacy_positional(stub_prism_backends):
 
     assert "ppt" in ds.data_vars
     assert stub_prism_backends["stream"]["aoi"] == aoi
+
+
+def test_load_prism_cube_variable_returns_dataarray(stub_prism_backends):
+    da = prism.load_prism_cube(
+        lat=40.0,
+        lon=-105.25,
+        start="2000-01-01",
+        end="2000-12-31",
+        variable="ppt",
+    )
+
+    assert isinstance(da, xr.DataArray)
+    assert da.name == "ppt"

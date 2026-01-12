@@ -702,7 +702,7 @@ def _render_cube_html(
         document.getElementById("cube-drag-" + viewerId)
         || sceneDragSurface
         || cubeWrapper;
-      const rotationTarget = scene || cubeWrapper;
+      const rotationTarget = cubeWrapper || scene;
       const jsWarning = document.getElementById("cube-js-warning-" + viewerId);
       const jsWarningText = jsWarning ? jsWarning.querySelector(".cube-warning-text") : null;
       let updateAxisRigBillboard = null;
@@ -734,9 +734,21 @@ def _render_cube_html(
         // Maintain a universal reference frame via CSS variables so scenes with
         // multiple cubes can share rotation/zoom state.
         function applyCubeRotation() {{
-          rotationTarget.style.setProperty("--rot-x", rotationX + "rad");
-          rotationTarget.style.setProperty("--rot-y", rotationY + "rad");
-          rotationTarget.style.setProperty("--zoom", zoom);
+          if (cubeWrapper) {{
+            cubeWrapper.style.setProperty("--rot-x", rotationX + "rad");
+            cubeWrapper.style.setProperty("--rot-y", rotationY + "rad");
+            cubeWrapper.style.setProperty("--zoom", zoom);
+          }}
+          if (scene && scene !== cubeWrapper) {{
+            scene.style.setProperty("--rot-x", rotationX + "rad");
+            scene.style.setProperty("--rot-y", rotationY + "rad");
+            scene.style.setProperty("--zoom", zoom);
+          }}
+          if (!cubeWrapper && rotationTarget) {{
+            rotationTarget.style.setProperty("--rot-x", rotationX + "rad");
+            rotationTarget.style.setProperty("--rot-y", rotationY + "rad");
+            rotationTarget.style.setProperty("--zoom", zoom);
+          }}
           if (updateAxisRigBillboard) {{
             updateAxisRigBillboard();
           }}
