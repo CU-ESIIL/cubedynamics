@@ -9,6 +9,7 @@
 - Added an `allow_synthetic` safety switch to gridMET/PRISM loaders with clearer empty-time/all-NaN error messages.
 - `load_prism_cube` now returns a DataArray when a single variable is requested, matching docs examples.
 - Fixed cube viewer rotation so drag/zoom updates the cube as well as axis labels.
+- Standardized PRISM precipitation units to millimeters and aligned cube viewer rotation variables with the wrapper element.
 
 ## Earlier work
 

@@ -12,19 +12,19 @@ import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 
 cube = cd.load_prism_cube(
-    variables=["ppt"],
+    variable="ppt",
     start="2020-01-01",
     end="2020-02-01",
-    aoi={"min_lat": 39.8, "max_lat": 40.2, "min_lon": -105.4, "max_lon": -105.0},
+    bbox=[-105.4, 39.8, -105.0, 40.2],
 )
 
-pipe(cube["ppt"]) | v.mean(dim="time") | v.plot()
+pipe(cube) | v.mean(dim="time") | v.plot()
 ```
 
 ### Customizing the view
 
 ```python
-pipe(cube["ppt"]) | v.plot(camera={"eye": {"x": 2.2, "y": 1.6, "z": 1.3}})
+pipe(cube) | v.plot(camera={"eye": {"x": 2.2, "y": 1.6, "z": 1.3}})
 ```
 
 ### Preview plot
@@ -40,7 +40,7 @@ pipe(cube["ppt"]) | v.plot(camera={"eye": {"x": 2.2, "y": 1.6, "z": 1.3}})
 2. Capture the CubePlot viewer for export:
 
     ```python
-    viewer = (pipe(cube["ppt"]) | v.mean(dim="time") | v.plot()).unwrap()
+    viewer = (pipe(cube) | v.mean(dim="time") | v.plot()).unwrap()
     viewer.save("docs/assets/datasets/prism-preview.html")
     ```
 
