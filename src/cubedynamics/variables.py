@@ -128,8 +128,11 @@ def _load_temperature(
             **kwargs,
         )
 
-    da = ds[var_name]
-    da = da.copy()
+    if isinstance(ds, xr.DataArray):
+        da = ds
+    else:
+        da = ds[var_name]
+        da = da.copy()
     da.attrs.setdefault("variable", var_name)
     da.attrs.setdefault("source", source)
     return da

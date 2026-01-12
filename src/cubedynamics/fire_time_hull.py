@@ -992,9 +992,12 @@ def load_climate_cube_for_event(
             allow_synthetic=allow_synth,
         )
 
-    target_var = variable if variable in ds.data_vars else next(iter(ds.data_vars))
-    cube_da = ds[target_var]
-    cube_da.attrs.update(ds.attrs)
+    if isinstance(ds, xr.DataArray):
+        cube_da = ds
+    else:
+        target_var = variable if variable in ds.data_vars else next(iter(ds.data_vars))
+        cube_da = ds[target_var]
+        cube_da.attrs.update(ds.attrs)
     log(verbose, f"{source.upper()} source: {cube_da.attrs.get('source')}")
     return ClimateCube(da=cube_da)
 
