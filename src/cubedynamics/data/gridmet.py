@@ -134,7 +134,13 @@ def load_gridmet_cube(
             )
         aoi_mapping = _coerce_legacy_gridmet_aoi(aoi)
     else:
-        aoi_mapping = _coerce_aoi(lat=lat, lon=lon, bbox=bbox, aoi_geojson=aoi_geojson)
+        aoi_mapping = _coerce_aoi(
+            lat=lat,
+            lon=lon,
+            bbox=bbox,
+            aoi=None,
+            aoi_geojson=aoi_geojson,
+        )
 
     return _load_gridmet_cube_impl(
         normalized_variables,
