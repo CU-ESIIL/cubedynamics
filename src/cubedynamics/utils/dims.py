@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 import xarray as xr
@@ -10,7 +10,7 @@ import xarray as xr
 from cubedynamics.config import TIME_DIM
 
 
-TimeYX = Tuple[str | None, str, str]
+TimeYX = Tuple[Optional[str], str, str]
 
 
 def _infer_time_y_x_dims(obj: xr.DataArray | xr.Dataset) -> TimeYX:
