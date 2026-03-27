@@ -33,10 +33,21 @@ No D-class code confidently identified; uncertain items kept as legacy aliases.
 | `docs/vase_volumes.md` | A | Canonical vase guide referenced by legacy stub. | Keep; ensure language matches glossary. |
 | `docs/vase-volumes.md` | C | Legacy path kept for backward compatibility; now stub pointing to canonical page. | Keep stub; leave full content in `docs/legacy/`. |
 | `docs/legacy/vase-volumes.md` | C | Archived original vase volume write-up. | Keep in legacy folder; omit from nav. |
-| `docs/viewer_debug_notes.md`, `docs/streaming_renderer.md` | C | Developer notes not in nav; older terminology. | Move to `docs/legacy/` or annotate as internal references. |
+| `docs/viewer_debug_notes.md`, `docs/streaming_renderer.md` | C | Quarantined as deprecated stubs that point at archived notes under `docs/legacy/internal_notes/`. | Keep stub paths for backwards links; do not expand as active docs. |
+| `docs/legacy/internal_notes/*` | C | Archived engineering/debug notes retained for traceability only. | Keep out of nav; treat as historical reference. |
 | `docs/examples/*`, `docs/recipes/*` | B | Supplemental material referenced sporadically. | Keep; audit for vocabulary alignment. |
 
 No D-class docs identified yet; treat ambiguous pages as legacy instead of deleting.
+
+## Old-stuff quarantine sweep (2026-03-27)
+
+Completed in this pass:
+- Moved standalone debug notes from top-level docs paths into `docs/legacy/internal_notes/`.
+- Replaced the original top-level files with lightweight deprecated stubs so old inbound links still resolve.
+
+Next quarantine candidates (non-breaking, docs-only):
+- Root-level historical pages not in nav (`docs/pipe_syntax.md`, `docs/pipe_verbs.md`, `docs/cubeplot_grammar.md`) can follow the same stub + archive pattern.
+- Older conceptual snapshots (`docs/climate_cubes.md`, `docs/concepts/climate_cubes.md`) can be merged into canonical concepts pages and retained as legacy aliases.
 
 ## Tests and examples
 
