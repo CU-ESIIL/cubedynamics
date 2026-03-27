@@ -8,7 +8,6 @@ authors:
 version: 0.1.0
 repository-code: "https://github.com/CU-ESIIL/cubedynamics"
 url: "https://cu-esiil.github.io/cubedynamics/"
-doi: 10.5281/zenodo.ZENODO_PLACEHOLDER
 keywords:
   - climate
   - streaming
@@ -21,5 +20,5 @@ abstract: |
   constructing multi-source climate data cubes, computing variance and
   correlation diagnostics, and exporting derived "lexcubes" for dashboards and
   climate resilience workflows.
-  This record includes a Zenodo DOI placeholder that will be updated after the
-  first tagged release is archived.
+  Add the Zenodo DOI to this citation record after the first tagged release is
+  archived.

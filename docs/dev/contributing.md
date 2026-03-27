@@ -22,7 +22,7 @@ Tests live under `tests/` and rely on `pytest`. Documentation is built with MkDo
 ## Local setup
 
 1. Fork or branch from `main` and create feature branches for your work.
-2. Install dependencies in editable mode (e.g., `python -m pip install -e .[dev]` once extras are defined).
+2. Install dependencies in editable mode (e.g., `python -m pip install -e ".[dev]"`).
 3. Run `pytest` plus any relevant notebooks/scripts before opening a pull request.
 
 ## Adding a new verb

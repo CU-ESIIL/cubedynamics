@@ -49,15 +49,16 @@ If you see "`PytestUnknownMarkWarning`" locally, ensure you are running from the
 ## How GitHub Actions runs tests
 
 ### tests.yml (push / PR)
-- Matrix: Python **3.11** on `ubuntu-latest`.
-- Install: `python -m pip install --upgrade pip`, then `pip install -r requirements.txt` and `pip install -e .`.
-- Unit pass: `pytest -m "not integration" --maxfail=1 --disable-warnings -q`.
-- Optional integration pass: `pytest -m "integration"` (only when `RUN_INTEGRATION=1` is present in the environment).
-- Docs build: `mkdocs build --strict` (separate job in the same workflow).
+- Matrix: Python **3.9, 3.10, 3.11, and 3.12** on `ubuntu-latest`.
+- Install: `python -m pip install --upgrade pip`, then `pip install -e ".[dev]"`.
+- Unit pass: `pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q`.
+- Optional integration pass: `pytest -m "integration"` (only when `RUN_INTEGRATION=1` is present in the environment, and only on Python 3.11).
+- Packaging pass: `python -m build`, `python -m twine check dist/*`, then install the built wheel in a clean virtualenv and smoke-import `cubedynamics`.
+- Docs build: `mkdocs build --strict` (separate job in the same workflow, installed from `.[docs]`).
 
 ### online-tests.yml (scheduled / manual)
 - Triggers: manual **workflow_dispatch** and a weekly cron (**`0 6 * * 1`** / Mondays at 06:00 UTC).
-- Install: same as the push/PR workflow (`pip install -r requirements.txt` then `pip install -e .`).
+- Install: `python -m pip install --upgrade pip`, then `pip install -e ".[dev]"`.
 - Command: `pytest -m "integration"` with `PYTEST_ADDOPTS` cleared for full output.
 
 ### Enabling integration in CI
@@ -75,7 +76,7 @@ If you see "`PytestUnknownMarkWarning`" locally, ensure you are running from the
 ## Common failure modes
 
 - **Markers not recognized**: run `pytest` from the repository root so `pytest.ini` is picked up; upgrade `pytest` if using a system copy.
-- **Missing optional deps**: integration/online tests may require `cubo`, `rasterio`/`GDAL`, or Plotly extras. Install from `requirements.txt` or add the missing packages.
+- **Missing optional deps**: integration/online tests may require `cubo`, `rasterio`/`GDAL`, or Plotly extras. Install from `.[dev]` or add the missing packages.
 - **Network unavailable**: `online` or integration tests that fetch remote data will fail offline; rerun without those markers or provide cached data.
 - **Lazy compute expectations**: some `streaming` tests expect Dask-backed objects to remain lazy. Avoid calling `.compute()` in code paths covered by those tests unless explicitly needed.
 
@@ -84,11 +85,12 @@ If you see "`PytestUnknownMarkWarning`" locally, ensure you are running from the
 Run the same sequence as CI:
 
 ```bash
-pip install -r requirements.txt
-pip install -e .
-pytest -m "not integration" --maxfail=1 --disable-warnings -q
+python -m pip install -e ".[dev]"
+pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q
 pytest -m "integration"  # if you want to mirror RUN_INTEGRATION=1
 mkdocs build --strict
+python -m build
+python -m twine check dist/*
 ```
 
 Use `pytest -m "online"` if you also want to mirror the scheduled online workflow.

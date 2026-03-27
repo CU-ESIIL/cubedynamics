@@ -111,11 +111,16 @@ Replace `v0.1.0` with the release tag you want to test.
 ```bash
 git clone https://github.com/CU-ESIIL/cubedynamics.git
 cd cubedynamics
-pip install -e .[dev]
+python -m pip install -e ".[dev]"
 pytest -m "not integration" -q
 ```
 
 See the documentation for optional extras, large-data workflows, and examples.
+
+Useful extras:
+- `pip install -e ".[test]"` for tests and packaging checks
+- `pip install -e ".[docs]"` for MkDocs builds
+- `pip install -e ".[viz]"` for Lexcube-backed visualization helpers
 
 ---
 
@@ -133,8 +138,8 @@ See the documentation for the public API and stability guarantees.
 ## Cite CubeDynamics
 
 Please cite the project using the guidance in [CITATION.cff](CITATION.cff).
-A Zenodo DOI will be minted after the first tagged release; the placeholder DOI
-in the citation file should be updated once that archive exists.
+A Zenodo DOI will be added to the citation metadata after the first tagged
+release is archived.
 
 (See the documentation for dataset-specific citations.)
 

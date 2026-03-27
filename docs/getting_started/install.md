@@ -24,7 +24,7 @@ Until then, the GitHub install above is the canonical way to pick up fixes and e
 
 ## Environment notes
 
-- **Python version** – target Python 3.10+ to match the test matrix.
+- **Python version** – target Python 3.9+; CI covers Python 3.9 through 3.12.
 - **xarray + dask** – both dependencies ship automatically; if you already manage these packages with Conda, install CubeDynamics inside that environment to avoid duplication.
 - **Optional extras** – notebooks rely on `jupyterlab`/`notebook`, Lexcube visualizations require a live frontend (VS Code, JupyterLab, or Binder).
 
