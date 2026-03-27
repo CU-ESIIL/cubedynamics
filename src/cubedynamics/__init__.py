@@ -24,6 +24,8 @@ Documentation inventory:
   documented for contributors but may change more frequently.
 """
 
+from __future__ import annotations
+
 from .version import __version__
 from .piping import Pipe, pipe
 from . import verbs

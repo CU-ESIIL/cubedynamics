@@ -37,6 +37,9 @@ def fire_plot(
     n_ring_samples: int = 200,
     n_theta: int = 296,
     color_limits: Optional[Tuple[float, float]] = None,
+    z_exaggeration: float = 2.2,
+    scalar_debug_mode: Optional[str] = None,
+    debug_scalars: bool = False,
     show_hist: bool = False,
     verbose: bool = False,
     save_prefix: Optional[str] = None,
@@ -150,9 +153,34 @@ def fire_plot(
             color_limits = (0.0, 1.0)
         else:
             color_limits = (
-                float(np.nanpercentile(vals, 5)),
-                float(np.nanpercentile(vals, 95)),
+                float(np.nanpercentile(vals, 2)),
+                float(np.nanpercentile(vals, 98)),
             )
+        if not np.isfinite(color_limits[0]) or not np.isfinite(color_limits[1]) or color_limits[1] <= color_limits[0]:
+            finite = vals[np.isfinite(vals)]
+            if finite.size:
+                vmin = float(np.nanmin(finite))
+                vmax = float(np.nanmax(finite))
+                if vmax <= vmin:
+                    vmax = vmin + 1e-9
+                color_limits = (vmin, vmax)
+
+    if debug_scalars:
+        vals = np.asarray(summary.per_day_mean.values, dtype=float)
+        finite = vals[np.isfinite(vals)]
+        pct = [1, 5, 25, 50, 75, 95, 99]
+        pct_vals = np.nanpercentile(finite, pct).tolist() if finite.size else [float("nan")] * len(pct)
+        log(
+            True,
+            "fire_plot scalar summary:",
+            {
+                "per_day_mean_len": int(vals.size),
+                "nan_count": int(np.isnan(vals).sum()),
+                "min": float(np.nanmin(finite)) if finite.size else float("nan"),
+                "max": float(np.nanmax(finite)) if finite.size else float("nan"),
+                "percentiles": dict(zip([str(p) for p in pct], pct_vals)),
+            },
+        )
 
     if climate_variable == "tmmx":
         var_label = "Max temperature (°C)"
@@ -174,6 +202,9 @@ def fire_plot(
         var_label=var_label,
         save_prefix=save_prefix,
         color_limits=color_limits,
+        z_exaggeration=z_exaggeration,
+        scalar_debug_mode=scalar_debug_mode,
+        debug=debug_scalars,
     )
 
     if show_hist:
@@ -292,4 +323,3 @@ def fire_derivative(
         "derivative_hull": deriv_hull,
         "fig": fig,
     }
-
