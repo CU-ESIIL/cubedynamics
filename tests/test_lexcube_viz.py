@@ -6,7 +6,13 @@ import numpy as np
 import pytest
 import xarray as xr
 
-pytest.importorskip("lexcube", reason="lexcube is required for these visualization tests")
+try:
+    import lexcube  # noqa: F401
+except Exception as exc:  # pragma: no cover - environment-dependent optional dependency
+    pytest.skip(
+        f"lexcube is required for these visualization tests (import failed: {exc})",
+        allow_module_level=True,
+    )
 
 from cubedynamics.viz.lexcube_viz import show_cube_lexcube
 
