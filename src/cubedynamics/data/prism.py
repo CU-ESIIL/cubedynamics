@@ -6,8 +6,6 @@ from typing import Hashable, Iterable, Mapping, Sequence
 
 import warnings
 
-import warnings
-
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -51,6 +49,7 @@ def load_prism_cube(
     lat: float | None = None,
     lon: float | None = None,
     bbox: Sequence[float] | None = None,
+    aoi: Mapping[str, float] | None = None,
     aoi_geojson: Mapping[str, object] | None = None,
     start: str | pd.Timestamp | None = None,
     end: str | pd.Timestamp | None = None,
@@ -73,6 +72,9 @@ def load_prism_cube(
         fetched for the surrounding area.
     bbox : sequence of float, optional
         Bounding box defined as ``[min_lon, min_lat, max_lon, max_lat]``.
+    aoi : mapping, optional
+        Backward-compatible alias for ``bbox`` as a mapping containing
+        ``min_lon``, ``min_lat``, ``max_lon``, and ``max_lat``.
     aoi_geojson : mapping, optional
         GeoJSON Feature/FeatureCollection describing the area of interest. A
         bounding box is derived from the geometry.
@@ -103,7 +105,8 @@ def load_prism_cube(
 
     if legacy_args:
         if any(
-            value is not None for value in (lat, lon, bbox, aoi_geojson, start, end, freq)
+            value is not None
+            for value in (lat, lon, bbox, aoi, aoi_geojson, start, end, freq)
         ) or variables is not None:
             raise TypeError(
                 "Cannot mix positional PRISM arguments with the keyword-only API."
@@ -139,13 +142,19 @@ def load_prism_cube(
         variable_spec = variable
     normalized_variables = _normalize_variables(variable_spec)
 
-    aoi = _coerce_aoi(lat=lat, lon=lon, bbox=bbox, aoi_geojson=aoi_geojson)
+    aoi_mapping = _coerce_aoi(
+        lat=lat,
+        lon=lon,
+        bbox=bbox,
+        aoi=aoi,
+        aoi_geojson=aoi_geojson,
+    )
 
     ds = _load_prism_cube_impl(
         normalized_variables,
         start_ts.isoformat(),
         end_ts.isoformat(),
-        aoi,
+        aoi_mapping,
         freq_code,
         chunks,
         prefer_streaming,
@@ -296,16 +305,18 @@ def _coerce_aoi(
     lat: float | None,
     lon: float | None,
     bbox: Sequence[float] | None,
+    aoi: Mapping[str, float] | None,
     aoi_geojson: Mapping[str, object] | None,
 ) -> Mapping[str, float]:
     specs = [
         lat is not None or lon is not None,
         bbox is not None,
+        aoi is not None,
         aoi_geojson is not None,
     ]
     if sum(bool(spec) for spec in specs) != 1:
         raise ValueError(
-            "Specify exactly one of (lat/lon), bbox, or aoi_geojson for PRISM requests."
+            "Specify exactly one of (lat/lon), bbox, aoi, or aoi_geojson for PRISM requests."
         )
 
     if lat is not None or lon is not None:
@@ -314,6 +325,8 @@ def _coerce_aoi(
         return _bbox_mapping_from_point(lat, lon)
     if bbox is not None:
         return _bbox_mapping_from_sequence(bbox)
+    if aoi is not None:
+        return _coerce_legacy_aoi(aoi)
     assert aoi_geojson is not None  # for mypy/static
     return _bbox_mapping_from_geojson(aoi_geojson)
 
