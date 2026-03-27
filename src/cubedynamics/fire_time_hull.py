@@ -1088,21 +1088,72 @@ def plot_climate_filled_hull(
     var_label: str = "value",
     save_prefix: Optional[str] = None,
     color_limits: Optional[Tuple[float, float]] = None,
+    z_exaggeration: float = 2.2,
+    scalar_debug_mode: Optional[str] = None,
+    debug: bool = False,
 ) -> go.Figure:
     verts = np.asarray(hull.verts_km)
     tris = np.asarray(hull.tris)
 
+    # Scalar values are attached per-vertex by ring/time-layer order (not by
+    # absolute z value). This keeps the climate series aligned with mesh layout
+    # even when t_day uses non-consecutive values.
     intensities = None
     if isinstance(summary, HullClimateSummary) and summary.per_day_mean.size:
         day_vals = np.asarray(summary.per_day_mean.sort_index().values, dtype=float)
-        M = int(hull.metrics.get("days", day_vals.size if day_vals.size else 0) or 0)
-        if M > 0 and day_vals.size:
+        n_vertices = int(verts.shape[0])
+        M = int(round(hull.metrics.get("days", 0) or 0))
+        if M <= 0 and day_vals.size:
+            M = int(day_vals.size)
+        if M > 0 and day_vals.size and n_vertices % M == 0:
+            verts_per_layer = n_vertices // M
             if len(day_vals) < M:
                 day_vals = np.pad(day_vals, (0, M - len(day_vals)), mode="edge")
             elif len(day_vals) > M:
                 day_vals = day_vals[:M]
-            layer_indices = np.clip((hull.t_days_vert - 1).astype(int), 0, len(day_vals) - 1)
-            intensities = day_vals[layer_indices]
+            intensities = np.repeat(day_vals, verts_per_layer)
+            if intensities.shape[0] != n_vertices:
+                raise ValueError(
+                    "Hull climate scalar/vertex mismatch: "
+                    f"{intensities.shape[0]} intensities for {n_vertices} vertices."
+                )
+
+    # Developer diagnostic mode: color by z/time to confirm vertical banding.
+    if scalar_debug_mode == "z":
+        intensities = verts[:, 2].astype(float)
+
+    if intensities is not None:
+        finite = intensities[np.isfinite(intensities)]
+        if color_limits is None and finite.size:
+            # Display-only robust normalization to preserve visible scalar bands.
+            cmin = float(np.nanpercentile(finite, 2))
+            cmax = float(np.nanpercentile(finite, 98))
+            if not np.isfinite(cmin) or not np.isfinite(cmax) or cmax <= cmin:
+                cmin = float(np.nanmin(finite))
+                cmax = float(np.nanmax(finite))
+                if cmax <= cmin:
+                    cmax = cmin + 1e-9
+            color_limits = (cmin, cmax)
+        if debug:
+            pct = [1, 5, 25, 50, 75, 95, 99]
+            pct_vals = (
+                np.nanpercentile(finite, pct).tolist()
+                if finite.size
+                else [float("nan")] * len(pct)
+            )
+            print(
+                "fire_hull_scalar_debug:",
+                {
+                    "verts_shape": tuple(verts.shape),
+                    "tris_shape": tuple(tris.shape),
+                    "scalar_shape": tuple(intensities.shape),
+                    "nan_count": int(np.isnan(intensities).sum()),
+                    "min": float(np.nanmin(finite)) if finite.size else float("nan"),
+                    "max": float(np.nanmax(finite)) if finite.size else float("nan"),
+                    "percentiles": dict(zip([str(p) for p in pct], pct_vals)),
+                    "mode": scalar_debug_mode or "climate",
+                },
+            )
 
     fig = go.Figure(
         data=[
@@ -1115,6 +1166,8 @@ def plot_climate_filled_hull(
                 k=tris[:, 2],
                 intensity=intensities,
                 colorscale="Viridis",
+                intensitymode="vertex",
+                flatshading=False,
                 showscale=True,
                 cmin=None if color_limits is None else color_limits[0],
                 cmax=None if color_limits is None else color_limits[1],
@@ -1130,6 +1183,11 @@ def plot_climate_filled_hull(
             xaxis_title="x (km)",
             yaxis_title="y (km)",
             zaxis_title="time (days)",
+            aspectmode="manual",
+            aspectratio=dict(x=1.0, y=1.0, z=float(max(0.1, z_exaggeration))),
+            xaxis=dict(showbackground=False, showgrid=False, zeroline=False),
+            yaxis=dict(showbackground=False, showgrid=False, zeroline=False),
+            zaxis=dict(showbackground=False, showgrid=False, zeroline=False),
         ),
         template="plotly_white",
     )
