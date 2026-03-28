@@ -27,7 +27,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: GIS",
 ]
 dependencies = [
-    "numpy",
+    "numpy<2",
     "xarray",
     "pandas",
     "rasterio",
