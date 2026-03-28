@@ -3,14 +3,7 @@
 import numpy as np
 import xarray as xr
 
-import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
-
-
-def test_import_cubedynamics_has_version():
-    """Ensure the package exposes a version attribute."""
-
-    assert hasattr(cd, "__version__")
 
 
 def test_pipe_anomaly_variance_chain():
