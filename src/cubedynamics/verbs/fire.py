@@ -47,9 +47,11 @@ def fire_plot(
     allow_synthetic: bool = False,
     prefer_streaming: bool = True,
 ) -> Dict[str, Any]:
-    """Fire time-hull + climate visualization verb.
+    """Fire time-hull + climate visualization workflow.
 
     Supports cube-first (preferred) and legacy fire-first invocation styles.
+    Returns a fire analysis bundle and a Plotly hull figure (`fig_hull`) as the
+    current interactive backend for fire-specific visualization.
     """
 
     cube_first = da is not None

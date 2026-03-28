@@ -75,6 +75,13 @@ print("Cube:", getattr(cube, "da", None).shape if hasattr(cube, "da") else type(
     `fire_plot` requests daily gridMET/PRISM data for event windows. Explicitly pass
     `freq="D"` to emphasize daily sampling or a different frequency if needed.
 
+
+## Current viewer status
+
+`fire_plot` currently returns a fire-event analysis bundle plus a Plotly-based interactive hull figure. This is the supported fire-specific viewer path today. It is not yet rendered through the same custom HTML/CSS/JS viewer backend used by `v.plot()`. The long-term goal is to align fire-event visualization with the cube viewer’s shared space-time conventions so that fire-specific displays and generic cube displays live in the same visual grammar.
+
+Developer note: `If you are working on fire visualization internals, treat event construction, hull generation, climate/event fusion, and rendering as separable layers. The safest near-term improvements are the ones that preserve those boundaries.`
+
 ## What you get back
 `v.fire_plot` returns a dictionary with:
 
