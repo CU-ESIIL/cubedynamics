@@ -194,3 +194,39 @@ def test_plot_climate_filled_hull_debug_output_reports_stats_and_alignment(_plot
     assert "face_alignment" in out
     assert re.search(r"'min_slice_span':\s*1", out)
     assert re.search(r"'max_slice_span':\s*1", out)
+
+
+def test_plot_climate_filled_hull_drops_nonfinite_vertices_and_remaps_tris(_plotly_stub):
+    hull = _synthetic_hull(days=3, verts_per_layer=4)
+    verts = hull.verts_km.copy()
+    verts[0, 0] = np.nan
+    hull = TimeHull(
+        event=hull.event,
+        verts_km=verts,
+        tris=hull.tris,
+        t_days_vert=hull.t_days_vert,
+        t_norm_vert=hull.t_norm_vert,
+        metrics=hull.metrics,
+    )
+    summary = HullClimateSummary(
+        values_inside=np.array([1.0]),
+        values_outside=np.array([0.0]),
+        per_day_mean=pd.Series([1.0, 5.0, 9.0], index=pd.date_range("2020-07-01", periods=3, freq="D")),
+    )
+
+    fig = plot_climate_filled_hull(hull, summary, color_limits=None)
+
+    x = np.asarray(fig.data[0].x, dtype=float)
+    y = np.asarray(fig.data[0].y, dtype=float)
+    z = np.asarray(fig.data[0].z, dtype=float)
+    i = np.asarray(fig.data[0].i, dtype=int)
+    j = np.asarray(fig.data[0].j, dtype=int)
+    k = np.asarray(fig.data[0].k, dtype=int)
+    intensity = np.asarray(fig.data[0].intensity, dtype=float)
+
+    assert x.shape[0] == verts.shape[0] - 1
+    assert np.isfinite(x).all() and np.isfinite(y).all() and np.isfinite(z).all()
+    assert i.size > 0 and j.size > 0 and k.size > 0
+    assert (i >= 0).all() and (j >= 0).all() and (k >= 0).all()
+    assert (i < x.shape[0]).all() and (j < x.shape[0]).all() and (k < x.shape[0]).all()
+    assert intensity.shape[0] == x.shape[0]
