@@ -3,6 +3,7 @@ import pandas as pd
 import geopandas as gpd
 import shapely.geometry as geom
 import pytest
+import re
 
 from cubedynamics import fire_time_hull as fth
 from cubedynamics.fire_time_hull import (
@@ -144,3 +145,52 @@ def test_plot_climate_filled_hull_debug_slice_mode(_plotly_stub):
     )
     got = np.asarray(fig.data[0].intensity, dtype=float)
     np.testing.assert_allclose(got, np.repeat(np.array([0.0, 1.0, 2.0]), 4))
+
+
+def test_plot_climate_filled_hull_maps_climate_by_explicit_vertex_slice_index(_plotly_stub):
+    hull = _synthetic_hull(days=3, verts_per_layer=4)
+
+    # Reorder vertices so same-slice vertices are interleaved rather than stored
+    # as contiguous blocks. This catches the old "np.repeat by block" bug.
+    perm = np.array([0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11], dtype=int)
+    inv_perm = np.empty_like(perm)
+    inv_perm[perm] = np.arange(len(perm))
+    hull = TimeHull(
+        event=hull.event,
+        verts_km=hull.verts_km[perm],
+        tris=inv_perm[hull.tris],
+        t_days_vert=hull.t_days_vert[perm],
+        t_norm_vert=hull.t_norm_vert[perm],
+        metrics=hull.metrics,
+    )
+
+    summary = HullClimateSummary(
+        values_inside=np.array([1.0, 2.0, 3.0]),
+        values_outside=np.array([0.0, 0.0]),
+        per_day_mean=pd.Series([1.0, 5.0, 9.0], index=pd.date_range("2020-07-01", periods=3, freq="D")),
+    )
+
+    fig = plot_climate_filled_hull(hull, summary, color_limits=None)
+    got = np.asarray(fig.data[0].intensity, dtype=float)
+    expected = np.array([1.0, 5.0, 9.0, 1.0, 5.0, 9.0, 1.0, 5.0, 9.0, 1.0, 5.0, 9.0])
+    np.testing.assert_allclose(got, expected)
+
+
+def test_plot_climate_filled_hull_debug_output_reports_stats_and_alignment(_plotly_stub, capsys):
+    hull = _synthetic_hull(days=3, verts_per_layer=4)
+    summary = HullClimateSummary(
+        values_inside=np.array([1.0]),
+        values_outside=np.array([0.0]),
+        per_day_mean=pd.Series([2.0, 2.1, 2.2], index=pd.date_range("2020-07-01", periods=3, freq="D")),
+    )
+
+    plot_climate_filled_hull(hull, summary, scalar_debug_mode="slice", color_limits=None, debug=True)
+    out = capsys.readouterr().out
+
+    assert "fire_hull_scalar_debug:" in out
+    assert "scalar_stats" in out
+    assert "approx_unique_count" in out
+    assert "vertex_alignment" in out
+    assert "face_alignment" in out
+    assert re.search(r"'min_slice_span':\s*0", out)
+    assert re.search(r"'max_slice_span':\s*1", out)

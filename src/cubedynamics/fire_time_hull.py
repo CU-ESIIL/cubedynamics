@@ -1092,42 +1092,105 @@ def plot_climate_filled_hull(
     scalar_debug_mode: Optional[str] = None,
     debug: bool = False,
 ) -> go.Figure:
+    def _build_vertex_slice_index() -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+        t_days_vert = np.asarray(hull.t_days_vert, dtype=float)
+        if t_days_vert.shape[0] != verts.shape[0]:
+            raise ValueError(
+                "Per-vertex time coordinate mismatch: "
+                f"{t_days_vert.shape[0]} t_days values for {verts.shape[0]} vertices."
+            )
+
+        layer_days, vertex_slice_index = np.unique(t_days_vert, return_inverse=True)
+        n_layers_local = int(layer_days.size)
+        if n_layers_local <= 0:
+            raise ValueError("TimeHull has no time layers to color.")
+
+        verts_z = np.asarray(verts[:, 2], dtype=float)
+        z_matches_t = bool(np.allclose(verts_z, t_days_vert, equal_nan=True))
+        for layer_idx, layer_day in enumerate(layer_days):
+            layer_mask = vertex_slice_index == layer_idx
+            if not np.any(layer_mask):
+                continue
+            layer_z = verts_z[layer_mask]
+            if not np.allclose(layer_z, layer_day, equal_nan=True):
+                raise ValueError(
+                    "Vertex/time ordering mismatch: hull z coordinates do not match "
+                    f"slice {layer_idx} (expected day {layer_day})."
+                )
+
+        tri_slice_index = vertex_slice_index[tris]
+        tri_slice_min = tri_slice_index.min(axis=1)
+        tri_slice_max = tri_slice_index.max(axis=1)
+        tri_slice_span = tri_slice_max - tri_slice_min
+        if np.any(tri_slice_span > 1):
+            raise ValueError(
+                "Triangle/time ordering mismatch: found triangles spanning more than "
+                "adjacent time slices."
+            )
+
+        alignment = {
+            "vertex_alignment": {
+                "mode": "vertex",
+                "len_values": int(vertex_slice_index.shape[0]),
+                "len_verts": int(verts.shape[0]),
+                "z_matches_t_days": z_matches_t,
+                "n_layers": n_layers_local,
+                "approx_unique_slices": int(np.unique(vertex_slice_index).size),
+            },
+            "face_alignment": {
+                "mode": "vertex_colors_on_faces",
+                "len_values": int(tri_slice_min.shape[0]),
+                "len_tris": int(tris.shape[0]),
+                "min_slice_span": int(tri_slice_span.min()) if tri_slice_span.size else 0,
+                "max_slice_span": int(tri_slice_span.max()) if tri_slice_span.size else 0,
+            },
+        }
+        return layer_days, vertex_slice_index.astype(int), alignment
+
+    def _scalar_stats(values: np.ndarray) -> dict[str, Any]:
+        values = np.asarray(values)
+        finite = values[np.isfinite(values)]
+        pct = [1, 5, 25, 50, 75, 95, 99]
+        return {
+            "shape": tuple(values.shape),
+            "dtype": str(values.dtype),
+            "nan_count": int(np.isnan(values).sum()),
+            "min": float(np.nanmin(finite)) if finite.size else float("nan"),
+            "max": float(np.nanmax(finite)) if finite.size else float("nan"),
+            "percentiles": dict(
+                zip(
+                    [str(p) for p in pct],
+                    np.nanpercentile(finite, pct).tolist() if finite.size else [float("nan")] * len(pct),
+                )
+            ),
+            "approx_unique_count": int(np.unique(finite).size),
+        }
+
     verts = np.asarray(hull.verts_km)
     tris = np.asarray(hull.tris)
-
     n_vertices = int(verts.shape[0])
-    layer_days = np.unique(np.asarray(hull.t_days_vert, dtype=float))
+    layer_days, vertex_slice_index, alignment = _build_vertex_slice_index()
     n_layers = int(layer_days.size)
-    if n_layers <= 0:
-        raise ValueError("TimeHull has no time layers to color.")
-    if n_vertices % n_layers != 0:
-        raise ValueError(
-            "Cannot align hull vertices to time layers: "
-            f"{n_vertices} vertices not divisible by {n_layers} layers."
-        )
-    verts_per_layer = n_vertices // n_layers
 
-    # Scalar values are attached per-vertex, expanded from per-layer climate
-    # means using the same ring/time layer order used to build verts_km.
+    # Scalar values are colored per-vertex. We build an explicit
+    # vertex -> slice -> climate-value mapping from hull.t_days_vert so mesh
+    # colors stay aligned even if vertex ordering changes during mesh assembly.
     intensities = None
     if isinstance(summary, HullClimateSummary) and summary.per_day_mean.size:
         per_day = summary.per_day_mean.copy()
         per_day.index = normalize_dates(per_day.index)
         per_day = per_day.sort_index()
 
-        # Map each hull time layer (event_day-like z) to a calendar date so
-        # climate values are selected by the true layer date, not by truncating
-        # an arbitrarily sorted climate series.
         layer_date_index = normalize_dates(
             hull.event.t0 + pd.to_timedelta(layer_days - np.nanmin(layer_days), unit="D")
         )
         layer_vals = per_day.reindex(layer_date_index)
         if layer_vals.isna().any():
-            # Prefer forward-fill because perimeters are cumulative in time; if
-            # the earliest layer is missing, backfill once to avoid all-NaN.
+            # Display uses the nearest available per-slice climate mean, while
+            # leaving the original series untouched on the summary object.
             layer_vals = layer_vals.ffill().bfill()
         day_vals = np.asarray(layer_vals.values, dtype=float)
-        intensities = np.repeat(day_vals, verts_per_layer)
+        intensities = day_vals[vertex_slice_index]
         if intensities.shape[0] != n_vertices:
             raise ValueError(
                 "Hull climate scalar/vertex mismatch: "
@@ -1139,7 +1202,7 @@ def plot_climate_filled_hull(
         intensities = verts[:, 2].astype(float)
     elif scalar_debug_mode == "slice":
         # Diagnostic mode to verify explicit slice->vertex alignment.
-        intensities = np.repeat(np.arange(n_layers, dtype=float), verts_per_layer)
+        intensities = vertex_slice_index.astype(float)
 
     if intensities is not None:
         finite = intensities[np.isfinite(intensities)]
@@ -1154,27 +1217,15 @@ def plot_climate_filled_hull(
                     cmax = cmin + 1e-9
             color_limits = (cmin, cmax)
         if debug:
-            pct = [1, 5, 25, 50, 75, 95, 99]
-            pct_vals = (
-                np.nanpercentile(finite, pct).tolist()
-                if finite.size
-                else [float("nan")] * len(pct)
-            )
             print(
                 "fire_hull_scalar_debug:",
                 {
                     "verts_shape": tuple(verts.shape),
                     "tris_shape": tuple(tris.shape),
-                    "scalar_shape": tuple(intensities.shape),
-                    "scalar_dtype": str(intensities.dtype),
-                    "nan_count": int(np.isnan(intensities).sum()),
-                    "unique_count": int(np.unique(intensities[np.isfinite(intensities)]).size),
-                    "min": float(np.nanmin(finite)) if finite.size else float("nan"),
-                    "max": float(np.nanmax(finite)) if finite.size else float("nan"),
-                    "percentiles": dict(zip([str(p) for p in pct], pct_vals)),
+                    "scalar_stats": _scalar_stats(intensities),
                     "mode": scalar_debug_mode or "climate",
                     "n_layers": n_layers,
-                    "verts_per_layer": verts_per_layer,
+                    **alignment,
                 },
             )
 
