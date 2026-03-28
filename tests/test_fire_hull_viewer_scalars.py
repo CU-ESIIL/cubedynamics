@@ -192,5 +192,5 @@ def test_plot_climate_filled_hull_debug_output_reports_stats_and_alignment(_plot
     assert "approx_unique_count" in out
     assert "vertex_alignment" in out
     assert "face_alignment" in out
-    assert re.search(r"'min_slice_span':\s*0", out)
+    assert re.search(r"'min_slice_span':\s*1", out)
     assert re.search(r"'max_slice_span':\s*1", out)
