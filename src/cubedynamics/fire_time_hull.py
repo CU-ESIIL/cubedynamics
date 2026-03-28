@@ -1092,14 +1092,50 @@ def plot_climate_filled_hull(
     scalar_debug_mode: Optional[str] = None,
     debug: bool = False,
 ) -> go.Figure:
-    def _build_vertex_slice_index() -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
-        t_days_vert = np.asarray(hull.t_days_vert, dtype=float)
-        if t_days_vert.shape[0] != verts.shape[0]:
+    def _sanitize_mesh_inputs(
+        verts_in: np.ndarray,
+        tris_in: np.ndarray,
+        t_days_in: np.ndarray,
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        verts_arr = np.asarray(verts_in, dtype=float)
+        tris_arr = np.asarray(tris_in, dtype=int)
+        t_days_arr = np.asarray(t_days_in, dtype=float)
+
+        if verts_arr.ndim != 2 or verts_arr.shape[1] != 3:
+            raise ValueError("TimeHull verts_km must have shape (N, 3).")
+        if tris_arr.ndim != 2 or tris_arr.shape[1] != 3:
+            raise ValueError("TimeHull tris must have shape (M, 3).")
+        if t_days_arr.shape[0] != verts_arr.shape[0]:
             raise ValueError(
                 "Per-vertex time coordinate mismatch: "
-                f"{t_days_vert.shape[0]} t_days values for {verts.shape[0]} vertices."
+                f"{t_days_arr.shape[0]} t_days values for {verts_arr.shape[0]} vertices."
             )
 
+        valid_vertex_mask = np.isfinite(verts_arr).all(axis=1) & np.isfinite(t_days_arr)
+        if not np.all(valid_vertex_mask):
+            old_to_new = np.full(verts_arr.shape[0], -1, dtype=int)
+            old_to_new[valid_vertex_mask] = np.arange(int(valid_vertex_mask.sum()))
+            verts_arr = verts_arr[valid_vertex_mask]
+            t_days_arr = t_days_arr[valid_vertex_mask]
+            remapped = old_to_new[tris_arr]
+            tri_valid = (remapped >= 0).all(axis=1)
+            tris_arr = remapped[tri_valid]
+
+        if verts_arr.shape[0] == 0:
+            raise ValueError("TimeHull contains no finite vertices to render.")
+        if tris_arr.shape[0] == 0:
+            raise ValueError("TimeHull contains no valid triangles to render.")
+
+        tri_bounds_ok = (tris_arr >= 0).all() and (tris_arr < verts_arr.shape[0]).all()
+        if not tri_bounds_ok:
+            tri_valid = ((tris_arr >= 0) & (tris_arr < verts_arr.shape[0])).all(axis=1)
+            tris_arr = tris_arr[tri_valid]
+        if tris_arr.shape[0] == 0:
+            raise ValueError("TimeHull contains no in-bounds triangles to render.")
+
+        return verts_arr, tris_arr, t_days_arr
+
+    def _build_vertex_slice_index() -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
         layer_days, vertex_slice_index = np.unique(t_days_vert, return_inverse=True)
         n_layers_local = int(layer_days.size)
         if n_layers_local <= 0:
@@ -1166,8 +1202,7 @@ def plot_climate_filled_hull(
             "approx_unique_count": int(np.unique(finite).size),
         }
 
-    verts = np.asarray(hull.verts_km)
-    tris = np.asarray(hull.tris)
+    verts, tris, t_days_vert = _sanitize_mesh_inputs(hull.verts_km, hull.tris, hull.t_days_vert)
     n_vertices = int(verts.shape[0])
     layer_days, vertex_slice_index, alignment = _build_vertex_slice_index()
     n_layers = int(layer_days.size)
