@@ -90,6 +90,24 @@ def test_plot_climate_filled_hull_attaches_scalars_by_layer_order(_plotly_stub):
     np.testing.assert_allclose(got, expected)
 
 
+def test_plot_climate_filled_hull_aligns_layers_by_event_dates_not_series_prefix(_plotly_stub):
+    hull = _synthetic_hull(days=3, verts_per_layer=4)
+    # Include buffer days before/after event window to emulate cube-first fire_plot.
+    summary = HullClimateSummary(
+        values_inside=np.array([1.0, 2.0, 3.0]),
+        values_outside=np.array([0.0, 0.0]),
+        per_day_mean=pd.Series(
+            [100.0, 1.0, 5.0, 9.0, 200.0],
+            index=pd.date_range("2020-06-30", periods=5, freq="D"),
+        ),
+    )
+
+    fig = plot_climate_filled_hull(hull, summary, color_limits=None)
+    got = np.asarray(fig.data[0].intensity, dtype=float)
+    expected = np.repeat(np.array([1.0, 5.0, 9.0]), 4)
+    np.testing.assert_allclose(got, expected)
+
+
 def test_plot_climate_filled_hull_debug_z_mode_and_z_exaggeration(_plotly_stub):
     hull = _synthetic_hull(days=3, verts_per_layer=4)
     summary = HullClimateSummary(
@@ -108,3 +126,21 @@ def test_plot_climate_filled_hull_debug_z_mode_and_z_exaggeration(_plotly_stub):
     got = np.asarray(fig.data[0].intensity, dtype=float)
     np.testing.assert_allclose(got, hull.verts_km[:, 2])
     assert float(fig.layout.scene.aspectratio.z) == 2.8
+
+
+def test_plot_climate_filled_hull_debug_slice_mode(_plotly_stub):
+    hull = _synthetic_hull(days=3, verts_per_layer=4)
+    summary = HullClimateSummary(
+        values_inside=np.array([1.0]),
+        values_outside=np.array([0.0]),
+        per_day_mean=pd.Series([2.0, 2.1, 2.2], index=pd.date_range("2020-07-01", periods=3, freq="D")),
+    )
+
+    fig = plot_climate_filled_hull(
+        hull,
+        summary,
+        scalar_debug_mode="slice",
+        color_limits=None,
+    )
+    got = np.asarray(fig.data[0].intensity, dtype=float)
+    np.testing.assert_allclose(got, np.repeat(np.array([0.0, 1.0, 2.0]), 4))

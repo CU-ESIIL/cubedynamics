@@ -1095,32 +1095,51 @@ def plot_climate_filled_hull(
     verts = np.asarray(hull.verts_km)
     tris = np.asarray(hull.tris)
 
-    # Scalar values are attached per-vertex by ring/time-layer order (not by
-    # absolute z value). This keeps the climate series aligned with mesh layout
-    # even when t_day uses non-consecutive values.
+    n_vertices = int(verts.shape[0])
+    layer_days = np.unique(np.asarray(hull.t_days_vert, dtype=float))
+    n_layers = int(layer_days.size)
+    if n_layers <= 0:
+        raise ValueError("TimeHull has no time layers to color.")
+    if n_vertices % n_layers != 0:
+        raise ValueError(
+            "Cannot align hull vertices to time layers: "
+            f"{n_vertices} vertices not divisible by {n_layers} layers."
+        )
+    verts_per_layer = n_vertices // n_layers
+
+    # Scalar values are attached per-vertex, expanded from per-layer climate
+    # means using the same ring/time layer order used to build verts_km.
     intensities = None
     if isinstance(summary, HullClimateSummary) and summary.per_day_mean.size:
-        day_vals = np.asarray(summary.per_day_mean.sort_index().values, dtype=float)
-        n_vertices = int(verts.shape[0])
-        M = int(round(hull.metrics.get("days", 0) or 0))
-        if M <= 0 and day_vals.size:
-            M = int(day_vals.size)
-        if M > 0 and day_vals.size and n_vertices % M == 0:
-            verts_per_layer = n_vertices // M
-            if len(day_vals) < M:
-                day_vals = np.pad(day_vals, (0, M - len(day_vals)), mode="edge")
-            elif len(day_vals) > M:
-                day_vals = day_vals[:M]
-            intensities = np.repeat(day_vals, verts_per_layer)
-            if intensities.shape[0] != n_vertices:
-                raise ValueError(
-                    "Hull climate scalar/vertex mismatch: "
-                    f"{intensities.shape[0]} intensities for {n_vertices} vertices."
-                )
+        per_day = summary.per_day_mean.copy()
+        per_day.index = normalize_dates(per_day.index)
+        per_day = per_day.sort_index()
+
+        # Map each hull time layer (event_day-like z) to a calendar date so
+        # climate values are selected by the true layer date, not by truncating
+        # an arbitrarily sorted climate series.
+        layer_date_index = normalize_dates(
+            hull.event.t0 + pd.to_timedelta(layer_days - np.nanmin(layer_days), unit="D")
+        )
+        layer_vals = per_day.reindex(layer_date_index)
+        if layer_vals.isna().any():
+            # Prefer forward-fill because perimeters are cumulative in time; if
+            # the earliest layer is missing, backfill once to avoid all-NaN.
+            layer_vals = layer_vals.ffill().bfill()
+        day_vals = np.asarray(layer_vals.values, dtype=float)
+        intensities = np.repeat(day_vals, verts_per_layer)
+        if intensities.shape[0] != n_vertices:
+            raise ValueError(
+                "Hull climate scalar/vertex mismatch: "
+                f"{intensities.shape[0]} intensities for {n_vertices} vertices."
+            )
 
     # Developer diagnostic mode: color by z/time to confirm vertical banding.
     if scalar_debug_mode == "z":
         intensities = verts[:, 2].astype(float)
+    elif scalar_debug_mode == "slice":
+        # Diagnostic mode to verify explicit slice->vertex alignment.
+        intensities = np.repeat(np.arange(n_layers, dtype=float), verts_per_layer)
 
     if intensities is not None:
         finite = intensities[np.isfinite(intensities)]
@@ -1147,11 +1166,15 @@ def plot_climate_filled_hull(
                     "verts_shape": tuple(verts.shape),
                     "tris_shape": tuple(tris.shape),
                     "scalar_shape": tuple(intensities.shape),
+                    "scalar_dtype": str(intensities.dtype),
                     "nan_count": int(np.isnan(intensities).sum()),
+                    "unique_count": int(np.unique(intensities[np.isfinite(intensities)]).size),
                     "min": float(np.nanmin(finite)) if finite.size else float("nan"),
                     "max": float(np.nanmax(finite)) if finite.size else float("nan"),
                     "percentiles": dict(zip([str(p) for p in pct], pct_vals)),
                     "mode": scalar_debug_mode or "climate",
+                    "n_layers": n_layers,
+                    "verts_per_layer": verts_per_layer,
                 },
             )
 
