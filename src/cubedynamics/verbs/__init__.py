@@ -22,10 +22,8 @@ Canonical API:
 
 from __future__ import annotations
 
-import cubedynamics.viz as viz
 import matplotlib.pyplot as plt
 import numpy as np
-import xarray as xr
 from IPython.display import display
 
 from ..config import TIME_DIM, X_DIM, Y_DIM
@@ -57,9 +55,17 @@ from .vase import vase as _vase_base, vase_demo, vase_extract, vase_mask
 from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
 
 
+def _import_xarray():
+    """Import xarray lazily to avoid import-time hard dependency failures."""
+
+    import xarray as xr
+
+    return xr
+
+
 def _unwrap_dataarray(
-    obj: xr.DataArray | VirtualCube | None,
-) -> tuple[xr.DataArray, xr.DataArray | VirtualCube]:
+    obj,
+):
     """
     Normalize a verb input to an (xarray.DataArray, original_obj) pair.
 
@@ -72,6 +78,8 @@ def _unwrap_dataarray(
 
     if obj is None:
         raise ValueError("extract() requires an input cube/DataArray; got None.")
+
+    xr = _import_xarray()
 
     if isinstance(obj, VirtualCube):
         base_da = obj.materialize()
@@ -154,6 +162,8 @@ def show_cube_lexcube(**kwargs):
     """
 
     def _op(obj):
+        xr = _import_xarray()
+
         # normalize to DataArray if needed (Dataset with 1 var)
         if isinstance(obj, xr.Dataset):
             if len(obj.data_vars) != 1:
@@ -173,6 +183,8 @@ def show_cube_lexcube(**kwargs):
             )
 
         da = da.transpose(TIME_DIM, Y_DIM, X_DIM)
+        import cubedynamics.viz as viz
+
         widget = viz.show_cube_lexcube(da, **kwargs)
         display(widget)
 
