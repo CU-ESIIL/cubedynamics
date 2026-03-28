@@ -74,8 +74,7 @@ Plot inside/outside climate distributions for a fire event; side-effecting
 viewer verb.
 
 ### ``fire_plot(...)``
-High-level convenience verb that renders time-hull geometry and climate fields
-as a multi-panel visualization.
+High-level fire workflow that returns event/hull/summary outputs and a Plotly-based interactive hull figure (`fig_hull`).
 
 ### ``fire_panel(...)``
 Compact panel combining time-hull outlines and climate histograms.

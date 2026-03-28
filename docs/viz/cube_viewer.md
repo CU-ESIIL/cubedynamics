@@ -4,6 +4,9 @@ The cube viewer turns a 3D climate cube into an interactive HTML scene. Call
 `v.plot()` on an `xarray.DataArray` with dims like `(time, y, x)` to render the
 cube inline in Jupyter or export standalone HTML.
 
+
+> **Transition note:** `v.plot()` is the canonical custom viewer for general cubes. Some specialized visualization workflows may still expose separate rendering backends during the transition period (including the current fire hull path in `v.fire_plot()`). The intended direction is convergence on shared spatial and temporal conventions, not necessarily immediate backend unification.
+
 The viewer is designed to:
 
 - show temporal slices along one axis and spatial slices on the other faces;

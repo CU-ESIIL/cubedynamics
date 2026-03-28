@@ -179,3 +179,18 @@ Docs checks:
 - Preserve backward compatibility unless explicitly instructed otherwise.
 - Add a focused regression test for every bug fix.
 - Use synthetic small cubes for deterministic unit tests.
+
+## 13) Visualization architecture and fire plot recovery plan
+
+The repository currently contains more than one visualization backend. Treat this as a transition state, not as permission to let them drift further apart. The custom HTML/CSS/JS cube viewer exposed through v.plot() is the canonical interactive viewer for general cube rendering. The fire-specific v.fire_plot() workflow currently still exposes a Plotly-based hull figure as its primary interactive display. Future work should move toward shared space-time semantics and clearer renderer boundaries, not ad hoc backend switching.
+
+When touching visualization code, separate four concerns: (1) event or cube data construction, (2) geometry generation, (3) scene or adapter packaging, and (4) rendering backend. Changes that blur those layers tend to create regressions and make migration harder.
+
+Implementation rules for agents:
+- Do not silently replace one viewer system with another without also updating docs, tests, and architectural notes.
+- If you touch axis placement, time-depth direction, cube-attached labels, or camera semantics, read `docs/dev/cube_viewer_invariants.md` first and keep those invariants aligned.
+- Fire-plot work must preserve separation between event geometry generation, climate/event data fusion, and rendering backend.
+- Do not claim fire_plot is fully migrated unless rendering actually runs through the custom cube-viewer path.
+- Do not update screenshots/docs only while leaving contradictory code behavior.
+- Do not change coordinate conventions without updating `docs/dev/cube_viewer_invariants.md` and relevant tests together.
+- When in doubt, prefer an adapter layer over duplicating geometry logic in two renderers.
