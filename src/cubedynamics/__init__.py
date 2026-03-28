@@ -31,7 +31,10 @@ from .piping import Pipe, pipe
 from . import verbs
 from . import tubes
 from .demo_vase import demo
-import xarray as xr
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import xarray as xr
 
 # Legacy, fully implemented APIs -------------------------------------------------
 from .data.gridmet import load_gridmet_cube
@@ -70,8 +73,6 @@ from .stats.correlation import rolling_corr_vs_center
 from .stats.spatial import mask_by_threshold, spatial_coarsen_mean, spatial_smooth_mean
 from .stats.tails import rolling_tail_dep_vs_center
 from .utils.chunking import coarsen_and_stride
-from .viz.lexcube_viz import show_cube_lexcube
-from .viz.qa_plots import plot_median_over_space
 from .ops import (
     anomaly,
     month_filter,
@@ -173,3 +174,19 @@ from .ops_io.gridmet_api import gridmet
 from .ops_fire.fired_api import fired_event
 
 __all__ += ["gridmet", "fired_event"]
+
+
+def show_cube_lexcube(*args, **kwargs):
+    """Lazy wrapper to avoid importing visualization stack at package import time."""
+
+    from .viz.lexcube_viz import show_cube_lexcube as _show_cube_lexcube
+
+    return _show_cube_lexcube(*args, **kwargs)
+
+
+def plot_median_over_space(*args, **kwargs):
+    """Lazy wrapper to avoid importing visualization stack at package import time."""
+
+    from .viz.qa_plots import plot_median_over_space as _plot_median_over_space
+
+    return _plot_median_over_space(*args, **kwargs)
