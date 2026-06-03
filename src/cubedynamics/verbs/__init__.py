@@ -712,8 +712,17 @@ def fire_panel(
     return _inner(da)
 
 
-# Override legacy fire_plot with the prototype-aligned version
-from .fire import fire_plot, fire_derivative  # noqa: E402
+# Canonical fire/VASE adapters live in verbs.fire. The local implementations
+# above remain as compatibility-era helpers, but public names are bound to the
+# canonical module here so fire-specific behavior is defined in one place.
+from .fire import (  # noqa: E402
+    climate_hist,
+    extract,
+    fire_derivative,
+    fire_panel,
+    fire_plot,
+    vase,
+)
 
 
 __all__ = [

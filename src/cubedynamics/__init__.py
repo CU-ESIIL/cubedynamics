@@ -172,8 +172,9 @@ def plot(
 
 from .ops_io.gridmet_api import gridmet
 from .ops_fire.fired_api import fired_event
+from .fire_time_hull import FireEventDaily, FireHull, TimeHull
 
-__all__ += ["gridmet", "fired_event"]
+__all__ += ["gridmet", "fired_event", "FireEventDaily", "FireHull", "TimeHull"]
 
 
 def show_cube_lexcube(*args, **kwargs):

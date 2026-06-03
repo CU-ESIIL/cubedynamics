@@ -14,7 +14,9 @@ Daily polygons are extruded through time to form a 3-D volume—a “vase.” Tw
 A well-sampled vase makes it possible to fill and merge gridded climate data into an event-defined space–time region, enabling event-centric statistics and visualization.
 
 ### Hull (geometric summary)
-The hull is a compact triangulated surface summarizing the vase. Key arrays include:
+The hull is a compact triangulated surface summarizing the vase. In runtime code
+the canonical object is `FireHull` (`TimeHull` remains a compatibility alias).
+Key arrays include:
 
 - **`verts_km`** (`N×3`): vertices in kilometers (x, y, time/day).
 - **`tris`** (`M×3` indices): triangle connectivity over the vertices.
@@ -86,7 +88,7 @@ Developer note: `If you are working on fire visualization internals, treat event
 `v.fire_plot` returns a dictionary with:
 
 - `event` (`FireEventDaily`): cleaned FIRED daily perimeters, centroid, and time bounds.
-- `hull` (`TimeHull`): triangulated vase geometry with metrics (`scale_km`, `days`, `volume_km2_days`, `surface_km_day`).
+- `hull` (`FireHull`, with `TimeHull` retained as a compatibility alias): triangulated vase geometry with metrics such as `duration_days`, `scale_km`, `hull_volume_km2_days`, and `hull_surface_km_day`.
 - `cube` (`ClimateCube`): gridMET DataArray clipped to the event window with any requested buffer.
 - `summary` (`HullClimateSummary`): inside/outside pixel samples and per-day means for the event footprint.
 - `fig_hull` (`plotly.graph_objects.Figure`): interactive Mesh3d hull colored by mean climate.

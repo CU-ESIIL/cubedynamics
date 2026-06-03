@@ -12,11 +12,13 @@ update your code to use the new package name.
 
 ![Tests](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/pages.yml/badge.svg)
 
-CubeDynamics: a composable grammar of operations for spatiotemporal data cubes.
+CubeDynamics: a grammar of streaming environmental computation.
 
-CubeDynamics is a Python framework for analyzing environmental data as **spatiotemporal cubes**, rather than disconnected maps and time series.
+CubeDynamics is a Python framework for computing on environmental data streams through **spatiotemporal cubes**, rather than treating storage, retrieval, and visualization as the main product.
 
 It is designed for scientists and data practitioners who want to reason explicitly about **space, time, scale, and events**—and to do so reproducibly and efficiently, even for large datasets.
+
+Scientists and AI agents use the same streaming interface, so workflows can be explored interactively, scripted, or orchestrated programmatically without switching mental models.
 
 
 
@@ -39,6 +41,14 @@ Yet most workflows break these dimensions apart:
 
 CubeDynamics keeps **space and time together**, making spatiotemporal structure a first-class part of the analysis.
 
+Most neighboring tools answer:
+
+> How do I store, query, or retrieve a cube?
+
+CubeDynamics answers:
+
+> How do I compute on a stream of environmental data?
+
 ---
 
 ## What CubeDynamics enables
@@ -48,6 +58,15 @@ CubeDynamics keeps **space and time together**, making spatiotemporal structure 
 - **Streaming-first analysis** via VirtualCubes for large datasets
 - **Event- and hull-based workflows** (fires, droughts, phenology)
 - **Integrated visualization** of space–time structure
+
+Fire events now follow a clearer object model built around:
+
+- `FireEventDaily` for canonical FIRED-like daily event geometry
+- `FireHull` for the derived fire-time hull / VASE geometry
+
+The intent is to keep FIRED ingestion, hull geometry, environmental attribution,
+cube conversion, and visualization separable so fire workflows remain part of
+the same composable cube grammar as the rest of CubeDynamics.
 
 ---
 

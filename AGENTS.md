@@ -190,6 +190,8 @@ Implementation rules for agents:
 - Do not silently replace one viewer system with another without also updating docs, tests, and architectural notes.
 - If you touch axis placement, time-depth direction, cube-attached labels, or camera semantics, read `docs/dev/cube_viewer_invariants.md` first and keep those invariants aligned.
 - Fire-plot work must preserve separation between event geometry generation, climate/event data fusion, and rendering backend.
+- Prefer `FireEventDaily` and `FireHull` as the canonical fire/VASE object model; keep legacy names such as `TimeHull` only as compatibility aliases unless the task explicitly removes them.
+- Prefer cube-compatible outputs when possible. If a hull-to-cube or environment-attribution step is incomplete, expose a narrow documented API with a clear limitation instead of hiding the gap inside plotting code.
 - Do not claim fire_plot is fully migrated unless rendering actually runs through the custom cube-viewer path.
 - Do not update screenshots/docs only while leaving contradictory code behavior.
 - Do not change coordinate conventions without updating `docs/dev/cube_viewer_invariants.md` and relevant tests together.

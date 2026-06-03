@@ -1,6 +1,10 @@
 # Getting Started
 
-This guide gets you to a first working cube and pipeline as quickly as possible, while showing how the same code scales up when datasets are large.
+This guide gets you to a first working streaming workflow as quickly as possible, while showing how the same code scales up when datasets are large.
+
+CubeDynamics is not a storage platform or visualization package. It sits above data sources and gives you a consistent way to compute on environmental streams.
+
+Scientists and AI agents use the same streaming interface, so the workflow you learn here is the same one that scales into notebooks, cloud jobs, and agent-orchestrated runs.
 
 ## Installation
 
@@ -18,9 +22,9 @@ pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 
 CubeDynamics runs anywhere `xarray` runs: laptops, HPC clusters, or hosted notebooks.
 
-## Your First Cube
+## Your First Stream
 
-Most users start by loading a cube from an existing dataset. For example, this creates a precipitation cube from PRISM:
+Most users start by loading a cube-like stream from an existing dataset. For example, this creates a precipitation cube from PRISM:
 
 ```python
 import cubedynamics as cd
@@ -52,7 +56,12 @@ from cubedynamics import pipe, verbs as v
 result = pipe(cube) | v.mean(dim="time") | v.plot()
 ```
 
-This example computes the mean through time for every location in the cube and plots the result. You can swap in different verbs (e.g., `v.anomaly()`, `v.variance()`, `v.month_filter([6, 7, 8])`) without changing the pipeline structure.
+This example computes the mean through time for every location in the stream-backed cube and plots the result. You can swap in different verbs (e.g., `v.anomaly()`, `v.variance()`, `v.month_filter([6, 7, 8])`) without changing the pipeline structure.
+
+The important idea is that the cube is not the product by itself. The product is the combination of:
+
+- a streaming interface to environmental data
+- a stable computation grammar built from `pipe(...)` and verbs
 
 ## Loading Real Datasets
 
@@ -104,22 +113,11 @@ When a request is too large for a normal in-memory cube, CubeDynamics:
 
 ## Where to go next
 
-- **Concepts**
-  - [What is a cube?](concepts/cubes.md)
-  - [Pipe & verbs](concepts/grammar.md)
-  - [VirtualCubes](concepts/virtual_cubes.md)
+- [Why CubeDynamics?](why_cubedynamics.md)
+- [Streaming Environmental Data](streaming/index.md)
+- [Grammar of Streaming](grammar/index.md)
+- [Workflows](workflows/index.md)
+- [Datasets](datasets/index.md)
+- [Cube viewer (`v.plot`)](viz/cube_viewer.md)
 
-- **Recipes / How-tos**
-  - [Minimal NDVI vignette](vignette_minimal_ndvi.md)
-  - [NDVI anomalies](howto/ndvi_anomalies.md)
-  - [Climate variance](howto/climate_variance.md)
-  - [Correlation cubes](howto/correlation_cubes.md)
-
-- **Visualization**
-  - [Cube viewer (`v.plot`)](viz/cube_viewer.md)
-  - [Map viewer (`v.map`)](viz/maps.md)
-
-- **API Reference**
-  - [API overview](api/index.md)
-
-CubeDynamics provides a unified, cube-native way to work with spatiotemporal environmental data—simple enough for quick exploration, powerful enough for large-scale scientific analysis.
+CubeDynamics provides a unified way to compute on environmental data streams: simple enough for quick exploration, strong enough for larger scientific and agent-executed workflows.

@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import Any, Optional, Tuple, Dict
 
+import matplotlib.pyplot as plt
 import numpy as np
 import xarray as xr
 import geopandas as gpd
 import pandas as pd
+import plotly.graph_objects as go
 
 from ..fire_time_hull import (
     build_fire_event_daily,
@@ -17,12 +19,189 @@ from ..fire_time_hull import (
     plot_inside_outside_hist,
     plot_derivative_hull,
     FireEventDaily,
+    FireHull,
     TimeHull,
+    Vase,
     ClimateCube,
     HullClimateSummary,
     sample_inside_outside,
+    time_hull_to_vase,
     log,
 )
+from ..piping import Verb
+from ..streaming import VirtualCube
+from ..vase import VaseDefinition
+from .vase import vase as _vase_base
+
+
+def _unwrap_fire_cube(obj):
+    if obj is None:
+        raise ValueError("fire verb requires an input cube/DataArray; got None.")
+    if isinstance(obj, VirtualCube):
+        base_da = obj.materialize()
+        if not isinstance(base_da, xr.DataArray):
+            raise TypeError("VirtualCube underlying data is not a DataArray.")
+        return base_da, obj
+    if isinstance(obj, xr.DataArray):
+        return obj, obj
+    raise TypeError(f"Unsupported type for fire verb: {type(obj)!r}")
+
+
+def _plot_time_hull_vase(
+    vase_obj: Vase,
+    da: xr.DataArray,
+    summary: HullClimateSummary | None,
+    **plot_kwargs,
+):
+    """Render a TimeHull-derived vase using matplotlib for compatibility."""
+
+    verts = np.asarray(vase_obj.verts_km)
+    tris = np.asarray(vase_obj.tris)
+    meta = getattr(vase_obj, "metadata", {}) or {}
+    t_days_vert = np.asarray(meta.get("t_days_vert", []), dtype=float)
+    metrics = meta.get("metrics", {}) or {}
+
+    intensities = None
+    if isinstance(summary, HullClimateSummary):
+        day_vals = np.asarray(summary.per_day_mean.sort_index().values, dtype=float)
+        M = int(metrics.get("days", day_vals.size if day_vals.size else 0) or 0)
+        if M <= 0 and t_days_vert.size:
+            M = int(np.nanmax(t_days_vert)) if np.isfinite(t_days_vert).any() else day_vals.size
+        if M > 0 and day_vals.size:
+            if len(day_vals) < M:
+                day_vals = np.pad(day_vals, (0, M - len(day_vals)), mode="edge")
+            elif len(day_vals) > M:
+                day_vals = day_vals[:M]
+            if t_days_vert.size:
+                layer_indices = np.clip((t_days_vert - 1).astype(int), 0, M - 1)
+                intensities = day_vals[layer_indices]
+
+    from matplotlib import cm
+    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+    fig = plt.figure(figsize=plot_kwargs.get("figsize", (6, 4)))
+    ax = fig.add_subplot(111, projection="3d")
+    faces = [verts[idx] for idx in tris]
+
+    if intensities is not None and intensities.size:
+        norm = plt.Normalize(vmin=float(np.nanmin(intensities)), vmax=float(np.nanmax(intensities)))
+        face_colors = []
+        for tri in tris:
+            vals = intensities[tri]
+            face_colors.append(cm.viridis(norm(np.nanmean(vals))))
+    else:
+        face_colors = "steelblue"
+
+    poly = Poly3DCollection(faces, facecolors=face_colors, linewidths=0.4, alpha=0.7)
+    poly.set_edgecolor(plot_kwargs.get("edgecolor", "#2c3e50"))
+    ax.add_collection3d(poly)
+    ax.set_xlabel("x (km)")
+    ax.set_ylabel("y (km)")
+    ax.set_zlabel("days")
+
+    if isinstance(summary, HullClimateSummary) and intensities is not None and intensities.size:
+        mappable = cm.ScalarMappable(
+            cmap="viridis",
+            norm=plt.Normalize(vmin=float(np.nanmin(intensities)), vmax=float(np.nanmax(intensities))),
+        )
+        mappable.set_array([])
+        fig.colorbar(mappable, ax=ax, label=da.name or "value")
+
+    ax.view_init(elev=plot_kwargs.get("elev", 26), azim=plot_kwargs.get("azim", -58))
+    ax.set_title(plot_kwargs.get("title", "Fire time-hull vase"))
+    plt.tight_layout()
+    plt.show()
+    return fig
+
+
+def extract(
+    da: xr.DataArray | VirtualCube | None = None,
+    *,
+    fired_event: FireEventDaily,
+    date_col: str = "date",
+    n_ring_samples: int = 100,
+    n_theta: int = 96,
+    verbose: bool = False,
+):
+    """Attach canonical fire hull and climate summaries to a cube."""
+
+    def _op(value: xr.DataArray | VirtualCube):
+        base_da, original_obj = _unwrap_fire_cube(value)
+        hull: FireHull = compute_time_hull_geometry(
+            fired_event,
+            n_ring_samples=n_ring_samples,
+            n_theta=n_theta,
+            verbose=verbose,
+        )
+        summary: HullClimateSummary = build_inside_outside_climate_samples(
+            fired_event,
+            ClimateCube(da=base_da),
+            date_col=date_col,
+            verbose=verbose,
+        )
+        base_da.attrs["fire_time_hull"] = hull
+        base_da.attrs["fire_climate_summary"] = summary
+        base_da.attrs["vase"] = time_hull_to_vase(hull)
+        return original_obj
+
+    if da is None:
+        return Verb(_op)
+    return _op(da)
+
+
+def climate_hist(
+    da: xr.DataArray | VirtualCube | None = None,
+    *,
+    bins: int = 40,
+    var_label: str | None = None,
+):
+    """Plot climate distributions inside vs outside the event footprint."""
+
+    if da is None:
+        return Verb(lambda value: climate_hist(value, bins=bins, var_label=var_label))
+
+    base_da, original_obj = _unwrap_fire_cube(da)
+    summary = base_da.attrs.get("fire_climate_summary")
+    if not isinstance(summary, HullClimateSummary):
+        raise ValueError(
+            "climate_hist() requires attrs['fire_climate_summary'] to be a "
+            "HullClimateSummary, typically added by v.extract()."
+        )
+    plot_inside_outside_hist(summary, bins=bins, var_label=var_label or base_da.name or "value")
+    return original_obj
+
+
+def vase(
+    da: xr.DataArray | VirtualCube | None = None,
+    *,
+    vase=None,
+    outline: bool = True,
+    verbose: bool = False,
+    **plot_kwargs,
+):
+    """Plot either a generic VaseDefinition or a fire TimeHull-derived vase."""
+
+    def _inner(value: xr.DataArray | VirtualCube):
+        base_da, original_obj = _unwrap_fire_cube(value)
+        vase_obj = vase if vase is not None else base_da.attrs.get("vase", None)
+        if vase_obj is None:
+            raise ValueError("v.vase() requires a vase definition via `vase=` or attrs['vase'].")
+        if verbose and vase is None:
+            print("Using vase from attrs['vase']")
+        if isinstance(vase_obj, VaseDefinition):
+            return _vase_base(vase=vase_obj, outline=outline, **plot_kwargs)(base_da)
+        if isinstance(vase_obj, Vase):
+            summary = base_da.attrs.get("fire_climate_summary")
+            if summary is None:
+                raise ValueError(
+                    "Time-hull vase plotting requires attrs['fire_climate_summary']; run v.extract first."
+                )
+            return _plot_time_hull_vase(vase_obj, base_da, summary, **plot_kwargs)
+        return _vase_base(vase=vase_obj, outline=outline, **plot_kwargs)(base_da)
+
+    if da is None:
+        return Verb(_inner)
+    return _inner(da)
 
 
 def fire_plot(
@@ -148,6 +327,8 @@ def fire_plot(
         verbose,
         f"Collected {summary.values_inside.size} inside / {summary.values_outside.size} outside samples",
     )
+    if hasattr(hull, "attach_environment"):
+        hull = hull.attach_environment(cube.da, variables=[climate_variable])
 
     if color_limits is None:
         vals = summary.per_day_mean.values
@@ -197,17 +378,30 @@ def fire_plot(
         var_label = climate_variable
         title_prefix = climate_variable
 
-    fig_hull = plot_climate_filled_hull(
-        hull,
-        summary,
-        title_prefix=title_prefix,
-        var_label=var_label,
-        save_prefix=save_prefix,
-        color_limits=color_limits,
-        z_exaggeration=z_exaggeration,
-        scalar_debug_mode=scalar_debug_mode,
-        debug=debug_scalars,
-    )
+    if hasattr(hull, "plot"):
+        fig_hull = hull.plot(
+            color=climate_variable,
+            summary=summary,
+            title_prefix=title_prefix,
+            var_label=var_label,
+            save_prefix=save_prefix,
+            color_limits=color_limits,
+            z_exaggeration=z_exaggeration,
+            scalar_debug_mode=scalar_debug_mode,
+            debug=debug_scalars,
+        )
+    else:
+        fig_hull = plot_climate_filled_hull(
+            hull,
+            summary,
+            title_prefix=title_prefix,
+            var_label=var_label,
+            save_prefix=save_prefix,
+            color_limits=color_limits,
+            z_exaggeration=z_exaggeration,
+            scalar_debug_mode=scalar_debug_mode,
+            debug=debug_scalars,
+        )
 
     if show_hist:
         plot_inside_outside_hist(summary, var_label=var_label)
@@ -220,6 +414,47 @@ def fire_plot(
         "fig_hull": fig_hull,
         "color_limits": color_limits,
     }
+
+
+def fire_panel(
+    da: xr.DataArray | None = None,
+    *,
+    fired_event: FireEventDaily | None = None,
+    fired_daily: gpd.GeoDataFrame | None = None,
+    event_id: Any | None = None,
+    climate_variable: str = "vpd",
+    freq: str | None = None,
+    time_buffer_days: int = 1,
+    n_ring_samples: int = 200,
+    n_theta: int = 296,
+    bins: int = 40,
+    show_hist: bool = True,
+    verbose: bool = False,
+    **kwargs,
+) -> tuple[Dict[str, Any], go.Figure, Any | None]:
+    """Return the fire analysis bundle plus figure objects for custom layouts."""
+
+    results = fire_plot(
+        da,
+        fired_event=fired_event,
+        fired_daily=fired_daily,
+        event_id=event_id,
+        climate_variable=climate_variable,
+        freq=freq,
+        time_buffer_days=time_buffer_days,
+        n_ring_samples=n_ring_samples,
+        n_theta=n_theta,
+        show_hist=False,
+        verbose=verbose,
+        **kwargs,
+    )
+
+    fig_hist = None
+    if show_hist:
+        plot_inside_outside_hist(results["summary"], bins=bins, var_label=climate_variable)
+        fig_hist = plt.gcf()
+
+    return results, results["fig_hull"], fig_hist
 
 
 def fire_derivative(

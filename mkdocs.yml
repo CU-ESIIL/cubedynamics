@@ -1,21 +1,35 @@
 site_name: "CubeDynamics"
-site_description: "CubeDynamics: a composable grammar of operations for spatiotemporal data cubes."
+site_description: "CubeDynamics: a grammar of streaming environmental computation."
 site_author: CubeDynamics Team
 site_url: "https://cu-esiil.github.io/cubedynamics/"
 
 nav:
   - Home: index.md
-  - Concepts:
-      - Overview: concepts/index.md
+  - Getting Started: quickstart.md
+  - Why CubeDynamics?: why_cubedynamics.md
+  - Streaming Environmental Data:
+      - Overview: streaming/index.md
+      - What is Streaming?: streaming/what_is_streaming.md
+      - Virtual Cubes: concepts/virtual_cubes.md
+      - Local Sources: streaming/local_sources.md
+      - Cloud Sources: streaming/cloud_sources.md
+      - STAC Sources: streaming/stac_sources.md
+  - Grammar of Streaming:
+      - Overview: grammar/index.md
+      - Pipe: api/pipe.md
+      - Verbs: api/verbs.md
+      - Lazy Evaluation: grammar/lazy_evaluation.md
+      - Workflow Composition: grammar/workflow_composition.md
       - What is a cube?: concepts/cubes.md
-      - Pipe & verbs: concepts/pipe_and_verbs.md
-      - VirtualCubes: concepts/virtual_cubes.md
       - Glossary: concepts/glossary.md
       - Why not xarray?: why_not_xarray.md
-  - Getting Started: quickstart.md
-  - Capabilities:
-      - Overview: capabilities/index.md
-      - Verbs & Examples: capabilities/textbook_verbs.md
+  - Workflows:
+      - Overview: workflows/index.md
+      - Climate Analysis: workflows/climate_analysis.md
+      - Fire Analysis: workflows/fire_analysis.md
+      - Vegetation Analysis: workflows/vegetation_analysis.md
+      - Remote Sensing Analysis: workflows/remote_sensing_analysis.md
+      - Fire VASE / FireHull: capabilities/fire-vase.md
   - Datasets:
       - Overview: datasets/index.md
       - Which dataset should I use?: datasets/which_dataset.md
@@ -31,6 +45,7 @@ nav:
       - gridMET variance cube: recipes/gridmet_variance_cube.md
       - PRISM variance cube: recipes/prism_variance_cube.md
       - Fire event vase + climate merge (fire_plot): recipes/fire_event_vase_hull.md
+      - Synthetic fire/VASE recipe: recipes/fire_vase_synthetic.md
       - Sentinel-2 NDVI z-score cube: recipes/s2_ndvi_zcube.md
       - Sentinel-2 correlation center: recipes/s2_corr_center.md
       - Sentinel-2 tail dependence (center): recipes/s2_tail_dep_center.md
@@ -49,10 +64,12 @@ nav:
       - Inventory (User): function_inventory.md
       - Inventory (Full / Dev): api/inventory_full.md
       - Reference: api/reference.md
-  - Contributing / Development:
+  - Developer:
       - Contributing: dev/contributing.md
       - CI and Testing: dev/ci_testing.md
+      - Concepts Overview: concepts/index.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md
+      - Fire / VASE status audit: developer/fire_vase_status.md
       - Fire plot architecture: dev/fire_plot_architecture.md
       - Figure backend (v.plot): dev/figure_backend.md
       - Viewer backend: dev/viewer_backend.md

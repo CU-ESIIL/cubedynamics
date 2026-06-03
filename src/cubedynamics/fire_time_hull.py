@@ -8,13 +8,13 @@ of circular imports. It contains lightweight dataclasses and utilities adapted
 from the fire/time-hull prototype used in notebooks.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 import shutil
 import tempfile
 from pathlib import Path
 import zipfile
 import warnings
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -277,6 +277,8 @@ def load_fired_conus_ak(
 
 @dataclass
 class FireEventDaily:
+    """Canonical daily fire event object built from FIRED-like perimeters."""
+
     event_id: Any
     gdf: gpd.GeoDataFrame
     t0: pd.Timestamp
@@ -284,15 +286,227 @@ class FireEventDaily:
     centroid_lat: float
     centroid_lon: float
 
+    @classmethod
+    def from_fired(
+        cls,
+        fired_daily: gpd.GeoDataFrame,
+        event_id: Any,
+        *,
+        date_col: str = "date",
+    ) -> "FireEventDaily":
+        """Construct a canonical event bundle from FIRED daily perimeters."""
+
+        return build_fire_event_daily(
+            fired_daily=fired_daily,
+            event_id=event_id,
+            date_col=date_col,
+        )
+
+    @classmethod
+    def example(cls) -> "FireEventDaily":
+        """Return a tiny synthetic event for tests, docs, and lightweight demos."""
+
+        rows = []
+        for day, scale in enumerate((0.10, 0.16, 0.22), start=0):
+            rows.append(
+                {
+                    "id": 1,
+                    "date": pd.Timestamp("2020-07-01") + pd.Timedelta(days=day),
+                    "geometry": Polygon(
+                        [
+                            (-105.10, 40.00),
+                            (-105.10 + scale, 40.00),
+                            (-105.10 + scale, 40.00 + scale),
+                            (-105.10, 40.00 + scale),
+                        ]
+                    ),
+                }
+            )
+        gdf = gpd.GeoDataFrame(rows, crs="EPSG:4326")
+        return cls.from_fired(gdf, event_id=1)
+
+    @property
+    def duration_days(self) -> int:
+        """Inclusive event duration in days."""
+
+        return int((pd.Timestamp(self.t1) - pd.Timestamp(self.t0)).days) + 1
+
+    @property
+    def daily_perimeters(self) -> gpd.GeoDataFrame:
+        """Return the cleaned daily perimeter table backing the event."""
+
+        return self.gdf
+
+    def to_hull(self, **kwargs) -> "FireHull":
+        """Build the canonical fire-time hull for this event."""
+
+        return compute_time_hull_geometry(self, **kwargs)
+
+
+class HullMetrics(dict):
+    """Stable, dictionary-like fire hull metrics with a callable summary hook."""
+
+    def __call__(self) -> dict[str, float]:
+        return dict(self)
+
 
 @dataclass
-class TimeHull:
+class FireHull:
+    """Canonical fire-time hull / VASE object for event geometry and attribution."""
+
     event: FireEventDaily
     verts_km: np.ndarray
     tris: np.ndarray
     t_days_vert: np.ndarray
     t_norm_vert: np.ndarray
-    metrics: Dict[str, float]
+    metrics: HullMetrics
+    environment: dict[str, "HullEnvironmentField"] = field(default_factory=dict)
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.metrics, HullMetrics):
+            self.metrics = HullMetrics(self.metrics)
+
+    def to_mesh(self) -> dict[str, np.ndarray]:
+        """Return the current triangulated mesh representation."""
+
+        return {
+            "verts_km": np.asarray(self.verts_km, dtype=float),
+            "tris": np.asarray(self.tris, dtype=int),
+            "t_days_vert": np.asarray(self.t_days_vert, dtype=float),
+            "t_norm_vert": np.asarray(self.t_norm_vert, dtype=float),
+        }
+
+    def to_cube(self, template: xr.DataArray | None = None) -> xr.DataArray:
+        """Return a boolean occupancy cube for this hull when a template cube is provided.
+
+        Parameters
+        ----------
+        template
+            DataArray supplying target ``(time, y, x)`` coordinates. This keeps
+            the conversion cube-compatible without inventing arbitrary grids.
+
+        Raises
+        ------
+        NotImplementedError
+            If no template cube is supplied. Full free-standing hull-to-cube
+            generation remains a follow-up task.
+        """
+
+        if template is None:
+            raise NotImplementedError(
+                "FireHull.to_cube currently requires a template DataArray with "
+                "time/y/x coordinates. TODO: add standalone occupancy-grid generation."
+            )
+
+        from .vase import VaseDefinition, VaseSection, build_vase_mask
+
+        sections = [
+            VaseSection(time=pd.Timestamp(row.date).to_datetime64(), polygon=_largest_polygon(row.geometry))
+            for row in self.event.gdf.itertuples(index=False)
+            if _largest_polygon(row.geometry) is not None
+        ]
+        vase = VaseDefinition(sections)
+        mask = build_vase_mask(template, vase)
+        mask.attrs["fire_event_id"] = self.event.event_id
+        mask.attrs["description"] = "Boolean occupancy cube derived from FireHull"
+        return mask
+
+    def attach_environment(
+        self,
+        cube: xr.DataArray | xr.Dataset | "ClimateCube",
+        *,
+        variables: Sequence[str] | None = None,
+        method: str = "nearest",
+    ) -> "FireHull":
+        """Attach per-variable environmental attribution summaries to the hull.
+
+        The current implementation samples per-day values inside/outside the
+        event footprint, then explicitly projects those slice values onto hull
+        vertices. This keeps the summary view and the mesh-aligned view
+        synchronized while leaving room for richer local projection later.
+        """
+
+        if method != "nearest":
+            raise NotImplementedError(
+                "FireHull.attach_environment currently supports method='nearest' only."
+            )
+
+        if isinstance(cube, ClimateCube):
+            data_vars: Mapping[str, xr.DataArray] = {cube.da.name or "value": cube.da}
+        elif isinstance(cube, xr.DataArray):
+            data_vars = {cube.name or "value": cube}
+        elif isinstance(cube, xr.Dataset):
+            chosen = list(variables) if variables is not None else list(cube.data_vars)
+            data_vars = {name: cube[name] for name in chosen}
+        else:
+            raise TypeError("cube must be a DataArray, Dataset, or ClimateCube")
+
+        chosen_names = list(variables) if variables is not None else list(data_vars)
+        summaries = dict(self.environment)
+        for name in chosen_names:
+            if name not in data_vars:
+                raise KeyError(f"Variable {name!r} not present in environmental cube")
+            summary = build_inside_outside_climate_samples(
+                self.event,
+                ClimateCube(da=data_vars[name]),
+            )
+            layer_dates, layer_values, vertex_values, vertex_slice_index = _summary_to_vertex_values(
+                self,
+                summary,
+            )
+            summaries[name] = HullEnvironmentField(
+                variable=name,
+                method=method,
+                summary=summary,
+                layer_dates=layer_dates,
+                layer_values=layer_values,
+                vertex_values=vertex_values,
+                vertex_slice_index=vertex_slice_index,
+            )
+
+        return replace(self, environment=summaries)
+
+    def plot(
+        self,
+        *,
+        color: str | None = None,
+        summary: "HullClimateSummary | None" = None,
+        cube: xr.DataArray | xr.Dataset | "ClimateCube | None" = None,
+        method: str = "nearest",
+        **kwargs,
+    ) -> go.Figure:
+        """Plot the hull using either attached or supplied environmental data."""
+
+        if summary is None and cube is not None:
+            enriched = self.attach_environment(cube, variables=[color] if color else None, method=method)
+            field = enriched.environment[color or next(iter(enriched.environment))]
+            summary = field.summary
+            values = field.vertex_values
+        elif summary is None:
+            if color and color in self.environment:
+                field = self.environment[color]
+                summary = field.summary
+                values = field.vertex_values
+            elif len(self.environment) == 1:
+                field = next(iter(self.environment.values()))
+                summary = field.summary
+                values = field.vertex_values
+            else:
+                values = None
+        else:
+            values = None
+
+        if summary is None:
+            raise ValueError(
+                "FireHull.plot requires a HullClimateSummary, an attached environment "
+                "variable, or a cube to sample."
+            )
+
+        var_label = kwargs.pop("var_label", color or "value")
+        return plot_climate_filled_hull(self, summary, values=values, var_label=var_label, **kwargs)
+
+
+TimeHull = FireHull
 
 
 @dataclass
@@ -314,6 +528,74 @@ class HullClimateSummary:
     values_inside: np.ndarray
     values_outside: np.ndarray
     per_day_mean: pd.Series
+
+
+@dataclass
+class HullEnvironmentField:
+    """Explicit environmental attribution aligned to a hull mesh.
+
+    Parameters
+    ----------
+    variable
+        Environmental variable name, e.g. ``"vpd"``.
+    method
+        Attribution method used to derive the values. Currently ``"nearest"``.
+    summary
+        Summary-level inside/outside sampling results retained for compatibility
+        and quick distribution plots.
+    layer_dates
+        Calendar date assigned to each hull layer.
+    layer_values
+        Per-layer environmental values aligned to ``layer_dates``.
+    vertex_values
+        Per-vertex environmental values projected onto the hull mesh.
+    vertex_slice_index
+        Explicit mapping from each vertex to its time-layer index.
+    """
+
+    variable: str
+    method: str
+    summary: HullClimateSummary
+    layer_dates: pd.DatetimeIndex
+    layer_values: np.ndarray
+    vertex_values: np.ndarray
+    vertex_slice_index: np.ndarray
+
+
+def _make_hull_metrics(
+    *,
+    scale_km: float,
+    days: float,
+    hull_volume_km2_days: float,
+    hull_surface_km_day: float,
+    footprint_area_series_km2: Sequence[float] | None = None,
+) -> HullMetrics:
+    """Return stable hull metric names plus legacy aliases.
+
+    Units
+    -----
+    - ``duration_days`` / ``days``: day counts
+    - ``scale_km``: characteristic radial scale in kilometers
+    - ``footprint_area_*_km2``: area in square kilometers
+    - ``hull_volume_km2_days`` / ``volume_km2_days``: area-time volume
+    - ``hull_surface_km_day`` / ``surface_km_day``: surface area in km·day
+    """
+
+    footprint = np.asarray(footprint_area_series_km2 if footprint_area_series_km2 is not None else [], dtype=float)
+    metrics = HullMetrics(
+        {
+            "duration_days": float(days),
+            "days": float(days),  # legacy alias
+            "scale_km": float(scale_km),
+            "footprint_area_peak_km2": float(np.nanmax(footprint)) if footprint.size else float("nan"),
+            "footprint_area_final_km2": float(footprint[-1]) if footprint.size else float("nan"),
+            "hull_volume_km2_days": float(hull_volume_km2_days),
+            "volume_km2_days": float(hull_volume_km2_days),  # legacy alias
+            "hull_surface_km_day": float(hull_surface_km_day),
+            "surface_km_day": float(hull_surface_km_day),  # legacy alias
+        }
+    )
+    return metrics
 
 
 def normalize_dates(values) -> pd.DatetimeIndex:
@@ -648,17 +930,18 @@ def compute_time_hull_geometry(
     z_rng = max(1e-9, z_max - z_min)
     t_norm_vert = (t_days_vert - z_min) / z_rng
 
-    metrics = {
-        "scale_km": scale_km,
-        "days": days,
-        "volume_km2_days": hull_volume_km2_days,
-        "surface_km_day": hull_surface_km_day,
-    }
+    metrics = _make_hull_metrics(
+        scale_km=scale_km,
+        days=days,
+        hull_volume_km2_days=hull_volume_km2_days,
+        hull_surface_km_day=hull_surface_km_day,
+        footprint_area_series_km2=areas_use / 1e6,
+    )
 
     if verbose:
         print("TimeHull metrics:", metrics)
 
-    return TimeHull(
+    return FireHull(
         event=event,
         verts_km=verts_km,
         tris=tris_arr,
@@ -1080,10 +1363,51 @@ def build_inside_outside_climate_samples(
     return sample_inside_outside(event, da_evt, date_col=date_col, fast=False, verbose=verbose)
 
 
+def _infer_vertex_slice_index(hull: FireHull) -> tuple[np.ndarray, np.ndarray]:
+    """Return sorted unique layer days and the per-vertex slice index.
+
+    This is the canonical geometry/time mapping used by both diagnostics and
+    environmental projection. It ensures scalar values are attached using the
+    hull's explicit time coordinates rather than assuming a particular vertex
+    block layout.
+    """
+
+    t_days_vert = np.asarray(hull.t_days_vert, dtype=float)
+    if t_days_vert.shape[0] != np.asarray(hull.verts_km).shape[0]:
+        raise ValueError(
+            "Per-vertex time coordinate mismatch: "
+            f"{t_days_vert.shape[0]} t_days values for {np.asarray(hull.verts_km).shape[0]} vertices."
+        )
+    return np.unique(t_days_vert, return_inverse=True)
+
+
+def _summary_to_vertex_values(
+    hull: FireHull,
+    summary: HullClimateSummary,
+) -> tuple[pd.DatetimeIndex, np.ndarray, np.ndarray, np.ndarray]:
+    """Project per-day climate summary values onto explicit hull vertices."""
+
+    layer_days, vertex_slice_index = _infer_vertex_slice_index(hull)
+    per_day = summary.per_day_mean.copy()
+    per_day.index = normalize_dates(per_day.index)
+    per_day = per_day.sort_index()
+
+    layer_dates = normalize_dates(
+        hull.event.t0 + pd.to_timedelta(layer_days - np.nanmin(layer_days), unit="D")
+    )
+    layer_vals = per_day.reindex(layer_dates)
+    if layer_vals.isna().any():
+        layer_vals = layer_vals.ffill().bfill()
+    layer_values = np.asarray(layer_vals.values, dtype=float)
+    vertex_values = layer_values[vertex_slice_index]
+    return layer_dates, layer_values, vertex_values, vertex_slice_index.astype(int)
+
+
 def plot_climate_filled_hull(
     hull: TimeHull,
     summary: HullClimateSummary,
     *,
+    values: np.ndarray | None = None,
     title_prefix: str = "GRIDMET",
     var_label: str = "value",
     save_prefix: Optional[str] = None,
@@ -1096,7 +1420,7 @@ def plot_climate_filled_hull(
         verts_in: np.ndarray,
         tris_in: np.ndarray,
         t_days_in: np.ndarray,
-    ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    ) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         verts_arr = np.asarray(verts_in, dtype=float)
         tris_arr = np.asarray(tris_in, dtype=int)
         t_days_arr = np.asarray(t_days_in, dtype=float)
@@ -1133,10 +1457,19 @@ def plot_climate_filled_hull(
         if tris_arr.shape[0] == 0:
             raise ValueError("TimeHull contains no in-bounds triangles to render.")
 
-        return verts_arr, tris_arr, t_days_arr
+        return verts_arr, tris_arr, t_days_arr, valid_vertex_mask
 
     def _build_vertex_slice_index() -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
-        layer_days, vertex_slice_index = np.unique(t_days_vert, return_inverse=True)
+        layer_days, vertex_slice_index = _infer_vertex_slice_index(
+            FireHull(
+                event=hull.event,
+                verts_km=verts,
+                tris=tris,
+                t_days_vert=t_days_vert,
+                t_norm_vert=np.asarray(hull.t_norm_vert, dtype=float)[: verts.shape[0]],
+                metrics=HullMetrics(getattr(hull, "metrics", {})),
+            )
+        )
         n_layers_local = int(layer_days.size)
         if n_layers_local <= 0:
             raise ValueError("TimeHull has no time layers to color.")
@@ -1202,7 +1535,7 @@ def plot_climate_filled_hull(
             "approx_unique_count": int(np.unique(finite).size),
         }
 
-    verts, tris, t_days_vert = _sanitize_mesh_inputs(hull.verts_km, hull.tris, hull.t_days_vert)
+    verts, tris, t_days_vert, valid_vertex_mask = _sanitize_mesh_inputs(hull.verts_km, hull.tris, hull.t_days_vert)
     n_vertices = int(verts.shape[0])
     layer_days, vertex_slice_index, alignment = _build_vertex_slice_index()
     n_layers = int(layer_days.size)
@@ -1210,27 +1543,24 @@ def plot_climate_filled_hull(
     # Scalar values are colored per-vertex. We build an explicit
     # vertex -> slice -> climate-value mapping from hull.t_days_vert so mesh
     # colors stay aligned even if vertex ordering changes during mesh assembly.
-    intensities = None
-    if isinstance(summary, HullClimateSummary) and summary.per_day_mean.size:
+    intensities = np.asarray(values, dtype=float)[valid_vertex_mask] if values is not None else None
+    if intensities is None and isinstance(summary, HullClimateSummary) and summary.per_day_mean.size:
         per_day = summary.per_day_mean.copy()
         per_day.index = normalize_dates(per_day.index)
         per_day = per_day.sort_index()
-
         layer_date_index = normalize_dates(
             hull.event.t0 + pd.to_timedelta(layer_days - np.nanmin(layer_days), unit="D")
         )
         layer_vals = per_day.reindex(layer_date_index)
         if layer_vals.isna().any():
-            # Display uses the nearest available per-slice climate mean, while
-            # leaving the original series untouched on the summary object.
             layer_vals = layer_vals.ffill().bfill()
         day_vals = np.asarray(layer_vals.values, dtype=float)
         intensities = day_vals[vertex_slice_index]
-        if intensities.shape[0] != n_vertices:
-            raise ValueError(
-                "Hull climate scalar/vertex mismatch: "
-                f"{intensities.shape[0]} intensities for {n_vertices} vertices."
-            )
+    if intensities is not None and intensities.shape[0] != n_vertices:
+        raise ValueError(
+            "Hull climate scalar/vertex mismatch: "
+            f"{intensities.shape[0]} intensities for {n_vertices} vertices."
+        )
 
     # Developer diagnostic mode: color by z/time to confirm vertical banding.
     if scalar_debug_mode == "z":
@@ -1445,13 +1775,13 @@ def compute_derivative_hull(
         "field_name": field_name,
     }
 
-    return TimeHull(
+    return FireHull(
         event=hull.event,
         verts_km=verts_new,
         tris=hull.tris,
         t_days_vert=hull.t_days_vert,
         t_norm_vert=hull.t_norm_vert,
-        metrics=metrics,
+        metrics=HullMetrics(metrics),
     )
 
 
@@ -1532,3 +1862,29 @@ def plot_derivative_hull(
         showlegend=False,
     )
     return fig
+
+
+__all__ = [
+    "TemporalSupport",
+    "GRIDMET_SUPPORT",
+    "FireEventDaily",
+    "FireHull",
+    "TimeHull",
+    "ClimateCube",
+    "HullClimateSummary",
+    "HullMetrics",
+    "HullEnvironmentField",
+    "load_fired_conus_ak",
+    "pick_event_with_joint_support",
+    "build_fire_event_daily",
+    "build_fire_event",
+    "compute_time_hull_geometry",
+    "sample_inside_outside",
+    "build_inside_outside_climate_samples",
+    "time_hull_to_vase",
+    "load_climate_cube_for_event",
+    "plot_climate_filled_hull",
+    "plot_inside_outside_hist",
+    "compute_derivative_hull",
+    "plot_derivative_hull",
+]
