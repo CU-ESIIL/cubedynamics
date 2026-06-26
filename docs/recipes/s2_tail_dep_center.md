@@ -11,14 +11,14 @@ Steps:
 2. Optionally coarsen/stride for tractable rolling windows.
 3. Call `rolling_tail_dep_vs_center` to compute bottom, top, and difference
    cubes.
-4. Visualize the difference cube with Lexcube and review QA medians.
+4. Visualize the difference cube and review bottom/top/diff synchrony through time.
 
 ```python
 import cubedynamics as cd
 from cubedynamics import pipe, verbs as v
 from cubedynamics.stats.tails import rolling_tail_dep_vs_center
 from cubedynamics.utils.chunking import coarsen_and_stride
-from cubedynamics.viz.qa_plots import plot_median_over_space
+from cubedynamics.viz.qa_plots import plot_tail_dependence_over_time
 
 s2 = cd.load_sentinel2_cube(
     lat=43.89,
@@ -45,20 +45,20 @@ bottom_tail_cube, top_tail_cube, diff_tail_cube = rolling_tail_dep_vs_center(
     b=0.5,
 )
 
-# Visualize the difference cube with Lexcube
+# Visualize the difference cube with the cube viewer
 diff_clip = diff_tail_cube.clip(-1, 1)
-pipe(diff_clip) | v.show_cube_lexcube(
+diff_viewer = (pipe(diff_clip) | v.plot(
     title="Tail-dependence difference (bottom - top) vs center pixel",
     cmap="RdBu_r",
-    vmin=-1,
-    vmax=1,
-)
+    clim=(-1, 1),
+)).unwrap()
 
-# QA: median tail-dependence difference over space
-ax = plot_median_over_space(
+# Flat QA: median synchrony through time
+ax = plot_tail_dependence_over_time(
+    bottom_tail_cube,
+    top_tail_cube,
     diff_tail_cube,
-    ylabel="Median bottom - top tail dep",
-    title="Median tail-dependence difference (rolling 90 days)",
+    title="Median tail-dependence synchrony (rolling 90 days)",
     ylim=(-1, 1),
 )
 ```
