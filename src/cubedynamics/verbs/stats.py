@@ -8,6 +8,7 @@ import numpy as np
 import xarray as xr
 
 from ..config import STD_EPS
+from ..stats.tails import rolling_tail_dep_vs_center as _rolling_tail_dep_vs_center
 from ..streaming import VirtualCube
 
 
@@ -396,4 +397,153 @@ def rolling_tail_dep_vs_center(
     return _op
 
 
-__all__ = ["anomaly", "mean", "rolling_tail_dep_vs_center", "variance", "zscore"]
+def rolling_median_split_synchrony(
+    *,
+    window_days: int = 90,
+    min_t: int = 5,
+    split_quantile: float = 0.5,
+    time_dim: str = "time",
+    lower_var: str | None = None,
+    upper_var: str | None = None,
+):
+    """Compute rolling synchrony in lower and upper per-series sets.
+
+    Grammar contract
+    ----------------
+    Statistical verb returning a three-variable :class:`xarray.Dataset`. For a
+    DataArray, both sets come from the same variable. For a multi-variable
+    Dataset, ``lower_var`` and ``upper_var`` select the variables used for the
+    lower and upper sets, respectively.
+
+    With ``split_quantile=0.5``, the lower set contains dates when a pixel and
+    its cube's center pixel are both at or below their rolling medians. The
+    upper set contains dates when both are above their rolling medians.
+
+    Examples
+    --------
+    >>> result = pipe(prism_temperature) | v.rolling_median_split_synchrony(
+    ...     lower_var="tmin", upper_var="tmax", window_days=90
+    ... )
+    """
+
+    if (lower_var is None) != (upper_var is None):
+        raise ValueError("lower_var and upper_var must be provided together")
+
+    def _select_inputs(
+        obj: xr.Dataset | xr.DataArray,
+    ) -> tuple[xr.DataArray, xr.DataArray, str, str]:
+        if isinstance(obj, xr.DataArray):
+            if lower_var is not None or upper_var is not None:
+                raise ValueError(
+                    "lower_var and upper_var are only valid for Dataset inputs"
+                )
+            name = obj.name or "value"
+            return obj, obj, name, name
+
+        if lower_var is None:
+            if len(obj.data_vars) != 1:
+                raise ValueError(
+                    "Dataset inputs with multiple variables require lower_var and upper_var"
+                )
+            name = next(iter(obj.data_vars))
+            return obj[name], obj[name], name, name
+
+        missing = [name for name in (lower_var, upper_var) if name not in obj.data_vars]
+        if missing:
+            raise ValueError(
+                f"Variables {missing!r} not found in Dataset variables: "
+                f"{list(obj.data_vars)!r}"
+            )
+        return obj[lower_var], obj[upper_var], lower_var, upper_var
+
+    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset:
+        if isinstance(obj, VirtualCube):
+            raise NotImplementedError(
+                "rolling_median_split_synchrony requires a DataArray or Dataset; "
+                "iterate VirtualCube spatial tiles before applying the verb"
+            )
+        if not isinstance(obj, (xr.DataArray, xr.Dataset)):
+            raise TypeError(
+                "rolling_median_split_synchrony requires an xarray DataArray or Dataset"
+            )
+
+        lower_cube, upper_cube, lower_name, upper_name = _select_inputs(obj)
+        if lower_cube.dims != upper_cube.dims:
+            raise ValueError(
+                f"Selected variables must have matching dims; got "
+                f"{lower_cube.dims!r} and {upper_cube.dims!r}"
+            )
+
+        bottom, same_top, same_diff = _rolling_tail_dep_vs_center(
+            lower_cube,
+            window_days=window_days,
+            min_t=min_t,
+            b=split_quantile,
+            time_dim=time_dim,
+        )
+        if lower_name == upper_name:
+            top = same_top
+            difference = same_diff
+        else:
+            _, top, _ = _rolling_tail_dep_vs_center(
+                upper_cube,
+                window_days=window_days,
+                min_t=min_t,
+                b=split_quantile,
+                time_dim=time_dim,
+            )
+            bottom, top = xr.align(bottom, top, join="exact")
+            difference = bottom - top
+
+        bottom = bottom.rename("bottom_synchrony")
+        top = top.rename("top_synchrony")
+        difference = difference.rename("bottom_minus_top")
+        bottom.attrs.update(
+            {
+                "long_name": "Below-quantile Spearman synchrony vs center",
+                "source_variable": lower_name,
+            }
+        )
+        top.attrs.update(
+            {
+                "long_name": "Above-quantile Spearman synchrony vs center",
+                "source_variable": upper_name,
+            }
+        )
+        difference.attrs.update(
+            {
+                "long_name": "Bottom minus top Spearman synchrony",
+                "bottom_variable": lower_name,
+                "top_variable": upper_name,
+                "valid_range": (-2.0, 2.0),
+            }
+        )
+        result = xr.Dataset(
+            {
+                "bottom_synchrony": bottom,
+                "top_synchrony": top,
+                "bottom_minus_top": difference,
+            }
+        )
+        result.attrs.update(
+            {
+                "analysis": "rolling_median_split_synchrony",
+                "window_days": window_days,
+                "min_time_points_per_set": min_t,
+                "split_quantile": split_quantile,
+                "reference": "center_pixel",
+            }
+        )
+        return result
+
+    return _op
+
+
+__all__ = [
+    "anomaly",
+    "mean",
+    "rolling_median_split_synchrony",
+    "rolling_tail_dep_vs_center",
+    "variance",
+    "zscore",
+]

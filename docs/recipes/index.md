@@ -12,7 +12,7 @@ Key links:
 - [gridMET variance cube](gridmet_variance_cube.md)
 - [PRISM variance cube](prism_variance_cube.md)
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zcube.md)
-- [Tail dependence walkthrough (center)](s2_tail_dep_center.md)
+- [Climate synchrony (center)](climate_tail_dep_center.md)
 - Authoring a new recipe? Use the [recipe template](recipe_template.md).
 
 ## Featured recipes
@@ -21,7 +21,8 @@ Key links:
 - [PRISM variance cube](prism_variance_cube.md): terrain-aware climate variability using PRISM inputs.
 - [Cube math primitives](cube_math_primitives.md): building blocks and patterns.
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zcube.md) and [correlation center](s2_corr_center.md): vegetation condition and synchrony.
-- [Tail dependence walkthrough (center)](s2_tail_dep_center.md) and [manual tuning](s2_tail_dep_manual.md): advanced distributional patterns.
+- [Climate synchrony (center)](climate_tail_dep_center.md): compare cold- and warm-condition synchrony through time.
+- [Sentinel-2 tail dependence (manual)](s2_tail_dep_manual.md): advanced vegetation-oriented tuning.
 - [Suitability tubes visualization](../viz/suitability_tubes.md): pair tube discovery with recipe outputs.
 
 ## Read next

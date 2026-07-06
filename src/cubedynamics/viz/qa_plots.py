@@ -57,7 +57,8 @@ def plot_tail_dependence_over_time(
     dims: list[str] | None = None,
     title: str = "Median tail-dependence synchrony through time",
     ylabel: str = "Median tail dependence",
-    ylim: tuple[float, float] | None = (-1, 1),
+    ylim: tuple[float, float] | None = None,
+    labels: tuple[str, str, str] = ("bottom half", "top half", "bottom - top"),
 ) -> plt.Axes:
     """Plot spatial median tail-dependence synchrony traces through time.
 
@@ -66,13 +67,15 @@ def plot_tail_dependence_over_time(
     """
 
     spatial_dims = _spatial_dims(bottom_tail, dims)
+    if len(labels) != 3:
+        raise ValueError("labels must contain bottom, top, and difference labels")
     if ax is None:
         _, ax = plt.subplots(figsize=(8, 3))
 
     series = [
-        (bottom_tail, "bottom tail"),
-        (top_tail, "top tail"),
-        (diff_tail, "bottom - top"),
+        (bottom_tail, labels[0]),
+        (top_tail, labels[1]),
+        (diff_tail, labels[2]),
     ]
     for cube, label in series:
         if cube is None:

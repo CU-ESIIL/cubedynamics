@@ -11,11 +11,20 @@ from ..utils.reference import center_pixel_indices, center_pixel_series
 
 
 def _rank_1d(a: np.ndarray) -> np.ndarray:
-    """Simple 1D rank function (1..n) with ordinal tie handling."""
+    """Return 1-based ranks, assigning the average rank to tied values."""
 
     order = np.argsort(a, kind="mergesort")
-    ranks = np.empty_like(order, dtype=float)
-    ranks[order] = np.arange(1, len(a) + 1, dtype=float)
+    sorted_values = a[order]
+    ranks = np.empty(a.size, dtype=float)
+
+    start = 0
+    while start < a.size:
+        stop = start + 1
+        while stop < a.size and sorted_values[stop] == sorted_values[start]:
+            stop += 1
+        average_rank = (start + 1 + stop) / 2.0
+        ranks[order[start:stop]] = average_rank
+        start = stop
     return ranks
 
 
@@ -25,7 +34,16 @@ def partial_tail_spearman(
     b: float = 0.5,
     min_t: int = 5,
 ) -> Tuple[float, float, float]:
-    """Partial Spearman correlations in lower and upper tails."""
+    """Spearman synchrony below and above per-series quantile thresholds.
+
+    With the default ``b=0.5``, the lower set contains observations where both
+    series are at or below their own median. The upper set contains observations
+    where both series are above their own median. Correlations are calculated
+    independently within those two sets.
+    """
+
+    if not 0.0 < b <= 0.5:
+        raise ValueError("b must be greater than 0 and no greater than 0.5")
 
     mask = ~(np.isnan(x) | np.isnan(y))
     x_valid = x[mask]
@@ -34,31 +52,29 @@ def partial_tail_spearman(
     if n < min_t:
         return (np.nan, np.nan, np.nan)
 
-    u = _rank_1d(x_valid) / (n + 1.0)
-    v = _rank_1d(y_valid) / (n + 1.0)
-    uv_sum = u + v
-    left_mask = (uv_sum > 0.0) & (uv_sum < 2.0 * b)
-    right_mask = (uv_sum > 2.0 * b) & (uv_sum < 2.0)
-
-    u_mean = u.mean()
-    v_mean = v.mean()
-    u_var = np.var(u, ddof=1)
-    v_var = np.var(v, ddof=1)
-    denom = (n - 1) * np.sqrt(u_var * v_var)
-    if denom <= 0 or np.isnan(denom):
-        return (np.nan, np.nan, np.nan)
+    lower_x = np.quantile(x_valid, b)
+    lower_y = np.quantile(y_valid, b)
+    upper_x = np.quantile(x_valid, 1.0 - b)
+    upper_y = np.quantile(y_valid, 1.0 - b)
+    lower_mask = (x_valid <= lower_x) & (y_valid <= lower_y)
+    upper_mask = (x_valid > upper_x) & (y_valid > upper_y)
 
     def _tail_corr(mask: np.ndarray) -> float:
-        idx = np.where(mask)[0]
-        if idx.size < min_t:
+        if np.count_nonzero(mask) < min_t:
             return float("nan")
-        cov = np.sum((u[idx] - u_mean) * (v[idx] - v_mean))
-        return float(cov / denom)
+        u = _rank_1d(x_valid[mask])
+        v = _rank_1d(y_valid[mask])
+        u_centered = u - u.mean()
+        v_centered = v - v.mean()
+        denom = np.sqrt(np.sum(u_centered**2) * np.sum(v_centered**2))
+        if denom <= 0 or np.isnan(denom):
+            return float("nan")
+        return float(np.sum(u_centered * v_centered) / denom)
 
-    left = _tail_corr(left_mask)
-    right = _tail_corr(right_mask)
-    diff = left - right if not np.isnan(left) and not np.isnan(right) else np.nan
-    return (left, right, diff)
+    bottom = _tail_corr(lower_mask)
+    top = _tail_corr(upper_mask)
+    diff = bottom - top if not np.isnan(bottom) and not np.isnan(top) else np.nan
+    return (bottom, top, diff)
 
 
 def rolling_tail_dep_vs_center(
@@ -68,7 +84,13 @@ def rolling_tail_dep_vs_center(
     b: float = 0.5,
     time_dim: str = "time",
 ) -> tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
-    """Build rolling-window tail-dependence cubes vs the center pixel."""
+    """Build rolling median-split synchrony cubes vs the center pixel.
+
+    ``b=0.5`` partitions each pixel/reference pair using their respective
+    rolling-window medians. Bottom synchrony is calculated where both values
+    are at or below their medians; top synchrony is calculated where both are
+    above their medians.
+    """
 
     ref = center_pixel_series(zcube, time_dim=time_dim)
     end_dim = f"{time_dim}_window_end"
@@ -83,6 +105,9 @@ def rolling_tail_dep_vs_center(
         ref_sub = ref.sel({time_dim: slice(t_start, t_end)})
         if cube_sub.sizes.get(time_dim, 0) < min_t:
             continue
+        if cube_sub.chunks is not None:
+            cube_sub = cube_sub.chunk({time_dim: -1})
+            ref_sub = ref_sub.chunk({time_dim: -1})
         bottom, top, diff = xr.apply_ufunc(
             partial_tail_spearman,
             cube_sub,
@@ -121,10 +146,12 @@ def rolling_tail_dep_vs_center(
                 "window_days": window_days,
                 "min_time_points": min_t,
                 "tail_b": b,
+                "split_quantile": b,
+                "split_method": "per_series_quantile",
             }
         )
 
-    bottom_cube.attrs["long_name"] = "Bottom-tail Spearman vs center"
-    top_cube.attrs["long_name"] = "Top-tail Spearman vs center"
-    diff_cube.attrs["long_name"] = "Bottom minus top tail Spearman"
+    bottom_cube.attrs["long_name"] = "Below-median Spearman synchrony vs center"
+    top_cube.attrs["long_name"] = "Above-median Spearman synchrony vs center"
+    diff_cube.attrs["long_name"] = "Below minus above median Spearman synchrony"
     return bottom_cube, top_cube, diff_cube

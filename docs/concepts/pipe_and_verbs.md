@@ -36,7 +36,7 @@ Verbs are grouped into focused namespaces:
 - **Visualization verbs** – preview cubes inline (`v.show_cube_lexcube`, QA plots) before exporting.
 - **Models (coming soon)** – wrappers around ML/statistical models that accept cubes as inputs.
 
-Cross-dataset correlation verbs are reserved for a future release: the exported `v.correlation_cube` factory currently raises `NotImplementedError`. Use the existing rolling helpers in `cubedynamics.stats.correlation`/`stats.tails` for synchrony analyses today.
+Cross-dataset correlation verbs are reserved for a future release: the exported `v.correlation_cube` factory currently raises `NotImplementedError`. Use `v.rolling_median_split_synchrony` for below/above-quantile synchrony, or the lower-level helpers in `cubedynamics.stats.correlation`/`stats.tails` for custom analyses.
 
 See the [Verbs Reference](../reference/verbs_transforms.md) section for detailed signatures and examples.
 

@@ -41,6 +41,7 @@ Grouped by theme; all verbs are pipe-friendly (`pipe(cube) | v.<verb>(...)`). Se
 
 - **cubedynamics.verbs.mean** — Compute the mean along a dimension with optional `keep_dim` semantics and VirtualCube streaming support.
 - **cubedynamics.verbs.variance** — Variance counterpart to `mean`, preserving attributes and streaming paths.
+- **cubedynamics.verbs.rolling_median_split_synchrony** — Rolling below/above-quantile Spearman synchrony for one cube or separate lower/upper variables.
 - **cubedynamics.verbs.rolling_tail_dep_vs_center** — Rolling tail-dependence vs. center pixel contrast for fire/vase analyses.
 
 ### Transform

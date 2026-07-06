@@ -49,9 +49,33 @@ import xarray as xr
 corr = xr.corr(ndvi_z, climate_anom, dim="time")
 ```
 
-Rolling synchrony functions such as `cubedynamics.rolling_corr_vs_center` remain outside the verbs namespace.
+The Pearson helper `cubedynamics.rolling_corr_vs_center` remains outside the verbs namespace. Median-split synchrony is available as `v.rolling_median_split_synchrony`.
 
 Use these stats alongside transform verbs to build climate–vegetation synchrony analyses.
+
+### `v.rolling_median_split_synchrony(...)`
+
+Compute rolling Spearman synchrony below and above per-series quantiles. A
+single `DataArray` supplies both sets. For a climate `Dataset`, select distinct
+variables for the lower and upper sets:
+
+```python
+sync = (
+    pipe(prism_temperature)
+    | v.rolling_median_split_synchrony(
+        lower_var="tmin",
+        upper_var="tmax",
+        window_days=90,
+        min_t=10,
+        split_quantile=0.5,
+    )
+).unwrap()
+```
+
+The returned `Dataset` contains `bottom_synchrony`, `top_synchrony`, and
+`bottom_minus_top`. With `split_quantile=0.5`, each pixel and its center-pixel
+reference are split at their respective rolling medians. Dask-backed inputs
+remain lazy and are parallelized over spatial chunks.
 
 ### `v.rolling_tail_dep_vs_center(window, dim="time", min_periods=5, tail_quantile=0.8)`
 

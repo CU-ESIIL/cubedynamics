@@ -11,7 +11,7 @@ Key links:
 - [Verbs & Examples](textbook_verbs.md)
 - [Pipe and verbs](../concepts/pipe_and_verbs.md)
 - [Cube viewer (v.plot)](../viz/cube_viewer.md)
-- [Event extraction and vases](../recipes/s2_tail_dep_center.md)
+- [Event extraction and vases](../recipes/fire_event_vase_hull.md)
 
 ## Data sources you can pipe
 `pipe(...)` accepts inputs ranging from xarray objects to helper loaders and VirtualCubes. Use [What is a cube?](../concepts/cubes.md) and the dataset pages to choose the right starting point.

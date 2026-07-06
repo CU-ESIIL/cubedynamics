@@ -23,6 +23,12 @@ Tail dependence metric against the center pixel over a rolling window. Returns a
 cube with a ``tail_dep`` variable; accepts the same dimension metadata as
 :mod:`cubedynamics.config`.
 
+### ``rolling_median_split_synchrony(window_days=90, ...)``
+Compute rolling Spearman synchrony below and above per-series quantiles against
+the center pixel. A DataArray supplies both sets; Dataset inputs may select
+different variables with ``lower_var`` and ``upper_var``. Returns
+``bottom_synchrony``, ``top_synchrony``, and ``bottom_minus_top`` variables.
+
 ## Transform verbs
 
 ### ``anomaly(dim="time", keep_dim=True)``

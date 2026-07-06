@@ -72,4 +72,4 @@ ndvi = (nir - red) / (nir + red)
 - **Parameters**: `bbox`, `start`, `end`, `band_aliases`, `max_cloud_cover`, `chunks_xy`, `stac_url`.
 - **Notes**: Uses MPC's STAC API and `planetary_computer.pc.sign` for HTTPS COGs; no AWS credentials required.
 
-Use these verbs as building blocks ahead of stats like variance or correlation. Rolling synchrony helpers such as `cubedynamics.rolling_corr_vs_center` and `cubedynamics.rolling_tail_dep_vs_center` live outside the `verbs` namespace.
+Use these verbs as building blocks ahead of stats like variance or correlation. Use `v.rolling_median_split_synchrony` for below/above-quantile synchrony; the lower-level Pearson helper `cubedynamics.rolling_corr_vs_center` remains outside the `verbs` namespace.

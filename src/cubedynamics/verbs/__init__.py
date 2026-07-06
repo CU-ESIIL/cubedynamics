@@ -52,7 +52,14 @@ from .plot import plot
 from .plot_mean import plot_mean
 from .tubes import tubes
 from .vase import vase as _vase_base, vase_demo, vase_extract, vase_mask
-from .stats import anomaly, mean, rolling_tail_dep_vs_center, variance, zscore
+from .stats import (
+    anomaly,
+    mean,
+    rolling_median_split_synchrony,
+    rolling_tail_dep_vs_center,
+    variance,
+    zscore,
+)
 
 
 def _import_xarray():
@@ -732,6 +739,7 @@ __all__ = [
     "month_filter",
     "flatten_space",
     "flatten_cube",
+    "rolling_median_split_synchrony",
     "rolling_tail_dep_vs_center",
     "variance",
     "correlation_cube",

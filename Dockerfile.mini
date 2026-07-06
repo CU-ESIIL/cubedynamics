@@ -1,0 +1,18 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    MPLBACKEND=Agg
+
+WORKDIR /opt/cubedynamics
+
+COPY pyproject.toml README.md LICENSE ./
+COPY src ./src
+COPY examples/median_split_synchrony_demo.py ./examples/median_split_synchrony_demo.py
+
+RUN python -m pip install --no-cache-dir ".[test]"
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends libexpat1 \
+    && rm -rf /var/lib/apt/lists/*
+
+CMD ["python", "examples/median_split_synchrony_demo.py"]

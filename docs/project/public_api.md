@@ -31,7 +31,7 @@ These helpers create xarray-backed cubes or streaming-friendly structures. Netwo
 
 - `pipe` wraps any xarray `DataArray` or `Dataset` so verbs can be chained via the `|` operator.
 - `verbs` is the canonical namespace for operations. Import as `from cubedynamics import verbs as v`.
-- Core verbs include statistical reducers (`v.mean`, `v.variance`, `v.anomaly`, `v.zscore`), time filters (`v.month_filter`), correlation helpers (`v.correlation_cube`), NDVI utilities (`v.ndvi_from_s2`), flattening (`v.flatten_cube`, `v.flatten_space`), and visualization verbs (`v.plot`, `v.plot_mean`, `v.show_cube_lexcube`).
+- Core verbs include statistical reducers (`v.mean`, `v.variance`, `v.anomaly`, `v.zscore`), median-split synchrony (`v.rolling_median_split_synchrony`), time filters (`v.month_filter`), correlation helpers (`v.correlation_cube`), NDVI utilities (`v.ndvi_from_s2`), flattening (`v.flatten_cube`, `v.flatten_space`), and visualization verbs (`v.plot`, `v.plot_mean`, `v.show_cube_lexcube`).
 - Visualization verbs also cover vase-aware helpers (`v.vase`, `v.vase_extract`, `v.vase_mask`) that preserve hull metadata on cubes.
 
 ## Visualization entry points

@@ -48,7 +48,7 @@ nav:
       - Synthetic fire/VASE recipe: recipes/fire_vase_synthetic.md
       - Sentinel-2 NDVI z-score cube: recipes/s2_ndvi_zcube.md
       - Sentinel-2 correlation center: recipes/s2_corr_center.md
-      - Sentinel-2 tail dependence (center): recipes/s2_tail_dep_center.md
+      - Climate synchrony (center): recipes/climate_tail_dep_center.md
       - Sentinel-2 tail dependence (manual): recipes/s2_tail_dep_manual.md
   - Visualization:
       - Overview: viz/index.md

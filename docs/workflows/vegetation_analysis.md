@@ -11,4 +11,4 @@ Typical use cases include:
 Recommended starting points:
 
 - [Sentinel-2 NDVI z-score cube](../recipes/s2_ndvi_zcube.md)
-- [Sentinel-2 tail dependence](../recipes/s2_tail_dep_center.md)
+- [Sentinel-2 tail dependence (manual)](../recipes/s2_tail_dep_manual.md)

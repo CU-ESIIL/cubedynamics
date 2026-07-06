@@ -39,6 +39,7 @@ def test_public_symbols_available():
 
     assert hasattr(cd, "pipe")
     assert hasattr(cd, "verbs")
+    assert hasattr(cd.verbs, "rolling_median_split_synchrony")
 
 
 def test_pipe_and_verbs_smoke():

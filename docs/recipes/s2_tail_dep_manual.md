@@ -2,7 +2,7 @@
 
 This end-to-end recipe mirrors the R-style tail-dependence workflow: stream
 Sentinel-2 L2A data with `cubo`, compute NDVI, standardize per pixel, and
-calculate rolling partial tail Spearman correlations against the center pixel.
+calculate rolling median-split Spearman correlations against the center pixel.
 The example uses a fixed 90-day window, optional spatial coarsening and time
 striding to stay within memory limits, and visualizes the bottom-tail, top-tail,
 and difference cubes with Lexcube.
@@ -30,15 +30,18 @@ import lexcube
 # -------------------------------------------------------------------
 
 def _rank_1d(a: np.ndarray) -> np.ndarray:
-    """
-    Simple 1D rank function (1..n) with 'ordinal' handling of ties.
-    For continuous NDVI, ties should be rare; if you need exact
-    'average' tie handling, swap in scipy.stats.rankdata.
-    """
+    """Return average ranks, including for tied values."""
     a = np.asarray(a)
-    order = np.argsort(a)
-    ranks = np.empty_like(order, dtype=float)
-    ranks[order] = np.arange(1, len(a) + 1, dtype=float)
+    order = np.argsort(a, kind="mergesort")
+    sorted_values = a[order]
+    ranks = np.empty(a.size, dtype=float)
+    start = 0
+    while start < a.size:
+        stop = start + 1
+        while stop < a.size and sorted_values[stop] == sorted_values[start]:
+            stop += 1
+        ranks[order[start:stop]] = (start + 1 + stop) / 2.0
+        start = stop
     return ranks
 
 
@@ -49,11 +52,10 @@ def partial_tail_spearman(
     min_t: int = 5,
 ) -> tuple[float, float, float]:
     """
-    Partial Spearman correlations in lower and upper tails,
-    following Ghosh et al.-style decomposition.
+    Spearman synchrony below and above per-series quantile thresholds.
 
     x, y : 1D arrays (time series)
-    b    : split parameter (e.g., 0.5 → lower vs upper half in (u+v) space)
+    b    : tail fraction (0.5 splits each series at its median)
     min_t: minimum number of valid observations to compute a tail statistic
 
     Returns:
@@ -66,42 +68,26 @@ def partial_tail_spearman(
     mask = np.isfinite(x) & np.isfinite(y)
     x = x[mask]
     y = y[mask]
-    Tot = x.size
+    n = x.size
 
-    if Tot < min_t:
+    if n < min_t:
         return np.nan, np.nan, np.nan
 
-    # Normalized ranks u, v in (0,1) approximately
-    u = _rank_1d(x) / (Tot + 1.0)
-    v = _rank_1d(y) / (Tot + 1.0)
+    lower_mask = (x <= np.quantile(x, b)) & (y <= np.quantile(y, b))
+    upper_mask = (x > np.quantile(x, 1.0 - b)) & (y > np.quantile(y, 1.0 - b))
 
-    uv_sum = u + v
+    def tail_corr(tail_mask: np.ndarray) -> float:
+        if tail_mask.sum() < min_t:
+            return np.nan
+        u = _rank_1d(x[tail_mask])
+        v = _rank_1d(y[tail_mask])
+        u = u - u.mean()
+        v = v - v.mean()
+        denom = np.sqrt(np.sum(u**2) * np.sum(v**2))
+        return np.sum(u * v) / denom if denom > 0 else np.nan
 
-    # Lower (left) tail and upper (right) tail masks
-    left_mask  = (uv_sum > 0.0) & (uv_sum < 2.0 * b)
-    right_mask = (uv_sum > 2.0 * b) & (uv_sum < 2.0)
-
-    # Global means & variances (as in the R code)
-    u_mean = u.mean()
-    v_mean = v.mean()
-    u_var = np.var(u, ddof=1)
-    v_var = np.var(v, ddof=1)
-    denom = (Tot - 1.0) * np.sqrt(u_var * v_var)
-
-    if denom <= 0.0:
-        return np.nan, np.nan, np.nan
-
-    # Left (bottom) tail
-    if left_mask.sum() >= min_t:
-        cor_left = np.sum((u[left_mask] - u_mean) * (v[left_mask] - v_mean)) / denom
-    else:
-        cor_left = np.nan
-
-    # Right (top) tail
-    if right_mask.sum() >= min_t:
-        cor_right = np.sum((u[right_mask] - u_mean) * (v[right_mask] - v_mean)) / denom
-    else:
-        cor_right = np.nan
+    cor_left = tail_corr(lower_mask)
+    cor_right = tail_corr(upper_mask)
 
     return cor_left, cor_right, cor_left - cor_right
 
@@ -129,10 +115,10 @@ TIME_STRIDE    = 2   # 1 = keep all times, 2 = every other, etc.
 WINDOW_DAYS = 90
 
 # Tail dependence parameter
-TAIL_B = 0.5   # split parameter in (u+v) space, analogous to b in the R code
+TAIL_B = 0.5   # split each series at its rolling-window median
 
 # Display parameters
-CORR_VMIN, CORR_VMAX = -1.0, 1.0
+CORR_VMIN, CORR_VMAX = -2.0, 2.0
 CORR_CMAP            = "RdBu_r"
 
 # -------------------------------------------------------------------
@@ -314,17 +300,17 @@ shared_attrs = {
     "window_days": WINDOW_DAYS,
     "tail_b": TAIL_B,
     "note": (
-        "Tail dependence from partial Spearman over normalized ranks (u, v); "
-        "left=bottom tail, right=top tail, diff=left-right."
+        "Spearman synchrony after splitting each series at its own quantile; "
+        "left=bottom set, right=top set, diff=left-right."
     ),
 }
 
 tail_left_cube.attrs.update({
-    "long_name": "Bottom-tail partial Spearman vs center pixel",
+    "long_name": "Below-median Spearman synchrony vs center pixel",
     **shared_attrs,
 })
 tail_right_cube.attrs.update({
-    "long_name": "Top-tail partial Spearman vs center pixel",
+    "long_name": "Above-median Spearman synchrony vs center pixel",
     **shared_attrs,
 })
 tail_diff_cube.attrs.update({

@@ -29,7 +29,7 @@ def test_plot_tail_dependence_over_time_draws_tail_synchrony_traces() -> None:
     ax = plot_tail_dependence_over_time(bottom_tail, top_tail, diff_tail, ylim=None)
 
     labels = [line.get_label() for line in ax.lines]
-    assert labels == ["bottom tail", "top tail", "bottom - top"]
+    assert labels == ["bottom half", "top half", "bottom - top"]
     assert ax.get_xlabel() == "time_window_end"
     assert ax.get_ylabel() == "Median tail dependence"
     assert "synchrony" in ax.get_title()
