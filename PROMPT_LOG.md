@@ -409,3 +409,26 @@ secrets, credentials, private tokens, or unrelated transcript text.
   present in the updated website pages.
 - `python3 -m mkdocs build --strict` could not run in the current default
   Python environment because `mkdocs` is not installed there.
+
+## 2026-07-07 — Lexcube CI Smoke Fix
+
+### User Goals
+- Fix the offline CI failure in `tests/test_lexcube_viz.py` where Lexcube
+  raised `KeyError: 'source'` for an in-memory cube with integer time
+  coordinates.
+
+### Implementation Summary
+- Added a small Lexcube preparation helper that validates `(time, y, x)`,
+  transposes into canonical order, and adds an empty `encoding["source"]` on a
+  shallow copy when integer time coordinates look day-of-year-like.
+- Moved Lexcube import until after validation/preparation so dimension tests can
+  run without the optional widget dependency.
+- Added regression coverage that the source placeholder is added only to the
+  prepared copy, leaving the caller's cube unchanged.
+
+### Validation
+- `python3 -m py_compile src/cubedynamics/viz/lexcube_viz.py` passed.
+- `python3 -m py_compile tests/test_lexcube_viz.py` passed.
+- `git diff --check` passed for the touched files.
+- Local pytest could not run in the default Python environment because `pytest`
+  and `xarray` are not installed there.

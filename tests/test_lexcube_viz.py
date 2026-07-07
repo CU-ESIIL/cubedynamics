@@ -6,18 +6,12 @@ import numpy as np
 import pytest
 import xarray as xr
 
-try:
-    import lexcube  # noqa: F401
-except Exception as exc:  # pragma: no cover - environment-dependent optional dependency
-    pytest.skip(
-        f"lexcube is required for these visualization tests (import failed: {exc})",
-        allow_module_level=True,
-    )
-
-from cubedynamics.viz.lexcube_viz import show_cube_lexcube
+from cubedynamics.viz.lexcube_viz import _prepare_lexcube_cube, show_cube_lexcube
 
 
 def test_show_cube_lexcube_smoke() -> None:
+    pytest.importorskip("lexcube")
+
     time = np.arange(3)
     y = np.arange(2)
     x = np.arange(4)
@@ -26,6 +20,20 @@ def test_show_cube_lexcube_smoke() -> None:
 
     widget = show_cube_lexcube(cube, title="Test cube")
     assert widget is not None
+
+
+def test_prepare_lexcube_cube_adds_source_for_integer_day_like_time() -> None:
+    time = np.arange(3)
+    y = np.arange(2)
+    x = np.arange(4)
+    data = np.random.randn(len(time), len(y), len(x))
+    cube = xr.DataArray(data, coords={"time": time, "y": y, "x": x}, dims=("time", "y", "x"))
+
+    prepared = _prepare_lexcube_cube(cube)
+
+    assert prepared.dims == ("time", "y", "x")
+    assert prepared.encoding["source"] == ""
+    assert "source" not in cube.encoding
 
 
 def test_show_cube_lexcube_requires_three_dims() -> None:
