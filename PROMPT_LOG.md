@@ -432,3 +432,9 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - `git diff --check` passed for the touched files.
 - Local pytest could not run in the default Python environment because `pytest`
   and `xarray` are not installed there.
+
+### Follow-up
+- CI on Python 3.9 showed Lexcube itself is installed but not importable because
+  it uses runtime `float | int` annotations. The Lexcube widget smoke test now
+  skips when the optional dependency raises during import, while wrapper
+  validation/preparation tests still run.

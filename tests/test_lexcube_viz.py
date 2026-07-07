@@ -9,8 +9,15 @@ import xarray as xr
 from cubedynamics.viz.lexcube_viz import _prepare_lexcube_cube, show_cube_lexcube
 
 
+def _require_lexcube() -> None:
+    try:
+        import lexcube  # noqa: F401
+    except Exception as exc:  # pragma: no cover - optional dependency varies by Python
+        pytest.skip(f"lexcube is not importable in this environment: {exc}")
+
+
 def test_show_cube_lexcube_smoke() -> None:
-    pytest.importorskip("lexcube")
+    _require_lexcube()
 
     time = np.arange(3)
     y = np.arange(2)
