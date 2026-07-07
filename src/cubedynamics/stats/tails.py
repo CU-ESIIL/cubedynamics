@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Tuple
+from typing import Sequence, Tuple
 
 import numpy as np
 import xarray as xr
@@ -83,6 +83,8 @@ def rolling_tail_dep_vs_center(
     min_t: int = 5,
     b: float = 0.5,
     time_dim: str = "time",
+    output_stride: int = 1,
+    output_times: Sequence[object] | None = None,
 ) -> tuple[xr.DataArray, xr.DataArray, xr.DataArray]:
     """Build rolling median-split synchrony cubes vs the center pixel.
 
@@ -90,7 +92,14 @@ def rolling_tail_dep_vs_center(
     rolling-window medians. Bottom synchrony is calculated where both values
     are at or below their medians; top synchrony is calculated where both are
     above their medians.
+
+    ``output_stride`` evaluates every Nth input timestamp. ``output_times`` can
+    provide an explicit set of rolling window end timestamps, which is useful
+    when a long record is processed in bounded batches.
     """
+
+    if output_stride < 1:
+        raise ValueError("output_stride must be at least 1")
 
     ref = center_pixel_series(zcube, time_dim=time_dim)
     end_dim = f"{time_dim}_window_end"
@@ -99,7 +108,12 @@ def rolling_tail_dep_vs_center(
     diffs: list[xr.DataArray] = []
     end_times: list[np.datetime64] = []
 
-    for t_end in zcube[time_dim].values:
+    if output_times is None:
+        target_times = zcube[time_dim].values[::output_stride]
+    else:
+        target_times = np.asarray(list(output_times), dtype="datetime64[ns]")
+
+    for t_end in target_times:
         t_start = t_end - np.timedelta64(window_days, "D")
         cube_sub = zcube.sel({time_dim: slice(t_start, t_end)})
         ref_sub = ref.sel({time_dim: slice(t_start, t_end)})
@@ -148,6 +162,7 @@ def rolling_tail_dep_vs_center(
                 "tail_b": b,
                 "split_quantile": b,
                 "split_method": "per_series_quantile",
+                "output_stride": output_stride,
             }
         )
 

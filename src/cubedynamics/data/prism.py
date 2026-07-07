@@ -2,26 +2,66 @@
 
 from __future__ import annotations
 
+from functools import lru_cache
+from html import unescape
+from io import BytesIO
+import re
+from threading import local
 from typing import Hashable, Iterable, Mapping, Sequence
-
+from urllib.parse import unquote
 import warnings
 
 import numpy as np
 import pandas as pd
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 import xarray as xr
 
-from ..config import DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
+from ..config import TIME_DIM, X_DIM, Y_DIM
 from ..progress import progress_bar
 from ..utils import set_cube_provenance
 
 
 _POINT_BUFFER_DEGREES = 0.05
+_PRISM_NCSS_ROOT = "https://thredds.climate.ncsu.edu/thredds/ncss/grid"
+_PRISM_DODS_ROOT = "https://thredds.climate.ncsu.edu/thredds/dodsC"
+_PRISM_CATALOG_ROOT = (
+    "https://thredds.climate.ncsu.edu/thredds/catalog/prism/daily/combo"
+)
+_PRISM_DAILY_COMBO_VARIABLES = {"ppt", "tmean", "tmin", "tmax"}
+_PRISM_STREAMING_CHUNKS: Mapping[str, int] = {
+    TIME_DIM: 31,
+    Y_DIM: 256,
+    X_DIM: 256,
+}
+_PRISM_GRID_STEP_DEGREES = 1.0 / 24.0
+_PRISM_HTTP_LOCAL = local()
 _PRISM_VARIABLE_METADATA = {
     "ppt": {
         "units": "mm",
         "long_name": "Total precipitation",
     },
 }
+
+
+def _prism_http_session() -> requests.Session:
+    session = getattr(_PRISM_HTTP_LOCAL, "session", None)
+    if session is None:
+        retry = Retry(
+            total=4,
+            connect=4,
+            read=4,
+            backoff_factor=0.5,
+            status_forcelist=(429, 500, 502, 503, 504),
+            allowed_methods=frozenset({"GET"}),
+            respect_retry_after_header=True,
+        )
+        session = requests.Session()
+        session.headers.update({"User-Agent": "cubedynamics-prism-stream/1"})
+        session.mount("https://", HTTPAdapter(max_retries=retry, pool_maxsize=4))
+        _PRISM_HTTP_LOCAL.session = session
+    return session
 
 
 def _apply_prism_variable_metadata(
@@ -62,7 +102,7 @@ def load_prism_cube(
     show_progress: bool = True,
     allow_synthetic: bool = False,
 ) -> xr.Dataset | xr.DataArray:
-    """Load a PRISM-like cube.
+    """Load a PRISM climate cube.
 
     Parameters
     ----------
@@ -89,11 +129,11 @@ def load_prism_cube(
     chunks : mapping, optional
         Custom Dask chunk mapping.
     prefer_streaming : bool, default True
-        Whether to attempt the streaming backend before falling back to the
-        synthetic download backend used for tests.
+        Whether to use lazy, server-side AOI subsets from the PRISM THREDDS
+        mirror. Daily slices are fetched only when Dask computes them.
     show_progress : bool, default True
-        Display a progress bar while synthetic PRISM data are generated when
-        ``tqdm`` is installed. Set to ``False`` to disable progress reporting.
+        Display a progress bar while synthetic demo data are generated. Real
+        streaming remains lazy and reports progress through the Dask scheduler.
 
     Notes
     -----
@@ -101,6 +141,9 @@ def load_prism_cube(
     (``lat``/``lon``, ``bbox`` or ``aoi_geojson``). Legacy positional usage of
     the form ``load_prism_cube(variables, start, end, aoi, ...)`` is still
     supported but deprecated.
+
+    Real streaming currently supports daily ``ppt``, ``tmean``, ``tmin``, and
+    ``tmax``. Synthetic fallback is disabled unless ``allow_synthetic=True``.
     """
 
     if legacy_args:
@@ -196,34 +239,24 @@ def _load_prism_cube_impl(
             streaming_error = exc
             backend_error = str(exc)
             warnings.warn(
-                "PRISM streaming backend unavailable; falling back to local download.",
+                "PRISM streaming backend unavailable; synthetic fallback requires "
+                "allow_synthetic=True.",
                 RuntimeWarning,
             )
 
     if ds is None:
-        source = "prism_download"
-        try:
-            ds = _open_prism_download(
-                variables, start, end, aoi, freq, error=streaming_error, show_progress=show_progress
-            )
-        except TypeError:
-            try:
-                ds = _open_prism_download(variables, start, end, aoi, freq)
-            except Exception as exc:  # pragma: no cover - used in tests
-                backend_error = "; ".join(filter(None, [backend_error, str(exc)])) or str(exc)
-                if not allow_synthetic:
-                    raise RuntimeError(
-                        "PRISM download backend failed after streaming fallback. "
-                        "Set allow_synthetic=True to permit synthetic data."
-                    ) from exc
-                ds, freq = _build_synthetic_prism_cube(
-                    variables, start, end, aoi, freq, show_progress=show_progress
-                )
-                source = "synthetic"
+        if not allow_synthetic:
+            raise RuntimeError(
+                "PRISM streaming backend failed and synthetic fallback is disabled. "
+                "Set allow_synthetic=True only for demos."
+            ) from streaming_error
+        ds, freq = _build_synthetic_prism_cube(
+            variables, start, end, aoi, freq, show_progress=show_progress
+        )
+        source = "synthetic"
 
     ds = _crop_to_aoi(ds, aoi)
-    ds = ds.chunk(chunk_map)
-    return _finalize_prism_cube(
+    ds = _finalize_prism_cube(
         ds,
         variables,
         start,
@@ -235,6 +268,7 @@ def _load_prism_cube_impl(
         show_progress=show_progress,
         aoi=aoi,
     )
+    return ds.chunk(chunk_map)
 
 
 def _load_prism_cube_legacy(
@@ -430,38 +464,304 @@ def _open_prism_streaming(
     freq: str = "ME",
     show_progress: bool = True,
 ) -> xr.Dataset:
+    """Build a lazy daily PRISM cube from server-side AOI subsets."""
+
+    if str(freq or "D").upper() != "D":
+        raise NotImplementedError(
+            "Real PRISM streaming currently supports freq='D'; "
+            "monthly streaming will be added separately."
+        )
+
+    unsupported = sorted(set(variables) - _PRISM_DAILY_COMBO_VARIABLES)
+    if unsupported:
+        raise ValueError(
+            f"Daily PRISM streaming does not provide variables {unsupported!r}; "
+            f"available variables are {sorted(_PRISM_DAILY_COMBO_VARIABLES)!r}"
+        )
+
     try:
         import dask.array as da
+        from dask import delayed
     except ImportError as exc:  # pragma: no cover
         raise RuntimeError("dask is required for PRISM streaming") from exc
 
-    resolved_freq = freq or "ME"
-    times = pd.date_range(start, end, freq=resolved_freq)
+    times = pd.date_range(start, end, freq="D")
     if not len(times):
         raise ValueError("No time steps available for the requested range")
 
-    y_coords, x_coords = _build_coords_for_aoi(aoi)
-    chunks = (len(times), min(len(y_coords), 128), min(len(x_coords), 128))
-    rng = da.random.RandomState(111)
-    data_vars = {}
-    total = len(variables) if show_progress else None
-    with progress_bar(total=total, description="PRISM streaming") as advance:
-        for name in variables:
-            data = rng.gamma(
-                shape=2.0, scale=1.0, size=(len(times), len(y_coords), len(x_coords)), chunks=chunks
-            )
-            da_var = xr.DataArray(
-                data,
-                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
-                dims=(TIME_DIM, Y_DIM, X_DIM),
-                name=name,
-                attrs={"units": "synthetic"},
-            )
-            data_vars[name] = da_var
-            if show_progress:
-                advance(1)
+    dataset_paths = _discover_prism_daily_paths(times)
+    first = _request_prism_ncss_subset(dataset_paths[0], variables, aoi)
+    y_coords = _normalize_prism_coords(first[Y_DIM].values)
+    x_coords = _normalize_prism_coords(first[X_DIM].values)
+    first = first.assign_coords({Y_DIM: y_coords, X_DIM: x_coords})
+    first_stack = np.stack(
+        [first[name].values.astype("float32") for name in variables]
+    )
+    shape = first_stack.shape
+    daily_stacks = [da.from_array(first_stack, chunks=shape)]
 
+    for dataset_path in dataset_paths[1:]:
+        task = delayed(_request_prism_ncss_array)(
+            dataset_path,
+            tuple(variables),
+            dict(aoi),
+            shape,
+            tuple(float(value) for value in y_coords),
+            tuple(float(value) for value in x_coords),
+        )
+        daily_stacks.append(da.from_delayed(task, shape=shape, dtype=np.float32))
+
+    stacked = da.stack(daily_stacks, axis=0)
+    data_vars = {}
+    for index, name in enumerate(variables):
+        attrs = dict(first[name].attrs)
+        attrs.update(
+            {
+                "source": "PRISM via NCSCO THREDDS NcSS",
+                "is_synthetic": False,
+            }
+        )
+        data_vars[name] = xr.DataArray(
+            stacked[:, index, :, :],
+            coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
+            dims=(TIME_DIM, Y_DIM, X_DIM),
+            name=name,
+            attrs=attrs,
+        )
+
+    return xr.Dataset(
+        data_vars,
+        attrs={
+            "source": "prism_streaming",
+            "source_provider": "PRISM Climate Group",
+            "streaming_service": "NCSCO THREDDS NetCDF Subset Service",
+            "streaming_protocol": "NcSS",
+            "is_synthetic": False,
+        },
+    )
+
+
+@lru_cache(maxsize=64)
+def _prism_daily_catalog(year: int) -> dict[str, str]:
+    response = _prism_http_session().get(
+        f"{_PRISM_CATALOG_ROOT}/{year}/catalog.html", timeout=60
+    )
+    response.raise_for_status()
+    paths: dict[str, str] = {}
+    for encoded_path in re.findall(r"dataset=([^\"&]+\.nc)", response.text):
+        dataset_path = unquote(unescape(encoded_path))
+        match = re.search(r"(\d{8})\.nc$", dataset_path)
+        if match:
+            paths.setdefault(match.group(1), dataset_path)
+    if not paths:
+        raise RuntimeError(f"No daily PRISM datasets found in the {year} catalog")
+    return paths
+
+
+def _discover_prism_daily_paths(times: pd.DatetimeIndex) -> list[str]:
+    paths = []
+    for timestamp in times:
+        stamp = timestamp.strftime("%Y%m%d")
+        try:
+            paths.append(_prism_daily_catalog(timestamp.year)[stamp])
+        except KeyError as exc:
+            raise RuntimeError(f"PRISM daily dataset is unavailable for {stamp}") from exc
+    return paths
+
+
+def _request_prism_ncss_subset(
+    dataset_path: str,
+    variables: Sequence[str],
+    aoi: Mapping[str, float],
+) -> xr.Dataset:
+    params = [("var", name) for name in variables]
+    params.extend(
+        [
+            ("north", str(aoi["max_lat"])),
+            ("south", str(aoi["min_lat"])),
+            ("west", str(aoi["min_lon"])),
+            ("east", str(aoi["max_lon"])),
+            ("accept", "netcdf"),
+        ]
+    )
+    response = _prism_http_session().get(
+        f"{_PRISM_NCSS_ROOT}/{dataset_path}",
+        params=params,
+        timeout=120,
+    )
+    if not response.ok and "unknown DataType == long" in response.text:
+        return _request_prism_dods_ascii_subset(dataset_path, variables, aoi)
+    response.raise_for_status()
+    with xr.open_dataset(BytesIO(response.content), engine="scipy") as remote:
+        loaded = remote.load()
+    aliases = {
+        TIME_DIM: ("t", "time"),
+        Y_DIM: ("latitude", "lat", "y"),
+        X_DIM: ("longitude", "lon", "x"),
+    }
+    rename = {}
+    for canonical, candidates in aliases.items():
+        source = next((name for name in candidates if name in loaded.dims), None)
+        if source is None:
+            raise RuntimeError(
+                f"PRISM NcSS response has no {canonical!r} dimension; "
+                f"received {tuple(loaded.dims)!r}"
+            )
+        if source != canonical:
+            rename[source] = canonical
+    loaded = loaded.rename(rename)
+    return loaded.isel({TIME_DIM: 0}, drop=True)
+
+
+@lru_cache(maxsize=64)
+def _request_prism_dods_coords(dataset_path: str) -> tuple[np.ndarray, np.ndarray]:
+    response = _prism_http_session().get(
+        f"{_PRISM_DODS_ROOT}/{dataset_path}.ascii?latitude,longitude",
+        timeout=120,
+    )
+    response.raise_for_status()
+    sections = _parse_dods_ascii_sections(response.text)
+    return (
+        _parse_dods_vector(sections, "latitude"),
+        _parse_dods_vector(sections, "longitude"),
+    )
+
+
+def _request_prism_dods_ascii_subset(
+    dataset_path: str,
+    variables: Sequence[str],
+    aoi: Mapping[str, float],
+) -> xr.Dataset:
+    lat, lon = _request_prism_dods_coords(dataset_path)
+    lat_indices = np.flatnonzero((lat >= aoi["min_lat"]) & (lat <= aoi["max_lat"]))
+    lon_indices = np.flatnonzero((lon >= aoi["min_lon"]) & (lon <= aoi["max_lon"]))
+    if not len(lat_indices) or not len(lon_indices):
+        raise RuntimeError("PRISM OPeNDAP fallback found no cells inside the AOI")
+
+    y_start, y_stop = int(lat_indices[0]), int(lat_indices[-1])
+    x_start, x_stop = int(lon_indices[0]), int(lon_indices[-1])
+    constraints = [
+        f"{name}[0:1:0][{y_start}:1:{y_stop}][{x_start}:1:{x_stop}]"
+        for name in variables
+    ]
+    constraints.extend(
+        [
+            f"latitude[{y_start}:1:{y_stop}]",
+            f"longitude[{x_start}:1:{x_stop}]",
+        ]
+    )
+    response = _prism_http_session().get(
+        f"{_PRISM_DODS_ROOT}/{dataset_path}.ascii?{','.join(constraints)}",
+        timeout=120,
+    )
+    response.raise_for_status()
+    sections = _parse_dods_ascii_sections(response.text)
+    y_coords = _parse_dods_vector(sections, "latitude").astype("float64")
+    x_coords = _parse_dods_vector(sections, "longitude").astype("float64")
+    coords = {Y_DIM: y_coords, X_DIM: x_coords}
+    data_vars = {}
+    for name in variables:
+        values = _parse_dods_grid(sections, name).astype("float32")
+        values = np.where(values <= -9990.0, np.nan, values)
+        data_vars[name] = xr.DataArray(
+            values,
+            dims=(Y_DIM, X_DIM),
+            coords=coords,
+            attrs={
+                "source": "PRISM via NCSCO THREDDS OPeNDAP ASCII fallback",
+                "is_synthetic": False,
+            },
+        )
     return xr.Dataset(data_vars)
+
+
+def _parse_dods_ascii_sections(text: str) -> dict[str, list[str]]:
+    if "---------------------------------------------" not in text:
+        raise RuntimeError("Unexpected OPeNDAP ASCII response")
+    _, data = text.split("---------------------------------------------", 1)
+    sections: dict[str, list[str]] = {}
+    header: str | None = None
+    rows: list[str] = []
+    for line in data.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            if header is not None:
+                sections[header] = rows
+                header = None
+                rows = []
+            continue
+        if header is None:
+            header = stripped
+            rows = []
+        else:
+            rows.append(stripped)
+    if header is not None:
+        sections[header] = rows
+    return sections
+
+
+def _parse_dods_vector(sections: Mapping[str, list[str]], name: str) -> np.ndarray:
+    prefix = f"{name}["
+    rows = next((rows for header, rows in sections.items() if header.startswith(prefix)), None)
+    if rows is None:
+        raise RuntimeError(f"OPeNDAP ASCII response is missing {name!r}")
+    values: list[float] = []
+    for row in rows:
+        values.extend(float(part.strip()) for part in row.split(",") if part.strip())
+    return np.asarray(values, dtype="float64")
+
+
+def _parse_dods_grid(sections: Mapping[str, list[str]], name: str) -> np.ndarray:
+    prefix = f"{name}.{name}["
+    rows = next((rows for header, rows in sections.items() if header.startswith(prefix)), None)
+    if rows is None:
+        raise RuntimeError(f"OPeNDAP ASCII response is missing {name!r}")
+    parsed_rows = []
+    for row in rows:
+        if "," not in row:
+            continue
+        _, values = row.split(",", 1)
+        parsed_rows.append(
+            [float(part.strip()) for part in values.split(",") if part.strip()]
+        )
+    return np.asarray(parsed_rows, dtype="float64")
+
+
+def _request_prism_ncss_array(
+    dataset_path: str,
+    variables: tuple[str, ...],
+    aoi: dict[str, float],
+    expected_shape: tuple[int, ...],
+    expected_y: tuple[float, ...],
+    expected_x: tuple[float, ...],
+) -> np.ndarray:
+    subset = _request_prism_ncss_subset(dataset_path, variables, aoi)
+    subset = _align_prism_subset_to_grid(subset, expected_y, expected_x)
+    result = np.stack([subset[name].values.astype("float32") for name in variables])
+    if result.shape != expected_shape:
+        raise RuntimeError(
+            f"PRISM subset shape changed for {dataset_path}: "
+            f"expected {expected_shape}, got {result.shape}"
+        )
+    return result
+
+
+def _normalize_prism_coords(values: Sequence[float]) -> np.ndarray:
+    values_array = np.asarray(values, dtype="float64")
+    snapped = np.round(values_array / _PRISM_GRID_STEP_DEGREES)
+    return np.round(snapped * _PRISM_GRID_STEP_DEGREES, 6)
+
+
+def _align_prism_subset_to_grid(
+    subset: xr.Dataset,
+    expected_y: Sequence[float],
+    expected_x: Sequence[float],
+) -> xr.Dataset:
+    y_coords = _normalize_prism_coords(subset[Y_DIM].values)
+    x_coords = _normalize_prism_coords(subset[X_DIM].values)
+    return subset.assign_coords({Y_DIM: y_coords, X_DIM: x_coords}).reindex(
+        {Y_DIM: np.asarray(expected_y), X_DIM: np.asarray(expected_x)}
+    )
 
 
 def _open_prism_download(
@@ -474,6 +774,8 @@ def _open_prism_download(
     error: Exception | None = None,
     show_progress: bool = True,
 ) -> xr.Dataset:
+    """Return legacy synthetic data for compatibility with older imports."""
+
     resolved_freq = freq or "ME"
     times = pd.date_range(start, end, freq=resolved_freq)
     y_coords, x_coords = _build_coords_for_aoi(aoi)
@@ -554,7 +856,7 @@ def _crop_to_aoi(ds: xr.Dataset, aoi: Mapping[str, float]) -> xr.Dataset:
 
 def _resolve_chunks(chunks: Mapping[Hashable, int] | None) -> Mapping[Hashable, int]:
     if chunks is None:
-        return DEFAULT_CHUNKS
+        return _PRISM_STREAMING_CHUNKS
     return chunks
 
 
@@ -573,13 +875,11 @@ def _finalize_prism_cube(
 ) -> xr.Dataset:
     time_len = int(ds.sizes.get(TIME_DIM, 0)) if TIME_DIM in ds.sizes else 0
     all_nan = False
-    if ds.data_vars:
+    is_lazy = any(var.chunks is not None for var in ds.data_vars.values())
+    if ds.data_vars and not is_lazy:
         flags = []
         for var in ds.data_vars.values():
-            check = var.isnull().all()
-            if hasattr(check, "compute"):
-                check = check.compute()
-            flags.append(bool(check))
+            flags.append(bool(var.isnull().all()))
         all_nan = all(flags)
 
     if time_len == 0:

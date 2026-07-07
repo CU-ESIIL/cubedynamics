@@ -33,13 +33,23 @@ def test_public_symbols_available():
         "load_s2_ndvi_cube",
         "load_sentinel2_ndvi_zscore_cube",
     ]
+    streaming_helpers = [
+        "stream_global_climate_cube",
+        "stream_gridmet_to_cube",
+        "stream_prism_to_cube",
+    ]
 
-    for name in loaders + legacy_aliases:
+    for name in loaders + legacy_aliases + streaming_helpers:
         assert hasattr(cd, name), f"Expected cubedynamics to expose {name}"
 
     assert hasattr(cd, "pipe")
     assert hasattr(cd, "verbs")
     assert hasattr(cd.verbs, "rolling_median_split_synchrony")
+    assert hasattr(cd.verbs, "aoi_signature")
+    assert hasattr(cd.verbs, "block_signature")
+    assert hasattr(cd.verbs, "collect_blocks")
+    assert hasattr(cd.verbs, "compare_blocks")
+    assert hasattr(cd.verbs, "compare_aoi_signature")
 
 
 def test_pipe_and_verbs_smoke():

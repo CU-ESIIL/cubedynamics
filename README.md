@@ -130,9 +130,13 @@ Replace `v0.1.0` with the release tag you want to test.
 ```bash
 git clone https://github.com/CU-ESIIL/cubedynamics.git
 cd cubedynamics
-python -m pip install -e ".[dev]"
-pytest -m "not integration" -q
+make install
+make test
 ```
+
+The repo includes a `.python-version` default and a `Makefile` that creates a
+local `.venv/` for development. The virtual environment is intentionally ignored
+by git.
 
 See the documentation for optional extras, large-data workflows, and examples.
 

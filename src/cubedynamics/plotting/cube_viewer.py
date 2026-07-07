@@ -847,7 +847,7 @@ def _render_cube_html(
 
 def cube_from_dataarray(
     da: xr.DataArray,
-    out_html: str = "cube_da.html",
+    out_html: str | None = None,
     cmap: str = "viridis",
     size_px: int | None = None,
     thin_time_factor: int = 4,
@@ -876,6 +876,9 @@ def cube_from_dataarray(
     axis_meta: Dict[str, Dict[str, str]] | None = None,
     axis_rig: bool | AxisRigSpec = True,
 ):
+    if out_html is None and not return_html:
+        out_html = "cube_da.html"
+
     volume_density = volume_density or {"time": 6, "x": 2, "y": 2}
     volume_downsample = volume_downsample or {"time": 4, "space": 4}
 
@@ -1151,10 +1154,15 @@ def cube_from_dataarray(
             interior_meta=interior_meta,
             viewer_id=viewer_id,
         )
+        if return_html:
+            if out_html is not None:
+                with open(out_html, "w", encoding="utf-8") as f:
+                    f.write(full_html)
+            return full_html
+        if out_html is None:
+            raise ValueError("out_html must be provided when return_html=False")
         with open(out_html, "w", encoding="utf-8") as f:
             f.write(full_html)
-        if return_html:
-            return full_html
         frame_base = size_px if size_px is not None else 760
         prefix = Path(out_html).stem or "cube_viewer"
         return show_cube_viewer(
@@ -1233,11 +1241,15 @@ def cube_from_dataarray(
         viewer_id=viewer_id,
     )
 
+    if return_html:
+        if out_html is not None:
+            with open(out_html, "w", encoding="utf-8") as f:
+                f.write(full_html)
+        return full_html
+    if out_html is None:
+        raise ValueError("out_html must be provided when return_html=False")
     with open(out_html, "w", encoding="utf-8") as f:
         f.write(full_html)
-
-    if return_html:
-        return full_html
     frame_base = size_px if size_px is not None else 760
     prefix = Path(out_html).stem or "cube_viewer"
     return show_cube_viewer(

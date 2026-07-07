@@ -7,6 +7,7 @@ import pytest
 import cubedynamics
 
 STREAMING_FUNCTIONS = [
+    cubedynamics.stream_global_climate_cube,
     cubedynamics.stream_gridmet_to_cube,
     cubedynamics.stream_prism_to_cube,
 ]

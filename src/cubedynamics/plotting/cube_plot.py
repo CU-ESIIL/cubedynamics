@@ -761,8 +761,10 @@ class CubePlot(metaclass=_CubePlotMeta):
             show_legend: bool = True,
             axis_meta: Optional[Dict[str, Dict[str, str]]] = None,
         ) -> str:
-            base, ext = os.path.splitext(self.out_html)
-            panel_path = f"{base}_facet{facet_idx}{ext or '.html'}" if self.facet else self.out_html
+            panel_path = None
+            if self.out_html != "cube_da.html":
+                base, ext = os.path.splitext(self.out_html)
+                panel_path = f"{base}_facet{facet_idx}{ext or '.html'}" if self.facet else self.out_html
             viewer_obj = cube_from_dataarray(
                 stat_data,
                 out_html=panel_path,

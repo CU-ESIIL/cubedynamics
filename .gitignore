@@ -30,3 +30,11 @@ ENV/
 # MkDocs artifacts
 site/
 dist/
+
+# Generated analysis outputs and real-data caches
+artifacts/
+*.gpkg
+*.nc
+*.nc4
+*.zarr/
+*.zip

@@ -8,6 +8,13 @@ import numpy as np
 import xarray as xr
 
 from ..config import STD_EPS
+from ..stats.spatial_units import (
+    aoi_signature as _aoi_signature,
+    block_signature as _block_signature,
+    collect_blocks as _collect_blocks,
+    compare_aoi_signatures as _compare_aoi_signatures,
+    compare_blocks as _compare_blocks,
+)
 from ..stats.tails import rolling_tail_dep_vs_center as _rolling_tail_dep_vs_center
 from ..streaming import VirtualCube
 
@@ -403,6 +410,8 @@ def rolling_median_split_synchrony(
     min_t: int = 5,
     split_quantile: float = 0.5,
     time_dim: str = "time",
+    output_stride: int = 1,
+    output_times: Iterable[object] | None = None,
     lower_var: str | None = None,
     upper_var: str | None = None,
 ):
@@ -418,6 +427,10 @@ def rolling_median_split_synchrony(
     With ``split_quantile=0.5``, the lower set contains dates when a pixel and
     its cube's center pixel are both at or below their rolling medians. The
     upper set contains dates when both are above their rolling medians.
+    ``output_stride`` controls how many input timestamps to advance between
+    outputs; use 30 for approximately monthly results from daily climate data.
+    ``output_times`` can be used by streaming jobs to request a bounded batch of
+    explicit rolling window end timestamps.
 
     Examples
     --------
@@ -428,6 +441,8 @@ def rolling_median_split_synchrony(
 
     if (lower_var is None) != (upper_var is None):
         raise ValueError("lower_var and upper_var must be provided together")
+
+    target_output_times = tuple(output_times) if output_times is not None else None
 
     def _select_inputs(
         obj: xr.Dataset | xr.DataArray,
@@ -480,6 +495,8 @@ def rolling_median_split_synchrony(
             min_t=min_t,
             b=split_quantile,
             time_dim=time_dim,
+            output_stride=output_stride,
+            output_times=target_output_times,
         )
         if lower_name == upper_name:
             top = same_top
@@ -491,6 +508,8 @@ def rolling_median_split_synchrony(
                 min_t=min_t,
                 b=split_quantile,
                 time_dim=time_dim,
+                output_stride=output_stride,
+                output_times=target_output_times,
             )
             bottom, top = xr.align(bottom, top, join="exact")
             difference = bottom - top
@@ -502,12 +521,14 @@ def rolling_median_split_synchrony(
             {
                 "long_name": "Below-quantile Spearman synchrony vs center",
                 "source_variable": lower_name,
+                "units": "unitless",
             }
         )
         top.attrs.update(
             {
                 "long_name": "Above-quantile Spearman synchrony vs center",
                 "source_variable": upper_name,
+                "units": "unitless",
             }
         )
         difference.attrs.update(
@@ -516,6 +537,7 @@ def rolling_median_split_synchrony(
                 "bottom_variable": lower_name,
                 "top_variable": upper_name,
                 "valid_range": (-2.0, 2.0),
+                "units": "unitless",
             }
         )
         result = xr.Dataset(
@@ -532,6 +554,7 @@ def rolling_median_split_synchrony(
                 "min_time_points_per_set": min_t,
                 "split_quantile": split_quantile,
                 "reference": "center_pixel",
+                "output_stride": output_stride,
             }
         )
         return result
@@ -539,8 +562,148 @@ def rolling_median_split_synchrony(
     return _op
 
 
+def aoi_signature(
+    *,
+    unit_id: str,
+    variables: Iterable[str] | None = None,
+    time_dim: str | None = None,
+    spatial_dims: Iterable[str] | None = None,
+    reducer: str = "median",
+    unit_dim: str = "unit",
+    skipna: bool = True,
+):
+    """Summarize an AOI cube into a named spatial-unit time signature.
+
+    Grammar contract
+    ----------------
+    Reducer verb that keeps time and adds a length-one ``unit`` dimension. This
+    is the first step toward pairwise and many-unit spatial meta-analysis.
+
+    Examples
+    --------
+    >>> signature = pipe(sync_cube) | v.aoi_signature(unit_id="boulder")
+    """
+
+    resolved_spatial_dims = tuple(spatial_dims) if spatial_dims is not None else None
+
+    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset:
+        if isinstance(obj, VirtualCube):
+            raise NotImplementedError(
+                "aoi_signature requires a materialized DataArray or Dataset; "
+                "summarize each VirtualCube tile before building signatures"
+            )
+        return _aoi_signature(
+            obj,
+            unit_id=unit_id,
+            variables=variables,
+            time_dim=time_dim,
+            spatial_dims=resolved_spatial_dims,
+            reducer=reducer,
+            unit_dim=unit_dim,
+            skipna=skipna,
+        )
+
+    return _op
+
+
+def compare_aoi_signature(
+    other: xr.Dataset | xr.DataArray,
+    *,
+    variables: Iterable[str] | None = None,
+    time_dim: str | None = None,
+    unit_dim: str = "unit",
+    join: str = "inner",
+):
+    """Compare one AOI signature with another over shared time."""
+
+    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset:
+        return _compare_aoi_signatures(
+            obj,
+            other,
+            variables=variables,
+            time_dim=time_dim,
+            unit_dim=unit_dim,
+            join=join,
+        )
+
+    return _op
+
+
+def block_signature(
+    *,
+    block_id: str,
+    variables: Iterable[str] | None = None,
+    time_dim: str | None = None,
+    spatial_dims: Iterable[str] | None = None,
+    reducer: str = "median",
+    block_dim: str = "block",
+    skipna: bool = True,
+):
+    """Summarize a local cube into a named block time signature."""
+
+    resolved_spatial_dims = tuple(spatial_dims) if spatial_dims is not None else None
+
+    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset:
+        if isinstance(obj, VirtualCube):
+            raise NotImplementedError(
+                "block_signature requires a materialized DataArray or Dataset; "
+                "summarize each VirtualCube tile before building block signatures"
+            )
+        return _block_signature(
+            obj,
+            block_id=block_id,
+            variables=variables,
+            time_dim=time_dim,
+            spatial_dims=resolved_spatial_dims,
+            reducer=reducer,
+            block_dim=block_dim,
+            skipna=skipna,
+        )
+
+    return _op
+
+
+def collect_blocks(
+    *others: xr.Dataset | xr.DataArray,
+    block_dim: str = "block",
+    join: str = "outer",
+):
+    """Collect block signatures into one block collection."""
+
+    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset:
+        return _collect_blocks(obj, *others, block_dim=block_dim, join=join)
+
+    return _op
+
+
+def compare_blocks(
+    *,
+    variables: Iterable[str] | None = None,
+    time_dim: str | None = None,
+    block_dim: str = "block",
+    join: str = "inner",
+):
+    """Compare all unique pairs in a block collection."""
+
+    def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset:
+        return _compare_blocks(
+            obj,
+            variables=variables,
+            time_dim=time_dim,
+            block_dim=block_dim,
+            join=join,
+        )
+
+    return _op
+
+
 __all__ = [
+    "aoi_signature",
     "anomaly",
+    "block_signature",
+    "collect_blocks",
+    "compare_blocks",
+    "compare_aoi_signature",
     "mean",
     "rolling_median_split_synchrony",
     "rolling_tail_dep_vs_center",

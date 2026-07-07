@@ -15,6 +15,7 @@ Primary references:
 - `README.md`
 - `src/cubedynamics/piping.py`
 - `docs/project/public_api.md`
+- `PROMPT_LOG.md` for recent user goals, decisions, artifacts, and validation
 
 ## 2) Source-of-truth directories (important)
 
@@ -77,6 +78,10 @@ Use this boundary when making changes:
 - Avoid eager `.compute()` in library paths unless truly required.
 - Avoid eager disk IO side effects in core transformations.
 - Keep VirtualCube workflows lazy until explicit materialization (`VirtualCube.materialize()`).
+- For long climate records, prefer bounded streaming/batching patterns over
+  building one huge Dask graph. Library code should stay lazy; examples may
+  checkpoint final/intermediate analysis outputs when the user explicitly runs
+  a long workflow.
 
 ## 5) Data/loaders overview (what talks to network)
 
@@ -87,6 +92,20 @@ Data sources/loaders are in:
 - Streaming wrappers in `src/cubedynamics/streaming/` and `src/cubedynamics/prism_streaming.py`
 
 Many integration/online tests require external services/network; keep unit paths offline-friendly.
+
+### PRISM streaming specifics
+- Runtime PRISM work lives in `src/cubedynamics/data/prism.py`.
+- Real PRISM streaming currently uses the NCSCO THREDDS NetCDF Subset Service
+  for daily AOI-cropped requests. Use `freq="D"` for real PRISM streaming.
+- Do not silently fall back to synthetic data for science workflows.
+  Synthetic PRISM data must require `allow_synthetic=True` and be clearly
+  marked with provenance.
+- PRISM is a CONUS/US product, not a global climate backend. For global loops,
+  add or use a different global source rather than implying PRISM covers the
+  globe.
+- Some historical PRISM daily files have THREDDS encoding/grid quirks. Keep
+  focused tests around catalog aliases, lazy NcSS requests, OPeNDAP fallback
+  behavior, and coordinate/grid normalization.
 
 ## 6) Testing strategy and required commands
 
@@ -149,6 +168,11 @@ When debugging a failure, quickly classify it:
 - Keep docs aligned with actual API names and stability policy.
 - If a user-facing behavior changes, update the most relevant docs page(s) and changelog/development docs when appropriate.
 - Maintain terminology consistency: “CubeDynamics”, “pipe”, “verbs”, “spatiotemporal cube”, “streaming-first”.
+- Keep `PROMPT_LOG.md` current for substantial work. Add a dated entry with:
+  user goal/prompts, important design decisions, files changed or artifacts
+  created, validation run, and known caveats/follow-ups. Keep it factual and
+  concise; do not include secrets, credentials, private tokens, or unrelated
+  chat transcript.
 
 ## 10) Practical command reference
 
@@ -172,6 +196,12 @@ Docs checks:
 - Violating CRS/dimension contract by silently guessing ambiguous spatial metadata.
 - Accidentally introducing eager compute/IO in core code paths.
 - Updating docs nav/content inconsistently.
+- Treating server-side AOI streaming as cloud-optimized chunked access. THREDDS
+  NcSS avoids full archive downloads, but long records can still be slow
+  because they require many daily requests.
+- Leaving generated artifacts or caches undocumented. Analysis outputs belong
+  under `artifacts/`; source changes should not depend on those files unless a
+  test or example explicitly reads them.
 
 ## 12) When in doubt
 

@@ -72,13 +72,14 @@ def test_cube_viewer_rotation_writes_to_wrapper(tmp_path):
     assert 'cubeWrapper.style.setProperty("--zoom"' in html
 
 
-def test_cube_viewer_wraps_html_in_iframe(tmp_path):
+def test_cube_viewer_wraps_html_in_iframe(tmp_path, monkeypatch):
     data = xr.DataArray(
         np.arange(4 * 4 * 4, dtype=float).reshape(4, 4, 4),
         dims=("time", "y", "x"),
         name="demo",
     )
 
+    monkeypatch.chdir(tmp_path)
     iframe = cube_from_dataarray(
         data,
         out_html=str(tmp_path / "viewer.html"),

@@ -212,6 +212,7 @@ def _load_gridmet_cube_impl(
                 source = "synthetic"
 
     ds = _crop_to_aoi(ds, aoi)
+    backend_returned_lazy_data = _has_lazy_data(ds)
     ds = ds.chunk(chunk_map)
     return _finalize_gridmet_cube(
         ds,
@@ -224,6 +225,7 @@ def _load_gridmet_cube_impl(
         backend_error=backend_error,
         show_progress=show_progress,
         aoi=aoi,
+        skip_all_nan_check=backend_returned_lazy_data,
     )
 
 
@@ -444,6 +446,12 @@ def _resolve_chunks(chunks: Mapping[Hashable, int] | None) -> Mapping[Hashable, 
     return chunks
 
 
+def _has_lazy_data(ds: xr.Dataset) -> bool:
+    """Return True when any data variable is backed by chunked/lazy data."""
+
+    return any(getattr(var.data, "chunks", None) is not None for var in ds.data_vars.values())
+
+
 def _finalize_gridmet_cube(
     ds: xr.Dataset,
     variables: Sequence[str],
@@ -456,10 +464,11 @@ def _finalize_gridmet_cube(
     backend_error: str | None,
     show_progress: bool,
     aoi: Mapping[str, float],
+    skip_all_nan_check: bool = False,
 ) -> xr.Dataset:
     time_len = int(ds.sizes.get(TIME_DIM, 0)) if TIME_DIM in ds.sizes else 0
     all_nan = False
-    if ds.data_vars:
+    if ds.data_vars and not skip_all_nan_check:
         indicators = []
         for var in ds.data_vars.values():
             check = var.isnull().all()

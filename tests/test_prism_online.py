@@ -25,9 +25,11 @@ def test_load_prism_cube_streaming_default(recwarn):
     ds = load_prism_cube(
         variables=["ppt"],
         start="2000-01-01",
-        end="2000-12-31",
+        end="2000-01-03",
         aoi=aoi,
+        freq="D",
         prefer_streaming=True,
+        show_progress=False,
     )
 
     assert isinstance(ds, xr.Dataset)
@@ -43,7 +45,7 @@ def test_load_prism_cube_streaming_default(recwarn):
 
 
 @pytest.mark.online
-def test_load_prism_cube_fallback_download(monkeypatch, recwarn):
+def test_load_prism_cube_explicit_synthetic_fallback(monkeypatch, recwarn):
     import cubedynamics.data.prism as prism_mod
 
     def _always_fail(*args, **kwargs):  # pragma: no cover - used in test
@@ -64,10 +66,12 @@ def test_load_prism_cube_fallback_download(monkeypatch, recwarn):
         end="2000-03-31",
         aoi=aoi,
         prefer_streaming=True,
+        allow_synthetic=True,
     )
 
     assert isinstance(ds, xr.Dataset)
     assert "ppt" in ds.data_vars
+    assert ds.attrs["is_synthetic"] is True
     assert any(
         "PRISM streaming backend unavailable" in str(w.message) for w in recwarn
     )

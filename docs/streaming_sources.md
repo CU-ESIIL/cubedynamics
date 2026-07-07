@@ -8,8 +8,8 @@ rest of the math stack can focus on statistics.
 
 - Loader: `cubedynamics.load_prism_cube`
 - Purpose: high-resolution precipitation and temperature summaries
-- Strategy: use STAC manifests and HTTP range requests to read only the pixels
-  covering your AOI and date window
+- Strategy: use the THREDDS NetCDF Subset Service to request only the variables
+  and pixels covering the AOI for each daily timestep
 
 ```python
 import cubedynamics as cd
@@ -20,20 +20,23 @@ cube = cd.load_prism_cube(
     start="2015-01-01",
     end="2020-12-31",
     variable="ppt",
+    freq="D",
 )
 ```
 
 `load_prism_cube` requires one AOI input (`lat`/`lon`, `bbox`, or `aoi_geojson`).
 The examples throughout the docs use the keyword-only form that mirrors the
-public API.
+public API. Daily requests are lazy Dask tasks with bounded 31-day time chunks;
+the loader does not create a local archive cache.
 
 ## gridMET
 
 - Loader: `cubedynamics.load_gridmet_cube`
 - Purpose: daily meteorological drivers (temperature, precipitation, vapor
   pressure deficit)
-- Strategy: chunked downloads over object storage, falling back to cached tiles
-  when streaming is unavailable
+- Strategy: Dask-backed cubes through the public loader; the lower-level
+  `cubedynamics.streaming.stream_gridmet_to_cube` helper reads gridMET years
+  over HTTP into memory, crops the AOI, and avoids writing local archives
 
 ```python
 import cubedynamics as cd
@@ -48,6 +51,38 @@ cube = cd.load_gridmet_cube(
     chunks={"time": 120},
 )
 ```
+
+Use `stream_gridmet_to_cube(...)` when you need to work directly with real
+gridMET yearly files. It streams each requested year without writing files to
+disk, but it is not a cloud-optimized range-read interface yet, so long global
+runs should still be split by time and space.
+
+## Global climate alternatives
+
+- Loader: `cubedynamics.stream_global_climate_cube`
+- Purpose: adapt already-open lazy climate archives such as ERA5, TerraClimate,
+  CHIRPS, or other xarray/Zarr-backed datasets to CubeDynamics dimensions
+- Strategy: normalize time/space dimensions to `(time, y, x)`, optionally crop
+  an AOI, preserve lazy chunks, and avoid any package-managed cache/download
+
+```python
+import xarray as xr
+import cubedynamics as cd
+
+source = xr.open_zarr("s3://example-bucket/era5.zarr", chunks={"time": 31})
+
+cube = cd.stream_global_climate_cube(
+    source,
+    variables=["t2m"],
+    bbox=[-105.5, 39.8, -105.0, 40.2],
+    source_name="era5_zarr",
+)
+```
+
+This pathway is intentionally source-agnostic: CubeDynamics does not own the
+cloud credential, catalog, or storage protocol. Open the remote dataset with the
+right xarray backend, then hand the lazy object to CubeDynamics for consistent
+cube semantics and downstream verbs.
 
 ## Sentinel-2 cubes
 

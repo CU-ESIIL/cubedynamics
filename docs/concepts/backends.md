@@ -18,7 +18,9 @@ of the math stack can focus on statistics instead of I/O details.
 * Loader: `cubedynamics.load_gridmet_cube`
 * Purpose: daily meteorological drivers (temperature, precipitation, etc.).
 * Streaming-first design: attempts to return a lazily-evaluated cube, falling
-  back to an in-memory download only when streaming is not available.
+  back to an in-memory download only when streaming is not available. The
+  advanced `cubedynamics.stream_gridmet_to_cube` helper reads real gridMET
+  yearly files over HTTP without writing local archives.
 
 ```python
 import cubedynamics as cd
@@ -65,3 +67,25 @@ ppt_z = pipe(prism["ppt"]) | v.zscore(dim="time")
 
 Each loader keeps the cube streaming whenever possible, emits a warning when
 falling back to downloads, and never writes to disk inside the library.
+
+## Global xarray-backed sources
+
+* Loader: `cubedynamics.stream_global_climate_cube`
+* Purpose: adapt already-open lazy sources such as ERA5, TerraClimate, CHIRPS,
+  or other xarray/Zarr-backed archives.
+* Streaming-first design: CubeDynamics does not download or cache these sources;
+  it normalizes dimensions, applies optional AOI slicing, and preserves chunks.
+
+```python
+import xarray as xr
+import cubedynamics as cd
+
+source = xr.open_zarr("s3://example-bucket/era5.zarr", chunks={"time": 31})
+
+cube = cd.stream_global_climate_cube(
+    source,
+    variables=["t2m"],
+    bbox=[-105.5, 39.8, -105.0, 40.2],
+    source_name="era5_zarr",
+)
+```

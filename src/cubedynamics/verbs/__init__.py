@@ -17,7 +17,7 @@ This module is part of the CubeDynamics "grammar-of-cubes":
 Canonical API:
 - Statistical verbs: :func:`mean`, :func:`variance`, :func:`anomaly`, :func:`zscore`
 - Plotting verbs: :func:`plot`, :func:`plot_mean`, :func:`show_cube_lexcube`
-- Fire/vase verbs: :func:`extract`, :func:`vase`, :func:`fire_plot`, :func:`fire_panel`
+- Fire/vase verbs: :func:`extract`, :func:`vase`, :func:`fire_plot`, :func:`fire_panel`, :func:`fire_vase_panel`
 """
 
 from __future__ import annotations
@@ -54,6 +54,11 @@ from .tubes import tubes
 from .vase import vase as _vase_base, vase_demo, vase_extract, vase_mask
 from .stats import (
     anomaly,
+    aoi_signature,
+    block_signature,
+    collect_blocks,
+    compare_blocks,
+    compare_aoi_signature,
     mean,
     rolling_median_split_synchrony,
     rolling_tail_dep_vs_center,
@@ -728,13 +733,19 @@ from .fire import (  # noqa: E402
     fire_derivative,
     fire_panel,
     fire_plot,
+    fire_vase_panel,
     vase,
 )
 
 
 __all__ = [
     "anomaly",
+    "aoi_signature",
     "apply",
+    "block_signature",
+    "collect_blocks",
+    "compare_blocks",
+    "compare_aoi_signature",
     "mean",
     "month_filter",
     "flatten_space",
@@ -758,6 +769,7 @@ __all__ = [
     "fire_plot",
     "fire_derivative",
     "fire_panel",
+    "fire_vase_panel",
     "tubes",
     "vase",
     "vase_demo",

@@ -50,21 +50,32 @@ If you see "`PytestUnknownMarkWarning`" locally, ensure you are running from the
 
 ### tests.yml (push / PR)
 - Matrix: Python **3.9, 3.10, 3.11, and 3.12** on `ubuntu-latest`.
+- Setup: `actions/setup-python` with pip caching enabled.
 - Install: `python -m pip install --upgrade pip`, then `pip install -e ".[dev]"`.
 - Unit pass: `pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q`.
+- Streaming contract pass: a focused Python 3.11 job runs the PRISM NcSS,
+  gridMET, global-climate, median-split synchrony, spatial block, and streaming
+  signature tests. This keeps streaming-first regressions visible without
+  multiplying those checks across the full Python matrix.
 - Optional integration pass: `pytest -m "integration"` (only when `RUN_INTEGRATION=1` is present in the environment, and only on Python 3.11).
 - Packaging pass: `python -m build`, `python -m twine check dist/*`, then install the built wheel in a clean virtualenv and smoke-import `cubedynamics`.
 - Docs build: `mkdocs build --strict` (separate job in the same workflow, installed from `.[docs]`).
+- Timeouts: unit matrix jobs have a 30-minute timeout; streaming, package, and
+  docs jobs have 20-minute timeouts.
 
 ### online-tests.yml (scheduled / manual)
 - Triggers: manual **workflow_dispatch** and a weekly cron (**`0 6 * * 1`** / Mondays at 06:00 UTC).
+- Setup: Python 3.11 with pip caching enabled.
 - Install: `python -m pip install --upgrade pip`, then `pip install -e ".[dev]"`.
-- Command: `pytest -m "integration"` with `PYTEST_ADDOPTS` cleared for full output.
+- Command: `pytest -m "integration or online" --maxfail=1 -q` with
+  `PYTEST_ADDOPTS` cleared for full output.
+- Timeout: 45 minutes.
 
 ### Enabling integration in CI
 - Default push/PR runs **exclude** `integration` and `online` suites to stay offline and fast.
 - Set `RUN_INTEGRATION=1` in GitHub Actions (e.g., via workflow dispatch or repository/env secrets) to execute the integration step in `tests.yml`.
-- Online tests always run the integration marker set and are limited to the scheduled/manual workflow above.
+- Online tests run both `integration` and `online` marker sets and are limited to
+  the scheduled/manual workflow above.
 
 ## Repo testing philosophy
 

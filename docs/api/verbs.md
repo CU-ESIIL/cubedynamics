@@ -85,6 +85,35 @@ High-level fire workflow that returns event/hull/summary outputs and a Plotly-ba
 ### ``fire_panel(...)``
 Compact panel combining time-hull outlines and climate histograms.
 
+### ``fire_vase_panel(...)``
+Build a multi-event Plotly panel of fire VASEs for prescribed burns. The
+single-event ``fire_plot`` workflow remains unchanged; ``fire_vase_panel``
+selects prescribed events from ``fired_events`` or explicit ``event_ids``, runs
+the same per-event VASE workflow, and returns ``fig_panel`` plus records,
+results, and failures.
+
+Pipe-first:
+
+```python
+pipe(climate_cube) | v.fire_vase_panel(
+    fired_daily=fired_daily,
+    fired_events=fired_events,
+    prescribed_column="fire_type",
+)
+```
+
+Per-event climate loading:
+
+```python
+panel = v.fire_vase_panel(
+    fired_daily=fired_daily,
+    fired_events=fired_events,
+    prescribed_column="fire_type",
+    load_climate=True,
+    climate_variable="tmmx",
+)
+```
+
 ## Plotting verbs
 
 ### ``plot(**kwargs)``

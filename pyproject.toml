@@ -37,6 +37,8 @@ dependencies = [
     "pyproj",
     "requests",
     "dask",
+    "h5netcdf",
+    "h5py",
     "cubo",
     "matplotlib",
     "Pillow",

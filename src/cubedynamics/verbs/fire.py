@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional, Tuple, Dict
+from typing import Any, Callable, Optional, Tuple, Dict
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -8,6 +8,7 @@ import xarray as xr
 import geopandas as gpd
 import pandas as pd
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 from ..fire_time_hull import (
     build_fire_event_daily,
@@ -34,6 +35,9 @@ from ..vase import VaseDefinition
 from .vase import vase as _vase_base
 
 
+PRESCRIBED_PATTERN = r"prescrib|\brx\b|planned|broadcast|pile"
+
+
 def _unwrap_fire_cube(obj):
     if obj is None:
         raise ValueError("fire verb requires an input cube/DataArray; got None.")
@@ -45,6 +49,149 @@ def _unwrap_fire_cube(obj):
     if isinstance(obj, xr.DataArray):
         return obj, obj
     raise TypeError(f"Unsupported type for fire verb: {type(obj)!r}")
+
+
+def _choose_fire_column(gdf: gpd.GeoDataFrame, candidates: tuple[str, ...]) -> str:
+    lower = {name.lower(): name for name in gdf.columns}
+    for candidate in candidates:
+        if candidate.lower() in lower:
+            return lower[candidate.lower()]
+    raise ValueError(f"Could not find any of columns {candidates!r}.")
+
+
+def _normalize_event_ids(event_ids: Any | None) -> list[Any] | None:
+    if event_ids is None:
+        return None
+    if isinstance(event_ids, (str, bytes)):
+        return [event_ids]
+    try:
+        return list(event_ids)
+    except TypeError:
+        return [event_ids]
+
+
+def _prescribed_event_ids(
+    fired_events: gpd.GeoDataFrame,
+    *,
+    id_col: str,
+    prescribed_column: str | None = None,
+    prescribed_values: tuple[Any, ...] | list[Any] | set[Any] | None = None,
+    prescribed_pattern: str = PRESCRIBED_PATTERN,
+) -> tuple[set[Any], dict[str, list[str]]]:
+    """Find event ids with prescribed-burn evidence in event attributes."""
+
+    evidence: dict[str, list[str]] = {}
+    hits: set[Any] = set()
+    pattern = prescribed_pattern or PRESCRIBED_PATTERN
+
+    columns = [prescribed_column] if prescribed_column else [col for col in fired_events.columns if col != "geometry"]
+    missing = [col for col in columns if col not in fired_events.columns]
+    if missing:
+        raise ValueError(f"Prescribed-fire column(s) not found in fired_events: {missing!r}.")
+
+    for column in columns:
+        values = fired_events[column]
+        if prescribed_values is not None:
+            mask = values.isin(list(prescribed_values))
+            matching = sorted({str(value) for value in values[mask].dropna().unique()})
+        elif (
+            pd.api.types.is_bool_dtype(values)
+            and prescribed_column
+        ):
+            mask = values.fillna(False).astype(bool)
+            matching = ["True"] if bool(mask.any()) else []
+        elif (
+            pd.api.types.is_object_dtype(values)
+            or pd.api.types.is_string_dtype(values)
+            or isinstance(values.dtype, pd.CategoricalDtype)
+        ):
+            as_text = values.astype(str)
+            mask = as_text.str.contains(pattern, case=False, regex=True, na=False)
+            matching = sorted({value for value in as_text[mask].dropna().unique()})
+        else:
+            continue
+
+        if bool(mask.any()):
+            evidence[column] = matching[:20]
+            hits.update(fired_events.loc[mask, id_col].dropna().unique())
+
+    return hits, evidence
+
+
+def _event_summary_table(fired_daily: gpd.GeoDataFrame, id_col: str, date_col: str) -> pd.DataFrame:
+    rows: list[dict[str, Any]] = []
+    for event_id, group in fired_daily.groupby(id_col):
+        dates = pd.to_datetime(group[date_col], errors="coerce").dropna()
+        if dates.empty:
+            continue
+        rows.append(
+            {
+                "event_id": event_id,
+                "start": dates.min(),
+                "end": dates.max(),
+                "duration_days": int((dates.max().normalize() - dates.min().normalize()).days) + 1,
+                "daily_rows": int(len(group)),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def _build_vase_panel_figure(
+    results: list[dict[str, Any]],
+    *,
+    title: str,
+    columns: int,
+    shared_colorbar: bool = True,
+) -> go.Figure:
+    if not results:
+        raise ValueError("fire_vase_panel requires at least one successful fire_plot result.")
+
+    columns = max(1, int(columns))
+    rows = int(np.ceil(len(results) / columns))
+    specs = [[{"type": "scene"} for _ in range(columns)] for _ in range(rows)]
+    subplot_titles = [f"event {result['event'].event_id}" for result in results]
+    fig = make_subplots(rows=rows, cols=columns, specs=specs, subplot_titles=subplot_titles)
+
+    all_lims = [
+        tuple(result["color_limits"])
+        for result in results
+        if result.get("color_limits") is not None
+    ]
+    cmin = min((lim[0] for lim in all_lims), default=None)
+    cmax = max((lim[1] for lim in all_lims), default=None)
+
+    for idx, result in enumerate(results):
+        row = idx // columns + 1
+        col = idx % columns + 1
+        source_fig = result["fig_hull"]
+        for trace_idx, trace in enumerate(source_fig.data):
+            trace_copy = go.Mesh3d(trace.to_plotly_json())
+            if cmin is not None and cmax is not None:
+                trace_copy.update(cmin=cmin, cmax=cmax)
+            if shared_colorbar:
+                trace_copy.update(showscale=(idx == 0 and trace_idx == 0))
+            fig.add_trace(trace_copy, row=row, col=col)
+
+    fig.update_layout(
+        title=title,
+        height=max(420, rows * 360),
+        width=max(520, columns * 420),
+        showlegend=False,
+    )
+    for scene_idx in range(1, len(results) + 1):
+        scene_name = "scene" if scene_idx == 1 else f"scene{scene_idx}"
+        fig.update_layout(
+            {
+                scene_name: dict(
+                    xaxis_title="x (km)",
+                    yaxis_title="y (km)",
+                    zaxis_title="time (days)",
+                    aspectmode="manual",
+                    aspectratio=dict(x=1.0, y=1.0, z=2.2),
+                )
+            }
+        )
+    return fig
 
 
 def _plot_time_hull_vase(
@@ -366,10 +513,10 @@ def fire_plot(
         )
 
     if climate_variable == "tmmx":
-        var_label = "Max temperature (°C)"
+        var_label = "Max temperature (K)"
         title_prefix = "GRIDMET tmmx"
     elif climate_variable == "tmmn":
-        var_label = "Min temperature (°C)"
+        var_label = "Min temperature (K)"
         title_prefix = "GRIDMET tmmn"
     elif climate_variable == "vpd":
         var_label = "Vapor pressure deficit (kPa)"
@@ -455,6 +602,168 @@ def fire_panel(
         fig_hist = plt.gcf()
 
     return results, results["fig_hull"], fig_hist
+
+
+def fire_vase_panel(
+    da: xr.DataArray | None = None,
+    *,
+    fired_daily: gpd.GeoDataFrame,
+    fired_events: gpd.GeoDataFrame | None = None,
+    event_ids: Any | None = None,
+    prescribed_column: str | None = None,
+    prescribed_values: tuple[Any, ...] | list[Any] | set[Any] | None = None,
+    prescribed_pattern: str = PRESCRIBED_PATTERN,
+    id_col: str | None = None,
+    event_id_col: str | None = None,
+    date_col: str | None = None,
+    min_days: int | None = 1,
+    max_days: int | None = None,
+    max_events: int | None = None,
+    columns: int = 3,
+    climate_loader: Callable[[FireEventDaily], xr.DataArray] | None = None,
+    load_climate: bool = False,
+    climate_variable: str = "vpd",
+    time_buffer_days: int = 1,
+    n_ring_samples: int = 96,
+    n_theta: int = 96,
+    fast: bool = True,
+    allow_synthetic: bool = False,
+    prefer_streaming: bool = True,
+    continue_on_error: bool = True,
+    title: str = "Prescribed fire VASE panel",
+    shared_colorbar: bool = True,
+    **fire_plot_kwargs,
+) -> Dict[str, Any] | Verb:
+    """Build a multi-event VASE panel for prescribed burns.
+
+    The single-event :func:`fire_plot` verb remains the canonical fire VASE.
+    This verb selects many prescribed-burn events, runs that same single-event
+    workflow for each one, and assembles their Plotly hulls into a panel.
+
+    Use a supplied cube via the pipe grammar, a custom ``climate_loader``, or
+    opt into per-event climate loading with ``load_climate=True``.
+    """
+
+    daily_id_col = id_col or _choose_fire_column(fired_daily, ("id", "event_id", "Event_ID", "fire_id"))
+    daily_date_col = date_col or _choose_fire_column(fired_daily, ("date", "ig_date", "start_date", "Date"))
+    daily = fired_daily.copy()
+    if daily_id_col != "id":
+        daily = daily.rename(columns={daily_id_col: "id"})
+    if daily_date_col != "date":
+        daily = daily.rename(columns={daily_date_col: "date"})
+
+    explicit_ids = _normalize_event_ids(event_ids)
+    prescribed_evidence: dict[str, list[str]] = {}
+    prescribed_filter_available = False
+    if explicit_ids is not None:
+        selected_ids = set(explicit_ids)
+    else:
+        if fired_events is None:
+            raise ValueError(
+                "fire_vase_panel requires either explicit event_ids or fired_events "
+                "with prescribed-burn attributes."
+            )
+        events_id_col = event_id_col or _choose_fire_column(
+            fired_events,
+            (daily_id_col, "id", "event_id", "Event_ID", "fire_id"),
+        )
+        selected_ids, prescribed_evidence = _prescribed_event_ids(
+            fired_events,
+            id_col=events_id_col,
+            prescribed_column=prescribed_column,
+            prescribed_values=prescribed_values,
+            prescribed_pattern=prescribed_pattern,
+        )
+        prescribed_filter_available = bool(selected_ids)
+        if not selected_ids:
+            raise ValueError(
+                "No prescribed-burn events were found. Pass event_ids explicitly, "
+                "or provide fired_events with a prescribed-fire field and set "
+                "prescribed_column/prescribed_values if needed."
+            )
+
+    summary = _event_summary_table(daily[daily["id"].isin(selected_ids)], "id", "date")
+    if min_days is not None:
+        summary = summary[summary["duration_days"] >= int(min_days)]
+    if max_days is not None:
+        summary = summary[summary["duration_days"] <= int(max_days)]
+    if summary.empty:
+        raise ValueError("No selected fire events passed the duration filters.")
+    summary = summary.sort_values(["start", "event_id"], ascending=[True, True]).reset_index(drop=True)
+    if max_events is not None:
+        summary = summary.head(int(max_events))
+
+    def _run_panel(input_da: xr.DataArray | None) -> Dict[str, Any]:
+        results: list[dict[str, Any]] = []
+        failures: list[dict[str, str]] = []
+
+        for _, row in summary.iterrows():
+            event_id = row["event_id"]
+            try:
+                event = FireEventDaily.from_fired(daily, event_id, date_col="date")
+                event_cube = climate_loader(event) if climate_loader is not None else input_da
+                if event_cube is None and not load_climate:
+                    raise ValueError(
+                        "No climate cube was supplied for fire_vase_panel. Use pipe(cube), "
+                        "provide climate_loader=..., or set load_climate=True."
+                    )
+                if event_cube is None:
+                    result = fire_plot(
+                        fired_daily=daily,
+                        event_id=event_id,
+                        climate_variable=climate_variable,
+                        time_buffer_days=time_buffer_days,
+                        n_ring_samples=n_ring_samples,
+                        n_theta=n_theta,
+                        fast=fast,
+                        allow_synthetic=allow_synthetic,
+                        prefer_streaming=prefer_streaming,
+                        show_hist=False,
+                        **fire_plot_kwargs,
+                    )
+                else:
+                    result = fire_plot(
+                        event_cube,
+                        fired_event=event,
+                        climate_variable=climate_variable,
+                        time_buffer_days=time_buffer_days,
+                        n_ring_samples=n_ring_samples,
+                        n_theta=n_theta,
+                        fast=fast,
+                        allow_synthetic=allow_synthetic,
+                        show_hist=False,
+                        **fire_plot_kwargs,
+                    )
+                results.append(result)
+            except Exception as exc:
+                failure = {"event_id": str(event_id), "error": str(exc)}
+                failures.append(failure)
+                if not continue_on_error:
+                    raise
+
+        fig_panel = _build_vase_panel_figure(
+            results,
+            title=title,
+            columns=columns,
+            shared_colorbar=shared_colorbar,
+        ) if results else None
+
+        records = summary.copy()
+        records["event_id"] = records["event_id"].astype(str)
+        return {
+            "events": [result["event"] for result in results],
+            "event_ids": [str(result["event"].event_id) for result in results],
+            "records": records,
+            "results": results,
+            "fig_panel": fig_panel,
+            "failures": failures,
+            "prescribed_filter_available": prescribed_filter_available,
+            "prescribed_evidence": prescribed_evidence,
+        }
+
+    if da is None and climate_loader is None and not load_climate:
+        return Verb(_run_panel)
+    return _run_panel(da)
 
 
 def fire_derivative(

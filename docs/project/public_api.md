@@ -22,6 +22,10 @@ These helpers create xarray-backed cubes or streaming-friendly structures. Netwo
 - `load_sentinel2_cube`
 - `load_sentinel2_bands_cube`
 - `load_sentinel2_ndvi_cube`
+- Streaming adapters exposed at the top level:
+  - `stream_global_climate_cube`
+  - `stream_gridmet_to_cube`
+  - `stream_prism_to_cube`
 - Legacy aliases kept for compatibility (emit deprecation warnings):
   - `load_s2_cube`
   - `load_s2_ndvi_cube`
@@ -31,7 +35,7 @@ These helpers create xarray-backed cubes or streaming-friendly structures. Netwo
 
 - `pipe` wraps any xarray `DataArray` or `Dataset` so verbs can be chained via the `|` operator.
 - `verbs` is the canonical namespace for operations. Import as `from cubedynamics import verbs as v`.
-- Core verbs include statistical reducers (`v.mean`, `v.variance`, `v.anomaly`, `v.zscore`), median-split synchrony (`v.rolling_median_split_synchrony`), time filters (`v.month_filter`), correlation helpers (`v.correlation_cube`), NDVI utilities (`v.ndvi_from_s2`), flattening (`v.flatten_cube`, `v.flatten_space`), and visualization verbs (`v.plot`, `v.plot_mean`, `v.show_cube_lexcube`).
+- Core verbs include statistical reducers (`v.mean`, `v.variance`, `v.anomaly`, `v.zscore`), median-split synchrony (`v.rolling_median_split_synchrony`), block helpers (`v.block_signature`, `v.collect_blocks`, `v.compare_blocks`), time filters (`v.month_filter`), correlation helpers (`v.correlation_cube`), NDVI utilities (`v.ndvi_from_s2`), flattening (`v.flatten_cube`, `v.flatten_space`), and visualization verbs (`v.plot`, `v.plot_mean`, `v.show_cube_lexcube`). Early AOI names (`v.aoi_signature`, `v.compare_aoi_signature`) remain available for compatibility.
 - Visualization verbs also cover vase-aware helpers (`v.vase`, `v.vase_extract`, `v.vase_mask`) that preserve hull metadata on cubes.
 
 ## Visualization entry points
@@ -45,7 +49,7 @@ For quick plots without a pipe chain use:
 
 Treat the following as implementation details that may change without notice:
 
-- Modules under `cubedynamics.ops`, `cubedynamics.streaming`, `cubedynamics.ops_fire`, `cubedynamics.ops_io`, and `cubedynamics.viewers`.
+- Modules under `cubedynamics.ops`, `cubedynamics.streaming`, `cubedynamics.ops_fire`, `cubedynamics.ops_io`, and `cubedynamics.viewers`; use the documented `cd.stream_*` helpers when you need a supported streaming entry point.
 - Demo helpers such as `demo`/`demo_vase` and example notebooks.
 - Private utilities (`cubedynamics.utils`, `cubedynamics.config`, `cubedynamics.progress`, etc.).
 

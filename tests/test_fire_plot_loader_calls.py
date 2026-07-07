@@ -97,6 +97,46 @@ def test_fire_plot_legacy_gridmet_freq(monkeypatch, freq_override):
     assert_not_all_nan(cube)
 
 
+def test_fire_plot_gridmet_temperature_labels_are_kelvin(monkeypatch):
+    fired_daily = _fired_daily_fixture()
+    captured = {}
+
+    def _fake_loader(*, lat, lon, start, end, variable=None, freq=None, **kwargs):
+        return _stub_dataset(variable or "tmmx", start, end, freq or "D")
+
+    def _fake_hull(*args, **kwargs):
+        return type(
+            "Hull",
+            (),
+            {
+                "metrics": {"days": len(fired_daily)},
+                "verts_km": np.zeros((3, 3)),
+                "tris": np.array([[0, 1, 2]]),
+                "t_days_vert": np.array([1.0, 2.0, 3.0]),
+            },
+        )
+
+    def _fake_plot(*args, **kwargs):
+        captured.update(kwargs)
+        return "fig"
+
+    monkeypatch.setattr(fire_verbs, "compute_time_hull_geometry", _fake_hull)
+    monkeypatch.setattr(fire_verbs, "plot_climate_filled_hull", _fake_plot)
+    monkeypatch.setattr("cubedynamics.data.gridmet.load_gridmet_cube", _fake_loader)
+
+    fire_verbs.fire_plot(
+        fired_daily=fired_daily,
+        event_id=1,
+        climate_variable="tmmx",
+        time_buffer_days=0,
+        allow_synthetic=False,
+        prefer_streaming=False,
+    )
+
+    assert captured["title_prefix"] == "GRIDMET tmmx"
+    assert captured["var_label"] == "Max temperature (K)"
+
+
 @pytest.mark.parametrize("freq_override", [None, "MS"])
 def test_fire_plot_legacy_prism_freq(monkeypatch, freq_override):
     fired_daily = _fired_daily_fixture()

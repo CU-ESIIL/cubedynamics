@@ -1,4 +1,5 @@
 import dask.array as da
+import numpy as np
 import xarray as xr
 
 from cubedynamics import verbs as v
@@ -9,7 +10,10 @@ from cubedynamics.plotting.cube_plot import DEFAULT_CAMERA
 
 def _make_tiny_cube():
     data = da.random.random((5, 8, 8), chunks=(2, 8, 8))
-    time = xr.cftime_range("2000-01-01", periods=5)
+    time = np.array(
+        ["2000-01-01", "2000-01-02", "2000-01-03", "2000-01-04", "2000-01-05"],
+        dtype="datetime64[ns]",
+    )
     y = xr.DataArray(range(8), dims=("y",))
     x = xr.DataArray(range(8), dims=("x",))
     return xr.DataArray(

@@ -57,6 +57,7 @@ from .sentinel import (
 )
 
 # Streaming-first stubs for the new architecture ---------------------------------
+from .streaming.global_climate import stream_global_climate_cube
 from .streaming.gridmet import stream_gridmet_to_cube
 from .prism_streaming import stream_prism_to_cube
 from .correlation_cubes import correlation_cube as streaming_correlation_cube
@@ -93,6 +94,7 @@ __all__ = [
     "load_prism_cube",
     "load_s2_cube",
     "load_s2_ndvi_cube",
+    "stream_global_climate_cube",
     "stream_gridmet_to_cube",
     "stream_prism_to_cube",
     "streaming_correlation_cube",

@@ -77,6 +77,42 @@ The returned `Dataset` contains `bottom_synchrony`, `top_synchrony`, and
 reference are split at their respective rolling medians. Dask-backed inputs
 remain lazy and are parallelized over spatial chunks.
 
+### `v.block_signature(block_id, ...)`
+
+Summarize a local cube into a named block time signature. This is useful after
+building a synchrony cube: each block becomes one time series per metric, with a
+length-one `block` dimension.
+
+```python
+block = (
+    pipe(sync_cube)
+    | v.block_signature(block_id="boulder", reducer="median")
+).unwrap()
+```
+
+### `v.collect_blocks(*others, ...)`
+
+Collect block signatures into one block collection.
+
+```python
+blocks = (pipe(block_a) | v.collect_blocks(block_b, block_c)).unwrap()
+```
+
+### `v.compare_blocks(...)`
+
+Compare all unique pairs in a block collection over their shared time axis. The
+result contains `pearson_r`, `mean_difference`, `rmse`, and `n` for each
+`(pair, variable)`.
+
+```python
+pairs = (pipe(blocks) | v.compare_blocks()).unwrap()
+```
+
+`v.aoi_signature(...)` and `v.compare_aoi_signature(...)` remain available for
+older notebooks, but new spatial-arena workflows should prefer block language.
+See the [spatial synchrony blocks](../recipes/spatial_synchrony_units.md)
+recipe for the group workflow.
+
 ### `v.rolling_tail_dep_vs_center(window, dim="time", min_periods=5, tail_quantile=0.8)`
 
 Compute a rolling contrast between variability in the upper tail and variability across the full window. The result preserves the input cube shape (e.g., `(time, y, x)`).

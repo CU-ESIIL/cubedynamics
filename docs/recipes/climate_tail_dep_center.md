@@ -33,6 +33,7 @@ sync = (pipe(temperature) | v.rolling_median_split_synchrony(
     window_days=90,
     min_t=10,
     split_quantile=0.5,
+    output_stride=30,
 )).unwrap()
 
 cold_sync = sync["bottom_synchrony"]
@@ -66,3 +67,15 @@ stronger cold synchrony; negative values indicate stronger hot synchrony.
 The verb accepts a `(time, y, x)` `xarray.DataArray` for a single-variable
 analysis or a `Dataset` with separate lower/upper variables. To study
 precipitation instead, request PRISM `ppt`; a gridMET cube works too.
+
+For the complete daily PRISM record without a local input cache, run:
+
+```bash
+python examples/real_prism_median_split_synchrony.py \
+  --output-dir artifacts/prism-full-record
+```
+
+The example defaults to 1981 through the last complete calendar year and
+evaluates every 30th daily timestamp. It streams server-cropped `tmin` and
+`tmax` subsets with four workers, then saves only the computed synchrony cube
+and plots.

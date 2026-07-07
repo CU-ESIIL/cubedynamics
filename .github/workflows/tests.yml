@@ -5,9 +5,14 @@ on:
     branches: [ main, master ]
   pull_request:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -20,6 +25,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: pip
 
       - name: Install dependencies
         run: |
@@ -35,8 +41,9 @@ jobs:
         run: |
           pytest -m "integration"
 
-  package:
+  streaming-contracts:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -45,6 +52,36 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Run streaming contract tests
+        run: |
+          pytest tests/test_prism_ncss_streaming.py \
+            tests/test_gridmet_streaming_contract.py \
+            tests/test_global_climate_streaming.py \
+            tests/test_median_split_synchrony_verb.py \
+            tests/test_spatial_units.py \
+            tests/test_real_fire_vase_gridmet_smoke.py \
+            src/cubedynamics/tests/test_streaming_contracts.py \
+            --maxfail=1 --disable-warnings -q
+
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
 
       - name: Build distribution artifacts
         run: |
@@ -62,6 +99,7 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,6 +108,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
 
       - name: Install dependencies
         run: |

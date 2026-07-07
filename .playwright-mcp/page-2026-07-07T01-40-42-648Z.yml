@@ -1,0 +1,52 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e5]:
+    - img
+    - generic [ref=e6]:
+      - img
+    - img:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic: "293"
+            - generic:
+              - generic: "294"
+            - generic:
+              - generic: "295"
+            - generic:
+              - generic: "296"
+            - generic:
+              - generic: "297"
+            - generic:
+              - generic: "298"
+            - generic:
+              - generic: "299"
+            - generic:
+              - generic: "300"
+          - generic:
+            - generic:
+              - generic: Max temperature (K)
+        - generic:
+          - generic: "GRIDMET tmmx: Max temperature (K)"
+    - toolbar [ref=e8]:
+      - button "Download plot as a PNG" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+      - generic [ref=e13]:
+        - button "Zoom" [ref=e14] [cursor=pointer]:
+          - img [ref=e15]
+        - button "Pan" [ref=e17] [cursor=pointer]:
+          - img [ref=e18]
+        - button "Orbital rotation" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+        - button "Turntable rotation" [ref=e23] [cursor=pointer]:
+          - img [ref=e24]
+      - generic [ref=e26]:
+        - button "Reset camera to default" [ref=e27] [cursor=pointer]:
+          - img [ref=e28]
+        - button "Reset camera to last save" [ref=e30] [cursor=pointer]:
+          - img [ref=e31]
+      - link "plotly-logomark" [ref=e34] [cursor=pointer]:
+        - /url: https://plotly.com/
+        - img "plotly-logomark" [ref=e35]
+    - img
+  - img [ref=e48]

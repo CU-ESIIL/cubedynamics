@@ -9,7 +9,7 @@ from cubedynamics.plotting import CubePlot
 def _cube():
     data = np.ones((3, 4, 4), dtype="float32")
     coords = {
-        "time": xr.cftime_range("2001-01-01", periods=3),
+        "time": np.array(["2001-01-01", "2001-01-02", "2001-01-03"], dtype="datetime64[ns]"),
         "y": np.arange(4),
         "x": np.arange(4),
     }

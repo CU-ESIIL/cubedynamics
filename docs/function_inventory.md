@@ -43,6 +43,10 @@ Grouped by theme; all verbs are pipe-friendly (`pipe(cube) | v.<verb>(...)`). Se
 - **cubedynamics.verbs.variance** — Variance counterpart to `mean`, preserving attributes and streaming paths.
 - **cubedynamics.verbs.rolling_median_split_synchrony** — Rolling below/above-quantile Spearman synchrony for one cube or separate lower/upper variables.
 - **cubedynamics.verbs.rolling_tail_dep_vs_center** — Rolling tail-dependence vs. center pixel contrast for fire/vase analyses.
+- **cubedynamics.verbs.block_signature** — Reduce a local cube to a named block time signature for pairwise or many-block comparison.
+- **cubedynamics.verbs.collect_blocks** — Combine block signatures into one block collection.
+- **cubedynamics.verbs.compare_blocks** — Compare all unique pairs in a block collection using correlation, mean difference, RMSE, and sample count.
+- **cubedynamics.verbs.aoi_signature / compare_aoi_signature** — Compatibility names for early AOI-signature workflows; prefer block language for new work.
 
 ### Transform
 
@@ -67,6 +71,7 @@ Grouped by theme; all verbs are pipe-friendly (`pipe(cube) | v.<verb>(...)`). Se
 - **cubedynamics.verbs.tubes** — Identify suitability “tubes” and compute per-component metrics.
 - **cubedynamics.verbs.fire_plot** — Fire time-hull + climate visualization wrapper.
 - **cubedynamics.verbs.fire_panel** — Compact panel combining hull outlines and climate histograms.
+- **cubedynamics.verbs.fire_vase_panel** — Multi-event panel of fire VASEs for prescribed burns.
 - **cubedynamics.verbs.climate_hist** — Inside/outside climate histograms for a fire event.
 - **cubedynamics.verbs.landsat8_mpc / landsat_vis_ndvi / landsat_ndvi_plot** — Landsat MPC helpers for visualization-ready NDVI.
 
@@ -97,6 +102,7 @@ User-facing constructors for cubes and semantic variables. Prefer these over low
 
 ### Streaming entrypoints (``cubedynamics.streaming``)
 
+- **streaming.global_climate.stream_global_climate_cube** — Normalize already-open lazy global climate xarray/Zarr sources to CubeDynamics `(time, y, x)` cube semantics.
 - **streaming.gridmet.stream_gridmet_to_cube** — GridMET tiling/streaming into cube form.
 - **streaming.virtual.VirtualCube** — Virtual cube abstraction (materialize-on-demand) used by verbs for tiled pipelines.
 - **streaming.virtual.make_time_tiler / make_spatial_tiler** — Helpers for chunking large AOIs or time ranges.

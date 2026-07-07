@@ -7,7 +7,31 @@ This guide shows how to set up a stable environment for CubeDynamics (the `cubed
 - **Git** if installing directly from GitHub.
 - All heavy geo/system dependencies (e.g., `rasterio`, `pyproj`) are handled via **conda-forge**.
 
-## 2. Quickstart: Create the environment
+## 2. Developer quickstart: local Python venv
+For repo development, the project includes `.python-version` and a `Makefile`.
+This creates a local `.venv/` and installs CubeDynamics in editable mode with
+development dependencies:
+
+```bash
+git clone https://github.com/CU-ESIIL/cubedynamics.git
+cd cubedynamics
+make install
+make test
+```
+
+Focused checks used during fire/VASE and streaming work:
+
+```bash
+make test-fire
+make test-streaming
+```
+
+The `.venv/` directory is local machine state and is ignored by git.
+
+If pip wheels for geospatial packages are troublesome on a machine, use the
+conda workflow below.
+
+## 3. Conda quickstart: create the environment
 ```bash
 # 1. Clone the repo (optional for end users; required for devs)
 git clone https://github.com/CU-ESIIL/cubedynamics.git
@@ -23,7 +47,7 @@ conda env create -f envs/cube-env.yml
 conda activate cube-env
 ```
 
-## 3. Install cubedynamics into that env (pip, no deps)
+## 4. Install cubedynamics into that env (pip, no deps)
 We intentionally keep the Python package install separate from the conda environment to avoid pip re-resolving heavy dependencies.
 
 ```bash
@@ -39,8 +63,8 @@ Notes:
 pip install --no-deps cubedynamics
 ```
 
-## 4. Verify the install
-Copy-paste this snippet inside the activated `cube-env`:
+## 5. Verify the install
+Copy-paste this snippet inside the activated environment:
 
 ```python
 import numpy as np
@@ -62,7 +86,7 @@ from cubedynamics import pipe, verbs as v
 pipe(ndvi) | v.plot()
 ```
 
-## 5. Using the environment in Jupyter
+## 6. Using the environment in Jupyter
 Add the environment as a Jupyter kernel:
 
 ```bash
@@ -71,7 +95,7 @@ python -m ipykernel install --user --name cube-env --display-name "Cube Env"
 
 In Jupyter, choose the **Cube Env** kernel for your notebooks.
 
-## 6. Cloud / Docker usage (short note)
+## 7. Cloud / Docker usage (short note)
 In Docker or cloud environments, reuse the same `envs/cube-env.yml`:
 
 ```Dockerfile

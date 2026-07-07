@@ -16,6 +16,7 @@ cube = cd.load_prism_cube(
     start="2020-01-01",
     end="2020-02-01",
     bbox=[-105.4, 39.8, -105.0, 40.2],
+    freq="D",
 )
 
 pipe(cube) | v.mean(dim="time") | v.plot()
@@ -50,10 +51,10 @@ pipe(cube) | v.plot(camera={"eye": {"x": 2.2, "y": 1.6, "z": 1.3}})
 The PRISM Climate Group at Oregon State University produces the dataset to deliver high-quality, terrain-aware climate normals and time series. It is widely used for hydrology, ecology, and agricultural studies where spatial detail and long-term consistency are critical.
 
 ### How CubeDynamics accesses it
-`load_prism_cube` mirrors the gridMET contract: it first attempts remote streaming, cropping the requested AOI and resampling to the desired temporal frequency, then chunks the result for lazy evaluation. If the streaming backend is unavailable, it falls back to a small synthetic download while preserving coordinate metadata. AOIs can be expressed as point buffers, bounding boxes, or GeoJSON, enabling rapid exploratory analyses without full archive downloads.
+`load_prism_cube` streams daily data through the NCSCO THREDDS NetCDF Subset Service. The server crops each daily PRISM grid to the requested AOI, and Dask defers those requests until computation. AOIs can be expressed as point buffers, bounding boxes, or GeoJSON, avoiding full-CONUS archive downloads. Default time chunks are bounded at 31 days so a small computation does not pull the complete record. Synthetic fallback is available only when explicitly enabled with `allow_synthetic=True`.
 
 !!! important "Temporal frequency and safety"
-    - Daily (`freq="D"`) is preferred for event-scale analyses; monthly end (`"ME"`) windows over a few days can yield zero timestamps.
+    - The real NcSS backend currently requires daily `freq="D"`. Aggregate the lazy daily cube downstream when monthly values are needed.
     - Keep `allow_synthetic=False` (default) for science use. When `True`, synthetic data are generated and flagged with provenance (`source`, `is_synthetic`, `backend_error`, `freq`, `requested_start`, `requested_end`).
 
 ### Important variables and dimensions

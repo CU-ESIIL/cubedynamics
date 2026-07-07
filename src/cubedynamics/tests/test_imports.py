@@ -11,6 +11,7 @@ def test_version_exposed():
 def test_streaming_helpers_are_callable():
     """All public streaming helpers should be importable."""
     public_funcs = [
+        cubedynamics.stream_global_climate_cube,
         cubedynamics.stream_gridmet_to_cube,
         cubedynamics.stream_prism_to_cube,
         cubedynamics.correlation_cube,
