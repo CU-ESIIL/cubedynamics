@@ -12,6 +12,7 @@ Key links:
 - [Pipe and verbs](../concepts/pipe_and_verbs.md)
 - [Cube viewer (v.plot)](../viz/cube_viewer.md)
 - [Event extraction and vases](../recipes/fire_event_vase_hull.md)
+- [Fire VASE / FireHull](fire-vase.md)
 
 ## Data sources you can pipe
 `pipe(...)` accepts inputs ranging from xarray objects to helper loaders and VirtualCubes. Use [What is a cube?](../concepts/cubes.md) and the dataset pages to choose the right starting point.
@@ -19,8 +20,8 @@ Key links:
 ## Core verbs at a glance
 Verbs progress from inspection to aggregation, then to statistics, events, and visualization. Examples include:
 - Structural helpers such as `apply`, `flatten_space`, and `to_netcdf`.
-- Statistical verbs like `mean`, `variance`, `anomaly`, and `zscore`.
-- Event-aware verbs including `extract`, `vase`, and fire-focused plots.
+- Statistical verbs like `mean`, `variance`, `anomaly`, `zscore`, `rolling_median_split_synchrony`, and the block comparison trio `block_signature` / `collect_blocks` / `compare_blocks`.
+- Event-aware verbs including `extract`, `vase`, `fire_plot`, and the prescribed-burn `fire_vase_panel`.
 - Visualization verbs such as `plot`, `map`, and `climate_hist` that return the original object so pipelines can continue.
 
 ## Putting it together

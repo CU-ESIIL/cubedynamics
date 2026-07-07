@@ -77,6 +77,32 @@ print("Cube:", getattr(cube, "da", None).shape if hasattr(cube, "da") else type(
     `fire_plot` requests daily gridMET/PRISM data for event windows. Explicitly pass
     `freq="D"` to emphasize daily sampling or a different frequency if needed.
 
+## Prescribed-burn panels
+
+Use `v.fire_vase_panel` when the analysis target is a group of prescribed burns
+rather than one event. It selects prescribed events from a FIRED event table,
+runs the same per-event VASE workflow used by `fire_plot`, and returns a Plotly
+subplot figure plus records, individual results, and failures.
+
+```python
+panel = (
+    pipe(gridmet_cube)
+    | v.fire_vase_panel(
+        fired_daily=fired_daily,
+        fired_events=fired_events,
+        prescribed_column="fire_type",
+        prescribed_values=("prescribed", "rx", "planned"),
+        max_events=12,
+        climate_variable="tmmx",
+    )
+).unwrap()
+
+panel["fig_panel"].show(renderer="iframe")
+```
+
+For full-list runs where each burn needs its own AOI/time climate pull, pass a
+`climate_loader(event)` callback or use `load_climate=True` so each event can be
+loaded independently.
 
 ## Current viewer status
 

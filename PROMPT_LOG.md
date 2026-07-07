@@ -382,3 +382,30 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - The local `.venv/` remains ignored by git. The repository now records the
   desired Python version and commands, not a committed interpreter or virtual
   environment.
+
+## 2026-07-07 — Website Verb and Test Documentation Refresh
+
+### User Goals
+- Update the website so the new verbs are discoverable.
+- Describe the focused tests added for climate synchrony, spatial blocks,
+  streaming pathways, and fire/VASE workflows.
+
+### Implementation Summary
+- Expanded the Verbs API with `v.rolling_median_split_synchrony`,
+  `v.block_signature`, `v.collect_blocks`, and `v.compare_blocks` examples and
+  semantics.
+- Added `v.fire_plot` and `v.fire_vase_panel` workflow guidance to the Fire
+  VASE / FireHull capability page and the fire event recipe.
+- Updated the capability and recipe overviews so the new synchrony, block, and
+  prescribed-burn panel workflows are findable from the website navigation.
+- Added a focused coverage table to the CI/testing page describing the tests
+  added for median-split synchrony, block grammar, PRISM/gridMET/global
+  streaming, real fire VASE smoke workflow, PNG day-band coloring, and the
+  fire VASE panel verb.
+
+### Validation
+- `git diff --check` passed for the updated docs and prompt log.
+- Targeted `rg` checks confirmed the new verb names and test references are
+  present in the updated website pages.
+- `python3 -m mkdocs build --strict` could not run in the current default
+  Python environment because `mkdocs` is not installed there.

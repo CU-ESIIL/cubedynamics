@@ -64,6 +64,59 @@ print(mesh["verts_km"].shape, mesh["tris"].shape)
 
 For a complete lightweight example that does not require live FIRED downloads, see [Synthetic fire/VASE recipe](../recipes/fire_vase_synthetic.md).
 
+## Pipe verbs
+
+### `v.fire_plot(...)`
+
+`fire_plot` remains the single-event fire VASE verb. It accepts either an
+already-open climate cube through the pipe or a climate-loading configuration
+and returns the event, hull, climate cube, summary table, and static/interactive
+figures.
+
+```python
+from cubedynamics import pipe, verbs as v
+
+result = (
+    pipe(gridmet_cube)
+    | v.fire_plot(
+        fired_event=event,
+        climate_variable="tmmx",
+        prefer_streaming=True,
+    )
+).unwrap()
+```
+
+### `v.fire_vase_panel(...)`
+
+`fire_vase_panel` is the multi-event verb for prescribed-burn panels. It keeps
+`fire_plot` intact for one event, then runs that same VASE construction across a
+set of prescribed events and assembles the results into `fig_panel`.
+
+Prescribed events can be supplied directly with `event_ids`, selected from a
+known column with `prescribed_column`/`prescribed_values`, or discovered from
+text-like FIRED attributes containing prescribed-burn labels.
+
+```python
+panel = (
+    pipe(gridmet_cube)
+    | v.fire_vase_panel(
+        fired_daily=fired_daily,
+        fired_events=fired_events,
+        prescribed_column="fire_type",
+        prescribed_values=("prescribed", "rx", "planned"),
+        max_events=12,
+    )
+).unwrap()
+
+panel["fig_panel"]
+panel["records"]
+panel["failures"]
+```
+
+For real runs where each burn needs its own climate pull, pass a
+`climate_loader(event)` callback or set `load_climate=True` with the same
+climate options used by `fire_plot`.
+
 ## Metrics available now
 
 Stable metric names currently include:

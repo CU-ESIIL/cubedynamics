@@ -11,6 +11,8 @@ Key links:
 - [Cube math primitives](cube_math_primitives.md)
 - [gridMET variance cube](gridmet_variance_cube.md)
 - [PRISM variance cube](prism_variance_cube.md)
+- [Fire event vase + climate merge](fire_event_vase_hull.md)
+- [Fire VASE / FireHull capability guide](../capabilities/fire-vase.md)
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zcube.md)
 - [Climate synchrony (center)](climate_tail_dep_center.md)
 - [Spatial synchrony blocks](spatial_synchrony_units.md)
@@ -21,6 +23,8 @@ Key links:
 - [gridMET variance cube](gridmet_variance_cube.md): streaming variability analysis over climate grids.
 - [PRISM variance cube](prism_variance_cube.md): terrain-aware climate variability using PRISM inputs.
 - [Cube math primitives](cube_math_primitives.md): building blocks and patterns.
+- [Fire event vase + climate merge](fire_event_vase_hull.md): single-event fire VASE workflow with climate attribution.
+- [Fire VASE / FireHull capability guide](../capabilities/fire-vase.md): object model, `v.fire_plot`, and the prescribed-burn `v.fire_vase_panel` workflow.
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zcube.md) and [correlation center](s2_corr_center.md): vegetation condition and synchrony.
 - [Climate synchrony (center)](climate_tail_dep_center.md): compare cold- and warm-condition synchrony through time.
 - [Spatial synchrony blocks](spatial_synchrony_units.md): build and compare groups of block-level synchrony signatures.

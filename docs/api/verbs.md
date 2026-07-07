@@ -29,6 +29,63 @@ the center pixel. A DataArray supplies both sets; Dataset inputs may select
 different variables with ``lower_var`` and ``upper_var``. Returns
 ``bottom_synchrony``, ``top_synchrony``, and ``bottom_minus_top`` variables.
 
+Use this for climate synchrony workflows where the lower half and upper half of
+the climate record should be treated separately. A common temperature pattern is
+to use daily minimum temperature for the below-median set and daily maximum
+temperature for the above-median set:
+
+```python
+sync = pipe(prism_temperature) | v.rolling_median_split_synchrony(
+    lower_var="tmin",
+    upper_var="tmax",
+    split_quantile=0.5,
+    window_days=90,
+    output_stride=30,
+)
+```
+
+The verb is designed for bounded streaming batches via ``output_times`` or
+``output_stride`` rather than building a single enormous global graph.
+
+## Block comparison verbs
+
+Blocks are named local cube footprints: AOIs, grid tiles, ecological regions,
+sample neighborhoods, or any other spatial unit that should become one
+comparable time signature.
+
+### ``block_signature(block_id, variables=None, reducer="median", ...)``
+Summarize a local cube into a named block time series. Spatial dimensions are
+reduced with the requested reducer while the time axis is preserved. The result
+has a length-one ``block`` dimension so many blocks can be concatenated safely.
+
+```python
+boulder = pipe(boulder_sync) | v.block_signature(
+    block_id="boulder",
+    reducer="median",
+)
+```
+
+### ``collect_blocks(*others, join="inner", ...)``
+Combine block signatures into one block collection. The collection keeps block
+identity as a coordinate and aligns time using xarray concat semantics.
+
+```python
+block_group = pipe(boulder) | v.collect_blocks(desert, plains)
+```
+
+### ``compare_blocks(method="pearson", ...)``
+Compare all unique pairs in a block collection. The result includes
+``pearson_r``, ``mean_difference``, ``rmse``, and ``n`` with ``left_block`` and
+``right_block`` coordinates for each pair.
+
+```python
+pairwise = pipe(block_group) | v.compare_blocks()
+```
+
+Compatibility names ``aoi_signature`` and ``compare_aoi_signature`` remain
+available for older notebooks, but new spatial workflows should prefer block
+language.
+
 ## Transform verbs
 
 ### ``anomaly(dim="time", keep_dim=True)``

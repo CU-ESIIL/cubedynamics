@@ -4,7 +4,26 @@ CubeDynamics tests are split into small, fast unit suites and opt-in integration
 
 ## Quick start (local)
 
-- Install development dependencies:
+- Install development dependencies with the repo Makefile:
+
+  ```bash
+  make install
+  ```
+
+- Run the default offline suite:
+
+  ```bash
+  make test
+  ```
+
+- Run focused fire/VASE and streaming guardrails:
+
+  ```bash
+  make test-fire
+  make test-streaming
+  ```
+
+- Or run the underlying commands directly:
   
   ```bash
   pip install -e ".[dev]"
@@ -83,6 +102,29 @@ If you see "`PytestUnknownMarkWarning`" locally, ensure you are running from the
 - **Integration is opt-in** – expensive or flaky external dependencies stay behind `integration`/`online` markers and the `RUN_INTEGRATION` gate.
 - **Streaming-first** – prefer lazy Dask/xarray flows; `streaming` tests assert we do not accidentally force eager computation.
 - **Contract tests** – spatial/CRS/time/provenance rules follow the [Spatial & CRS Dataset Contract](../design/spatial_dataset_contract.md). Reconstruction and QA guidance is outlined in [testing_recon](testing_recon.md) for deeper checks on derived cubes.
+
+## New focused coverage
+
+Recent climate synchrony, block-comparison, streaming, and fire/VASE work added
+focused tests instead of large default data jobs:
+
+| Area | Tests | What they protect |
+| --- | --- | --- |
+| Climate median-split synchrony | `tests/test_median_split_synchrony_verb.py` | `v.rolling_median_split_synchrony` output variables, quantile splitting, Dataset lower/upper variable behavior, pipe compatibility, and bounded output-time selection. |
+| Spatial block grammar | `tests/test_spatial_units.py` | `v.block_signature`, `v.collect_blocks`, and `v.compare_blocks` semantics, block coordinates, pairwise metrics, and AOI compatibility aliases. |
+| PRISM streaming | `tests/test_prism_ncss_streaming.py`, `tests/test_prism_online.py` | Daily NcSS request construction, catalog/alias handling, lazy AOI-cropped PRISM behavior, empty-time failures, and online smoke coverage. |
+| gridMET streaming | `tests/test_gridmet_streaming_contract.py`, `tests/test_gridmet_api.py` | Streaming-first gridMET loader contracts, AOI/date normalization, chunk/laziness expectations, and public loader signatures. |
+| Global climate adapter | `tests/test_global_climate_streaming.py` | Lazy xarray/Zarr-style global climate normalization to `(time, y, x)`, CRS-neutral bbox slicing, and strict failures for ambiguous dimensions or dateline cases. |
+| Fire VASE real-data workflow | `tests/test_real_fire_vase_gridmet_smoke.py` | Offline mocked real-workflow smoke test for FIRED + streamed gridMET, artifact-writing paths, and prescribed-fire detection when a usable field exists. |
+| Static fire VASE coloring | `tests/test_real_fire_vase_gridmet_smoke.py` | Regression coverage that static PNG day bands use one scalar per time layer instead of triangle-averaged tessellation colors. |
+| Fire VASE panel verb | `tests/test_fire_vase_panel.py` | `v.fire_vase_panel` prescribed-event selection, explicit event IDs, climate-loader use, per-event result collection, and failure reporting. |
+| Fire loader calls | `tests/test_fire_plot_loader_calls.py` | `v.fire_plot` PRISM/gridMET streaming calls, Kelvin labels for gridMET temperature, empty-time errors, and explicit synthetic fallback behavior. |
+| Streaming public contracts | `src/cubedynamics/tests/test_streaming_contracts.py`, `src/cubedynamics/tests/test_imports.py` | Public streaming helper imports, `chunks` keyword availability, and clear `NotImplementedError` behavior for stubs. |
+
+These tests are intentionally offline by default. Real PRISM/gridMET/FIRED
+artifact generation remains an example or manual/scheduled workflow because it
+depends on live services and can take long enough to make normal PR checks
+noisy.
 
 ## Common failure modes
 
