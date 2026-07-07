@@ -122,6 +122,7 @@ def test_real_fire_vase_gridmet_smoke_uses_streaming_and_writes_artifacts(tmp_pa
     assert manifest["gridmet_shape"] == {"time": 7, "lat": 2, "lon": 2}
     assert (tmp_path / "real_fire_vase_gridmet_interactive.html").read_text(encoding="utf-8").endswith("</html>")
     assert (tmp_path / "real_fire_vase_gridmet_static.png").read_bytes().startswith(b"\x89PNG")
+    assert (tmp_path / "real_fire_vase_gridmet_diagnostic.png").read_bytes().startswith(b"\x89PNG")
     assert (tmp_path / "manifest.json").exists()
     assert (tmp_path / "candidate_events.csv").exists()
 

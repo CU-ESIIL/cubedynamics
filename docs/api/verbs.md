@@ -177,6 +177,29 @@ panel = v.fire_vase_panel(
 Render a cube in the interactive HTML viewer. Returns the incoming cube while
 attaching the viewer as ``_cd_last_viewer`` so pipes can continue.
 
+### ``diagnostic_panel(output_path=None, kind="auto", ...)``
+Create a static Matplotlib diagnostic plate from a cube, ``CubePlot``, synchrony
+Dataset, or ``fire_plot`` result dictionary. The cube path lays out three flat
+cube perspectives like a building schematic, plus a time-series summary,
+variance map, and value distribution. Synchrony Datasets plot cold synchrony,
+hot synchrony, and their difference through time. Fire/VASE results plot the
+hull, footprint/time projections, climate traces such as ``tmmx``/``tmmn``/``vpd``
+when available, inside/outside samples, and hull metrics.
+
+```python
+viewer = pipe(cold_minus_hot) | v.plot(title="Cold minus hot synchrony")
+fig = v.diagnostic_panel(
+    viewer.unwrap(),
+    output_path="climate_synchrony_diagnostic.png",
+)
+
+fire_results = v.fire_plot(...)
+fig = v.diagnostic_panel(
+    fire_results,
+    output_path="fire_vase_diagnostic.png",
+)
+```
+
 ### ``plot_mean(dim="time", ...)``
 Display mean and variance cubes side by side using :class:`CubePlot`. Accepts
 ``dim`` (default ``time``) and forwards additional keywords to the renderer.

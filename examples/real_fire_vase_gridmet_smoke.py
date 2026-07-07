@@ -214,7 +214,62 @@ def _save_static_hull_png(results: dict[str, Any], output_path: Path) -> None:
     plt.close(fig)
 
 
-def run(output_dir: Path, *, min_days: int, max_days: int, variable: str) -> dict[str, Any]:
+def _diagnostic_gridmet_dataset(
+    *,
+    event,
+    start: str,
+    end: str,
+    primary_variable: str,
+    primary_cube,
+    variables: list[str] | None,
+):
+    if not variables:
+        return primary_cube
+
+    import xarray as xr
+
+    arrays = {}
+    for name in dict.fromkeys(variables):
+        if name == primary_variable:
+            cube = primary_cube
+        else:
+            cube = stream_gridmet_to_cube(
+                aoi_geojson=_event_geojson(event),
+                variable=name,
+                start=start,
+                end=end,
+                chunks={"time": 16},
+                show_progress=False,
+            )
+            cube = cube.assign_attrs({"epsg": 4326, "source": "gridmet_real_yearly_http_stream"})
+        arrays[name] = cube.rename(name)
+    return xr.Dataset(arrays)
+
+
+def _save_diagnostic_panel(results: dict[str, Any], output_path: Path) -> None:
+    from cubedynamics import verbs as v
+
+    fig = v.diagnostic_panel(
+        results,
+        output_path=output_path,
+        title=f"FIRED event {results['event'].event_id}: fire VASE diagnostic panel",
+    )
+    try:
+        import matplotlib.pyplot as plt
+
+        plt.close(fig)
+    except Exception:
+        pass
+
+
+def run(
+    output_dir: Path,
+    *,
+    min_days: int,
+    max_days: int,
+    variable: str,
+    diagnostic_variables: list[str] | None = None,
+) -> dict[str, Any]:
     _ensure_runtime_deps()
     output_dir.mkdir(parents=True, exist_ok=True)
     cache_dir = output_dir / "fired-cache"
@@ -261,11 +316,21 @@ def run(output_dir: Path, *, min_days: int, max_days: int, variable: str) -> dic
         show_hist=False,
         verbose=False,
     )
+    results["diagnostic_cube"] = _diagnostic_gridmet_dataset(
+        event=event,
+        start=start,
+        end=end,
+        primary_variable=variable,
+        primary_cube=gridmet,
+        variables=diagnostic_variables,
+    )
 
     interactive_path = output_dir / "real_fire_vase_gridmet_interactive.html"
     static_path = output_dir / "real_fire_vase_gridmet_static.png"
+    diagnostic_path = output_dir / "real_fire_vase_gridmet_diagnostic.png"
     results["fig_hull"].write_html(str(interactive_path), include_plotlyjs="cdn")
     _save_static_hull_png(results, static_path)
+    _save_diagnostic_panel(results, diagnostic_path)
 
     manifest = {
         "event_id": str(event.event_id),
@@ -286,6 +351,8 @@ def run(output_dir: Path, *, min_days: int, max_days: int, variable: str) -> dic
         "color_limits": [float(v) for v in results["color_limits"]],
         "interactive_html": str(interactive_path),
         "static_png": str(static_path),
+        "diagnostic_png": str(diagnostic_path),
+        "diagnostic_variables": list(diagnostic_variables or [variable]),
     }
     (output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
     summary.head(25).to_csv(output_dir / "candidate_events.csv", index=False)
@@ -298,8 +365,15 @@ def main() -> None:
     parser.add_argument("--min-days", type=int, default=3)
     parser.add_argument("--max-days", type=int, default=14)
     parser.add_argument("--variable", default="tmmx")
+    parser.add_argument("--diagnostic-variables", nargs="*", default=None)
     args = parser.parse_args()
-    manifest = run(args.output_dir, min_days=args.min_days, max_days=args.max_days, variable=args.variable)
+    manifest = run(
+        args.output_dir,
+        min_days=args.min_days,
+        max_days=args.max_days,
+        variable=args.variable,
+        diagnostic_variables=args.diagnostic_variables,
+    )
     print(json.dumps(manifest, indent=2))
 
 

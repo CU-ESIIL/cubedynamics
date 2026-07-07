@@ -64,6 +64,45 @@ print(mesh["verts_km"].shape, mesh["tris"].shape)
 
 For a complete lightweight example that does not require live FIRED downloads, see [Synthetic fire/VASE recipe](../recipes/fire_vase_synthetic.md).
 
+## Interactive example
+
+This embedded Plotly VASE uses a real FIRED event paired with streamed gridMET
+maximum temperature. Rotate the hull to inspect how the event footprint changes
+through time and how daily temperature bands are painted across the surface.
+
+<div class="interactive-embed">
+  <iframe
+    src="/cubedynamics/assets/figures/fire_vase_gridmet_interactive.html"
+    title="Interactive fire VASE with gridMET temperature"
+    loading="lazy"
+  ></iframe>
+  <p class="interactive-embed__fallback">
+    If the interactive VASE doesn’t load,
+    <a href="/cubedynamics/assets/figures/fire_vase_gridmet_interactive.html" target="_blank" rel="noopener">open it in a new tab</a>.
+  </p>
+</div>
+
+Recreate the embedded output locally:
+
+```bash
+python examples/real_fire_vase_gridmet_smoke.py \
+  --output-dir artifacts/fire-vase-gridmet-real \
+  --variable tmmx \
+  --diagnostic-variables tmmx tmmn vpd
+
+cp artifacts/fire-vase-gridmet-real/real_fire_vase_gridmet_interactive.html \
+  docs/assets/figures/fire_vase_gridmet_interactive.html
+
+cp artifacts/fire-vase-gridmet-real/real_fire_vase_gridmet_diagnostic.png \
+  docs/assets/figures/fire_vase_gridmet_diagnostic.png
+```
+
+The first command downloads/caches FIRED event layers under the artifact
+directory and streams the gridMET climate cube for the selected event window.
+It also writes `real_fire_vase_gridmet_diagnostic.png`, a static panel with
+VASE projections, climate traces, inside/outside samples, and hull metrics.
+The second command is only needed when refreshing the website copy.
+
 ## Pipe verbs
 
 ### `v.fire_plot(...)`

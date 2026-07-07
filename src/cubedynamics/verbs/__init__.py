@@ -16,7 +16,7 @@ This module is part of the CubeDynamics "grammar-of-cubes":
 
 Canonical API:
 - Statistical verbs: :func:`mean`, :func:`variance`, :func:`anomaly`, :func:`zscore`
-- Plotting verbs: :func:`plot`, :func:`plot_mean`, :func:`show_cube_lexcube`
+- Plotting verbs: :func:`plot`, :func:`plot_mean`, :func:`diagnostic_panel`, :func:`show_cube_lexcube`
 - Fire/vase verbs: :func:`extract`, :func:`vase`, :func:`fire_plot`, :func:`fire_panel`, :func:`fire_vase_panel`
 """
 
@@ -46,6 +46,7 @@ from ..piping import Verb
 from ..streaming import VirtualCube
 from ..vase import VaseDefinition
 from .custom import apply
+from .diagnostics import diagnostic_panel
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
 from .plot import plot
@@ -754,6 +755,7 @@ __all__ = [
     "rolling_tail_dep_vs_center",
     "variance",
     "correlation_cube",
+    "diagnostic_panel",
     "to_netcdf",
     "zscore",
     "ndvi_from_s2",

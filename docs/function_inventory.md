@@ -78,6 +78,7 @@ Grouped by theme; all verbs are pipe-friendly (`pipe(cube) | v.<verb>(...)`). Se
 ### Plotting verbs
 
 - **cubedynamics.verbs.plot** — Interactive cube viewer; attaches the viewer while returning the cube for continued piping.
+- **cubedynamics.verbs.diagnostic_panel** — Static PNG-ready diagnostic plate for cubes, synchrony Datasets, CubePlot objects, and fire/VASE result dictionaries.
 - **cubedynamics.verbs.plot_mean** — Show mean/variance cubes side by side.
 - **cubedynamics.verbs.show_cube_lexcube** — Render a Lexcube widget as a side effect and return the original cube.
 

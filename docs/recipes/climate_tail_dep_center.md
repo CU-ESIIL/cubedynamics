@@ -57,6 +57,44 @@ ax = plot_tail_dependence_over_time(
 )
 ```
 
+## Interactive synchrony cube
+
+The interactive cube below shows the same idea as a compact demonstration:
+positive values mean below-median/cold synchrony is stronger, while negative
+values mean above-median/warm synchrony is stronger.
+
+<div class="interactive-embed">
+  <iframe
+    src="/cubedynamics/assets/figures/climate_median_split_synchrony_cube.html"
+    title="Interactive climate median-split synchrony cube"
+    loading="lazy"
+  ></iframe>
+  <p class="interactive-embed__fallback">
+    If the interactive synchrony cube doesn’t load,
+    <a href="/cubedynamics/assets/figures/climate_median_split_synchrony_cube.html" target="_blank" rel="noopener">open it in a new tab</a>.
+  </p>
+</div>
+
+Recreate the embedded output locally:
+
+```bash
+python examples/median_split_synchrony_demo.py \
+  --output-dir artifacts/median-split-demo
+
+cp artifacts/median-split-demo/median_split_synchrony_cube.html \
+  docs/assets/figures/climate_median_split_synchrony_cube.html
+
+cp artifacts/median-split-demo/median_split_synchrony_diagnostic.png \
+  docs/assets/figures/climate_median_split_synchrony_diagnostic.png
+```
+
+This demo uses deterministic synthetic PRISM-like `tmin` and `tmax` cubes, so it
+is fast and offline. It also writes
+`median_split_synchrony_diagnostic.png`, a static diagnostic panel with flat
+cube faces, cold/hot/difference synchrony traces, a variance map, and a value
+distribution. The longer PRISM command below recreates the real-data version of
+the workflow.
+
 With `b=0.5`, each rolling comparison uses separate medians for the grid cell
 and center cell. The cold set contains dates when both daily minimum
 temperatures are at or below their medians. The hot set contains dates when

@@ -438,3 +438,29 @@ secrets, credentials, private tokens, or unrelated transcript text.
   it uses runtime `float | int` annotations. The Lexcube widget smoke test now
   skips when the optional dependency raises during import, while wrapper
   validation/preparation tests still run.
+
+## 2026-07-07 — Website Interactive Plot Embeds
+
+### User Goals
+- Add interactive plots to the website docs for the fire VASE page and the
+  climate synchrony page.
+
+### Implementation Summary
+- Copied the real fire VASE Plotly HTML artifact into
+  `docs/assets/figures/fire_vase_gridmet_interactive.html`.
+- Copied the compact median-split climate synchrony cube HTML into
+  `docs/assets/figures/climate_median_split_synchrony_cube.html`.
+- Embedded both assets with the existing `interactive-embed` iframe pattern and
+  new-tab fallback links.
+
+### Validation
+- `git diff --check` passed for the updated docs and prompt log.
+- Confirmed both embedded HTML assets exist under `docs/assets/figures/`.
+- Asset sizes are small enough for the docs site:
+  `fire_vase_gridmet_interactive.html` is 55 KB and
+  `climate_median_split_synchrony_cube.html` is 40 KB.
+
+### Follow-up
+- Added copy-paste reproduction command blocks to both pages. The fire VASE page
+  points to `examples/real_fire_vase_gridmet_smoke.py`; the climate synchrony
+  page points to the offline `examples/median_split_synchrony_demo.py`.

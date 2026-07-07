@@ -23,6 +23,28 @@ For QA plots outside Lexcube, call the functional helper `cubedynamics.plot_medi
 
 ---
 
+### `v.diagnostic_panel(output_path=None, kind="auto", ...)`
+
+Create a static PNG-ready diagnostic plate for cubes, `CubePlot` objects,
+synchrony Datasets, or `v.fire_plot` result dictionaries.
+
+```python
+from cubedynamics import pipe, verbs as v
+
+viewer = (pipe(cube) | v.plot(title="Interactive cube")).unwrap()
+fig = v.diagnostic_panel(
+    viewer,
+    output_path="cube_diagnostic.png",
+)
+```
+
+For synchrony Datasets the panel includes the three flat cube faces, cold/hot
+synchrony traces, the difference trace, a variance map, and a distribution. For
+fire/VASE dictionaries it shows hull projections, available climate variables
+through time, inside/outside samples, and hull metrics.
+
+---
+
 ## Update (2025): New `v.plot` cube viewer
 
 ### `verbs.plot(obj, kind="auto", **kwargs)`

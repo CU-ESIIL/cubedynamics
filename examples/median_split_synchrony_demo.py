@@ -58,6 +58,7 @@ def render_plots(synchrony: xr.Dataset, output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     flat_path = output_dir / "median_split_synchrony_timeseries.png"
     cube_path = output_dir / "median_split_synchrony_cube.html"
+    diagnostic_path = output_dir / "median_split_synchrony_diagnostic.png"
 
     fig, ax = plt.subplots(figsize=(10, 4))
     plot_tail_dependence_over_time(
@@ -84,8 +85,16 @@ def render_plots(synchrony: xr.Dataset, output_dir: Path) -> None:
         )
     ).unwrap()
     cube.save(str(cube_path))
+    diagnostic = v.diagnostic_panel(
+        synchrony,
+        title="Median split climate synchrony diagnostic",
+        output_path=diagnostic_path,
+        cmap="RdBu_r",
+    )
+    plt.close(diagnostic)
     print("flat plot:", flat_path)
     print("cube viewer:", cube_path)
+    print("diagnostic panel:", diagnostic_path)
 
 
 def main(output_dir: Path | None = None) -> None:
