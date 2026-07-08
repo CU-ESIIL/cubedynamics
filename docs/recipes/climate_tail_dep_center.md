@@ -95,6 +95,80 @@ cube faces, cold/hot/difference synchrony traces, a variance map, and a value
 distribution. The longer PRISM command below recreates the real-data version of
 the workflow.
 
+## Interactive panel of synchrony cubes
+
+When you want to compare more than one synchrony cube, stack the cubes on a
+named dimension such as `block`, `scenario`, or `region`, then facet the cube
+viewer. The panel below shows three synthetic climate blocks rendered with a
+shared cold-minus-hot color scale.
+
+<div class="interactive-embed">
+  <iframe
+    src="/cubedynamics/assets/figures/climate_synchrony_cube_panel.html"
+    title="Interactive panel of climate synchrony cubes"
+    loading="lazy"
+  ></iframe>
+  <p class="interactive-embed__fallback">
+    If the synchrony cube panel doesn’t load,
+    <a href="/cubedynamics/assets/figures/climate_synchrony_cube_panel.html" target="_blank" rel="noopener">open it in a new tab</a>.
+  </p>
+</div>
+
+Recreate the embedded panel locally:
+
+```bash
+python examples/climate_synchrony_cube_panel_demo.py \
+  --output docs/assets/figures/climate_synchrony_cube_panel.html
+```
+
+The core pattern is:
+
+```python
+import xarray as xr
+from cubedynamics import pipe, verbs as v
+from cubedynamics.plotting.cube_plot import CubePlot, ScaleFillContinuous
+
+cubes = []
+for block_name, temperature in temperature_cubes.items():
+    sync = (
+        pipe(temperature)
+        | v.rolling_median_split_synchrony(
+            lower_var="tmin",
+            upper_var="tmax",
+            window_days=90,
+            min_t=10,
+            split_quantile=0.5,
+            output_stride=30,
+        )
+    ).unwrap()
+    cubes.append(sync["bottom_minus_top"].clip(-2, 2))
+
+panel_cube = xr.concat(
+    cubes,
+    dim=xr.IndexVariable("block", list(temperature_cubes)),
+)
+
+plot = CubePlot(
+    panel_cube,
+    time_dim="time_window_end",
+    thin_time_factor=1,
+    fill_scale=ScaleFillContinuous(
+        cmap="RdBu_r",
+        palette="diverging",
+        limits=(-2, 2),
+        center=0,
+        name="cold - hot synchrony",
+    ),
+).facet_wrap("block", ncol=3)
+
+plot.save("climate_synchrony_cube_panel.html")
+```
+
+This same structure works for true AOI/block comparisons: build one synchrony
+cube per AOI, concatenate the results along a named comparison dimension, and
+facet on that dimension. The viewer infers shared color limits from the stacked
+cube unless you set `limits`.
+
 With `b=0.5`, each rolling comparison uses separate medians for the grid cell
 and center cell. The cold set contains dates when both daily minimum
 temperatures are at or below their medians. The hot set contains dates when

@@ -103,6 +103,58 @@ It also writes `real_fire_vase_gridmet_diagnostic.png`, a static panel with
 VASE projections, climate traces, inside/outside samples, and hull metrics.
 The second command is only needed when refreshing the website copy.
 
+## Prescribed-burn VASE panel example
+
+The multi-event VASE panel uses the same single-event fire VASE workflow, then
+lays the successful prescribed burns into a shared Plotly scene grid. This
+sample is synthetic so the website can be rebuilt without downloading FIRED or
+gridMET data, but it exercises the public `v.fire_vase_panel(...)` verb.
+
+<div class="interactive-embed">
+  <iframe
+    src="/cubedynamics/assets/figures/fire_vase_panel_sample.html"
+    title="Prescribed-burn VASE panel sample"
+    loading="lazy"
+  ></iframe>
+  <p class="interactive-embed__fallback">
+    If the VASE panel doesn’t load,
+    <a href="/cubedynamics/assets/figures/fire_vase_panel_sample.html" target="_blank" rel="noopener">open it in a new tab</a>.
+  </p>
+</div>
+
+Recreate the embedded panel locally:
+
+```bash
+python examples/fire_vase_panel_demo.py \
+  --output docs/assets/figures/fire_vase_panel_sample.html
+```
+
+The example script builds synthetic prescribed-burn perimeters and a synthetic
+temperature cube, then runs:
+
+```python
+from cubedynamics import pipe, verbs as v
+
+panel = (
+    pipe(climate_cube)
+    | v.fire_vase_panel(
+        fired_daily=fired_daily,
+        fired_events=fired_events,
+        prescribed_column="fire_type",
+        prescribed_values=("prescribed burn",),
+        climate_variable="tmmx",
+        max_events=4,
+        columns=2,
+        n_ring_samples=32,
+        n_theta=32,
+    )
+).unwrap()
+
+panel["fig_panel"].write_html("fire_vase_panel_sample.html")
+panel["records"]
+panel["failures"]
+```
+
 ## Pipe verbs
 
 ### `v.fire_plot(...)`

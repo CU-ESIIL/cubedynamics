@@ -28,6 +28,7 @@ test-streaming: install
 
 test-fire: install
 	$(PY) -m pytest tests/test_fire_vase_panel.py \
+		tests/test_diagnostic_panel.py \
 		tests/test_real_fire_vase_gridmet_smoke.py \
 		tests/test_fire_hull_api.py \
 		tests/test_fire_plot_loader_calls.py \

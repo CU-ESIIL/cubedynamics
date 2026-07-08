@@ -118,6 +118,8 @@ focused tests instead of large default data jobs:
 | Fire VASE real-data workflow | `tests/test_real_fire_vase_gridmet_smoke.py` | Offline mocked real-workflow smoke test for FIRED + streamed gridMET, artifact-writing paths, and prescribed-fire detection when a usable field exists. |
 | Static fire VASE coloring | `tests/test_real_fire_vase_gridmet_smoke.py` | Regression coverage that static PNG day bands use one scalar per time layer instead of triangle-averaged tessellation colors. |
 | Fire VASE panel verb | `tests/test_fire_vase_panel.py` | `v.fire_vase_panel` prescribed-event selection, explicit event IDs, climate-loader use, per-event result collection, and failure reporting. |
+| Diagnostic PNG panels | `tests/test_diagnostic_panel.py` | `v.diagnostic_panel` PNG output for cubes, `CubePlot` objects, synchrony Datasets, and fire/VASE result dictionaries. |
+| Website panel examples | `tests/test_docs_example_panels.py` | Offline smoke coverage that the climate synchrony cube-panel and prescribed-burn VASE panel examples write HTML, and that the website pages link to their rebuild commands/assets. |
 | Fire loader calls | `tests/test_fire_plot_loader_calls.py` | `v.fire_plot` PRISM/gridMET streaming calls, Kelvin labels for gridMET temperature, empty-time errors, and explicit synthetic fallback behavior. |
 | Streaming public contracts | `src/cubedynamics/tests/test_streaming_contracts.py`, `src/cubedynamics/tests/test_imports.py` | Public streaming helper imports, `chunks` keyword availability, and clear `NotImplementedError` behavior for stubs. |
 

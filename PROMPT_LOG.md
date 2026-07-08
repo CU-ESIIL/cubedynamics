@@ -4,6 +4,83 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-07-07 — Website Panel Example Smoke Tests
+
+### User Goal
+- Decide whether the new VASE-panel and climate synchrony cube-panel website
+  examples need tests.
+
+### Implementation Summary
+- Added `tests/test_docs_example_panels.py`.
+- The tests run both offline docs examples into temporary output paths and
+  verify the generated HTML contains expected panel labels/content.
+- The tests also verify the VASE and climate synchrony website pages reference
+  the embedded assets, rebuild scripts, and public API patterns.
+- Updated `docs/dev/ci_testing.md` to list the new website panel example
+  coverage.
+
+### Validation
+- `python3 -m py_compile tests/test_docs_example_panels.py` passed.
+- `git diff --check` passed.
+- Focused test passed:
+  `uv run --python 3.11 --with-editable . --with pytest pytest tests/test_docs_example_panels.py -q`
+  (`4 passed`).
+
+## 2026-07-07 — Climate Synchrony Cube Panel Website Sample
+
+### User Goal
+- Add a climate synchrony website section showing how to compare multiple
+  synchrony cubes in a panel of interactive cubes.
+
+### Implementation Summary
+- Added `examples/climate_synchrony_cube_panel_demo.py`, an offline synthetic
+  multi-block example that computes one median-split synchrony cube per block,
+  concatenates them along `block`, and renders a faceted `CubePlot`.
+- Generated `docs/assets/figures/climate_synchrony_cube_panel.html` for the
+  embedded website sample output.
+- Updated `docs/recipes/climate_tail_dep_center.md` with a dedicated
+  interactive panel section, iframe embed, rebuild command, and copy-pasteable
+  code showing the `xr.concat(..., dim="block")` plus `.facet_wrap("block")`
+  pattern.
+
+### Validation
+- Regenerated the HTML sample with:
+  `uv run --python 3.11 --with-editable . python examples/climate_synchrony_cube_panel_demo.py --output docs/assets/figures/climate_synchrony_cube_panel.html`.
+- `python3 -m py_compile examples/climate_synchrony_cube_panel_demo.py` passed.
+- `git diff --check` passed.
+- Focused facet tests passed:
+  `uv run --python 3.11 --with-editable . --with pytest pytest tests/test_plotting_facets_export.py tests/test_plotting_grammar.py::test_facets_render_multiple_panels -q`
+  (`5 passed`).
+- Strict docs build passed with:
+  `uv run --python 3.11 --extra docs mkdocs build --strict --site-dir /tmp/cubedynamics-mkdocs-check`.
+
+## 2026-07-07 — Website VASE Panel Sample
+
+### User Goal
+- Add a separate website section for panels of VASEs showing sample output and
+  a copy-pasteable code chunk for users to recreate it.
+
+### Implementation Summary
+- Added `examples/fire_vase_panel_demo.py`, an offline synthetic prescribed-burn
+  example that builds a small climate cube and runs the public
+  `v.fire_vase_panel(...)` verb.
+- Generated `docs/assets/figures/fire_vase_panel_sample.html` as the embedded
+  website sample output.
+- Updated `docs/capabilities/fire-vase.md` with a dedicated prescribed-burn
+  VASE panel section, iframe embed, rebuild command, and the underlying
+  `v.fire_vase_panel(...)` code pattern.
+
+### Validation
+- Regenerated the HTML sample with:
+  `uv run --python 3.11 --with-editable . python examples/fire_vase_panel_demo.py --output docs/assets/figures/fire_vase_panel_sample.html`.
+- `python3 -m py_compile examples/fire_vase_panel_demo.py` passed.
+- `git diff --check` passed.
+- Focused test passed:
+  `uv run --python 3.11 --with-editable . --with pytest pytest tests/test_fire_vase_panel.py -q`
+  (`3 passed`).
+- Strict docs build passed with:
+  `uv run --python 3.11 --extra docs mkdocs build --strict --site-dir /tmp/cubedynamics-mkdocs-check`.
+
 ## 2026-07-06 — Climate Synchrony, PRISM Streaming, Median Split
 
 ### User Goals
@@ -464,3 +541,37 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Added copy-paste reproduction command blocks to both pages. The fire VASE page
   points to `examples/real_fire_vase_gridmet_smoke.py`; the climate synchrony
   page points to the offline `examples/median_split_synchrony_demo.py`.
+
+## 2026-07-07 — Diagnostic PNG Panel Verb
+
+### User Goals
+- Add PNG versions of the interactive fire VASE and climate synchrony outputs.
+- Make the static output a rich panel: flat cube/schematic perspectives plus
+  data plots and summary diagnostics.
+- Prefer a single verb if it can reasonably handle different inputs.
+
+### Implementation Summary
+- Added `v.diagnostic_panel(...)`, a Matplotlib-based verb that accepts
+  `CubePlot`, `DataArray`, synchrony `Dataset`, or `v.fire_plot` result
+  dictionaries.
+- Cube panels show three flat cube perspectives, a time-series summary,
+  variance map, and value distribution.
+- Synchrony Dataset panels plot cold synchrony, hot synchrony, and cold-minus-hot
+  traces through time while using the difference cube for the flat faces and
+  variance map.
+- Fire/VASE panels show the 3D hull, footprint/time projections, available
+  climate traces such as `tmmx`, `tmmn`, and `vpd`, inside/outside samples, and
+  hull metrics.
+- Updated the median-split synchrony and real fire/gridMET examples to write
+  diagnostic PNG outputs alongside the interactive HTML outputs.
+
+### Validation
+- `python3 -m py_compile` passed for the new verb, tests, examples, and verb
+  namespace.
+- `git diff --check` passed for touched files.
+- Focused uv tests passed:
+  `uv run --python 3.11 --with-editable . --with pytest pytest tests/test_diagnostic_panel.py -q`
+  (`4 passed`).
+- Fire smoke regression passed:
+  `uv run --python 3.11 --with-editable . --with pytest pytest tests/test_real_fire_vase_gridmet_smoke.py -q`
+  (`2 passed`).
