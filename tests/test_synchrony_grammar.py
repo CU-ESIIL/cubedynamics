@@ -150,3 +150,24 @@ def test_biological_cube_and_same_pixel_coupling() -> None:
     assert "best_lag" in coupling
     assert coupling.sizes["lag"] == 2
     assert bio.attrs["missing_value_semantics"].startswith("NaN means unobserved")
+
+
+def test_sync_with_positive_lag_means_right_cube_responds_later() -> None:
+    cube = _cube()
+    climate = (pipe(cube > 35) | v.binary_state()).unwrap()
+    response_mask = climate["state"].shift(time=1, fill_value=False)
+    response = (pipe(response_mask) | v.binary_state()).unwrap()
+
+    coupling = (
+        pipe(climate)
+        | v.sync_with(
+            response,
+            synchrony="occurrence",
+            spatial_relation="same_pixel",
+            lags=["0D", "1D"],
+        )
+    ).unwrap()
+
+    assert coupling["coupling_score"].sel(lag="1D").mean() > coupling[
+        "coupling_score"
+    ].sel(lag="0D").mean()

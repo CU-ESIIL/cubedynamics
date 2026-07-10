@@ -58,3 +58,50 @@
   font-size: 0.85em;
   opacity: 0.85;
 }
+
+/* Synchrony section helpers */
+.sync-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.9rem;
+  margin: 1rem 0 1.5rem 0;
+}
+
+.sync-card {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 8px;
+  padding: 0.9rem;
+  background: var(--md-default-bg-color);
+}
+
+.sync-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.35rem;
+}
+
+.sync-card p {
+  margin-bottom: 0.45rem;
+}
+
+.sync-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.8rem 0 1.2rem 0;
+}
+
+.sync-pill {
+  border: 1px solid rgba(11, 79, 108, 0.25);
+  border-radius: 999px;
+  padding: 0.2rem 0.65rem;
+  color: var(--cube-accent);
+  background: rgba(11, 79, 108, 0.06);
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.figure-note {
+  font-size: 0.9em;
+  color: var(--md-default-fg-color--light);
+  margin-top: -0.5rem;
+}

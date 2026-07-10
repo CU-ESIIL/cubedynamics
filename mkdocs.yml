@@ -31,6 +31,15 @@ nav:
       - Vegetation Analysis: workflows/vegetation_analysis.md
       - Remote Sensing Analysis: workflows/remote_sensing_analysis.md
       - Fire VASE / FireHull: capabilities/fire-vase.md
+  - Synchrony:
+      - Overview: synchrony/index.md
+      - Theory Map: synchrony/theory.md
+      - State Cubes and Events: synchrony/state_events.md
+      - Four Primitives: synchrony/primitives.md
+      - Biology Coupling: synchrony/biology_coupling.md
+      - Center-Pixel Recipe: synchrony/center_recipe.md
+      - Roadmap and Validation: synchrony/roadmap.md
+      - Verb Reference: reference/verbs_synchrony.md
   - Datasets:
       - Overview: datasets/index.md
       - Which dataset should I use?: datasets/which_dataset.md
@@ -51,9 +60,6 @@ nav:
       - Sentinel-2 correlation center: recipes/s2_corr_center.md
       - Climate synchrony (center): recipes/climate_tail_dep_center.md
       - Spatial synchrony blocks: recipes/spatial_synchrony_units.md
-      - Build state cubes: howto/build_state_cubes.md
-      - Four types of synchrony: howto/four_types_of_synchrony.md
-      - Biological cubes and coupling: howto/biological_cubes_and_coupling.md
       - Sentinel-2 tail dependence (manual): recipes/s2_tail_dep_manual.md
   - Visualization:
       - Overview: viz/index.md

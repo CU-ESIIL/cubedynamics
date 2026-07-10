@@ -669,3 +669,54 @@ secrets, credentials, private tokens, or unrelated transcript text.
   and `lagged_response`. These were documented as deferred design space rather
   than exposed as stubs, to avoid creating public APIs before their statistical
   contracts are settled.
+
+## 2026-07-10 — Dedicated Synchrony Website Section
+
+### User Goals
+- Reorganize the website so synchrony has a dedicated, user-friendly section
+  with clean navigation, interactive cubes whenever possible, visible plots, and
+  enough theory to keep the complex scientific framing coherent.
+
+### Implementation Summary
+- Added a top-level `Synchrony` section to `mkdocs.yml` with pages for overview,
+  theory, state/event construction, four primitive operators, biology coupling,
+  the center-pixel compatibility recipe, roadmap/validation, and verb reference.
+- Added section pages under `docs/synchrony/` and a homepage card linking to the
+  new section.
+- Generated website assets with `examples/synchrony_section_assets.py`:
+  interactive occurrence and severity cubes, a timing/duration cube panel,
+  rolling metric comparison plot, matched-event diagnostic plot, and
+  climate-biology lag curve.
+- Added synchrony-specific docs styling for navigation cards, pills, and figure
+  notes.
+- Fixed `sync_with` lag semantics so positive lags mean the right-hand cube
+  responds after the left-hand climate cube, then added a regression test.
+
+### Files Changed or Created
+- New docs pages under `docs/synchrony/`.
+- New asset generator: `examples/synchrony_section_assets.py`.
+- New generated docs assets under `docs/assets/figures/synchrony_*`.
+- Updated `mkdocs.yml`, `docs/index.md`, `docs/recipes/index.md`, and
+  `docs/stylesheets/extra.css`.
+- Updated `src/cubedynamics/synchrony/coupling.py` and
+  `tests/test_synchrony_grammar.py` for corrected positive-lag coupling
+  semantics.
+
+### Validation
+- `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/python examples/synchrony_section_assets.py --output-dir docs/assets/figures` passed.
+- Visually inspected generated PNGs for metric comparison, event diagnostics,
+  and coupling lag curve.
+- `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/python -m pytest tests/test_synchrony_grammar.py -q`
+  passed (`6 passed`, one upstream `planetary_computer` pydantic deprecation
+  warning).
+- `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/mkdocs build --strict`
+  passed; warnings were limited to the Material for MkDocs notice, pre-existing
+  non-nav page notices, and new-file revision-date notices.
+
+### Known Caveats / Follow-ups
+- The generated interactive cubes are synthetic offline examples. Real PRISM,
+  gridMET, FIRED, or biological observation examples should be added as
+  benchmark artifacts once the analysis contracts are stable.
+- The timing/duration panel currently shows event-level outputs for one
+  detected event result, while occurrence/severity examples show rolling-window
+  cubes.

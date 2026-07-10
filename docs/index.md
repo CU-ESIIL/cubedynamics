@@ -132,6 +132,10 @@ That difference matters when you want to:
     <div class="ccm-card-title">Workflows</div>
     <div class="ccm-card-text">See climate, fire, vegetation, and remote sensing analyses built on the same grammar.</div>
   </a>
+  <a class="ccm-card" href="synchrony/">
+    <div class="ccm-card-title">Synchrony</div>
+    <div class="ccm-card-text">Explore state cubes, event catalogs, four synchrony primitives, and climate-biology coupling.</div>
+  </a>
   <a class="ccm-card" href="datasets/">
     <div class="ccm-card-title">Datasets</div>
     <div class="ccm-card-text">Review supported sources after the computation model is clear.</div>

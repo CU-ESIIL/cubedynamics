@@ -34,7 +34,7 @@ def sync_with(
     lag_labels = []
     for lag in lags:
         periods = _lag_to_periods(lag, right_state[time_dim])
-        shifted = right_state.shift({time_dim: periods})
+        shifted = right_state.shift({time_dim: -periods})
         score, joint, _, valid = xr.apply_ufunc(
             occurrence_score,
             left_state,
