@@ -50,6 +50,18 @@ def test_public_symbols_available():
     assert hasattr(cd.verbs, "collect_blocks")
     assert hasattr(cd.verbs, "compare_blocks")
     assert hasattr(cd.verbs, "compare_aoi_signature")
+    assert hasattr(cd.verbs, "threshold_state")
+    assert hasattr(cd.verbs, "quantile_state")
+    assert hasattr(cd.verbs, "binary_state")
+    assert hasattr(cd.verbs, "detect_events")
+    assert hasattr(cd.verbs, "occurrence_synchrony")
+    assert hasattr(cd.verbs, "severity_synchrony")
+    assert hasattr(cd.verbs, "timing_synchrony")
+    assert hasattr(cd.verbs, "duration_synchrony")
+    assert hasattr(cd.verbs, "rasterize_observations")
+    assert hasattr(cd.verbs, "align_cube")
+    assert hasattr(cd.verbs, "change_state")
+    assert hasattr(cd.verbs, "sync_with")
 
 
 def test_pipe_and_verbs_smoke():

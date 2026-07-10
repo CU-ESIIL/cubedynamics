@@ -21,6 +21,7 @@ nav:
       - Lazy Evaluation: grammar/lazy_evaluation.md
       - Workflow Composition: grammar/workflow_composition.md
       - What is a cube?: concepts/cubes.md
+      - Synchrony Grammar: concepts/synchrony_grammar.md
       - Glossary: concepts/glossary.md
       - Why not xarray?: why_not_xarray.md
   - Workflows:
@@ -50,6 +51,9 @@ nav:
       - Sentinel-2 correlation center: recipes/s2_corr_center.md
       - Climate synchrony (center): recipes/climate_tail_dep_center.md
       - Spatial synchrony blocks: recipes/spatial_synchrony_units.md
+      - Build state cubes: howto/build_state_cubes.md
+      - Four types of synchrony: howto/four_types_of_synchrony.md
+      - Biological cubes and coupling: howto/biological_cubes_and_coupling.md
       - Sentinel-2 tail dependence (manual): recipes/s2_tail_dep_manual.md
   - Visualization:
       - Overview: viz/index.md
@@ -76,6 +80,7 @@ nav:
       - Viewer backend: dev/viewer_backend.md
       - Legacy reference: dev/legacy_reference.md
       - Public API & scope: project/public_api.md
+      - Synchrony Roadmap: project/synchrony_roadmap.md
       - Project Scope: project/scope.md
       - Deprecation inventory: project/deprecation_inventory.md
   - Design:

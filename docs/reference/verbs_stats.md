@@ -49,13 +49,15 @@ import xarray as xr
 corr = xr.corr(ndvi_z, climate_anom, dim="time")
 ```
 
-The Pearson helper `cubedynamics.rolling_corr_vs_center` remains outside the verbs namespace. Median-split synchrony is available as `v.rolling_median_split_synchrony`.
+The Pearson helper `cubedynamics.rolling_corr_vs_center` remains outside the verbs namespace. Median-split synchrony is available as `v.rolling_median_split_synchrony`. For the general synchrony grammar, use the state/event verbs and the four synchrony primitives documented in [Synchrony Verbs](verbs_synchrony.md).
 
 Use these stats alongside transform verbs to build climate–vegetation synchrony analyses.
 
 ### `v.rolling_median_split_synchrony(...)`
 
-Compute rolling Spearman synchrony below and above per-series quantiles. A
+Compute rolling Spearman synchrony below and above per-series quantiles. This is
+a convenience recipe for center-reference climate tail synchrony, not the
+general definition of synchrony. A
 single `DataArray` supplies both sets. For a climate `Dataset`, select distinct
 variables for the lower and upper sets:
 

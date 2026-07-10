@@ -575,3 +575,97 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Fire smoke regression passed:
   `uv run --python 3.11 --with-editable . --with pytest pytest tests/test_real_fire_vase_gridmet_smoke.py -q`
   (`2 passed`).
+
+## 2026-07-10 — Synchrony Grammar Verbs
+
+### User Goals
+- Implement the PDF prompt requesting a reusable synchrony grammar for
+  CubeDynamics: state cubes, event detection, occurrence/severity/timing/duration
+  synchrony, spatial comparison modes, biological cube alignment, and
+  climate-biology coupling.
+
+### Implementation Summary
+- Added state constructors that produce standard `state`, `magnitude`, and
+  `threshold` Datasets from threshold, quantile, binary, or change rules.
+- Added an event representation with `EventResult(dataset, catalog)` and
+  contiguous-run event detection with duration, peak, mean, integral, sequence,
+  and recurrence diagnostics.
+- Added a shared spatial pair layer for reference, neighbor, all-pairs,
+  regional, and block-oriented synchrony outputs.
+- Added occurrence, severity, timing, and duration synchrony primitives with
+  audit counts and match diagnostics.
+- Added biological observation rasterization, cube alignment, relative/absolute
+  change states, and same-pixel lagged occurrence coupling via `v.sync_with`.
+- Kept `v.rolling_median_split_synchrony` public and behaviorally unchanged;
+  the new docs now describe it as a center-reference convenience recipe.
+- Added docs and examples for state cubes, four synchrony types, biological
+  coupling, and the synchrony grammar concept.
+
+### Files Changed or Created
+- New runtime modules under `src/cubedynamics/synchrony/`,
+  `src/cubedynamics/events/`, and `src/cubedynamics/biology/`.
+- New verb wrappers in `src/cubedynamics/verbs/states.py`,
+  `src/cubedynamics/verbs/events.py`, `src/cubedynamics/verbs/synchrony.py`,
+  and `src/cubedynamics/verbs/biology.py`; exports added to
+  `src/cubedynamics/verbs/__init__.py`.
+- Added `tests/test_synchrony_grammar.py` and extended
+  `tests/test_public_api_smoke.py`.
+- Added docs pages under `docs/concepts/`, `docs/howto/`, and
+  `docs/reference/`; linked them from `mkdocs.yml`,
+  `docs/recipes/index.md`, and `docs/project/public_api.md`.
+- Added `examples/four_synchrony_types.py` and
+  `examples/climate_biology_sync_demo.py`.
+
+### Validation
+- Installed the project test extra into the existing `.venv` with
+  `uv pip install --python .venv/bin/python '.[test]'` after sandbox approval.
+- Focused pytest against the live source tree passed:
+  `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/python -m pytest tests/test_synchrony_grammar.py tests/test_public_api_smoke.py tests/test_median_split_synchrony_verb.py tests/test_tails.py -q`
+  (`21 passed`, one upstream `planetary_computer` pydantic deprecation warning).
+- Eager-compute guardrails passed:
+  `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/python -m pytest tests/test_no_eager_compute_or_io.py tests/test_no_eager_values_in_plotting.py -q`
+  (`2 passed`, same upstream warning).
+- New examples ran successfully with `PYTHONPATH=src`.
+- `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/mkdocs build --strict`
+  passed; warnings were limited to the Material for MkDocs notice, pre-existing
+  non-nav page notices, and new-file revision-date notices.
+- Broader offline suite was interrupted after a matplotlib backend stall:
+  `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/python -m pytest -m 'not integration' -q`
+  reached `248 passed, 3 skipped, 8 deselected` before interruption.
+
+### Known Caveats / Follow-ups
+- Timing and duration event detection currently materialize event arrays and
+  catalogs; this is appropriate for the first reviewable phase but not yet a
+  bounded streaming implementation.
+- `v.sync_with` supports same-pixel lagged occurrence coupling first; cross-
+  location coupling, richer null diagnostics, and complex event sequence verbs
+  remain deferred.
+- Neighbor outputs summarize incident edge metrics back to pixels; all-pairs
+  outputs should be used when edge-level detail is required.
+
+## 2026-07-10 — Synchrony Literature and Design Roadmap PDFs
+
+### User Goals
+- Incorporate the additional PDF context:
+  `CubeDynamics_Synchrony_Literature_and_Codex_Roadmap.pdf` and
+  `CubeDynamics_Synchrony_Design_Specification_v0.1.pdf`.
+
+### Implementation Summary
+- Added `docs/project/synchrony_roadmap.md` as a repo-native design roadmap for
+  the synchrony framework.
+- Linked the roadmap from `docs/concepts/synchrony_grammar.md` and `mkdocs.yml`.
+- Captured the literature foundations, canonical data model, primitive
+  operators, spatial modes, QA diagnostics, synthetic truth cases, phased
+  development plan, and manuscript path from the PDFs.
+
+### Validation
+- `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/mkdocs build --strict`
+  passed; warnings were limited to the Material for MkDocs notice, pre-existing
+  non-nav page notices, and new-file revision-date notices.
+- `git diff --check` passed.
+
+### Known Caveats / Follow-ups
+- The PDFs recommend future public verbs such as `followed_by`, `recurrence`,
+  and `lagged_response`. These were documented as deferred design space rather
+  than exposed as stubs, to avoid creating public APIs before their statistical
+  contracts are settled.

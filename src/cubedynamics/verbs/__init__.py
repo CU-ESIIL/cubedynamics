@@ -66,6 +66,22 @@ from .stats import (
     variance,
     zscore,
 )
+from .biology import align_cube, rasterize_observations
+from .events import detect_events
+from .states import (
+    binary_state,
+    change_state,
+    exceedance,
+    quantile_state,
+    threshold_state,
+)
+from .synchrony import (
+    duration_synchrony,
+    occurrence_synchrony,
+    severity_synchrony,
+    sync_with,
+    timing_synchrony,
+)
 
 
 def _import_xarray():
