@@ -720,3 +720,45 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - The timing/duration panel currently shows event-level outputs for one
   detected event result, while occurrence/severity examples show rolling-window
   cubes.
+
+## 2026-07-13 — Ghosh-Style Tail Association Figure
+
+### User Goals
+- Add a reusable Matplotlib workflow for Ghosh-style copula/tail-association
+  plots from two climate-synchrony series.
+- Support normalized ranks, diagonal tail bands, lower/upper partial Spearman
+  annotations, cube extraction helpers, synthetic demonstration data, and PNG
+  plus PDF outputs.
+
+### Implementation Summary
+- Added `src/cubedynamics/plotting/tail_association.py` with normalized-rank
+  helpers, Ghosh diagonal-band partial Spearman statistics, a one-row triptych,
+  a multi-row grid plot, preprocessing modes, and a strict cube extraction
+  helper.
+- Re-exported the new plotting helpers from `cubedynamics.plotting`.
+- Added `examples/ghosh_tail_association_demo.py`, which generates mirrored
+  synthetic left-tail and right-tail dominant pairs and writes the demonstration
+  figure to `docs/assets/figures/`.
+- Added `docs/recipes/ghosh_tail_association.md` and linked it from the Recipes
+  nav and overview.
+- Generated `docs/assets/figures/ghosh_tail_association_climate_sync_demo.png`
+  and `.pdf`.
+
+### Validation
+- `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/python -m pytest
+  tests/test_tail_association_plot.py tests/test_no_eager_values_in_plotting.py
+  -q` passed (`7 passed`, one upstream `planetary_computer` pydantic
+  deprecation warning).
+- `PYTHONPATH=src MPLCONFIGDIR=/private/tmp .venv/bin/mkdocs build --strict`
+  passed; warnings were limited to the Material for MkDocs notice, pre-existing
+  non-nav page notices, and the new recipe page's revision-date fallback.
+- Rendered the generated PDF with `pdftoppm` and visually checked the PNG and
+  PDF render for legibility, spacing, and unclipped labels.
+
+### Known Caveats / Follow-ups
+- `event_binary` and `event_intensity` preprocessing modes are reserved names
+  that raise a clear `NotImplementedError` until the event threshold contract is
+  wired into the synchrony pipeline.
+- The example uses deterministic synthetic data. Real climate-synchrony cube
+  examples should replace or supplement it once representative cube outputs are
+  available in the example environment.

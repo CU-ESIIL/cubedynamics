@@ -15,6 +15,7 @@ Key links:
 - [Fire VASE / FireHull capability guide](../capabilities/fire-vase.md)
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zcube.md)
 - [Climate synchrony (center)](climate_tail_dep_center.md)
+- [Ghosh-style tail association](ghosh_tail_association.md)
 - [Spatial synchrony blocks](spatial_synchrony_units.md)
 - [Synchrony overview](../synchrony/index.md)
 - [Four synchrony primitives](../synchrony/primitives.md)
@@ -30,6 +31,7 @@ Key links:
 - [Fire VASE / FireHull capability guide](../capabilities/fire-vase.md): object model, `v.fire_plot`, and the prescribed-burn `v.fire_vase_panel` workflow.
 - [Sentinel-2 NDVI z-score cube](s2_ndvi_zcube.md) and [correlation center](s2_corr_center.md): vegetation condition and synchrony.
 - [Climate synchrony (center)](climate_tail_dep_center.md): compare cold- and warm-condition synchrony through time.
+- [Ghosh-style tail association](ghosh_tail_association.md): compare lower- and upper-tail dependence for two extracted synchrony series.
 - [Spatial synchrony blocks](spatial_synchrony_units.md): build and compare groups of block-level synchrony signatures.
 - [Synchrony overview](../synchrony/index.md): the dedicated guide to state cubes, event catalogs, primitive synchrony operators, and coupling.
 - [Four synchrony primitives](../synchrony/primitives.md): reuse one state cube across occurrence, severity, timing, and duration primitives.
