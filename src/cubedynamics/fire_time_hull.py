@@ -1150,7 +1150,11 @@ def _load_real_gridmet_cube(
     # nearest grid point
     y_name = "lat" if "lat" in ds.coords else "y"
     x_name = "lon" if "lon" in ds.coords else "x"
-    da = ds[variable].sel({y_name: lat, x_name: lon}, method="nearest")
+    target_var = variable
+    if target_var not in ds.data_vars and len(ds.data_vars) == 1:
+        target_var = next(iter(ds.data_vars))
+    da = ds[target_var].sel({y_name: lat, x_name: lon}, method="nearest")
+    da.name = variable
     da = da.assign_coords({"lat": da[y_name], "lon": da[x_name]})
     da = da.drop_vars([c for c in [y_name, x_name] if c in da.coords and c not in ["lat", "lon"]])
     da = da.expand_dims({"y": [float(da.lat.values)], "x": [float(da.lon.values)]})

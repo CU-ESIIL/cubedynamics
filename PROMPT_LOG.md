@@ -4,6 +4,262 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-07-21 — Real Climate-colored Non-prescribed Fire VASE PDF Panel
+
+### User Goals
+- Create a static PDF panel of VASE thumbnails and metrics using real fire and
+  real climate data.
+- Treat the cached real FIRED candidate events as non-prescribed for this panel.
+- Include climate coloring.
+
+### Implementation Summary
+- Added `examples/fire_vase_pdf_panel_demo.py`, a real-data static PDF
+  contact-sheet generator for cached FIRED candidate events and gridMET climate.
+- The PDF renders FireHull/VASE thumbnails colored by gridMET `tmmx` and
+  annotates each event with space, time, volume, and an OT-v proxy.
+- The cached FIRED event table does not contain a prescribed-fire attribute, so
+  the generated artifact treats all cached candidates as non-prescribed by
+  assumption.
+- Corrected the static renderer to color whole between-date quadrilateral bands
+  with one date/layer value instead of averaging colors independently over the
+  two triangles in each side-wall quad.
+- Replaced the normalized `cubedynamics.data.gridmet` mock-streaming path with
+  cached real gridMET `tmmx_YYYY.nc` files and converted Kelvin values to
+  Celsius/Fahrenheit for the PDF colorbars.
+- Updated the real gridMET helper to accept CF variable names such as
+  `air_temperature` inside `tmmx` NetCDF files.
+
+### Files Changed or Created
+- `examples/fire_vase_pdf_panel_demo.py`
+- `output/pdf/fire_vase_real_non_prescribed_tmmx_c_static_panel.pdf`
+- `output/pdf/fire_vase_real_non_prescribed_tmmx_f_static_panel.pdf`
+- `artifacts/fire-vase-gridmet-real/gridmet-cache/tmmx_2001.nc`
+- `artifacts/fire-vase-gridmet-real/gridmet-cache/tmmx_2002.nc`
+- `artifacts/fire-vase-gridmet-real/gridmet-cache/tmmx_2003.nc`
+- `src/cubedynamics/fire_time_hull.py`
+
+### Validation
+- Generated the real panel with `env MPLCONFIGDIR=/private/tmp/mplconfig
+  .venv/bin/python examples/fire_vase_pdf_panel_demo.py --temperature-units c
+  --output output/pdf/fire_vase_real_non_prescribed_tmmx_c_static_panel.pdf`.
+- Generated the Fahrenheit companion with the same command and
+  `--temperature-units f`.
+- Rendered both PDFs with `pdftoppm` and visually inspected the colorbars and
+  ring-band coloring. Celsius range is about 5-35 C; Fahrenheit range is about
+  40-100 F.
+- Ran `.venv/bin/python -m py_compile examples/fire_vase_pdf_panel_demo.py
+  src/cubedynamics/fire_time_hull.py`.
+- Ran `.venv/bin/python -m pytest tests/test_fire_vase_panel.py
+  tests/test_fire_hull_api.py -q` with 9 passing tests and 2 warnings.
+- Follow-up render visually confirmed climate color now appears as horizontal
+  date bands rather than diagonal triangle artifacts.
+
+### 2026-07-21 Follow-up: Minimum Temperature and VPD Panels
+- Downloaded cached real gridMET `tmmn_2001.nc`-`tmmn_2003.nc` and
+  `vpd_2001.nc`-`vpd_2003.nc` into
+  `artifacts/fire-vase-gridmet-real/gridmet-cache/`.
+- Generated
+  `output/pdf/fire_vase_real_non_prescribed_tmmn_c_static_panel.pdf` and
+  `output/pdf/fire_vase_real_non_prescribed_vpd_static_panel.pdf`.
+- Updated the static panel label helper so VPD colorbars are labeled
+  `vpd (kPa)` from the real gridMET metadata.
+- Rendered both PDFs with `pdftoppm` and visually inspected the first-page PNGs
+  for readable colorbars and horizontal date-band coloring.
+- Ran `.venv/bin/python -m py_compile examples/fire_vase_pdf_panel_demo.py`.
+
+### 2026-07-21 Follow-up: Simple Wind-speed Panel
+- Used gridMET `vs` as the simplest wind representation: daily mean scalar wind
+  speed only, with no wind direction, gust, or vector decomposition.
+- Downloaded cached real gridMET `vs_2001.nc`-`vs_2003.nc` into
+  `artifacts/fire-vase-gridmet-real/gridmet-cache/`.
+- Generated
+  `output/pdf/fire_vase_real_non_prescribed_wind_speed_vs_static_panel.pdf`.
+- Updated the static panel label helper so `vs` colorbars are labeled
+  `wind speed (m/s)`.
+- Rendered the PDF with `pdftoppm` and visually inspected the first-page PNG for
+  readable labels and horizontal date-band coloring.
+
+## 2026-07-21 — Fire VASE Observed-ending Exploratory Report
+
+### User Goals
+- Build a real-data exploratory PDF/HTML report and CSV table set for the
+  cached non-prescribed FIRED candidate events.
+- Treat "fire death" only as shorthand for observed cessation of detectable
+  spatial growth, not physical extinction.
+- Avoid synthetic data and avoid prescribed-vs-non-prescribed claims.
+
+### Implementation Summary
+- Added `examples/fire_vase_death_exploratory_report.py`, a reproducible
+  report generator that reads cached FIRED daily/event GeoPackages, cached
+  candidate IDs, and cached real gridMET `tmmx` NetCDF files.
+- Wrote a fire-by-time analysis table with geometry, growth, centroid,
+  nearest-grid-cell daily maximum temperature in Celsius, and explicit
+  unavailable climate-support columns for newly burned/cumulative/boundary
+  climate estimates.
+- Wrote fire-level terminal features, summary statistics, data availability,
+  and QC tables.
+- Generated a 15-page PDF, embedded-figure HTML companion, and 10 figure PNGs
+  under `outputs/fire_vase_figures/`.
+- The report frames terminal observations cautiously because 24 of 25 cached
+  candidate fires have sequence gaps near the observed ending and only 1 fire
+  passes the primary QC rule.
+
+### Files Changed or Created
+- `examples/fire_vase_death_exploratory_report.py`
+- `outputs/fire_vase_death_exploratory_report.pdf`
+- `outputs/fire_vase_death_exploratory_report.html`
+- `outputs/fire_vase_analysis_table.csv`
+- `outputs/fire_vase_summary_table.csv`
+- `outputs/fire_vase_terminal_features.csv`
+- `outputs/fire_vase_quality_control.csv`
+- `outputs/fire_vase_data_availability.csv`
+- `outputs/fire_vase_figures/*.png`
+- `outputs/README_fire_vase_death_report.md`
+- `outputs/fire_vase_report_manifest.json`
+
+### Validation
+- Ran `MPLCONFIGDIR=/private/tmp/mplconfig .venv/bin/python
+  examples/fire_vase_death_exploratory_report.py`; output manifest reports 25
+  fires and 229 fire-time rows.
+- Rendered the PDF with `pdftoppm` and visually inspected the intro, data
+  availability, QC, VASE gallery, temperature trajectory, and conclusion pages
+  for clipped text, overlap, and readable Celsius temperature scales.
+- Ran `pdfinfo outputs/fire_vase_death_exploratory_report.pdf`; the final PDF
+  has 15 landscape letter pages.
+- Ran `.venv/bin/python -m py_compile
+  examples/fire_vase_death_exploratory_report.py`.
+- Ran `.venv/bin/python -m pytest tests/test_fire_vase_panel.py
+  tests/test_fire_hull_api.py -q` with 9 passing tests and 2 warnings.
+
+## 2026-07-17 — FIRED vs Classic Model Scaling Overlay
+
+### User Goals
+- Compare real FIRED fire-event scaling against classic model-output scaling.
+- Show observed data aligning with the blue `2/3` line and classic non-level-set
+  model outputs aligning with the red `1/2` line.
+- Exclude the level-set / amplified-front model family for this plot.
+
+### Implementation Summary
+- Added `artifacts/fire-area-perimeter/make_real_vs_classic_model_scaling_plot.py`.
+- Read observed FIRED events from the cached CONUS+AK GeoPackage, converted
+  stored sinusoidal ignition coordinates back to lon/lat, and applied the CONUS
+  bbox used by the existing reference plot.
+- Read only `model_runs_other_models.csv` from the provided model handoff zip,
+  leaving `model_runs_level_set.csv` out of the rendered data.
+- Generated a white-background log-log hexbin overlay with cornflower-blue
+  observed density and `P ∝ A^(2/3)` reference, and firebrick-red classic-model
+  density and `P ∝ A^(1/2)` reference.
+- Parameterized the plotting script with `--mode level-set` and generated a
+  companion plot where the red layer is only the level-set / amplified-front
+  model family and the red line is the level-set OLS fit.
+
+### Files Changed or Created
+- `artifacts/fire-area-perimeter/real-vs-classic-model-scaling.png`
+- `artifacts/fire-area-perimeter/real-vs-classic-model-scaling.pdf`
+- `artifacts/fire-area-perimeter/real_vs_classic_model_scaling_manifest.json`
+- `artifacts/fire-area-perimeter/real-vs-level-set-model-scaling.png`
+- `artifacts/fire-area-perimeter/real-vs-level-set-model-scaling.pdf`
+- `artifacts/fire-area-perimeter/real_vs_level_set_model_scaling_manifest.json`
+- `artifacts/fire-area-perimeter/make_real_vs_classic_model_scaling_plot.py`
+
+### Validation
+- Rendered the plot with `uv run --with matplotlib --with numpy python
+  artifacts/fire-area-perimeter/make_real_vs_classic_model_scaling_plot.py`.
+- Visually inspected the PNG for alignment, axis readability, and separation of
+  observed versus classic-model density.
+- Manifest confirms 237,235 observed CONUS events and 15,666 valid classic
+  non-level-set model outputs; fitted slopes are 0.662 for observed data and
+  0.506 for classic models.
+- The level-set companion manifest confirms 7,920 level-set model outputs and a
+  red fitted slope of 0.639.
+
+## 2026-07-17 — Two-Panel Fire Geometry Animation
+
+### User Goals
+- Create a clean 1920x1080, 30 fps, 12-15 second scientific animation on a pure
+  white background.
+- Compare a smooth firebrick-red classic perimeter sliding across a flat plane
+  with a cornflower-blue wrinkled dome whose ground-plane intersection creates
+  a longer perimeter.
+- Keep the two panels area-matched through time, with no text, labels, axes,
+  particles, flames, smoke, terrain, people, logos, sound, camera motion, cuts,
+  or transitions.
+
+### Implementation Summary
+- Added `artifacts/fire-area-perimeter/make_two_panel_geometry_animation.py`.
+- Rendered deterministic geometry frame-by-frame with fixed isometric
+  projection: the left panel uses a smooth low-frequency closed curve; the right
+  panel uses a semi-transparent wrinkled dome and its projected ground
+  intersection.
+- Added subtle nested history rings based on the user's sketch, with current
+  boundaries drawn thickest.
+- Normalized red and blue footprints to the same target area at each frame while
+  increasing the blue boundary wrinkle amplitude through time.
+
+### Files Changed or Created
+- `artifacts/fire-area-perimeter/two-panel-fire-geometry-animation.mp4`
+- `artifacts/fire-area-perimeter/two-panel-fire-geometry-animation-final.png`
+- `artifacts/fire-area-perimeter/two-panel-fire-geometry-animation-mid.png`
+- `artifacts/fire-area-perimeter/two-panel-fire-geometry-animation-start.png`
+- `artifacts/fire-area-perimeter/two_panel_fire_geometry_animation_manifest.json`
+- `artifacts/fire-area-perimeter/make_two_panel_geometry_animation.py`
+
+### Validation
+- `python3 -m py_compile artifacts/fire-area-perimeter/make_two_panel_geometry_animation.py`
+  passed.
+- Rendered the MP4 with `uv run --with numpy --with pillow --with
+  imageio-ffmpeg python artifacts/fire-area-perimeter/make_two_panel_geometry_animation.py`.
+- Visually inspected the mid and final PNG frames.
+- Manifest confirms 1920x1080, 30 fps, 360 frames, 12 seconds. Final red and
+  blue areas match numerically while the blue perimeter is 1.71 times the red
+  perimeter.
+
+## 2026-07-17 — Spread/Growth Style-Matched Animation
+
+### User Goals
+- Use `/Users/tuff/Downloads/spread_vs_growth_with_metrics.mp4` as a style
+  reference.
+- Make the fire geometry animation match the reference style: flat white
+  two-column layout, bold red/blue titles, formulas, pale filled footprints, and
+  live area/perimeter metrics.
+
+### Implementation Summary
+- Added `artifacts/fire-area-perimeter/make_spread_growth_style_match_animation.py`.
+- Rendered a 1920x1080, 30 fps, 12-second MP4 using deterministic area-matched
+  red and blue boundaries.
+- Matched the reference visual language with Arial typography, firebrick red
+  and cornflower blue styling, pale fills, and large metric readouts.
+- The blue boundary becomes increasingly wrinkled while preserving matched area
+  with the smooth red boundary.
+
+### Files Changed or Created
+- `artifacts/fire-area-perimeter/spread-growth-style-match-animation.mp4`
+- `artifacts/fire-area-perimeter/spread-growth-style-match-animation-final.png`
+- `artifacts/fire-area-perimeter/spread-growth-style-match-animation-mid.png`
+- `artifacts/fire-area-perimeter/spread_growth_style_match_animation_manifest.json`
+- `artifacts/fire-area-perimeter/make_spread_growth_style_match_animation.py`
+
+### Validation
+- `python3 -m py_compile artifacts/fire-area-perimeter/make_spread_growth_style_match_animation.py`
+  passed.
+- Rendered with `uv run --with numpy --with pillow --with imageio-ffmpeg python
+  artifacts/fire-area-perimeter/make_spread_growth_style_match_animation.py`.
+- Visually inspected the middle and final frames against the reference styling.
+- Manifest confirms final matched area of 1.20 and blue-to-red perimeter ratio
+  of 1.59.
+- Added an enhanced membrane version with stronger blue fill, internal
+  oscillating ripple contours, and more pronounced blue boundary oscillation:
+  `spread-growth-style-match-animation-membrane.mp4`. The enhanced final
+  blue-to-red perimeter ratio is 1.75.
+- Added a perspective storyboard version matching the user's later reference
+  image: central metrics, perspective planes, red advancing line with arrows,
+  translucent blue dome, blue footprint intersection, mini scaling plots, and a
+  bottom takeaway panel. Output:
+  `perspective-growth-explainer-animation.mp4`.
+- Replaced the central `P / A^b` ratio numbers in the perspective explainer
+  with directional indicators: horizontal arrows for stable ratios, up arrows
+  for increasing ratios, and down arrows for decreasing ratios.
+
 ## 2026-07-07 — Website Panel Example Smoke Tests
 
 ### User Goal
@@ -762,3 +1018,80 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - The example uses deterministic synthetic data. Real climate-synchrony cube
   examples should replace or supplement it once representative cube outputs are
   available in the example environment.
+
+## 2026-07-17 — Minimal Perspective Spread vs Growth Animation
+
+### User Goals
+- Simplify the perspective fire-growth explainer after the ratio arrows proved
+  distracting.
+- Keep the focus on the two growing geometries: classic smooth perimeter in
+  firebrick and wrinkled dome footprint in cornflower blue.
+- Retain only area and perimeter metrics; remove the lower scaling plots and
+  ratio rows.
+
+### Implementation Summary
+- Updated
+  `artifacts/fire-area-perimeter/make_perspective_growth_explainer_animation.py`
+  to remove the title blocks, bottom mini-plots, conclusion box, outward arrows,
+  and `P / A^b` ratio indicators.
+- Enlarged and lowered the perspective planes and moved the central area and
+  perimeter readout into the upper white space.
+- Re-rendered
+  `artifacts/fire-area-perimeter/perspective-growth-explainer-animation.mp4`,
+  `perspective-growth-explainer-animation-final.png`,
+  `perspective-growth-explainer-animation-mid.png`, and the manifest.
+
+### Validation
+- Rendered the MP4 with `uv run --with numpy --with pillow --with imageio-ffmpeg
+  python artifacts/fire-area-perimeter/make_perspective_growth_explainer_animation.py`.
+- Visually inspected the midpoint and final poster frames for overlap, focus,
+  and color consistency.
+
+### 2026-07-17 Follow-up
+- Increased the blue dome opacity while keeping it semi-transparent.
+- Added firebrick arrows constrained to the ground plane and cornflower-blue
+  arrows with outward/upward components from the dome surface.
+- Re-rendered and visually inspected the midpoint and final poster frames.
+
+## 2026-07-17 — Corrected Level-Set Scaling Reference Line
+
+### User Goals
+- Fix the red guide line in the real-vs-level-set scaling plot; it was using
+  the fitted level-set slope and appeared nearly parallel to the blue 2/3 line.
+- Show the red guide as an explicit 1/2-scaling reference instead.
+
+### Implementation Summary
+- Updated `artifacts/fire-area-perimeter/make_real_vs_classic_model_scaling_plot.py`
+  so `--mode level-set` uses `model_line_slope = 0.5` and labels the red line
+  as `P ∝ A^1/2`.
+- Re-rendered `artifacts/fire-area-perimeter/real-vs-level-set-model-scaling.png`
+  and `.pdf`.
+- Kept the fitted level-set slope in the manifest for provenance, but no longer
+  uses it for the displayed red reference line.
+
+### Validation
+- Ran `uv run --with numpy --with matplotlib python
+  artifacts/fire-area-perimeter/make_real_vs_classic_model_scaling_plot.py --mode
+  level-set`.
+- Visually inspected the updated PNG and confirmed the manifest reports the red
+  reference-line slope as `0.5`.
+
+## 2026-07-17 — Data-Only Fire Log-Log Plot
+
+### User Goals
+- Regenerate the log(area) vs log(perimeter) FIRED hexbin plot without the green,
+  red, or blue scaling lines so the data cloud is the focus.
+
+### Implementation Summary
+- Added `artifacts/fire-area-perimeter/make_fire_log_log_data_only_plot.py`.
+- Reused the same FIRED CONUS+Alaska cache, log-coordinate axes, magma hexbin
+  density, colorbar, and largest-fire data callouts from the 3/4-line plot.
+- Removed the `A^3/4`, `A^2/3`, `A^1/2`, OLS fit overlays, and line legend.
+- Wrote `artifacts/fire-area-perimeter/fire-log-log-data-only.png`, `.pdf`, and
+  `fire_log_log_data_only_manifest.json`.
+
+### Validation
+- Ran `uv run --with numpy --with matplotlib python
+  artifacts/fire-area-perimeter/make_fire_log_log_data_only_plot.py`.
+- Visually inspected the PNG to confirm the colored reference lines and line
+  legend were removed.
