@@ -47,6 +47,25 @@ def read_config(path: Path) -> dict[str, Any]:
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
+def variable_codes(config: dict[str, Any], *, include_optional: bool, variables: list[str] | None) -> list[str]:
+    if variables:
+        codes = variables
+    else:
+        climate_cfg = config.get("climate", {})
+        configured = list(climate_cfg.get("variables", {}).values()) or list(GRIDMET_OUTPUTS)
+        optional = list(climate_cfg.get("optional_variables", {}).values()) if include_optional else []
+        codes = [*configured, *optional]
+    seen: set[str] = set()
+    normalized: list[str] = []
+    for code in codes:
+        if code not in GRIDMET_OUTPUTS:
+            raise ValueError(f"Unsupported gridMET variable {code!r}. Known variables: {sorted(GRIDMET_OUTPUTS)}")
+        if code not in seen:
+            normalized.append(code)
+            seen.add(code)
+    return normalized
+
+
 def gridmet_years(gridmet_cache: Path) -> list[int]:
     years = {
         int(path.stem.split("_")[-1])
@@ -273,8 +292,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     started = time.perf_counter()
     config = read_config(args.config)
     cached_years = gridmet_years(args.gridmet_cache)
-    variables = list(config.get("climate", {}).get("variables", {}).values()) or list(GRIDMET_OUTPUTS)
-    variables = [v for v in variables if v in GRIDMET_OUTPUTS]
+    variables = variable_codes(config, include_optional=args.include_optional_variables, variables=args.variables)
     run_id = f"climate-{datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace(':', '')}"
 
     events = read_events(args.events_gpkg)
@@ -288,6 +306,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
     catalog = pd.read_parquet(args.table_root / "fire_catalog.parquet")
     manifest = pd.read_parquet(args.table_root / "processing_manifest.parquet")
     supported = add_keys(supported, catalog, config)
+    climate_value_cols = [GRIDMET_OUTPUTS[variable] for variable in variables]
     selected_cols = [
         "fire_id",
         "slice_index",
@@ -303,10 +322,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "ring_area_km2",
         "cumulative_area_km2",
         "normalized_vase_width",
-        "maximum_temperature_c",
-        "minimum_temperature_c",
-        "vpd_kpa",
-        "wind_speed_m_s",
+        *climate_value_cols,
         "wind_present",
         "climate_available",
         "climate_failure_reason",
@@ -350,6 +366,8 @@ def main() -> int:
     parser.add_argument("--table-root", type=Path, default=Path("scratch/fire_vase_run_full/tables"))
     parser.add_argument("--report", type=Path, default=Path("scratch/fire_vase_run_full/climate_build_report.json"))
     parser.add_argument("--max-slices", type=int, default=None)
+    parser.add_argument("--variables", nargs="+", default=None)
+    parser.add_argument("--include-optional-variables", action="store_true")
     args = parser.parse_args()
     report = run(args)
     print(json.dumps(report, indent=2))

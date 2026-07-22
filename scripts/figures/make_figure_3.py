@@ -92,12 +92,19 @@ def build(data=None, stats=None):
         s=36,
         color=MORPH_BLUE,
     )
-    label_offsets = {1: 0, 2: 9, 3: -9, 4: 8, 5: -8, 6: 0}
+    label_offsets = {
+        1: (-2, 0),
+        2: (0, 16),
+        3: (20, 5),
+        4: (-10, 18),
+        5: (-22, 5),
+        6: (0, 13),
+    }
     for i, row in enumerate(null.itertuples(index=False), start=1):
         axes[3].annotate(
             str(i),
             xy=(row.synthetic_logdet_cov_pc1_5_mean, row.synthetic_to_observed_median_mean),
-            xytext=(0, label_offsets.get(i, 0)),
+            xytext=label_offsets.get(i, (0, 0)),
             textcoords="offset points",
             fontsize=7.0,
             ha="center",
@@ -108,9 +115,7 @@ def build(data=None, stats=None):
     axes[3].axvline(float(null["observed_logdet_cov_pc1_5"].iloc[0]), color=FIREBRICK, lw=1.2)
     axes[3].set_xlabel("Log covariance volume in observed PC1-PC5")
     axes[3].set_ylabel("Null-to-observed median distance")
-    axes[3].set_title("D. Support overlap diagnostics", loc="left", fontsize=9, fontweight="bold")
-    key = "\n".join(f"{i}. {label.replace(chr(10), ' ')}" for i, label in enumerate(_short_null_labels(order), start=1))
-    axes[3].text(0.99, 0.98, key, transform=axes[3].transAxes, ha="right", va="top", fontsize=5.9, color=CHARCOAL)
+    axes[3].set_title("D. Support overlap diagnostics (labels follow C)", loc="left", fontsize=9, fontweight="bold")
 
     for ax in axes:
         ax.spines[["top", "right"]].set_visible(False)

@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-07-22T19:43:46+00:00",
-  "git_commit": "ea228afe0e4c478f8fbbdade045bcae793b6da00",
+  "generated_at": "2026-07-22T19:59:33+00:00",
+  "git_commit": "030e2b794440c9978afc8f52a932faca1fa2bac0",
   "random_seed": 20260722,
   "data_files": [
     "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/scratch/fire_vase_developmental_morphology/developmental_geometry_events.parquet",
@@ -63,8 +63,8 @@
   "checksums": [
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_4.png",
-      "sha256": "eaee628401990af1b810f0b8de83b69ee17cf13f0bb8af0416350cf712f36d17",
-      "bytes": 1015981
+      "sha256": "ea9ec0101a03aca2a38d3a5277d308c9ff096985c51b65f59e8b55712d3c7ee9",
+      "bytes": 1034658
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_5.png",
@@ -78,8 +78,8 @@
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_4.pdf",
-      "sha256": "8b9461afbc794808e1e2791a6ee705a9016d8a46a575c6c972e1118869f58063",
-      "bytes": 456877
+      "sha256": "b728ea481b66a07c6f3ad29dacfd1ee67648dd9e4fc774a8bb8cdc2885322155",
+      "bytes": 457559
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_2.png",
@@ -88,13 +88,13 @@
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_1.pdf",
-      "sha256": "a6412324a1762416a2d5f2ed78560a4566d3cffe479b910d8af1aa72af95d02f",
+      "sha256": "0994987602fc47eee16c3f31db599368a07a366770788e4dd0e96bfe2ea1bc17",
       "bytes": 566256
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_3.png",
-      "sha256": "7e65484b6527b18763624af10b4bd799600691be2551c9fca1aed501f0f7258d",
-      "bytes": 526051
+      "sha256": "c59f69090edd8b385840a35ce49329840a29ba26561e20b501bc1e7962b36b87",
+      "bytes": 486607
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_1.png",
@@ -103,27 +103,27 @@
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_3.pdf",
-      "sha256": "b906c7a0e6c3501888041f5924421495aede5ff043163d4354cc44a00c3b45c1",
-      "bytes": 46496
+      "sha256": "768e340c12161ac043aaade3afd4fd2e9cce8e74a7e0afb472d0e79cdb0e3fe0",
+      "bytes": 46831
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_2.pdf",
-      "sha256": "6d3871bf90fecf9f78eb7b2b935fc2012cef0f33b7d01c62356ee125c49d5c67",
+      "sha256": "82e618ccc19c9a0359d898b59076faf94284c6a152c2f51e054cc9b26d7a217c",
       "bytes": 405041
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_1.svg",
-      "sha256": "52eae328ab55de487ab6fcecb094f4573cec7f3fe8610680c5e668238887c78b",
+      "sha256": "e0339d530ad5320693445ea35b474539f60102a32fc0a757b02fab938a8d2488",
       "bytes": 1147593
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_3.svg",
-      "sha256": "e2f76fe48ca954e8594f06eed1d281ee99d1d649a1662609eeb816e66d657706",
-      "bytes": 43625
+      "sha256": "783b177b6b658028575a4f99a3355a7f444ec13609db3ee905e65d72344fa061",
+      "bytes": 42519
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_2.svg",
-      "sha256": "be0bf2626321e2e2b6833dbfc7a7af8ae0bdf4aea9acf748047dd53f398a4526",
+      "sha256": "76511a5952cfbe4e130c0a549bb97b71fb8f663fe928539cdc87015ac1d52f2b",
       "bytes": 1024704
     },
     {
@@ -133,17 +133,17 @@
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/main/Figure_4.svg",
-      "sha256": "f677f45b782173fd5c1a3c59116ee1f313509202da700c2f14846eb876cf69a3",
-      "bytes": 719287
+      "sha256": "82c3097eac502e1630277224501456f89e96a0ea1eb7919e243fa4c892d92697",
+      "bytes": 719792
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/supplement/Supplementary_Figure_1_validation.svg",
-      "sha256": "0a566ed8e1f83ec554c3cfc48c75bdad315a3197ad09ce20b2678468fa9001af",
+      "sha256": "9275523371ca2d9817ef80b643f3da9cb03d912dd72bec0c9ef2675efbbb8118",
       "bytes": 100856
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/supplement/Supplementary_Figure_1_validation.pdf",
-      "sha256": "7fc96a43aee75409ff2f96b3d342bc7415f4d6a418624e6cdbf196de7860c398",
+      "sha256": "a07c5fac50adeffaf53bc1d4b3536a8997e0bbb98d7a10cd0c084a4caa082cef",
       "bytes": 51836
     },
     {
@@ -153,7 +153,7 @@
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/supplement/Supplementary_Figure_2_prediction.pdf",
-      "sha256": "7c1cd203f55d0bb5bc527d7cf0fbca99245540804c3e0b57adb1fc2e791388b5",
+      "sha256": "5619543a82fe1dd6e890682880d27dcbe521f794b793fc7e5ef6077eb6a8990c",
       "bytes": 132494
     },
     {
@@ -163,7 +163,7 @@
     },
     {
       "path": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/supplement/Supplementary_Figure_2_prediction.svg",
-      "sha256": "8c7f35d9eb21a9980496aa679e6b01808a05825afcb5394516c52ca3515801dc",
+      "sha256": "e88f205d752f00ae39e80c614c235b4943c0b80aea8bb875a30cb18a7749dbd2",
       "bytes": 505994
     }
   ],

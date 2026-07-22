@@ -1580,3 +1580,115 @@ secrets, credentials, private tokens, or unrelated transcript text.
   for label overlap, ran `pytest tests/test_fire_vase_lakehouse.py -q` with
   16 passing tests, and confirmed the staged repository size policy check
   passes.
+
+### 2026-07-22 Follow-up: Updated Main Figures And Manuscript From New Analyses
+- Integrated the claim-audit analyses into the production figure pipeline.
+  `scripts/figures/make_figure_3.py` now renders the PC1 ablation and null
+  developmental-universe diagnostics from `analysis/claim_audit_stats/`, making
+  the audit result the main Figure 3 rather than a sidecar figure.
+- Updated `scripts/figures/render_all.py` to generate a four-figure main suite
+  and to move the fixed-day prediction benchmark into the supplement as
+  `Supplementary_Figure_2_prediction`. Regenerated main figure legends, the
+  figure README, validation notes, data dictionary, and manifest.
+- Rewrote `scripts/fire_vase_science_manuscript_pdf.py` around the supported
+  manuscript claim: Fire VASE provides a reproducible low-dimensional
+  coordinate system for observed wildfire histories. Removed unsupported
+  restricted-trajectory framing, compressed climate to proof-of-concept
+  projection/association, and removed prediction from the main figure sequence.
+- Regenerated `figures/main/Figure_1` through `Figure_4` in PDF, PNG, and SVG,
+  regenerated supplementary validation and prediction figures, and rebuilt
+  `output/pdf/fire_vase_developmental_morphology_manuscript.pdf` as a 15-page
+  Science-style draft with four main figures and comprehensive legends.
+- Validation: compiled the changed scripts, reran the figure suite with
+  60 bootstrap replicates and a 12,000-fire validation sample, rebuilt the
+  manuscript PDF, rendered it to PNG pages with Poppler, visually checked the
+  title/abstract page and main figure pages for text overlap, ran
+  `.venv/bin/python -m pytest tests/test_fire_vase_lakehouse.py -q` with
+  16 passing tests, and confirmed the staged repository size policy check
+  passes.
+
+### 2026-07-22 Follow-up: Round-Three Panel Review And Edits
+- Added
+  `docs/manuscripts/fire_vase_developmental_morphology/formal_reviews_round_3.md`
+  with three formal reviews focused on inference, null-model interpretation,
+  figure readability, and manuscript flow after the audit integration.
+- Edited `scripts/fire_vase_science_manuscript_pdf.py` to remove process
+  language from the paper, keep the one-sentence summary on the title page,
+  make Results/Methods headings more consistent, soften Figure 1 language from
+  "collapse into" to "can be organized in," and describe climate matching as
+  similar form versus similar climate.
+- Updated `scripts/figures/make_figure_4.py` so panel C reads as a
+  climate-shape association analysis with the axis label "Held-out variance
+  explained (R2)" instead of "Predictive coupling" and "prediction accuracy."
+- Regenerated the main and supplementary figure suite, updated figure legends
+  and manifests, rebuilt the Science-style manuscript PDF, and rendered the
+  final PDF to PNG for visual QA. The manuscript now reports 14 letter pages,
+  with the orphan one-sentence-summary page removed.
+- Validation: compiled changed scripts by executing the figure/manuscript
+  builders, rendered the final PDF with Poppler, visually checked the title
+  page and updated Figure 4 page, and reran
+  `.venv/bin/python -m pytest tests/test_fire_vase_lakehouse.py -q` with
+  16 passing tests.
+
+### 2026-07-22 Follow-up: Citation Audit And Reference Expansion
+- Checked the existing manuscript references against external bibliographic
+  sources and article pages. The original references were real and broadly
+  relevant, but several citation placements were overloaded or uncited in the
+  text.
+- Added
+  `docs/manuscripts/fire_vase_developmental_morphology/citation_audit_2026-07-22.md`
+  documenting which citations were verified, which claims they support, where
+  better citations were needed, and what remains as a pre-submission caveat.
+- Updated `scripts/fire_vase_science_manuscript_pdf.py` with direct citations
+  for MODIS burned-area mapping, human-started fires, morphospace/geometric
+  morphometrics, PCA, farthest-point/k-center representative selection, and
+  bootstrap resampling. The reference list now includes 17 entries with DOIs
+  where available.
+- Rebuilt `output/pdf/fire_vase_developmental_morphology_manuscript.pdf`,
+  rendered it to PNG with Poppler, checked the reference pages for layout, and
+  shortened the final Methods paragraph to remove an orphan sentence before
+  References.
+- Validation: compiled the manuscript PDF generator, rebuilt the manuscript
+  PDF, ran `.venv/bin/python -m pytest tests/test_fire_vase_lakehouse.py -q`
+  with 16 passing tests, and confirmed the staged repository size policy check
+  passes.
+
+## 2026-07-22 - Climate-centered Fire VASE manuscript revision
+
+- User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
+- Data decision: used the full population daily centroid gridMET table for maximum temperature, minimum temperature, VPD, and wind speed (event means was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate as a 25-fire pilot only.
+- Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
+- Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
+- Caveats: no population-wide active-edge climate, true local-normal anomalies, fuel moisture, topography, vegetation, suppression, ignition cause, humidity, precipitation, wind direction, or gust products were available locally.
+
+## 2026-07-22 - Climate-centered Fire VASE manuscript revision
+
+- User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
+- Data decision: used the full population daily centroid gridMET table for maximum temperature, minimum temperature, VPD, and wind speed (event means was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate as a 25-fire pilot only.
+- Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
+- Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
+- Caveats: no population-wide active-edge climate, true local-normal anomalies, fuel moisture, topography, vegetation, suppression, ignition cause, humidity, precipitation, wind direction, or gust products were available locally.
+
+## 2026-07-22 - Climate-centered Fire VASE manuscript revision
+
+- User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
+- Data decision: used the full population daily centroid gridMET table for maximum temperature, minimum temperature, VPD, and wind speed (event means was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate as a 25-fire pilot only.
+- Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
+- Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
+- Caveats: no population-wide active-edge climate, true local-normal anomalies, fuel moisture, topography, vegetation, suppression, ignition cause, humidity, precipitation, wind direction, or gust products were available locally.
+
+## 2026-07-22 - Climate-centered Fire VASE manuscript revision
+
+- User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
+- Data decision: used the full population daily centroid gridMET table for maximum temperature, minimum temperature, VPD, and wind speed (event means was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate as a 25-fire pilot only.
+- Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
+- Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
+- Caveats: no population-wide active-edge climate, true local-normal anomalies, fuel moisture, topography, vegetation, suppression, ignition cause, humidity, precipitation, wind direction, or gust products were available locally.
+
+## 2026-07-22 - Climate-centered Fire VASE manuscript revision
+
+- User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
+- Data decision: used the full population daily centroid gridMET table for maximum temperature, minimum temperature, VPD, and wind speed (event means was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate as a 25-fire pilot only.
+- Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
+- Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
+- Caveats: no population-wide active-edge climate, true local-normal anomalies, fuel moisture, topography, vegetation, suppression, ignition cause, humidity, precipitation, wind direction, or gust products were available locally.

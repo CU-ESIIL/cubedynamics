@@ -69,7 +69,7 @@ def build(data=None, stats=None):
     cb.ax.tick_params(labelsize=7)
 
     specs = [
-        ("mean_maximum_temperature_c", "Average daily high temperature (C)"),
+        ("mean_maximum_temperature_c", "Average daily high temp. (C)"),
         ("mean_vpd_kpa", "Average VPD (kPa)"),
         ("mean_wind_speed_m_s", "Average wind speed (m/s)"),
     ]
@@ -103,10 +103,10 @@ def build(data=None, stats=None):
     los = []
     his = []
     order = [
-        ("climate predicts morphology", "random", "random"),
-        ("climate predicts morphology", "region", "region"),
-        ("morphology predicts climate", "random", "random"),
-        ("morphology predicts climate", "region", "region"),
+        ("climate predicts morphology", "random", "shape\nrandom"),
+        ("climate predicts morphology", "region", "shape\nregion"),
+        ("morphology predicts climate", "random", "climate\nrandom"),
+        ("morphology predicts climate", "region", "climate\nregion"),
     ]
     for model, fold, label in order:
         vals = cv[(cv["model"] == model) & (cv["fold_kind"] == fold)]["r2"].dropna().to_numpy(float)
@@ -119,12 +119,12 @@ def build(data=None, stats=None):
     ax_c.barh(ypos, means, color=colors, alpha=0.86)
     ax_c.errorbar(means, ypos, xerr=[los, his], fmt="none", color="#333333", lw=0.7, capsize=2)
     ax_c.axvline(0, color="#333333", lw=0.6)
-    ax_c.set_yticks(ypos, labels, fontsize=6.2)
-    ax_c.set_xlabel("Held-out prediction accuracy")
-    ax_c.set_title("Predictive coupling", pad=2, fontsize=8)
+    ax_c.set_yticks(ypos, labels, fontsize=5.9)
+    ax_c.set_xlabel("Held-out variance explained (R2)", fontsize=6.8)
+    ax_c.set_title("Climate-shape association", pad=2, fontsize=7.4)
     ax_c.tick_params(axis="x", labelsize=6.5)
     clean_axis(ax_c)
-    panel_label(ax_c, "C")
+    panel_label(ax_c, "C", x=-0.15, y=1.22)
 
     pairs = data["matched"].groupby("comparison_type").head(1).reset_index(drop=True)
     profiles = profiles_for_fire_ids(data["slices"], set(pairs["fire_id_a"].astype(str)) | set(pairs["fire_id_b"].astype(str)))
