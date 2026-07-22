@@ -28,6 +28,7 @@ versions:
   source: fired-local-real-data
   geometry: geometry-v0
   climate: gridmet-daily-centroid-v0
+  perimeter_climate: gridmet-daily-perimeter-v0
   events: event-method-v0
   traits: trait-v0
   vase: vase-ring-v0
@@ -48,6 +49,28 @@ climate:
     minimum_temperature_c: tmmn
     vapor_pressure_deficit_kpa: vpd
     wind_speed_m_s: vs
+  optional_variables:
+    precipitation_mm: pr
+    maximum_relative_humidity_pct: rmax
+    minimum_relative_humidity_pct: rmin
+    specific_humidity_kg_kg: sph
+    fuel_moisture_100hr_pct: fm100
+    fuel_moisture_1000hr_pct: fm1000
+    energy_release_component: erc
+    burning_index: bi
+    reference_evapotranspiration_mm: etr
+    potential_evapotranspiration_mm: pet
+    solar_radiation_w_m2: srad
+  perimeter_exposure:
+    extraction_method: gridmet_gridcell_zone_summary
+    zones:
+      - active_burned_area
+      - cumulative_burned_area
+      - perimeter_extension
+    extension_distances_m:
+      - 5000
+      - 10000
+      - 25000
   wind_present_threshold_m_s: 0.1
 
 events:

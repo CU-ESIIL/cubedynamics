@@ -115,4 +115,4 @@ def file_sha256(path: Path) -> str:
 
 
 def pc_axis_label(axis: int, evr: float) -> str:
-    return f"Morphology PC{axis} ({evr * 100:.1f}%)"
+    return f"Developmental gradient {axis} ({evr * 100:.1f}% variance)"

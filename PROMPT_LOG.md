@@ -1448,3 +1448,75 @@ secrets, credentials, private tokens, or unrelated transcript text.
   visual QA checked front matter/body/back matter/figure pages, script compiles,
   PDF metadata reports 17 letter pages, and staged repository size policy check
   passes.
+
+### 2026-07-22 Follow-up: Fire VASE Main Figure Suite
+- Created a reproducible five-figure Science-style main suite under
+  `figures/main/` with PDF, PNG, and SVG exports for `Figure_1` through
+  `Figure_5`, plus `figure_legends.md`, `statistical_validation.md`,
+  `figure_data_dictionary.md`, `README.md`, `figure_manifest.json`, and
+  derived validation CSV/JSON tables.
+- Added figure-generation scripts under `scripts/figures/` for shared style,
+  Fire VASE glyph rendering, morphospace data loading/PCA, validation
+  statistics, all five main figures, supplementary validation, and full suite
+  rendering.
+- Generated `figures/supplement/Supplementary_Figure_1_validation.*` as a
+  compact validation summary.
+- Used only existing real Fire VASE/FIRED/gridMET-derived analysis tables from
+  `scratch/fire_vase_developmental_morphology/` and
+  `scratch/fire_vase_run_full/tables/`; no synthetic data were introduced.
+- Recomputed geometry PCA and validation summaries with 60 stratified bootstrap
+  replicates over 12,000-fire subsamples for a fast local pass. Observed
+  results: 278,569 fires, 626,102 vase slices, 237,235 climate-complete fires,
+  and PC1-PC5 cumulative variance 0.962747.
+- Important caveats documented in the validation file: duration sensitivity
+  weakens the cumulative variance for long fires, the within-fire
+  growth-profile permutation null remains close to observed, and the
+  leakage-audited fixed-day prediction benchmark is weak/negative under
+  blocked validation compared with older future-normalized stage features.
+- Validation: rendered the full suite, visually inspected main PNG exports,
+  compiled all `scripts/figures/*.py` files, and confirmed repository size
+  policy passes for staged files.
+
+### 2026-07-22 Follow-up: Science Manuscript Updated To New Figure Suite
+- Revised `scripts/fire_vase_science_manuscript_pdf.py` so the manuscript uses
+  the new standalone `figures/main/Figure_1.png` through `Figure_5.png`
+  instead of cropped pages from the earlier exploratory atlas.
+- Edited the manuscript abstract, Results, Discussion, and Methods to match the
+  recomputed figure evidence: strong geometry-first morphospace structure,
+  medoids as real-fire landmarks, interpretable descriptive PC axes, climate
+  alignment without equivalence, and weak/provisional leakage-audited fixed-day
+  prediction.
+- Replaced the older strong stage-wise prediction language tied to
+  future-normalized fractional-stage features with an explicit leakage-audited
+  benchmark interpretation for Figure 5.
+- Expanded the manuscript figure captions into standalone, panel-by-panel
+  legends and updated `scripts/figures/render_all.py` so
+  `figures/main/figure_legends.md` remains comprehensive on regeneration.
+- Regenerated
+  `output/pdf/fire_vase_developmental_morphology_manuscript.pdf` and
+  `output/pdf/fire_vase_developmental_morphology_manuscript_manifest.json`.
+- Validation: manuscript PDF reports 19 letter pages, abstract is 124 words,
+  rendered PDF pages to PNG, visually inspected text and figure pages, searched
+  for stale old prediction claims, compiled updated scripts, and confirmed the
+  repository size policy check passes.
+
+### 2026-07-22 Follow-up: Round-Two Manuscript Review And Figure Polish
+- Created
+  `docs/manuscripts/fire_vase_developmental_morphology/formal_reviews_round_2.md`
+  with three additional formal reviews focused on conceptual framing, validation
+  and leakage risk, and figure readability, plus response-to-review notes.
+- Revised `scripts/fire_vase_science_manuscript_pdf.py` to answer the reviews:
+  sharpened the representation-first manuscript framing, clarified what the
+  validation hierarchy supports, separated descriptive climate alignment from
+  predictive claims, made fixed-day prediction methods more explicit, and added
+  a forward-looking hypothesis paragraph.
+- Updated figure scripts in `scripts/figures/` so main axis labels use plain
+  language instead of terse technical abbreviations, and moved or removed
+  cramped labels/legends that were causing text overlap in Figures 4 and 5.
+- Regenerated `figures/main/Figure_1` through `Figure_5` in PDF, PNG, and SVG
+  formats, regenerated `figures/main/figure_legends.md`, and rebuilt the
+  manuscript PDF and manifest.
+- Validation: reran the full figure suite, compiled the changed manuscript and
+  figure scripts, rendered the manuscript PDF to PNG with Poppler, visually
+  checked key figure pages and overlap-prone panels, confirmed the PDF reports
+  19 letter pages, and confirmed the staged repository size policy check passes.

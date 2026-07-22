@@ -29,6 +29,17 @@ GRIDMET_OUTPUTS = {
     "tmmn": "minimum_temperature_c",
     "vpd": "vpd_kpa",
     "vs": "wind_speed_m_s",
+    "pr": "precipitation_mm",
+    "rmax": "maximum_relative_humidity_pct",
+    "rmin": "minimum_relative_humidity_pct",
+    "sph": "specific_humidity_kg_kg",
+    "fm100": "fuel_moisture_100hr_pct",
+    "fm1000": "fuel_moisture_1000hr_pct",
+    "erc": "energy_release_component",
+    "bi": "burning_index",
+    "etr": "reference_evapotranspiration_mm",
+    "pet": "potential_evapotranspiration_mm",
+    "srad": "solar_radiation_w_m2",
 }
 
 
@@ -90,6 +101,17 @@ def gridmet_var_name(ds: xr.Dataset, variable: str) -> str:
         "tmmn": ("air_temperature", "minimum_temperature"),
         "vpd": ("mean_vapor_pressure_deficit", "vapor_pressure_deficit"),
         "vs": ("wind_speed",),
+        "pr": ("precipitation",),
+        "rmax": ("maximum_relative_humidity", "relative_humidity"),
+        "rmin": ("minimum_relative_humidity", "relative_humidity"),
+        "sph": ("specific_humidity",),
+        "fm100": ("100-hour_dead_fuel_moisture", "fuel_moisture"),
+        "fm1000": ("1000-hour_dead_fuel_moisture", "fuel_moisture"),
+        "erc": ("energy_release_component",),
+        "bi": ("burning_index",),
+        "etr": ("reference_evapotranspiration",),
+        "pet": ("potential_evapotranspiration",),
+        "srad": ("surface_downwelling_shortwave_flux", "solar_radiation"),
     }
     wanted = candidates.get(variable, ())
     for name, da in ds.data_vars.items():

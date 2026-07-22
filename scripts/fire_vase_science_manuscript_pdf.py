@@ -4,11 +4,10 @@
 from __future__ import annotations
 
 import json
-import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-from PIL import Image as PILImage, ImageChops
+from PIL import Image as PILImage
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.pagesizes import letter
@@ -31,9 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "output/pdf/fire_vase_developmental_morphology_manuscript.pdf"
 MANIFEST = ROOT / "output/pdf/fire_vase_developmental_morphology_manuscript_manifest.json"
 COMPLIANCE_NOTE = ROOT / "docs/manuscripts/fire_vase_developmental_morphology/science_author_guidelines_compliance.md"
-ATLAS = ROOT / "output/pdf/fire_vase_developmental_morphology_atlas.pdf"
-RENDER_DIR = ROOT / "tmp/pdfs/fire_vase_developmental_morphology_render"
 FIGURE_DIR = ROOT / "tmp/pdfs/fire_vase_manuscript_figures"
+MAIN_FIGURE_DIR = ROOT / "figures/main"
 
 PAGE_W, PAGE_H = letter
 MARGIN_X = 1.0 * inch
@@ -43,20 +41,6 @@ ACCENT = colors.HexColor("#9f241c")
 INK = colors.HexColor("#171717")
 MUTED = colors.HexColor("#5d6268")
 RULE = colors.HexColor("#d9d9d9")
-
-
-def render_atlas_pages() -> None:
-    RENDER_DIR.mkdir(parents=True, exist_ok=True)
-    expected = [RENDER_DIR / f"page-{i:02d}.png" for i in range(1, 11)]
-    if all(path.exists() for path in expected):
-        return
-    for path in RENDER_DIR.glob("page-*.png"):
-        path.unlink()
-    subprocess.run(
-        ["pdftoppm", "-png", "-r", "180", str(ATLAS), str(RENDER_DIR / "page")],
-        check=True,
-        cwd=ROOT,
-    )
 
 
 def styles() -> dict[str, ParagraphStyle]:
@@ -149,12 +133,12 @@ def styles() -> dict[str, ParagraphStyle]:
             "Caption",
             parent=base["BodyText"],
             fontName="Helvetica",
-            fontSize=10,
-            leading=14,
+            fontSize=8.7,
+            leading=11.6,
             alignment=TA_LEFT,
             textColor=INK,
             spaceBefore=6,
-            spaceAfter=10,
+            spaceAfter=8,
         ),
     }
     return out
@@ -227,7 +211,7 @@ def figure_flowable(number: int, image_path: Path, caption: str, st: dict[str, P
         w_px, h_px = im.size
     img_w = usable_w
     img_h = img_w * h_px / w_px
-    max_h = 6.15 * inch
+    max_h = 5.25 * inch
     if img_h > max_h:
         img_h = max_h
         img_w = img_h * w_px / h_px
@@ -239,32 +223,20 @@ def figure_flowable(number: int, image_path: Path, caption: str, st: dict[str, P
 
 def prepare_figure_images() -> dict[str, Path]:
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
-    crop_pages = {
-        "morphospace": RENDER_DIR / "page-02.png",
-        "field_guide": RENDER_DIR / "page-04.png",
-        "climate": RENDER_DIR / "page-08.png",
-        "matched": RENDER_DIR / "page-09.png",
-        "control": RENDER_DIR / "page-10.png",
+    source_images = {
+        "figure_1": MAIN_FIGURE_DIR / "Figure_1.png",
+        "figure_2": MAIN_FIGURE_DIR / "Figure_2.png",
+        "figure_3": MAIN_FIGURE_DIR / "Figure_3.png",
+        "figure_4": MAIN_FIGURE_DIR / "Figure_4.png",
+        "figure_5": MAIN_FIGURE_DIR / "Figure_5.png",
     }
     out: dict[str, Path] = {}
-    for name, source in crop_pages.items():
+    for name, source in source_images.items():
+        if not source.exists():
+            raise FileNotFoundError(f"Missing main figure image: {source}")
         target = FIGURE_DIR / f"{name}.png"
         with PILImage.open(source) as im:
-            w, h = im.size
-            crop = im.crop((int(w * 0.02), int(h * 0.115), int(w * 0.99), int(h * 0.99)))
-            white = PILImage.new("RGB", crop.size, "white")
-            diff = ImageChops.difference(crop.convert("RGB"), white)
-            mask = diff.convert("L").point(lambda value: 255 if value > 8 else 0)
-            bbox = mask.getbbox()
-            if bbox is not None:
-                pad = 24
-                left, top, right, bottom = bbox
-                left = max(0, left - pad)
-                top = max(0, top - pad)
-                right = min(crop.width, right + pad)
-                bottom = min(crop.height, bottom + pad)
-                crop = crop.crop((left, top, right, bottom))
-            crop.save(target)
+            im.convert("RGB").save(target)
         out[name] = target
     return out
 
@@ -281,7 +253,7 @@ def build_story() -> list:
     story.append(p("Abstract", st["abstract_head"]))
     story.append(
         p(
-            "Wildfire histories are usually compared as final area, perimeter, or daily growth, leaving whole-fire development without a compact coordinate system. We introduce Fire VASE, a geometry-first representation that converts each observed daily fire history into a single developmental object. Across 278,569 FIRED events from 2000-2021, geometry-only VASE features occupy a constrained morphospace: five principal components explain 96.3% of variance. Projecting gridMET climate onto 237,235 climate-complete fires shows asymmetric coupling. Centroid climate explains part of the dominant morphospace axis, whereas developmental geometry carries far more stage-wise information about final morphospace position. Fire VASE provides a common coordinate system for testing how climate, fuels, topography, and suppression act through developmental state.",
+            "Wildfire histories are usually compared as final area, perimeter, or daily growth, leaving whole-fire development without a compact coordinate system. We introduce Fire VASE, a geometry-first representation that converts each observed daily fire history into a single developmental object. Across 278,569 FIRED events from 2000-2021, geometry-only VASE features occupy a constrained morphospace: five principal components explain 96.3% of variance. Real-fire medoids and transects reveal recurrent forms arranged along continuous gradients rather than fixed classes. Projecting gridMET climate onto 237,235 climate-complete fires shows alignment, especially along the dominant axis, but matched examples and blocked validation show that climate and morphology are not equivalent. Fire VASE provides a common coordinate system for testing how climate, fuels, topography, and suppression act through developmental state.",
             st["abstract"],
         )
     )
@@ -299,7 +271,7 @@ def build_story() -> list:
             "This gap matters because fire development is not only an outcome. Fast daily growth, early bursts, late reactivations, pauses, and termination all affect ecological impact, exposure, carbon release, and management opportunity. Recent work on the fastest-growing and most destructive fires underscores that daily timing is not incidental [7]. If the timing of growth matters, then the geometry of whole-fire development should be treated as an object of analysis rather than as a nuisance collapsed into final area.",
             "Many fields confront similar problems by constructing morphospaces. A morphospace is not merely a visualization; it is a coordinate system in which complex forms become comparable observations [10,11]. Such spaces allow investigators to estimate constraint, select representative forms, and evaluate external drivers relative to intrinsic geometry. We use that logic here, asking whether wildfire histories occupy an unstructured cloud or a constrained developmental morphospace.",
             "The Fire VASE is designed to make this test possible. For each fire, daily cumulative burned area is mapped to width and developmental time is mapped to vertical position, producing a vase-like object whose rings record the progression of the event. The representation is deliberately geometry-first. Climate and other environmental variables are projected onto the VASE only after geometry has defined the coordinate system. This separation lets us ask whether fire development has its own structure before asking how climate aligns with it.",
-            "The central hypothesis is simple. If whole-fire development is arbitrary, then VASEs should fill feature space diffusely and require many axes to summarize. If development is constrained, then independent fires should repeatedly occupy a low-dimensional, structured morphospace. We test this hypothesis using the current CubeDynamics Fire VASE workflow applied to FIRED event histories and gridMET climate attribution for 2000-2021.",
+            "The central hypothesis is simple. If whole-fire development is arbitrary, then VASEs should fill feature space diffusely and require many axes to summarize. If development is constrained, then independent fires should repeatedly occupy a low-dimensional, structured morphospace. The discovery sought here is therefore representation-first: a reproducible coordinate system for fire development that can later be coupled to mechanistic covariates. We test this hypothesis using the current CubeDynamics Fire VASE workflow applied to FIRED event histories and gridMET climate attribution for 2000-2021.",
         ],
         st,
     )
@@ -320,8 +292,8 @@ def build_story() -> list:
         story,
         "Wildfire Occupies a Low-Dimensional Morphospace",
         [
-            "The geometry-only feature space is strongly constrained (Fig. 1). Across all events, the first five principal components explain 96.3% of standardized VASE-feature variance. PC1 alone explains 81.0%, followed by PC2 at 6.6%, PC3 at 3.5%, PC4 at 3.3%, and PC5 at 1.8%. This concentration of variance supports the hypothesis that fire development repeatedly occupies a structured region of morphospace rather than an unorganized cloud of unrelated forms.",
-            "The axes should be interpreted as descriptive coordinates rather than final mechanisms. PC1 is dominated by growth-profile structure and growth entropy, separating fires by broad developmental allocation through time. PC2 emphasizes terminal taper, peak growth, late growth, observation count, pulse/reactivation structure, final area, and developmental velocity. PC3 captures pulse/reactivation, peak timing, late and terminal growth, entropy, and slenderness. These axes provide a first coordinate system for comparison; mechanistic interpretation will require fuels, topography, suppression, and active-edge climate attribution.",
+            "The geometry-only feature space is strongly constrained (Fig. 1). Across all events, the first five principal components explain 96.3% of standardized VASE-feature variance. PC1 alone explains 81.0%, followed by PC2 at 6.6%, PC3 at 3.5%, PC4 at 3.3%, and PC5 at 1.8%. A stratified bootstrap using 60 repeated 12,000-fire subsamples gives a PC1-PC5 median of 96.3% with a 95% interval of 96.2-96.4% and near-perfect five-dimensional subspace overlap. This concentration of variance supports the hypothesis that fire development repeatedly occupies a structured region of morphospace rather than an unorganized cloud of unrelated forms.",
+            "The validation hierarchy is uneven but informative. The result is strongest against a feature-wise permutation null, which breaks covariance among VASE features and reduces five-PC variance to about 42.6%. The result is weaker against a within-fire growth-profile permutation null, which remains close to the observed value at about 95.7%. That caveat is important: part of the apparent constraint reflects the monotone and redundant structure of cumulative growth histories. Duration sensitivity also weakens the concentration for long fires, with five-PC variance falling to 78.5% for fires lasting at least 10 days. The primary result is therefore not that all fire histories have identical geometry, but that the full observed population occupies a highly concentrated, reproducible developmental coordinate system.",
         ],
         st,
     )
@@ -330,39 +302,39 @@ def build_story() -> list:
         story,
         "Representative Forms Are Landmarks, Not Classes",
         [
-            "Thirty-six real medoid fires were selected by farthest-point coverage in PC1-PC3 morphospace (Fig. 2). These medoids are not idealized shapes. They are observed fires that serve as landmarks for densely and sparsely occupied parts of the developmental space. This is important because the morphospace is continuous: categories help the reader navigate it, but they are not imposed as discrete biological or operational types.",
-            "The current descriptive labels are therefore provisional landmarks. Single-flash fires form the largest group (161,073 events), followed by skinny persistent fires (38,094), compact steady fires (23,815), multi-pulse complex fires (21,254), front-loaded plateau fires (17,396), and late-surge fires (16,937). These counts describe how the present rule-based labels partition the population, not immutable classes. The stronger result is that recognizable developmental neighborhoods recur across independent fire histories.",
+            "Thirty-six real medoid fires were selected by farthest-point coverage in PC1-PC3 morphospace, and the main atlas displays the 18 highest-occupancy medoids over the full density field (Fig. 2). These medoids are not idealized shapes. They are observed fires that serve as landmarks for densely and sparsely occupied parts of the developmental space. Coverage improves rapidly as more medoids are added, showing that a modest set of real events can summarize large regions of the occupied space while still preserving continuity.",
+            "The current descriptive labels are therefore provisional landmarks. Single-flash fires form the largest group (161,073 events), followed by skinny persistent fires (38,094), compact steady fires (23,815), multi-pulse complex fires (21,254), front-loaded plateau fires (17,396), and late-surge fires (16,937). Local neighborhood purity is high relative to class-frequency expectation, but the categories also overlap across nearby regions of morphospace. The stronger result is not the discovery of hard classes; it is the recurrence of recognizable developmental neighborhoods embedded in a continuous space.",
         ],
         st,
     )
 
     add_subsection(
         story,
-        "Climate Projects Onto Morphology Asymmetrically",
+        "Major Axes Encode Interpretable Developmental Gradients",
+        [
+            "The axes should be interpreted as descriptive coordinates rather than final mechanisms (Fig. 3). Transects through PC1, PC2, and PC3 show gradual changes in real Fire VASEs and their cumulative area histories, making the axes legible as developmental gradients. PC1 is dominated by growth-profile structure and temporal concentration, separating histories with narrow persistent growth from broad or rapidly allocated histories. PC2 mixes taper, duration, late growth, pulse structure, and scale. PC3 emphasizes pulse/reactivation and timing structure.",
+            "Grouped loadings and raw-history regression proxies support this reading while also showing why mechanistic interpretation must remain cautious. Profile features carry much of PC1 and contribute strongly to PC2 and PC3, whereas pulse and timing features become more important in later axes. These relationships make the morphospace interpretable enough for biological and operational hypotheses, but they do not assign causes. Fuels, topography, suppression, ignition context, and active-edge climate are needed before the axes can be treated as mechanisms.",
+        ],
+        st,
+    )
+
+    add_subsection(
+        story,
+        "Climate Aligns With Morphology But Does Not Define It",
         [
             "Daily gridMET climate was available for 237,235 climate-complete fires. The remaining 41,334 fires have missing centroid climate values for one or more daily slices in the current extraction and are retained in the geometry-only population but excluded from climate-coupled models. Climate variables include maximum temperature and minimum temperature in degrees C, vapor pressure deficit (VPD) in kPa, and wind speed in m/s.",
-            "Because the VASE coordinate system is geometry-first, climate can be treated as an attribute of development rather than as an axis used to define development (Fig. 3). In the current linear baseline, climate explains a modest amount of morphology: held-out R2 is 0.509 for PC1, 0.062 for PC2, 0.001 for PC3, and 0.191 on average across the modeled morphospace axes. The dominant developmental axis is therefore partly climate aligned, but later axes are weakly explained by these centroid daily climate summaries.",
-            "The reverse direction is weaker. Morphology retains little linear information about mean maximum temperature (R2 = 0.004), mean minimum temperature (R2 = 0.009), mean VPD (R2 = 0.006), or mean wind (R2 = 0.010), although it retains more information about maximum VPD (R2 = 0.071). These values should not be read as causal estimates. They are a first-pass linear information proxy for how much average centroid climate and developmental morphology recover from each other.",
+            "Because the VASE coordinate system is geometry-first, climate can be treated as an attribute of development rather than as an axis used to define development (Fig. 4). Temperature, VPD, and wind surfaces vary across morphospace, indicating that development is climate aligned. In held-out linear baselines, climate predicts some morphology, especially the dominant axis, but performance is lower and less stable under region-blocked validation than under random splits. Conversely, morphology recovers only limited information about average centroid climate. These values should not be read as causal estimates. They are a first-pass information proxy for how much average centroid climate and developmental morphology recover from each other.",
+            "Matched examples expose the same non-equivalence. Some fires have nearly identical morphology but strongly different climate summaries, whereas others have similar climate summaries but very different VASE geometry. Population-level nearest-neighbor matching shows the same pattern in aggregate. Climate is therefore not absent from the morphospace; it is projected onto a developmental coordinate system that also encodes other unmodeled constraints.",
         ],
         st,
     )
 
     add_subsection(
         story,
-        "Developmental State Dominates The Linear Baseline",
+        "Fixed-Day Prediction Provides A Leakage-Audited Benchmark",
         [
-            "Stage-wise models ask whether partial development already contains information about the final morphospace position (Fig. 4). We divide each event into early, expansion, mature, and terminal stages and compare climate-only, geometry-only, and geometry-plus-climate predictors. Climate-only models explain little of final morphospace position across stages: mean R2 is 0.005 early, 0.014 during expansion, 0.004 at maturity, and 0.004 at terminal development.",
-            "Geometry-only stage features are much more informative. Mean R2 is 0.653 early, 0.714 during expansion, 0.846 at maturity, and 0.733 at terminal development. Adding centroid climate to geometry changes the baseline only modestly, with mean R2 values of 0.653, 0.725, 0.849, and 0.732 across the same stages. This pattern does not imply that climate is unimportant. It implies that, in this linear baseline, the current geometry of the fire is the dominant summary of where the fire is headed in morphospace.",
-        ],
-        st,
-    )
-
-    add_subsection(
-        story,
-        "Matched Comparisons Expose Non-Equivalence",
-        [
-            "Matched comparisons provide a diagnostic for separating similarity in form from similarity in climate (Fig. 5). The current atlas includes pairs of fires with similar morphology under different climate conditions and pairs with similar climate summaries but different morphology. These examples are useful because they prevent the morphospace from being read as a simple climate map.",
-            "At this stage, the matched pairs are illustrative rather than a completed statistical test. A submission-ready version should expand this analysis into distributional comparisons across matched neighborhoods, including uncertainty in match quality and sensitivity to fire duration. The current result is enough to motivate the claim that climate and morphology are coupled but not equivalent.",
+            "A final benchmark asks how much of final morphospace position can be recovered from partial histories observed by fixed days 1, 2, 4, and 8 (Fig. 5). This analysis intentionally replaces an older fractional-stage table whose normalized stage width, normalized growth fraction, and full-event pulse count used information unavailable at prediction time. The revised benchmark uses only cumulative area, growth, active days, and climate observed up to each fixed day.",
+            "The conservative result is weak under blocked validation. Region- and year-blocked held-out R2 values for final PC1-PC3 are near zero and sometimes negative, although geometry-plus-climate models show small, stage-dependent gains over geometry-only models. This does not mean early development is uninformative in principle. It means that, with the current fixed-day linear features and strict blocked validation, the manuscript should not claim strong early prediction. Figure 5 is therefore a leakage audit and benchmark for future model development rather than a major affirmative prediction result.",
         ],
         st,
     )
@@ -374,8 +346,9 @@ def build_story() -> list:
             "The Fire VASE results support a developmental view of wildfire. A fire is not only a final footprint or a sequence of perimeters; it is a trajectory through a constrained space of possible histories. The low dimensionality of the geometry-only morphospace suggests that many fires, despite enormous environmental and geographic heterogeneity, repeatedly use similar developmental pathways.",
             "This framing complements rather than replaces fire-climate and fire behavior research. The existing literature establishes that aridity, VPD, fuels, topography, and wind strongly influence fire activity and spread [4-9]. Fire VASE adds a coordinate system for asking how those influences are expressed through whole-fire development. The current results suggest that wildfire development is neither arbitrary nor fully reducible to average centroid climate conditions.",
             "The key conceptual implication is state dependence. Climate matters, but a given climate value does not have a single meaning independent of developmental state. A hot, dry, windy day may affect a newly emerging fire differently than a front-loaded plateau, a persistent narrow fire, or a late-reactivating fire. Developmental geometry is therefore not a rival explanation to climate. It is a state variable through which climate, fuels, topography, and suppression are expressed.",
+            "This representation-first contribution creates several testable next hypotheses. Fires in the same developmental neighborhood should share some combination of meteorological exposure, fuel condition, landscape structure, ignition context, or management history. Fires that are climate-similar but morphologically different should identify missing controls. Fires that are morphologically similar under contrasting climates should identify compensating pathways. The morphospace is useful precisely because it turns these questions into comparisons among nearby and distant developmental forms.",
             "The current analysis also reframes classification. The labels used here are field-guide terms for recurring neighborhoods, not fixed classes. That distinction matters because a continuous morphospace can support both typology and gradient analysis. The goal is not to force all fires into bins, but to make local neighborhoods, extremes, transitions, and analogs visible for comparison.",
-            "Several caveats define the next stage of the work. Climate attribution is daily and centroid-based, not active-edge, newly burned area, or within-perimeter climate exposure. The analysis does not yet include humidity, precipitation, fuel moisture, topography, vegetation, suppression, ignition cause, or climate anomalies relative to local normals. The coupling values are linear information baselines rather than optimized predictive models or causal estimates. Finally, the prevalence of one-day events means that sensitivity analyses separating single-day, short multi-day, and long-duration fires will be essential before submission.",
+            "Several caveats define the next stage of the work. Climate attribution is daily and centroid-based, not active-edge, newly burned area, or within-perimeter climate exposure. The analysis does not yet include humidity, precipitation, fuel moisture, topography, vegetation, suppression, ignition cause, or climate anomalies relative to local normals. The coupling and prediction values are linear information baselines rather than optimized predictive models or causal estimates. The temporal-order null and duration sensitivity show that the low-dimensional result is partly shaped by profile redundancy and the prevalence of short fires. These limitations sharpen rather than erase the claim: Fire VASE reveals a reproducible coordinate system for fire development, not a completed mechanistic theory of every fire.",
             "Despite these limits, the present result is a useful foundation. It shows that a continental fire archive can be re-expressed as a population of developmental forms, that those forms occupy a strongly structured morphospace, and that climate can be projected onto that space without using climate to define it. Fire VASE is therefore best understood as an instrument for organizing fire history before building richer mechanistic explanations.",
         ],
         st,
@@ -437,17 +410,18 @@ def build_story() -> list:
         story,
         "Coupling And Stage Models",
         [
-            "Directional coupling was evaluated with held-out linear baseline models. One direction predicts morphospace coordinates from climate summaries, written informally as P(morphology | climate). The reverse predicts climate summaries from morphospace coordinates, written as P(climate | morphology). These are not causal estimates and are not mutual-information estimates; they are linear proxies for recoverable structure under a simple model.",
-            "Developmental control profiles were evaluated by splitting each fire into early, expansion, mature, and terminal stages. For each stage, geometry-only, climate-only, and geometry-plus-climate predictors were compared for their ability to recover final morphospace position. This establishes how much information is already present in partial developmental state relative to centroid climate summaries.",
+            "Directional coupling was evaluated with held-out linear baseline models. One direction predicts morphospace coordinates from climate summaries, written informally as P(morphology | climate). The reverse predicts climate summaries from morphospace coordinates, written as P(climate | morphology). Models were evaluated under random, region-blocked, and year-blocked folds. These are not causal estimates and are not mutual-information estimates; they are linear proxies for recoverable structure under a simple model.",
+            "Partial-history prediction was evaluated with a leakage-audited fixed-day table. For days 1, 2, 4, and 8, predictors were restricted to quantities available by that day: cumulative burned area so far, growth observed so far, active-day summaries, and climate observed so far. Final morphospace position was represented by the first three developmental coordinates. Region- and year-blocked folds are treated as the conservative benchmark because they test whether the relationship transfers across broad spatial or temporal partitions. The older fractional-stage table is not used for the main prediction claim because several stage variables were normalized by final fire size or counted future pulses, making them unavailable at early prediction time.",
         ],
         st,
     )
 
     add_subsection(
         story,
-        "Matched Comparisons",
+        "Validation Analyses",
         [
-            "Matched examples were generated to expose two contrasts: similar morphology under different climate and similar climate under different morphology. The manuscript figure presents these as diagnostic examples rather than as a final inferential test. A future version should quantify these contrasts across neighborhoods with explicit matching tolerances, uncertainty, and duration-stratified sensitivity.",
+            "PCA stability was assessed with stratified bootstrap resampling by duration, area, year, and region. Null analyses compared the observed PCA against feature-wise permutation and within-fire growth-profile permutation. Sensitivity analyses repeated the PCA after duration filtering and feature ablation. Medoid coverage was quantified by nearest-medoid distance in PC1-PC3, and shape-label overlap was quantified by local nearest-neighbor purity relative to class-frequency expectation.",
+            "Matched examples were generated to expose two contrasts: similar morphology under different climate and similar climate under different morphology. Population-level matching used nearest-neighbor searches in one standardized space followed by distance measurement in the other. The current matched analysis is a diagnostic for non-equivalence rather than a completed causal or mechanistic test.",
         ],
         st,
     )
@@ -477,7 +451,7 @@ def build_story() -> list:
     story.append(p("<b>Author contributions:</b> Author contribution roles to be finalized.", st["small"]))
     story.append(p("<b>Competing interests:</b> The authors declare no competing interests, pending author confirmation.", st["small"]))
     story.append(p("<b>Data and materials availability:</b> This draft was generated from CubeDynamics Fire VASE workflow artifacts. Public archival links for FIRED-derived inputs, gridMET extraction products, derived analysis tables, and reproducible figure scripts must be added before submission.", st["small"]))
-    story.append(p("<b>Supplementary materials:</b> Supplementary methods, sensitivity analyses, derived tables, and additional atlas panels are planned but not yet packaged.", st["small"]))
+    story.append(p("<b>Supplementary materials:</b> Supplementary validation summaries, derived statistics, figure legends, a data dictionary, and a reproducible figure manifest are packaged under figures/main and figures/supplement in this repository.", st["small"]))
 
     story.append(NextPageTemplate("Figure"))
     story.append(PageBreak())
@@ -485,28 +459,28 @@ def build_story() -> list:
     figures = [
         (
             1,
-            figure_paths["morphospace"],
-            "Geometry-first developmental morphospace with representative Fire VASE medoids. Points are real FIRED events positioned by geometry-only VASE features. Red medoids summarize neighborhoods in PC1-PC3 morphospace.",
+            figure_paths["figure_1"],
+            "Whole-fire histories collapse into a common developmental coordinate system. Fire VASE converts each real FIRED event into a comparable developmental object by mapping event time from bottom to top and normalized cumulative burned area to ring width. Panel A shows five observed fires, pairing each daily cumulative-area history with its corresponding VASE glyph; labels give the descriptive shape name, duration in days, and final burned area in square kilometers. Panel B shows the geometry-only morphospace for all 278,569 fires along the first two developmental gradients. The gray density field is the fire population, darker tones indicate higher density, and red points are high-occupancy real representative fires used as atlas landmarks. Panels C and D evaluate low dimensionality: the scree plot shows individual and cumulative explained variance for the first ten axes, while the null comparison places the observed five-axis variance against feature-wise and within-fire growth-timing permutation nulls. Panel E repeats the PCA after excluding increasingly short fires, showing that the low-dimensional structure persists but weakens for longer-duration subsets.",
         ),
         (
             2,
-            figure_paths["field_guide"],
-            "Field-guide examples of representative developmental forms. Each VASE is a real medoid fire; rings are observed developmental slices and colors show maximum temperature where available.",
+            figure_paths["figure_2"],
+            "Wildfire occupies a continuous atlas of recurring developmental forms. Panel A places the 18 highest-occupancy real representative Fire VASEs over the full geometry-only density field. Each representative is an observed fire, not an idealized or synthetic glyph; leader lines connect displaced glyphs to their true coordinates along the first two developmental gradients. Panel B ranks representatives by the number of fires closest to each one in the first three gradients, illustrating that some developmental neighborhoods are common whereas others are rare. Panel C shows the coverage curve: as the number of representative fires increases, median and 90th-percentile distance to the nearest representative decline, indicating that a compact atlas can summarize occupied morphospace. Panel D shows real-fire transects through gradients 1, 2, and 3, with glyph shape changing gradually along each axis. Panel E compares local shape-label purity with a class-frequency reference, supporting the use of labels as soft landmarks within a continuous morphospace rather than as sharply separated classes.",
         ),
         (
             3,
-            figure_paths["climate"],
-            "Climate projected onto the geometry-first morphospace. Temperature, VPD, and wind are mapped after the morphospace is constructed, so climate does not define the axes.",
+            figure_paths["figure_3"],
+            "The major axes encode interpretable dimensions of fire development. Panels A-C show five observed fires sampled along developmental gradients 1, 2, and 3. For each example, the upper glyph is the Fire VASE and the lower mini-plot is the normalized cumulative-area history, allowing the reader to see how coordinate score corresponds to developmental shape. Gradient 1 primarily tracks growth allocation and temporal concentration, gradient 2 mixes taper, duration, late growth, and scale, and gradient 3 emphasizes pulse/reactivation and timing structure. Panel D groups feature contributions by domain, showing which families of VASE features contribute to each axis. Panel E validates the axis interpretation with simple raw-history regression proxies, controlling for duration, final area, and observation count. These panels interpret the coordinate system descriptively; they do not by themselves identify fuels, climate, suppression, or topography as mechanisms.",
         ),
         (
             4,
-            figure_paths["control"],
-            "Developmental control profile. Stage-wise geometry-only models carry far more information about final morphospace position than climate-only models in the current linear baseline.",
+            figure_paths["figure_4"],
+            "Climate aligns with developmental geometry but does not uniquely determine it. Panel A projects median maximum vapor pressure deficit (VPD, kPa) onto the geometry-first morphospace for 237,235 climate-complete fires; the axes remain the geometry-only developmental gradients from Figure 1. Panel B repeats the projection for average daily high temperature in degrees C, average VPD in kPa, and average wind speed in m/s, showing that broad climate gradients are visible after the morphospace has been defined. Panel C summarizes held-out linear coupling models comparing climate predicting shape and shape predicting climate under random and region-blocked folds. Error bars show fold variation and blocked results are treated as the conservative comparison. Panel D shows matched real-fire examples that separate similar shape from similar climate. Panel E summarizes population-level matched distances, reinforcing that climate and morphology are associated but not interchangeable.",
         ),
         (
             5,
-            figure_paths["matched"],
-            "Matched comparisons showing similar morphology under different climate and similar climate with different morphology. These pairs illustrate that morphology and climate are coupled but not equivalent.",
+            figure_paths["figure_5"],
+            "Fixed-day partial histories provide a leakage-audited developmental benchmark. Panel A illustrates the prediction task with one real fire truncated at fixed observed-day stages. For each stage, the partial VASE contains only information available by that day, while the adjacent final VASE shows the complete event. Panel B compares region-blocked prediction accuracy for final shape using trivial stage summaries, climate-only predictors, geometry-only predictors, and geometry-plus-climate predictors. Values near or below zero mean that the fixed-day linear model does not generalize beyond the held-out mean under blocked validation. Panel C shows the accuracy gain from adding climate to geometry at each observed-day stage. Panel D compares observed and predicted final main shape score for the day-4 region-blocked model, illustrating the weak conservative benchmark. Panel E documents the leakage audit: older fractional-stage variables normalized by final area or counted future pulses are excluded, and only fixed-day safe predictors are used here.",
         ),
     ]
     for fig_no, img, caption in figures:
@@ -517,7 +491,6 @@ def build_story() -> list:
 
 
 def build_pdf() -> dict:
-    render_atlas_pages()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     doc = make_doc(OUTPUT)
     story = build_story()
@@ -525,13 +498,13 @@ def build_pdf() -> dict:
     report = {
         "generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
         "pdf": OUTPUT.as_posix(),
-        "source_atlas": ATLAS.as_posix(),
+        "source_figures": MAIN_FIGURE_DIR.as_posix(),
         "figures": [
-            (FIGURE_DIR / "morphospace.png").as_posix(),
-            (FIGURE_DIR / "field_guide.png").as_posix(),
-            (FIGURE_DIR / "climate.png").as_posix(),
-            (FIGURE_DIR / "control.png").as_posix(),
-            (FIGURE_DIR / "matched.png").as_posix(),
+            (FIGURE_DIR / "figure_1.png").as_posix(),
+            (FIGURE_DIR / "figure_2.png").as_posix(),
+            (FIGURE_DIR / "figure_3.png").as_posix(),
+            (FIGURE_DIR / "figure_4.png").as_posix(),
+            (FIGURE_DIR / "figure_5.png").as_posix(),
         ],
         "format": "Science initial-submission-style draft: single column, double spaced, line numbered, figures grouped after text",
         "compliance_note": COMPLIANCE_NOTE.as_posix(),
