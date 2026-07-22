@@ -262,18 +262,18 @@ def build_perimeter_exposure_table(
     wind_present_threshold_m_s: float,
     climate_version: str,
 ) -> tuple[pd.DataFrame, dict[str, Any]]:
-    daily_4326 = daily.to_crs("EPSG:4326")
-    geometries_4326 = list(
-        exposure_geometries(daily_4326, extension_distances_m=extension_distances_m)
-    )
     geometries_native = list(exposure_geometries(daily, extension_distances_m=extension_distances_m))
+    geometry_4326 = gpd.GeoSeries(
+        [row["geometry"] for row in geometries_native],
+        crs=daily.crs,
+    ).to_crs("EPSG:4326")
     arrays: dict[tuple[str, int], GridmetArray | None] = {}
     records: list[dict[str, Any]] = []
     missing_files: set[str] = set()
     cached_years = gridmet_years(gridmet_cache)
 
-    for native, projected in zip(geometries_native, geometries_4326, strict=True):
-        timestamp = pd.to_datetime(projected["timestamp"]).normalize()
+    for native, projected_geometry in zip(geometries_native, geometry_4326, strict=True):
+        timestamp = pd.to_datetime(native["timestamp"]).normalize()
         base = {
             key: value
             for key, value in native.items()
@@ -290,19 +290,19 @@ def build_perimeter_exposure_table(
         available = True
         for variable in variables:
             output = GRIDMET_OUTPUTS[variable]
-            array_key = (variable, int(projected["year"]))
+            array_key = (variable, int(native["year"]))
             if array_key not in arrays:
-                arrays[array_key] = open_gridmet_array(gridmet_cache, variable, int(projected["year"]))
+                arrays[array_key] = open_gridmet_array(gridmet_cache, variable, int(native["year"]))
             gridmet = arrays[array_key]
             if gridmet is None:
-                missing_files.add(f"{variable}_{int(projected['year'])}.nc")
+                missing_files.add(f"{variable}_{int(native['year'])}.nc")
                 stats = summarize_values(np.array([], dtype=float))
                 cells = 0
                 sample_method = "gridmet_file_missing"
             else:
                 stats, cells, sample_method = extract_zone_variable(
                     gridmet,
-                    projected["geometry"],
+                    projected_geometry,
                     timestamp,
                 )
             base["sample_cell_count"] = max(int(base["sample_cell_count"]), cells)
@@ -360,6 +360,7 @@ def run(args: argparse.Namespace) -> dict[str, Any]:
         "daily_gpkg": args.daily_gpkg.as_posix(),
         "gridmet_cache": args.gridmet_cache.as_posix(),
         "output": output_path.as_posix(),
+        "max_fires": args.max_fires,
         "fire_count": int(table["fire_id"].nunique()) if not table.empty else 0,
         "exposure_rows": int(len(table)),
         "climate_available_rows": int(table["climate_available"].sum()) if not table.empty else 0,

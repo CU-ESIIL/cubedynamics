@@ -23,6 +23,14 @@ from cubedynamics.fire_vase_lakehouse import (
 )
 from scripts.check_repository_size import check_paths
 from scripts.fire_vase_build_climate_tables import build_manifest_tables, normalize_daily
+from scripts.fire_vase_build_perimeter_climate_tables import (
+    ZONE_ACTIVE,
+    ZONE_CUMULATIVE,
+    ZONE_EXTENSION,
+    cell_mask_for_geometry,
+    exposure_geometries,
+    variable_codes,
+)
 
 
 def test_cache_keys_are_deterministic_and_versioned():
@@ -259,6 +267,81 @@ def test_climate_table_manifest_splits_complete_and_retryable_failures():
     assert complete["status"].tolist() == ["climate_complete"]
     assert set(failures["fire_id"]) == {"2", "3"}
     assert failures["retryable"].all()
+
+
+def test_perimeter_exposure_geometries_include_active_cumulative_and_extension():
+    gpd = pytest.importorskip("geopandas")
+    shapely = pytest.importorskip("shapely")
+
+    daily = gpd.GeoDataFrame(
+        {
+            "id": [1, 1],
+            "fire_id": ["1", "1"],
+            "date": pd.to_datetime(["2020-01-01", "2020-01-02"]),
+            "event_day": [1, 2],
+            "event_dur": [2, 2],
+            "dy_ar_km2": [1.0, 1.0],
+            "tot_ar_km2": [2.0, 2.0],
+        },
+        geometry=[
+            shapely.box(0, 0, 1000, 1000),
+            shapely.box(1000, 0, 2000, 1000),
+        ],
+        crs="EPSG:5070",
+    )
+
+    rows = list(exposure_geometries(daily, extension_distances_m=[1000]))
+
+    assert len(rows) == 6
+    assert [row["exposure_zone"] for row in rows[:3]] == [
+        ZONE_ACTIVE,
+        ZONE_CUMULATIVE,
+        ZONE_EXTENSION,
+    ]
+    assert rows[0]["exposure_area_km2"] == pytest.approx(1.0)
+    assert rows[3]["exposure_area_km2"] == pytest.approx(1.0)
+    assert rows[4]["exposure_area_km2"] == pytest.approx(2.0)
+    assert rows[5]["exposure_area_km2"] > rows[4]["exposure_area_km2"]
+
+
+def test_perimeter_cell_mask_uses_inside_cells_then_explicit_fallback():
+    shapely = pytest.importorskip("shapely")
+    lat = pd.Series([0.0, 1.0, 2.0]).to_numpy(float)
+    lon = pd.Series([0.0, 1.0, 2.0]).to_numpy(float)
+
+    lat_idx, lon_idx, mask, method = cell_mask_for_geometry(
+        shapely.box(0.4, 0.4, 1.6, 1.6),
+        lat=lat,
+        lon=lon,
+    )
+
+    assert method == "grid_cells_inside_zone"
+    assert mask.sum() == 1
+    assert lat[lat_idx][mask.any(axis=1)].tolist() == [1.0]
+    assert lon[lon_idx][mask.any(axis=0)].tolist() == [1.0]
+
+    lat_idx, lon_idx, mask, method = cell_mask_for_geometry(
+        shapely.box(0.01, 0.01, 0.02, 0.02),
+        lat=lat,
+        lon=lon,
+    )
+
+    assert method == "fallback_nearest_cell_to_zone"
+    assert mask.sum() == 1
+    assert lat_idx.tolist() == [0]
+    assert lon_idx.tolist() == [0]
+
+
+def test_perimeter_variable_codes_can_include_optional_gridmet_variables():
+    config = {
+        "climate": {
+            "variables": {"maximum_temperature_c": "tmmx"},
+            "optional_variables": {"precipitation_mm": "pr", "fuel_moisture_100hr_pct": "fm100"},
+        }
+    }
+
+    assert variable_codes(config, include_optional=False, variables=None) == ["tmmx"]
+    assert variable_codes(config, include_optional=True, variables=None) == ["tmmx", "pr", "fm100"]
 
 
 def test_normalize_daily_marks_cached_year_support():

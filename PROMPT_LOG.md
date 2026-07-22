@@ -1520,3 +1520,31 @@ secrets, credentials, private tokens, or unrelated transcript text.
   figure scripts, rendered the manuscript PDF to PNG with Poppler, visually
   checked key figure pages and overlap-prone panels, confirmed the PDF reports
   19 letter pages, and confirmed the staged repository size policy check passes.
+
+### 2026-07-22 Follow-up: Perimeter-Based Climate Attribution Scaffold
+- Started addressing the manuscript caveat that climate attribution was daily
+  and centroid-based by adding a companion perimeter-exposure pipeline rather
+  than replacing the existing centroid `vase_slices` baseline.
+- Extended the shared gridMET variable mapping to support precipitation,
+  relative and specific humidity, 100-hr and 1000-hr dead fuel moisture,
+  energy release component, burning index, evapotranspiration, and solar
+  radiation in addition to maximum temperature, minimum temperature, VPD, and
+  wind speed.
+- Added `scripts/fire_vase_build_perimeter_climate_tables.py`, which summarizes
+  cached daily gridMET over real FIRED daily polygons for active burned area,
+  cumulative burned area, and configurable exterior perimeter-extension zones.
+  The table records sample-cell counts, mean/min/max/std climate summaries,
+  and explicit nearest-cell fallback flags for fires smaller than a gridMET
+  cell.
+- Added `schemas/vase_climate_exposures.schema.json`, documented the new table
+  in `docs/dev/fire_vase_lakehouse.md`, added optional-variable settings to
+  `config/fire_vase_pipeline.yml`, and added a `--preset comprehensive` option
+  to `scripts/cache_gridmet_years.py` for downloading expanded gridMET inputs.
+- Ran a 25-fire real-data pilot extraction against the cached 2000-2021 gridMET
+  files and wrote corrected pilot output to
+  `scratch/fire_vase_run_full/tables/vase_climate_exposures.parquet` plus
+  `scratch/fire_vase_run_full/perimeter_climate_build_report.json`.
+- Validation: caught and fixed an initial CRS/buffering bug before finalizing
+  the smoke output, compiled the changed scripts, ran
+  `pytest tests/test_fire_vase_lakehouse.py -q` with 16 passing tests, and
+  confirmed the staged repository size policy check passes.

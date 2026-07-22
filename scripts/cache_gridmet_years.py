@@ -13,6 +13,24 @@ import requests
 
 
 BASE_URL = "https://www.northwestknowledge.net/metdata/data"
+STANDARD_VARIABLES = ["tmmx", "tmmn", "vpd", "vs"]
+COMPREHENSIVE_VARIABLES = [
+    "tmmx",
+    "tmmn",
+    "vpd",
+    "vs",
+    "pr",
+    "rmax",
+    "rmin",
+    "sph",
+    "fm100",
+    "fm1000",
+    "erc",
+    "bi",
+    "etr",
+    "pet",
+    "srad",
+]
 
 
 def _download(url: str, target: Path, *, timeout: int = 180) -> dict:
@@ -40,9 +58,16 @@ def _download(url: str, target: Path, *, timeout: int = 180) -> dict:
 def run(args: argparse.Namespace) -> dict:
     started = time.perf_counter()
     records = []
+    variables = args.variables
+    if args.preset == "standard" and variables is None:
+        variables = STANDARD_VARIABLES
+    elif args.preset == "comprehensive" and variables is None:
+        variables = COMPREHENSIVE_VARIABLES
+    elif variables is None:
+        raise ValueError(f"Unsupported gridMET cache preset: {args.preset!r}")
     args.cache_dir.mkdir(parents=True, exist_ok=True)
     for year in range(args.start_year, args.end_year + 1):
-        for variable in args.variables:
+        for variable in variables:
             target = args.cache_dir / f"{variable}_{year}.nc"
             url = f"{BASE_URL}/{variable}_{year}.nc"
             try:
@@ -67,7 +92,7 @@ def run(args: argparse.Namespace) -> dict:
         "cache_dir": args.cache_dir.as_posix(),
         "start_year": args.start_year,
         "end_year": args.end_year,
-        "variables": args.variables,
+        "variables": variables,
         "downloaded": sum(1 for r in records if r["status"] == "downloaded"),
         "cached": sum(1 for r in records if r["status"] == "cached"),
         "failed": sum(1 for r in records if r["status"] == "failed"),
@@ -87,7 +112,8 @@ def main() -> int:
     parser.add_argument("--manifest", type=Path, default=Path("scratch/fire_vase_run_full/gridmet_cache_manifest.json"))
     parser.add_argument("--start-year", type=int, default=2000)
     parser.add_argument("--end-year", type=int, default=2021)
-    parser.add_argument("--variables", nargs="+", default=["tmmx", "tmmn", "vpd", "vs"])
+    parser.add_argument("--preset", choices=["standard", "comprehensive"], default="standard")
+    parser.add_argument("--variables", nargs="+", default=None)
     parser.add_argument("--timeout", type=int, default=180)
     parser.add_argument("--keep-going", action="store_true")
     args = parser.parse_args()
