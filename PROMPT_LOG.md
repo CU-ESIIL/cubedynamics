@@ -1309,3 +1309,78 @@ secrets, credentials, private tokens, or unrelated transcript text.
   years are not yet cached locally.
 - DuckDB validation confirmed available climate ranges and schema validation
   passed on sample records. Focused lakehouse tests pass (`13 passed`).
+
+### 2026-07-22 Follow-up: Full-Span gridMET Climate Attribution
+- Cached real daily gridMET NetCDF files for `tmmx`, `tmmn`, `vpd`, and `vs`
+  for 2000-2021 under ignored
+  `artifacts/fire-vase-gridmet-real/gridmet-cache/` using
+  `scripts/cache_gridmet_years.py`.
+- Cache manifest:
+  `scratch/fire_vase_run_full/gridmet_cache_manifest.json`. The completed
+  cache contains 88 NetCDF files, reusing 13 already cached files and
+  downloading 75 additional files with 0 failures.
+- Rebuilt `scratch/fire_vase_run_full/tables/vase_slices.parquet` across the
+  full cached span. The table now contains 626,102 daily VASE slice rows for
+  278,569 FIRED events from 2000-11-02 through 2021-05-01.
+- Climate attribution is complete for 237,235 fires and 550,961 slice rows.
+  The remaining 41,334 fires and 75,141 slice rows have cached-year extraction
+  failures because gridMET returned missing values for one or more centroid
+  samples, likely outside/near the effective gridMET footprint.
+- Validation: sample `vase_slices` records passed JSON schema validation;
+  focused lakehouse tests passed (`13 passed`); staged repository size policy
+  check passed.
+
+### 2026-07-22 Follow-up: Developmental Morphology Analysis Atlas
+- Added `scripts/fire_vase_developmental_morphology_analysis.py` to construct a
+  continuous geometry-first VASE morphospace and evaluate climate coupling
+  afterward from the full climate-attributed `vase_slices` table.
+- Generated `output/pdf/fire_vase_developmental_morphology_atlas.pdf` and
+  `output/pdf/fire_vase_developmental_morphology_atlas_manifest.json`.
+- The atlas uses all 278,569 FIRED events, 237,235 climate-complete fires, and
+  36 real medoid VASE representatives selected by farthest-point coverage in
+  PC1-PC3 morphospace.
+- Wrote sidecar analysis tables under ignored
+  `scratch/fire_vase_developmental_morphology/`: morphospace features, medoids,
+  geometry-only developmental events, stage summaries, directional coupling,
+  developmental control profile, matched pairs, and PCA loadings.
+- First-pass results: geometry PC1-PC5 explain 96.3% of geometry-feature
+  variance; mean linear proxy R2 is 0.191 for `P(morphology | climate)` and
+  0.020 for `P(climate | morphology)`. Stage-wise control profiles indicate
+  geometry-only models carry far more information about final morphospace
+  position than climate-only models in this linear baseline.
+- Validation: rendered the 10-page PDF to PNG with Poppler and visually checked
+  overview, medoid, field-guide, and control-profile pages. The script compiles,
+  focused lakehouse tests pass (`13 passed`), and staged repository size policy
+  check passes.
+
+### 2026-07-22 Follow-up: Manuscript Stage 1 Narrative
+- Created
+  `docs/manuscripts/fire_vase_developmental_morphology/manuscript_stage_1_narrative.md`
+  as the first manuscript working draft for Fire VASE developmental morphology.
+- The draft frames Fire VASE as a scientific representation, not a visualization,
+  and organizes the paper around a geometry-first developmental morphospace,
+  climate mapped afterward, matched comparisons, and a developmental control
+  profile.
+- Added a focused citation map covering FIRED/FIREDpy, gridMET, climate/VPD,
+  fast daily fire growth, topographic spread constraints, and biological
+  morphospace/geometric morphometrics.
+- Linked the narrative to current analysis outputs: the developmental morphology
+  atlas, morphospace features, medoids, geometry-only events, climate coupling,
+  matched pairs, and control-profile tables.
+
+### 2026-07-22 Follow-up: Manuscript Stage 2 Citation-Revised Narrative
+- Created
+  `docs/manuscripts/fire_vase_developmental_morphology/manuscript_stage_2_citation_revised_narrative.md`
+  from the user's opening manuscript thoughts.
+- Tightened the central claim from "wildfire lacks a representation of an entire
+  fire" to the more citation-defensible claim that wildfire lacks a compact,
+  comparable, whole-history developmental representation.
+- Revised the abstract and introduction around Fire VASE as an instrument for
+  discovering morphospace, not primarily a visualization.
+- Folded in current repository results: 278,569 events, 237,235
+  climate-complete fires, PC1-PC5 explaining 96.3% of geometry-feature variance,
+  36 medoid representatives, directional coupling R2 values, and the
+  stage-wise developmental control profile.
+- Added a results narrative and figure sequence for a tight six-figure
+  manuscript, plus confidence levels and analyses still needed before
+  submission.
