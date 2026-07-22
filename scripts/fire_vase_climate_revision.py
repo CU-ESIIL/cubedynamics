@@ -41,8 +41,8 @@ SLICES_PATH = ROOT / "scratch/fire_vase_run_full/tables/vase_slices.parquet"
 TRAITS_PATH = ROOT / "scratch/fire_vase_run_full/tables/fire_traits.parquet"
 CATALOG_PATH = ROOT / "scratch/fire_vase_run_full/tables/fire_catalog.parquet"
 EXPOSURES_PATH = ROOT / "scratch/fire_vase_run_full/tables/vase_climate_exposures.parquet"
-CLIMATE_REPORT_PATH = ROOT / "scratch/fire_vase_run_full/climate_build_report.json"
-PERIMETER_REPORT_PATH = ROOT / "scratch/fire_vase_run_full/perimeter_climate_build_report.json"
+CLIMATE_REPORT_PATH = ROOT / "scratch/fire_vase_run_full/climate_build_comprehensive_report.json"
+PERIMETER_REPORT_PATH = ROOT / "scratch/fire_vase_run_full/perimeter_climate_build_comprehensive_report.json"
 GRIDMET_MANIFEST_PATH = ROOT / "scratch/fire_vase_run_full/gridmet_cache_manifest.json"
 
 ANALYSIS_DIR = ROOT / "analysis"
@@ -71,12 +71,46 @@ RED = "#b23a32"
 ORANGE = "#d78232"
 CLIMATE_CMAP = "viridis"
 
-CLIMATE_COLUMNS = [
-    "mean_maximum_temperature_c",
-    "mean_minimum_temperature_c",
-    "mean_vpd_kpa",
-    "max_vpd_kpa",
-    "mean_wind_speed_m_s",
+CLIMATE_METADATA = {
+    "maximum_temperature_c": ("Maximum temperature", "degrees C"),
+    "minimum_temperature_c": ("Minimum temperature", "degrees C"),
+    "vpd_kpa": ("VPD", "kPa"),
+    "wind_speed_m_s": ("Wind speed", "m s-1"),
+    "precipitation_mm": ("Precipitation", "mm d-1"),
+    "maximum_relative_humidity_pct": ("Maximum relative humidity", "%"),
+    "minimum_relative_humidity_pct": ("Minimum relative humidity", "%"),
+    "specific_humidity_kg_kg": ("Specific humidity", "kg kg-1"),
+    "fuel_moisture_100hr_pct": ("100-hour fuel moisture", "%"),
+    "fuel_moisture_1000hr_pct": ("1000-hour fuel moisture", "%"),
+    "energy_release_component": ("Energy release component", "index"),
+    "burning_index": ("Burning index", "index"),
+    "reference_evapotranspiration_mm": ("Reference evapotranspiration", "mm d-1"),
+    "potential_evapotranspiration_mm": ("Potential evapotranspiration", "mm d-1"),
+    "solar_radiation_w_m2": ("Solar radiation", "W m-2"),
+}
+
+CORE_CLIMATE_COLUMNS = [
+    "maximum_temperature_c",
+    "minimum_temperature_c",
+    "vpd_kpa",
+    "wind_speed_m_s",
+]
+
+MOISTURE_CLIMATE_COLUMNS = [
+    "precipitation_mm",
+    "maximum_relative_humidity_pct",
+    "minimum_relative_humidity_pct",
+    "specific_humidity_kg_kg",
+    "fuel_moisture_100hr_pct",
+    "fuel_moisture_1000hr_pct",
+]
+
+FIRE_DANGER_CLIMATE_COLUMNS = [
+    "energy_release_component",
+    "burning_index",
+    "reference_evapotranspiration_mm",
+    "potential_evapotranspiration_mm",
+    "solar_radiation_w_m2",
 ]
 
 RESPONSES = [
@@ -311,6 +345,9 @@ def make_climate_features(bundle: DataBundle) -> pd.DataFrame:
     slices = bundle.slices.copy()
     slices["fire_id"] = slices["fire_id"].astype(str)
     features["fire_id"] = features["fire_id"].astype(str)
+    climate_cols = [col for col in CLIMATE_METADATA if col in slices.columns]
+    if not climate_cols:
+        raise ValueError("No recognized climate columns found in the VASE slice table.")
     meta = features[["fire_id", "region", "year", "final_area_km2"]]
     s = slices.merge(meta, on="fire_id", how="left")
     s = s.loc[s["climate_available"].fillna(False)].copy()
@@ -320,43 +357,74 @@ def make_climate_features(bundle: DataBundle) -> pd.DataFrame:
     s["relative_time"] = (s["slice_index"] / max_idx).fillna(0.5)
     s["time_bin"] = pd.cut(s["relative_time"], bins=[-0.001, 1 / 3, 2 / 3, 1.001], labels=["early", "middle", "late"])
 
-    thresholds = {
-        "hot_day": float(s["maximum_temperature_c"].quantile(0.90)),
-        "high_vpd_day": float(s["vpd_kpa"].quantile(0.90)),
-        "windy_day": float(s["wind_speed_m_s"].quantile(0.90)),
-    }
-    s["hot_day"] = s["maximum_temperature_c"] >= thresholds["hot_day"]
-    s["high_vpd_day"] = s["vpd_kpa"] >= thresholds["high_vpd_day"]
-    s["windy_day"] = s["wind_speed_m_s"] >= thresholds["windy_day"]
-    region_month = s.groupby(["region", "month"], observed=True)[["maximum_temperature_c", "minimum_temperature_c", "vpd_kpa", "wind_speed_m_s"]].median()
+    thresholds = {}
+    if "maximum_temperature_c" in s:
+        thresholds["hot_day"] = float(s["maximum_temperature_c"].quantile(0.90))
+        s["hot_day"] = s["maximum_temperature_c"] >= thresholds["hot_day"]
+    if "vpd_kpa" in s:
+        thresholds["high_vpd_day"] = float(s["vpd_kpa"].quantile(0.90))
+        s["high_vpd_day"] = s["vpd_kpa"] >= thresholds["high_vpd_day"]
+    if "wind_speed_m_s" in s:
+        thresholds["windy_day"] = float(s["wind_speed_m_s"].quantile(0.90))
+        s["windy_day"] = s["wind_speed_m_s"] >= thresholds["windy_day"]
+    if "precipitation_mm" in s:
+        thresholds["wet_day"] = 0.0
+        s["wet_day"] = s["precipitation_mm"] > 0
+    if "fuel_moisture_1000hr_pct" in s:
+        thresholds["dry_1000hr_fuel_day"] = float(s["fuel_moisture_1000hr_pct"].quantile(0.10))
+        s["dry_1000hr_fuel_day"] = s["fuel_moisture_1000hr_pct"] <= thresholds["dry_1000hr_fuel_day"]
+    if "energy_release_component" in s:
+        thresholds["high_erc_day"] = float(s["energy_release_component"].quantile(0.90))
+        s["high_erc_day"] = s["energy_release_component"] >= thresholds["high_erc_day"]
+
+    region_month = s.groupby(["region", "month"], observed=True)[climate_cols].median()
     joined = s.join(region_month, on=["region", "month"], rsuffix="_region_month_median")
-    for col in ["maximum_temperature_c", "minimum_temperature_c", "vpd_kpa", "wind_speed_m_s"]:
+    for col in climate_cols:
         joined[f"{col}_region_month_anomaly"] = joined[col] - joined[f"{col}_region_month_median"]
-    agg = joined.groupby("fire_id").agg(
-        slice_count=("slice_index", "size"),
-        hot_day_fraction=("hot_day", "mean"),
-        high_vpd_day_fraction=("high_vpd_day", "mean"),
-        windy_day_fraction=("windy_day", "mean"),
-        max_daily_temperature_c=("maximum_temperature_c", "max"),
-        max_daily_vpd_kpa=("vpd_kpa", "max"),
-        max_daily_wind_speed_m_s=("wind_speed_m_s", "max"),
-        mean_maximum_temperature_region_month_anomaly_c=("maximum_temperature_c_region_month_anomaly", "mean"),
-        mean_minimum_temperature_region_month_anomaly_c=("minimum_temperature_c_region_month_anomaly", "mean"),
-        mean_vpd_region_month_anomaly_kpa=("vpd_kpa_region_month_anomaly", "mean"),
-        mean_wind_region_month_anomaly_m_s=("wind_speed_m_s_region_month_anomaly", "mean"),
-    )
+
+    agg_spec = {"slice_count": ("slice_index", "size")}
+    for flag in ["hot_day", "high_vpd_day", "windy_day", "wet_day", "dry_1000hr_fuel_day", "high_erc_day"]:
+        if flag in joined:
+            agg_spec[f"{flag}_fraction"] = (flag, "mean")
+    for col in climate_cols:
+        agg_spec[f"mean_{col}"] = (col, "mean")
+        agg_spec[f"min_daily_{col}"] = (col, "min")
+        agg_spec[f"max_daily_{col}"] = (col, "max")
+        agg_spec[f"mean_{col}_region_month_anomaly"] = (f"{col}_region_month_anomaly", "mean")
+    agg = joined.groupby("fire_id").agg(**agg_spec)
+    rename = {
+        "max_daily_maximum_temperature_c": "max_daily_temperature_c",
+        "max_daily_vpd_kpa": "max_daily_vpd_kpa",
+        "max_daily_wind_speed_m_s": "max_daily_wind_speed_m_s",
+        "mean_maximum_temperature_c_region_month_anomaly": "mean_maximum_temperature_region_month_anomaly_c",
+        "mean_minimum_temperature_c_region_month_anomaly": "mean_minimum_temperature_region_month_anomaly_c",
+        "mean_vpd_kpa_region_month_anomaly": "mean_vpd_region_month_anomaly_kpa",
+        "mean_wind_speed_m_s_region_month_anomaly": "mean_wind_region_month_anomaly_m_s",
+    }
+    agg = agg.rename(columns={k: v for k, v in rename.items() if k in agg.columns})
+
+    phase_values = [col for col in [*CORE_CLIMATE_COLUMNS, *MOISTURE_CLIMATE_COLUMNS, *FIRE_DANGER_CLIMATE_COLUMNS] if col in joined.columns]
     phase = joined.pivot_table(
         index="fire_id",
         columns="time_bin",
-        values=["maximum_temperature_c", "vpd_kpa", "wind_speed_m_s"],
+        values=phase_values,
         aggfunc="mean",
         observed=True,
     )
     phase.columns = [f"{var}_{phase_name}_mean" for var, phase_name in phase.columns]
+    overwrite_cols = [col for col in [*agg.columns, *phase.columns] if col in features.columns]
+    features = features.drop(columns=overwrite_cols)
     climate_features = features.merge(agg.reset_index(), on="fire_id", how="left").merge(phase.reset_index(), on="fire_id", how="left")
+    climate_features["wind_present_fraction"] = climate_features.get("windy_day_fraction", np.nan)
     climate_features.attrs["thresholds"] = thresholds
     region_month.reset_index().to_csv(STATS_DIR / "region_month_fire_season_medians.csv", index=False)
     pd.DataFrame([thresholds]).to_csv(STATS_DIR / "extreme_day_thresholds.csv", index=False)
+    pd.DataFrame(
+        [
+            {"column": col, "label": CLIMATE_METADATA[col][0], "units": CLIMATE_METADATA[col][1], "slice_non_null": int(s[col].notna().sum())}
+            for col in climate_cols
+        ]
+    ).to_csv(STATS_DIR / "available_climate_variables.csv", index=False)
     climate_features.to_parquet(STATS_DIR / "fire_level_climate_revision_features.parquet", index=False)
     return climate_features
 
@@ -431,36 +499,42 @@ def coefficient_table(df: pd.DataFrame, predictors: list[str], responses: list[s
 
 
 def run_event_models(climate_features: pd.DataFrame) -> pd.DataFrame:
-    model_sets = {
-        "event means": [
-            "mean_maximum_temperature_c",
-            "mean_minimum_temperature_c",
-            "mean_vpd_kpa",
-            "max_vpd_kpa",
-            "mean_wind_speed_m_s",
-        ],
-        "region-season anomalies": [
+    def existing(cols: list[str]) -> list[str]:
+        return [col for col in cols if col in climate_features.columns]
+
+    core_means = existing([f"mean_{col}" for col in CORE_CLIMATE_COLUMNS])
+    moisture_means = existing([f"mean_{col}" for col in MOISTURE_CLIMATE_COLUMNS])
+    fire_danger_means = existing([f"mean_{col}" for col in FIRE_DANGER_CLIMATE_COLUMNS])
+    core_extremes = existing(["hot_day_fraction", "high_vpd_day_fraction", "windy_day_fraction"])
+    expanded_extremes = existing(["wet_day_fraction", "dry_1000hr_fuel_day_fraction", "high_erc_day_fraction"])
+    phase_predictors = []
+    for col in [*CORE_CLIMATE_COLUMNS, "fuel_moisture_1000hr_pct", "energy_release_component", "precipitation_mm"]:
+        for phase in ["early", "middle", "late"]:
+            candidate = f"{col}_{phase}_mean"
+            if candidate in climate_features.columns:
+                phase_predictors.append(candidate)
+    anomaly_predictors = existing(
+        [
             "mean_maximum_temperature_region_month_anomaly_c",
             "mean_minimum_temperature_region_month_anomaly_c",
             "mean_vpd_region_month_anomaly_kpa",
             "mean_wind_region_month_anomaly_m_s",
-        ],
-        "extreme days": ["hot_day_fraction", "high_vpd_day_fraction", "windy_day_fraction"],
-        "time-resolved exposure": [
-            "maximum_temperature_c_early_mean",
-            "maximum_temperature_c_middle_mean",
-            "maximum_temperature_c_late_mean",
-            "vpd_kpa_early_mean",
-            "vpd_kpa_middle_mean",
-            "vpd_kpa_late_mean",
-            "wind_speed_m_s_early_mean",
-            "wind_speed_m_s_middle_mean",
-            "wind_speed_m_s_late_mean",
-            "hot_day_fraction",
-            "high_vpd_day_fraction",
-            "windy_day_fraction",
-        ],
+            "mean_precipitation_mm_region_month_anomaly",
+            "mean_fuel_moisture_1000hr_pct_region_month_anomaly",
+            "mean_energy_release_component_region_month_anomaly",
+            "mean_burning_index_region_month_anomaly",
+        ]
+    )
+    model_sets = {
+        "core event means": [*core_means, *existing(["max_vpd_kpa"])],
+        "moisture and humidity": moisture_means,
+        "fire danger and energy": fire_danger_means,
+        "comprehensive event means": [*core_means, *moisture_means, *fire_danger_means],
+        "region-season anomalies": anomaly_predictors,
+        "extreme days": [*core_extremes, *expanded_extremes],
+        "time-resolved exposure": [*phase_predictors, *core_extremes, *expanded_extremes],
     }
+    model_sets = {name: list(dict.fromkeys(cols)) for name, cols in model_sets.items() if cols}
     rows = []
     for name, predictors in model_sets.items():
         for response in RESPONSES:
@@ -485,7 +559,9 @@ def build_state_model_table(bundle: DataBundle) -> pd.DataFrame:
     s["next_growth_km2"] = s.groupby("fire_id")["ring_area_km2"].shift(-1)
     s["prev_growth_km2"] = s.groupby("fire_id")["ring_area_km2"].shift(1).fillna(0)
     s["growth_acceleration_km2"] = s["ring_area_km2"].fillna(0) - s["prev_growth_km2"].fillna(0)
-    s = s.dropna(subset=["next_growth_km2", "maximum_temperature_c", "minimum_temperature_c", "vpd_kpa", "wind_speed_m_s"])
+    climate_cols = [col for col in CLIMATE_METADATA if col in s.columns]
+    core_required = [col for col in CORE_CLIMATE_COLUMNS if col in s.columns]
+    s = s.dropna(subset=["next_growth_km2", *core_required])
     s["next_growth_log1p"] = np.log1p(s["next_growth_km2"].clip(lower=0))
     s["current_growth_log1p"] = np.log1p(s["ring_area_km2"].clip(lower=0))
     s["current_cumulative_log1p"] = np.log1p(s["cumulative_area_km2"].clip(lower=0))
@@ -496,10 +572,7 @@ def build_state_model_table(bundle: DataBundle) -> pd.DataFrame:
         "year",
         "region",
         "next_growth_log1p",
-        "maximum_temperature_c",
-        "minimum_temperature_c",
-        "vpd_kpa",
-        "wind_speed_m_s",
+        *climate_cols,
         "elapsed_day",
         "current_growth_log1p",
         "current_cumulative_log1p",
@@ -511,18 +584,22 @@ def build_state_model_table(bundle: DataBundle) -> pd.DataFrame:
 
 
 def run_state_models(state_df: pd.DataFrame) -> pd.DataFrame:
-    climate = ["maximum_temperature_c", "minimum_temperature_c", "vpd_kpa", "wind_speed_m_s"]
+    core_climate = [col for col in CORE_CLIMATE_COLUMNS if col in state_df.columns]
+    expanded_climate = [col for col in CLIMATE_METADATA if col in state_df.columns]
     state = ["elapsed_day", "current_growth_log1p", "current_cumulative_log1p", "growth_acceleration_km2"]
     d = state_df.copy()
-    for c in climate:
+    for c in core_climate:
         for st in ["elapsed_day", "current_growth_log1p", "current_cumulative_log1p"]:
             d[f"{c}_x_{st}"] = d[c] * d[st]
     model_sets = {
-        "climate only": climate,
+        "core climate only": core_climate,
+        "expanded climate only": expanded_climate,
         "state only": state,
-        "climate plus state": climate + state,
-        "climate-state interaction": climate + state + [c for c in d.columns if "_x_" in c],
+        "core climate plus state": core_climate + state,
+        "expanded climate plus state": expanded_climate + state,
+        "core climate-state interaction": core_climate + state + [c for c in d.columns if "_x_" in c],
     }
+    model_sets = {name: list(dict.fromkeys(cols)) for name, cols in model_sets.items() if cols}
     rows = []
     for name, predictors in model_sets.items():
         for block in ["random_fire", "year_block", "region_block", "region_year_hash"]:
@@ -670,6 +747,20 @@ def climate_terciles(df: pd.DataFrame, col: str) -> pd.Series:
     return pd.qcut(df[col], 3, labels=["low", "middle", "high"], duplicates="drop")
 
 
+def climate_label_from_feature(name: str) -> str:
+    if name == "max_vpd_kpa":
+        return "Maximum VPD\n(kPa)"
+    if name.endswith("_fraction"):
+        return name.replace("_day_fraction", " days").replace("_", " ")
+    base = name
+    for prefix in ["mean_", "max_daily_", "min_daily_"]:
+        if base.startswith(prefix):
+            base = base[len(prefix):]
+            break
+    label, units = CLIMATE_METADATA.get(base, (base.replace("_", " "), ""))
+    return f"{label}\n({units})" if units else label
+
+
 def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: pd.DataFrame) -> dict[str, str]:
     cf = climate_features.dropna(subset=["mean_vpd_kpa"]).copy()
     cf["vpd_group"] = climate_terciles(cf, "mean_vpd_kpa")
@@ -723,11 +814,23 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
 
     axh = fig.add_subplot(gs[2, :4])
     effects = pd.read_csv(STATS_DIR / "climate_response_spearman_effects.csv")
-    pred_names = ["mean_maximum_temperature_c", "mean_vpd_kpa", "max_vpd_kpa", "mean_wind_speed_m_s", "high_vpd_day_fraction"]
+    pred_candidates = [
+        "mean_maximum_temperature_c",
+        "mean_vpd_kpa",
+        "mean_minimum_relative_humidity_pct",
+        "mean_fuel_moisture_1000hr_pct",
+        "mean_energy_release_component",
+        "mean_precipitation_mm",
+        "high_vpd_day_fraction",
+        "dry_1000hr_fuel_day_fraction",
+        "high_erc_day_fraction",
+    ]
+    available_predictors = set(effects["predictor"])
+    pred_names = [p for p in pred_candidates if p in available_predictors]
     resp_names = ["front_loaded_fraction", "late_growth_fraction", "growth_entropy", "pulse_count", "reactivation_count", "morph_pc1"]
     mat = effects.pivot_table(index="response", columns="predictor", values="spearman_rho", aggfunc="mean").reindex(resp_names)[pred_names]
     im = axh.imshow(mat, cmap="coolwarm", vmin=-0.35, vmax=0.35, aspect="auto")
-    axh.set_xticks(np.arange(len(pred_names)), ["mean Tmax", "mean VPD", "max VPD", "mean wind", "high-VPD days"], rotation=35, ha="right")
+    axh.set_xticks(np.arange(len(pred_names)), [climate_label_from_feature(p) for p in pred_names], rotation=35, ha="right")
     axh.set_yticks(np.arange(len(resp_names)), ["front loaded", "late growth", "entropy", "pulse count", "reactivations", "gradient 1"])
     axh.set_title("Associations are distributed across responses")
     cb2 = fig.colorbar(im, ax=axh, fraction=0.032, pad=0.035)
@@ -737,7 +840,10 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axm = fig.add_subplot(gs[2, 4:])
     summary = event_models[event_models.block.isin(["year_block", "region_block", "region_year_hash"])].groupby("predictor_set")["r2"].median().sort_values()
     short_labels = {
-        "event means": "event\nmeans",
+        "core event means": "core\nmeans",
+        "comprehensive event means": "all\nmeans",
+        "moisture and humidity": "moisture",
+        "fire danger and energy": "fire\ndanger",
         "time-resolved exposure": "temporal",
         "region-season anomalies": "anomaly",
         "extreme days": "extremes",
@@ -781,14 +887,31 @@ def figure_4(bundle: DataBundle, state_df: pd.DataFrame, state_models: pd.DataFr
     axleg.text(0, 0.34, "State models use only current and prior fire history: elapsed day, current growth, cumulative area, and acceleration.", fontsize=7.2, color=MUTED, wrap=True)
 
     axm = fig.add_subplot(gs[1, :2])
-    order = ["climate only", "state only", "climate plus state", "climate-state interaction"]
+    preferred_order = [
+        "core climate only",
+        "expanded climate only",
+        "state only",
+        "core climate plus state",
+        "expanded climate plus state",
+        "core climate-state interaction",
+    ]
+    available_sets = list(state_models["predictor_set"].drop_duplicates())
+    order = [name for name in preferred_order if name in available_sets]
     perf = state_models.groupby(["predictor_set", "block"])["r2"].median().reset_index()
     for i, block in enumerate(["random_fire", "year_block", "region_block", "region_year_hash"]):
         vals = [float(perf[(perf.predictor_set == m) & (perf.block == block)]["r2"].median()) for m in order]
         axm.plot(order, vals, marker="o", lw=1.2, label=block.replace("_", " "))
     axm.axhline(0, color=INK, lw=0.7)
     axm.set_ylabel("Held-out R2 for next-day growth")
-    axm.set_xticks(range(len(order)), ["climate", "state", "climate\n+ state", "interaction"])
+    labels = {
+        "core climate only": "core\nclimate",
+        "expanded climate only": "expanded\nclimate",
+        "state only": "state",
+        "core climate plus state": "core climate\n+ state",
+        "expanded climate plus state": "expanded climate\n+ state",
+        "core climate-state interaction": "interaction",
+    }
+    axm.set_xticks(range(len(order)), [labels.get(name, name) for name in order], rotation=18, ha="right")
     axm.set_title("Developmental state improves next-day growth interpretation")
     axm.legend(frameon=False, fontsize=6.8)
     clean_axis(axm)
@@ -869,7 +992,15 @@ def figure_5(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axc = fig.add_subplot(gs[1, 2:])
     blocks = ["random_fire", "year_block", "region_block", "region_year_hash"]
     med = event_models.groupby(["predictor_set", "block"])["r2"].median().reset_index()
-    for predictor_set, color in [("event means", BLUE), ("time-resolved exposure", TEAL), ("region-season anomalies", GOLD), ("extreme days", RED)]:
+    for predictor_set, color in [
+        ("core event means", BLUE),
+        ("comprehensive event means", PURPLE),
+        ("time-resolved exposure", TEAL),
+        ("region-season anomalies", GOLD),
+        ("extreme days", RED),
+    ]:
+        if predictor_set not in set(med["predictor_set"]):
+            continue
         vals = [float(med[(med.predictor_set == predictor_set) & (med.block == b)]["r2"].median()) for b in blocks]
         axc.plot(np.arange(len(blocks)), vals, marker="o", lw=1.2, label=predictor_set, color=color)
     axc.axhline(0, color=INK, lw=0.7)
@@ -926,6 +1057,32 @@ def write_inventory(bundle: DataBundle, climate_features: pd.DataFrame) -> None:
     exp = bundle.exposures
     complete = int(f["climate_available"].fillna(False).sum())
     slice_complete = int(s["climate_available"].fillna(False).sum())
+    climate_cols = [col for col in CLIMATE_METADATA if col in s.columns]
+    variable_rows = []
+    for col in climate_cols:
+        label, units = CLIMATE_METADATA[col]
+        summaries = "daily slice, event mean, daily min/max, early/middle/late means, region-month anomaly"
+        if col == "maximum_temperature_c":
+            summaries += ", hot-day fraction"
+        if col == "vpd_kpa":
+            summaries += ", high-VPD-day fraction"
+        if col == "wind_speed_m_s":
+            summaries += ", windy-day fraction"
+        if col == "precipitation_mm":
+            summaries += ", wet-day fraction"
+        if col == "fuel_moisture_1000hr_pct":
+            summaries += ", dry-fuel-day fraction"
+        if col == "energy_release_component":
+            summaries += ", high-ERC-day fraction"
+        variable_rows.append(
+            {
+                "Variable": label,
+                "Units": units,
+                "Non-null slice rows": f"{int(s[col].notna().sum()):,}",
+                "Summary types in revision": summaries,
+                "Used in manuscript": "yes",
+            }
+        )
     lines = [
         "# Climate Data Inventory",
         "",
@@ -933,7 +1090,7 @@ def write_inventory(bundle: DataBundle, climate_features: pd.DataFrame) -> None:
         "",
         "## Population-wide daily centroid climate",
         "",
-        f"Source: gridMET cached NetCDF files listed in `scratch/fire_vase_run_full/gridmet_cache_manifest.json`; variables are {', '.join(bundle.climate_report.get('climate_variables', []))}.",
+        f"Source: gridMET cached NetCDF files; variables are {', '.join(bundle.climate_report.get('climate_variables', []))}.",
         "Spatial resolution: gridMET native 4-km grid.",
         "Temporal resolution: daily. The processing manifest labels the component `gridmet-hourly-v0`, but the available table is daily and every slice has one daily value per variable.",
         "Exposure basis: event centroid / nearest grid-cell extraction for each daily VASE slice.",
@@ -942,13 +1099,7 @@ def write_inventory(bundle: DataBundle, climate_features: pd.DataFrame) -> None:
         f"Fires with complete climate values: {complete:,} of {len(f):,}. Slice rows with climate values: {slice_complete:,} of {len(s):,}.",
         "Missingness pattern: 41,334 fires have missing cached climate values, reported as outside gridMET coverage or missing grid value in `processing_failures_climate.parquet`.",
         "",
-        "| Variable | Units | Summary types in revision | Safe for blocked prediction? | Aligns with developmental time? | Used in new manuscript? |",
-        "|---|---:|---|---|---|---|",
-        "| Maximum temperature | degrees C | daily slice, event mean, early/middle/late means, hot-day fraction, region-month anomaly | mostly yes for raw values; anomaly is an exploratory population-normalization unless recomputed inside folds | yes | yes |",
-        "| Minimum temperature | degrees C | daily slice, event mean, region-month anomaly | mostly yes for raw values; anomaly caveat as above | yes | yes |",
-        "| Vapor pressure deficit | kPa | daily slice, event mean, event maximum, early/middle/late means, high-VPD-day fraction, region-month anomaly | mostly yes for raw values; anomaly caveat as above | yes | yes |",
-        "| Wind speed | m s-1 | daily slice, event mean, early/middle/late means, windy-day fraction, region-month anomaly | mostly yes for raw values; anomaly caveat as above | yes | yes |",
-        "| Wind present | unitless fraction | always 1.0 in the climate-complete event table | no, because it has no variation | yes in principle | no |",
+        df_to_markdown(pd.DataFrame(variable_rows), floatfmt=".3f"),
         "",
         "## Perimeter, active-burned-area, and perimeter-extension pilot",
         "",
@@ -962,20 +1113,20 @@ def write_inventory(bundle: DataBundle, climate_features: pd.DataFrame) -> None:
             f"Fire count: {exp.fire_id.nunique():,}. Rows: {len(exp):,}. Climate-available rows: {int(exp.climate_available.fillna(False).sum()):,}.",
             "Exposure bases present: " + ", ".join(sorted(exp.exposure_zone.dropna().unique())) + ".",
             "Extension distances: " + ", ".join(map(str, bundle.perimeter_report.get("extension_distances_m", []))) + " m.",
-            "Variables: maximum temperature, minimum temperature, VPD, and wind speed summarized by zone as mean/min/max/std, plus sampled cell count and exposure area.",
-            "Status: useful as a methods pilot and limitation figure only. It is not population-wide enough for the main inferential climate result.",
+            "Variables are summarized by zone as mean/min/max/std where present, plus sampled cell count and exposure area.",
+            "Status: useful as a methods/perimeter-exposure product. If its fire count is lower than the centroid table, it remains a coverage limitation rather than the main inferential basis.",
             "",
             df_to_markdown(zones, floatfmt=".3f"),
         ]
     lines += [
         "",
-        "## Variables searched but not available as population-wide analysis products",
+        "## Variables still not available as population-wide analysis products",
         "",
-        "Wind direction, gusts, precipitation, relative humidity, soil moisture, fuel moisture, drought indices, vegetation, topography, suppression, ignition cause, and true local seasonal normals were not found in the current population-wide Fire VASE tables. They should not be claimed as analyzed.",
+        "Wind direction, gusts, soil moisture, topography, vegetation, suppression, ignition cause, and true local seasonal normals were not found in the current population-wide Fire VASE tables. The current anomaly diagnostic is a region-month fire-population contrast, not a climatological normal.",
         "",
         "## Current manuscript use",
         "",
-        "The new manuscript uses population-wide daily centroid gridMET temperature, VPD, and wind speed; derived extreme-day fractions; early/middle/late exposure summaries; and a clearly labeled region-month anomaly diagnostic. Perimeter and active-burned-area climate are described as a pilot and limitation, not as main evidence.",
+        "The new manuscript uses population-wide daily centroid gridMET temperature, VPD, wind, precipitation, relative humidity, specific humidity, fuel moisture, fire-danger indices, evapotranspiration, PET, and solar radiation; derived extreme-day fractions; early/middle/late exposure summaries; and a clearly labeled region-month anomaly diagnostic. Perimeter and active-burned-area climate are described according to the coverage actually present in the perimeter exposure table.",
     ]
     (ANALYSIS_DIR / "climate_data_inventory.md").write_text("\n".join(lines) + "\n")
 
@@ -1069,9 +1220,10 @@ def best_model_summary(event_models: pd.DataFrame, state_models: pd.DataFrame) -
         "best_state_set": by_state.index[0],
         "best_state_r2": float(by_state.iloc[0]),
         "state_r2_by_set": by_state.to_dict(),
-        "anomalies_outperform_raw": bool(by_set.get("region-season anomalies", -np.inf) > by_set.get("event means", -np.inf)),
-        "resolved_outperform_event_means": bool(by_set.get("time-resolved exposure", -np.inf) > by_set.get("event means", -np.inf)),
-        "interaction_survives_blocking": bool(by_state.get("climate-state interaction", -np.inf) > by_state.get("climate plus state", -np.inf) + 0.01),
+        "anomalies_outperform_raw": bool(by_set.get("region-season anomalies", -np.inf) > by_set.get("core event means", -np.inf)),
+        "resolved_outperform_event_means": bool(by_set.get("time-resolved exposure", -np.inf) > by_set.get("core event means", -np.inf)),
+        "comprehensive_outperform_core": bool(by_set.get("comprehensive event means", -np.inf) > by_set.get("core event means", -np.inf)),
+        "interaction_survives_blocking": bool(by_state.get("core climate-state interaction", -np.inf) > by_state.get("core climate plus state", -np.inf) + 0.01),
     }
 
 
@@ -1086,10 +1238,13 @@ def write_model_reports(bundle: DataBundle, climate_features: pd.DataFrame, even
         "",
         "## Predictor sets",
         "",
-        "- Event means: mean maximum temperature, mean minimum temperature, mean VPD, maximum VPD, mean wind speed.",
+        "- Core event means: mean maximum temperature, mean minimum temperature, mean VPD, maximum VPD, and mean wind speed.",
+        "- Moisture and humidity: precipitation, maximum and minimum relative humidity, specific humidity, and 100-hour and 1000-hour fuel moisture.",
+        "- Fire danger and energy: energy release component, burning index, reference evapotranspiration, potential evapotranspiration, and solar radiation.",
+        "- Comprehensive event means: the union of core climate, moisture/humidity, and fire-danger/energy means.",
         "- Region-season anomalies: observed value minus region-month fire-season median from the current fire population; not a true local climatological normal.",
-        "- Extreme days: fraction of daily slices above the population 90th percentile for maximum temperature, VPD, or wind speed.",
-        "- Time-resolved exposure: early, middle, and late mean temperature, VPD, wind speed plus extreme-day fractions.",
+        "- Extreme days: fraction of daily slices above high-temperature, high-VPD, windy, wet-day, dry-fuel, or high-ERC thresholds where available.",
+        "- Time-resolved exposure: early, middle, and late means for core and selected expanded climate variables plus extreme-day fractions.",
         "",
         "## Blocked performance",
         "",
@@ -1097,6 +1252,7 @@ def write_model_reports(bundle: DataBundle, climate_features: pd.DataFrame, even
         "",
         f"Best transferable event-level representation by median conservative blocked R2: **{summary['best_event_set']}** ({summary['best_event_r2']:.3f}).",
         f"Anomalies outperform raw event means: **{summary['anomalies_outperform_raw']}**.",
+        f"Comprehensive event means outperform core event means: **{summary['comprehensive_outperform_core']}**.",
         f"Temporally resolved exposure outperforms event means: **{summary['resolved_outperform_event_means']}**.",
         "",
         "Interpretation: climate associations are real enough to shift developmental-neighborhood prevalence and response gradients, but held-out transfer is weak. The manuscript should say climate redistributes developmental opportunity, not that climate uniquely predicts form.",
@@ -1109,7 +1265,7 @@ def write_model_reports(bundle: DataBundle, climate_features: pd.DataFrame, even
         "# State-Dependent Climate Report",
         "",
         "Response: next-day growth, modeled as `log(1 + next daily burned area km2)`.",
-        "Climate predictors: daily maximum temperature, daily minimum temperature, daily VPD, and daily wind speed.",
+        "Climate predictors: core models use daily maximum temperature, minimum temperature, VPD, and wind speed; expanded models add precipitation, humidity, fuel moisture, fire-danger indices, evapotranspiration, PET, and solar radiation where available.",
         "Leakage controls: state predictors use only elapsed day, current growth, current cumulative area, and current acceleration. They do not use final duration, final area fraction, or future VASE coordinates.",
         "",
         df_to_markdown(state_table, floatfmt=".4f"),
@@ -1136,7 +1292,7 @@ def write_model_reports(bundle: DataBundle, climate_features: pd.DataFrame, even
         "",
         "## Unsupported claim",
         "",
-        "The current repository does not support a population-wide claim about active-edge climate, newly burned area climate, fuel moisture, topography, vegetation, suppression, ignition cause, or true local climate anomalies. Those are next-stage controls.",
+        "The current repository supports population-wide centroid climate for expanded gridMET variables, but not yet a complete population-wide active-edge or perimeter-extension attribution product. Topography, vegetation, suppression, ignition cause, wind direction/gusts, and true local climate anomalies remain next-stage controls.",
     ]
     if not mismatch.empty:
         md += ["", "## Example-pair table", "", df_to_markdown(mismatch.head(10), floatfmt=".3f")]
@@ -1161,9 +1317,9 @@ Defensive PCA, null, feature-ablation, covariance-volume, and fixed-day predicti
     rows = [
         ("1", "Why are final outcomes insufficient?", "Similar final sizes can hide different daily histories.", "Fire VASE preserves developmental differences hidden by final outcomes", "Fire VASE preserves developmental differences hidden by final outcomes", "Fires matched on final area can occupy contrasting temporal profiles and VASE forms.", "Matched examples plus population morphospace and size/duration correlation audit.", "Examples are illustrative; population support comes from morphospace and response dictionary.", "If histories differ, what recurring forms organize the population?"),
         ("2", "What forms recur?", "Development varies continuously along timing, persistence, pulse, reactivation, and termination gradients.", "Wildfire histories vary along recurring developmental gradients", "Wildfire histories vary along recurring developmental gradients", "Observed representatives mark recurring neighborhoods, but neighborhood boundaries are continuous.", "Shape prevalence and morphospace continuity.", "Labels are landmarks, not discrete classes.", "If recurring forms exist, does climate change their probability?"),
-        ("3", "Which forms does climate favor?", "Climate shifts developmental prevalence and profile allocation, but transfer is weak.", "Climate shifts the probability of developmental forms", "Climate shifts the probability of developmental forms", "Daily centroid gridMET VPD, temperature, and wind redistribute fires across developmental forms.", "VPD-conditioned composites, prevalence shifts, effect-size heatmap, blocked R2 comparison.", "Centroid daily climate and exploratory anomalies; no population active-edge climate.", "Why should timing and state affect translation from climate to growth?"),
+        ("3", "Which forms does climate favor?", "Climate shifts developmental prevalence and profile allocation, but transfer is weak.", "Climate shifts the probability of developmental forms", "Climate shifts the probability of developmental forms", "Daily centroid gridMET VPD, temperature, wind, moisture, fuel, and fire-danger variables redistribute fires across developmental forms.", "VPD-conditioned composites, prevalence shifts, expanded climate effect-size heatmap, blocked R2 comparison.", "Centroid daily climate and exploratory anomalies; perimeter exposure coverage remains separate.", "Why should timing and state affect translation from climate to growth?"),
         ("4", "Does exposure mean the same thing at every state?", "Current developmental state improves next-day growth interpretation beyond climate alone.", "Developmental state changes how climate is expressed through growth", "Developmental state changes how climate is expressed through growth", "The association between daily VPD and next-day growth differs with current growth state.", "Leakage-safe state models and conditional VPD curves.", "Interactions are not treated as causal and are only strong if blocked transfer improves.", "Where does climate explanation fail?"),
-        ("5", "Where does climate fail?", "Similar climate can yield divergent forms and similar forms can arise under contrasting climate.", "Climate organizes opportunity without uniquely determining outcome", "Climate organizes opportunity without uniquely determining outcome", "Climate-complete population matches show that climate summaries do not uniquely map to VASE morphology.", "Mismatch distributions and blocked transfer limits.", "Missing fuels, topography, suppression, ignition, and active-edge climate likely explain residual structure.", "Close on opportunity rather than determinism."),
+        ("5", "Where does climate fail?", "Similar climate can yield divergent forms and similar forms can arise under contrasting climate.", "Climate organizes opportunity without uniquely determining outcome", "Climate organizes opportunity without uniquely determining outcome", "Climate-complete population matches show that climate summaries do not uniquely map to VASE morphology.", "Mismatch distributions and blocked transfer limits.", "Active-edge exposure, local fuels, topography, suppression, ignition, and wind direction likely explain residual structure.", "Close on opportunity rather than determinism."),
     ]
     md = [
         "# Figure-Text Alignment",
@@ -1188,15 +1344,15 @@ Observed representative fires mark recurring developmental neighborhoods. VASEs 
 
 ## Figure 3. Climate shifts the probability of developmental forms.
 
-Daily centroid gridMET climate is projected onto the developmental representation. Panel a maps mean VPD in kPa across the VASE morphospace. The composite VASEs summarize low, middle, and high event-mean VPD terciles; each composite is the median normalized profile with an interquartile shell and reports group sample size. The difference panel compares high- and low-VPD composites with the middle-VPD reference. The prevalence panel shows how developmental-neighborhood frequency changes across VPD groups. The effect-size heatmap reports Spearman associations between climate summaries and interpretable responses. The blocked validation panel compares event means, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved exposure summaries. The strongest supported conclusion is redistribution of developmental probabilities, not deterministic prediction.
+Daily centroid gridMET climate is projected onto the developmental representation. Panel a maps mean VPD in kPa across the VASE morphospace. The composite VASEs summarize low, middle, and high event-mean VPD terciles; each composite is the median normalized profile with an interquartile shell and reports group sample size. The difference panel compares high- and low-VPD composites with the middle-VPD reference. The prevalence panel shows how developmental-neighborhood frequency changes across VPD groups. The effect-size heatmap reports Spearman associations for temperature, VPD, precipitation, relative humidity, fuel moisture, and fire-danger summaries against interpretable responses. The blocked validation panel compares core event means, comprehensive event means, moisture/humidity, fire-danger/energy, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved exposure summaries. The strongest supported conclusion is redistribution of developmental probabilities, not deterministic prediction.
 
 ## Figure 4. Developmental state changes how climate is expressed through growth.
 
-Representative histories align daily growth and daily VPD to show that similar exposure can occur at different developmental states. The model comparison predicts next-day growth as log(1 + daily burned area in km2) using climate only, current developmental state only, climate plus state, and climate-state interactions. State predictors use only information available by day t: elapsed day, current growth, current cumulative area, and current acceleration. Conditional curves show that the VPD-growth association differs between low and high current-growth states. These are associational baselines, not causal estimates.
+Representative histories align daily growth and daily VPD to show that similar exposure can occur at different developmental states. The model comparison predicts next-day growth as log(1 + daily burned area in km2) using core climate, expanded climate, current developmental state, climate plus state, and core climate-state interactions. State predictors use only information available by day t: elapsed day, current growth, current cumulative area, and current acceleration. Conditional curves show that the VPD-growth association differs between low and high current-growth states. These are associational baselines, not causal estimates.
 
 ## Figure 5. Climate organizes opportunity without uniquely determining outcome.
 
-The closing figure shows the limit of climate explanation. The VASE examples are pairs selected for similar centroid climate summaries but divergent developmental morphology. Population mismatch distributions show that similar climate does not guarantee similar form, and blocked model performance shows that climate representations lose transferability across years and regions. The figure motivates missing controls: active-edge exposure, fuels, topography, vegetation, suppression, ignition context, and true local climate anomalies.
+The closing figure shows the limit of climate explanation. The VASE examples are pairs selected for similar centroid climate summaries but divergent developmental morphology. Population mismatch distributions show that similar climate does not guarantee similar form, and blocked model performance shows that climate representations lose transferability across years and regions. The figure motivates missing controls that are still absent from the population table: active-edge exposure, topography, vegetation, suppression, ignition context, wind direction or gusts, and true local climate anomalies.
 """
     FIGURE_LEGENDS_MD.write_text(legends)
 
@@ -1212,7 +1368,7 @@ Fire VASE reveals that climate shifts wildfire developmental opportunity, while 
 
 ## Abstract
 
-Wildfire analyses often compare final burned area, duration, or average spread, even though fires with similar outcomes can develop through different sequences of growth, quiescence, reactivation, and termination. We introduce Fire VASE as a developmental representation that converts each daily fire history into a comparable geometric profile. Across 278,569 FIRED events from 2000-2021, 237,235 fires have complete daily centroid gridMET temperature, vapor pressure deficit (VPD), and wind exposure. Fire VASE shows that wildfire histories vary along recurring but continuous gradients of timing, persistence, concentration, pulse structure, reactivation, and termination. Climate is associated with these gradients: high-VPD, hot, and windy exposure groups differ in developmental-neighborhood prevalence and median profile shape. However, blocked validation is weak, region-season anomaly diagnostics do not rescue deterministic prediction, and similar centroid climate can yield divergent VASE forms. Leakage-safe next-day models show that current developmental state improves interpretation of growth response beyond climate alone, whereas climate-state interactions remain suggestive rather than definitive under conservative blocking. Fire VASE therefore changes the climate question: climate organizes developmental opportunity, but it does not uniquely determine realized wildfire development.
+Wildfire analyses often compare final burned area, duration, or average spread, even though fires with similar outcomes can develop through different sequences of growth, quiescence, reactivation, and termination. We introduce Fire VASE as a developmental representation that converts each daily fire history into a comparable geometric profile. Across 278,569 FIRED events from 2000-2021, 237,235 fires have complete daily centroid gridMET temperature, vapor pressure deficit (VPD), wind, precipitation, humidity, fuel moisture, fire-danger, evapotranspiration, and solar-radiation exposure. Fire VASE shows that wildfire histories vary along recurring but continuous gradients of timing, persistence, concentration, pulse structure, reactivation, and termination. Climate is associated with these gradients: high-VPD, hot, dry-fuel, and high fire-danger exposure groups differ in developmental-neighborhood prevalence and median profile shape. However, blocked validation is weak, region-season anomaly diagnostics do not rescue deterministic prediction, and similar centroid climate can yield divergent VASE forms. Leakage-safe next-day models show that current developmental state improves interpretation of growth response beyond climate alone, whereas climate-state interactions remain suggestive rather than definitive under conservative blocking. Fire VASE therefore changes the climate question: climate organizes developmental opportunity, but it does not uniquely determine realized wildfire development.
 
 ## Introduction
 
@@ -1220,7 +1376,7 @@ Climate is a first-order constraint on wildfire activity, but burned area is not
 
 Fire VASE was designed to preserve this missing developmental information. It maps developmental time to vertical position and cumulative burned area to ring width, producing a comparable object for every observed fire history. Climate is then projected onto the object rather than used to define the coordinate system. This distinction matters: a representation can reveal how climate is translated into growth without assuming that climate alone prescribes the resulting form.
 
-Here we rebuild the Fire VASE analysis around one question: how does climate organize wildfire developmental opportunity? We use daily FIRED fire histories derived from MODIS burned area event delineation [1,2] and daily gridMET climate fields [3]. The strongest population-wide climate product currently available in the repository is daily centroid gridMET maximum temperature, minimum temperature, VPD, and wind speed for 237,235 climate-complete fires. Perimeter, active-burned-area, and perimeter-extension climate products exist only as a 25-fire pilot and are treated as a limitation rather than a main inferential basis.
+Here we rebuild the Fire VASE analysis around one question: how does climate organize wildfire developmental opportunity? We use daily FIRED fire histories derived from MODIS burned area event delineation [1,2] and daily gridMET climate fields [3]. The population-wide table now includes daily centroid gridMET maximum temperature, minimum temperature, VPD, wind speed, precipitation, relative humidity, specific humidity, 100-hour and 1000-hour fuel moisture, energy release component, burning index, reference evapotranspiration, potential evapotranspiration, and solar radiation for 237,235 climate-complete fires. Perimeter, active-burned-area, and perimeter-extension attribution remain a separate exposure product and are treated according to their actual coverage rather than used as the main inferential basis.
 
 ## Results
 
@@ -1234,31 +1390,31 @@ Observed fires occupy recurring neighborhoods that are best interpreted as landm
 
 ### Climate shifts the probability of developmental forms
 
-Daily centroid gridMET climate varies systematically across the Fire VASE representation. Event-mean VPD, maximum temperature, and wind exposure are associated with interpretable developmental responses, including front-loaded growth, late growth, pulse count, reactivation, and the dominant VASE gradient. Composite VASEs across VPD terciles show that high- and low-VPD groups differ in where normalized growth is allocated through developmental time. Developmental-neighborhood prevalence also shifts across VPD groups.
+Daily centroid gridMET climate varies systematically across the Fire VASE representation. Event-mean VPD, maximum temperature, humidity, fuel moisture, precipitation, and fire-danger summaries are associated with interpretable developmental responses, including front-loaded growth, late growth, pulse count, reactivation, and the dominant VASE gradient. Composite VASEs across VPD terciles show that high- and low-VPD groups differ in where normalized growth is allocated through developmental time. Developmental-neighborhood prevalence also shifts across VPD groups.
 
-The predictive limit is equally important. In conservative blocked validation, the best transferable event-level representation is **{summary['best_event_set']}**, with median held-out R2 of {summary['best_event_r2']:.3f} across developmental responses. Region-season anomaly diagnostics {'outperform' if summary['anomalies_outperform_raw'] else 'do not outperform'} raw event means, and temporally resolved exposure summaries {'outperform' if summary['resolved_outperform_event_means'] else 'do not outperform'} event means in the median blocked comparison. These results support a probabilistic statement: climate redistributes fires across developmental possibilities. They do not support the stronger statement that climate assigns a unique developmental form.
+The predictive limit is equally important. In conservative blocked validation, the best transferable event-level representation is **{summary['best_event_set']}**, with median held-out R2 of {summary['best_event_r2']:.3f} across developmental responses. Region-season anomaly diagnostics {'outperform' if summary['anomalies_outperform_raw'] else 'do not outperform'} core event means, comprehensive event means {'outperform' if summary['comprehensive_outperform_core'] else 'do not outperform'} core event means, and temporally resolved exposure summaries {'outperform' if summary['resolved_outperform_event_means'] else 'do not outperform'} core event means in the median blocked comparison. These results support a probabilistic statement: climate redistributes fires across developmental possibilities. They do not support the stronger statement that climate assigns a unique developmental form.
 
 ### Developmental state changes how climate is expressed through growth
 
 The same daily climate exposure can occur before a fire begins rapid expansion, during the largest growth episode, or after growth has already tapered. We therefore modeled next-day growth as a function of climate, current developmental state, and their interaction. To avoid leakage, state was defined only from information available at day t: elapsed day, current daily growth, current cumulative area, and current acceleration. Final duration, final area fraction, and future VASE coordinates were not used.
 
-State alone and climate plus state outperform climate-only baselines for next-day growth. The best conservative state model is **{summary['best_state_set']}**, with median held-out R2 of {summary['best_state_r2']:.3f}. Climate-state interactions {'survive' if summary['interaction_survives_blocking'] else 'do not clearly survive'} the predeclared blocked-transfer margin. The interpretation is therefore cautious: developmental state improves climate interpretation and near-term growth prediction, but the present centroid climate product is not enough to claim causal state-dependent climate control.
+State-containing models outperform climate-only baselines for next-day growth. The best conservative state model is **{summary['best_state_set']}**, with median held-out R2 of {summary['best_state_r2']:.3f}. Core climate-state interactions {'survive' if summary['interaction_survives_blocking'] else 'do not clearly survive'} the predeclared blocked-transfer margin. The interpretation is therefore cautious: developmental state improves climate interpretation and near-term growth prediction, but the present centroid climate product is not enough to claim causal state-dependent climate control.
 
 ### Climate organizes opportunity without uniquely determining outcome
 
-The closing analysis asks where climate explanation fails. Pairs of fires with similar centroid climate summaries can have divergent VASE morphologies, and pairs with similar VASE morphologies can occur under contrasting climate pathways. These mismatches are not artifacts to hide; they define the scientific boundary of the current analysis. Climate describes developmental opportunity, while prior history, fuels, topography, vegetation, suppression, ignition context, and active-edge exposure likely help determine which opportunity is realized.
+The closing analysis asks where climate explanation fails. Pairs of fires with similar centroid climate summaries can have divergent VASE morphologies, and pairs with similar VASE morphologies can occur under contrasting climate pathways. These mismatches are not artifacts to hide; they define the scientific boundary of the current analysis. Climate describes developmental opportunity, while active-edge exposure, local fuels, topography, vegetation, suppression, ignition context, and wind direction likely help determine which opportunity is realized.
 
 ## Discussion
 
 The main result is not that Fire VASE provides a low-dimensional coordinate system. The main result is that Fire VASE makes it possible to see climate as a probabilistic organizer of wildfire development. Climate shifts developmental-neighborhood prevalence and profile allocation, but it does not uniquely determine form.
 
-This framing changes how climate-fire relationships should be read. Event means are informative but blunt. Daily exposure, extreme-day fractions, and developmental timing sharpen interpretation, yet transfer across regions and years remains weak. That weakness is scientifically useful because it prevents overclaiming and points directly to missing controls. The repository now contains a pilot for perimeter, active-burned-area, and perimeter-extension climate extraction, but only for 25 fires. Scaling that product, adding true local climate normals, and including humidity, precipitation, fuel moisture, topography, vegetation, suppression, and ignition context are the next necessary steps.
+This framing changes how climate-fire relationships should be read. Event means are informative but blunt. Daily exposure, extreme-day fractions, and developmental timing sharpen interpretation, yet transfer across regions and years remains weak. Expanded centroid climate adds moisture, fuel, and fire-danger context, but it does not remove the need for spatially resolved exposure. Scaling perimeter and active-edge attribution, adding true local climate normals, and including topography, vegetation, suppression, ignition context, wind direction, and gusts are the next necessary steps.
 
 The present analyses are associational. They do not isolate causal climate effects, suppression decisions, or fuel continuity. They also use daily centroid climate rather than active-edge weather, so they can miss within-perimeter heterogeneity and directional wind effects. Even with those caveats, the central claim is supported: wildfire development occupies recurring forms whose probabilities shift with climate, while realized form remains contingent on state and context.
 
 ## Materials and Methods
 
-Fire histories were read from the repository's FIRED-derived daily VASE slice table, covering 278,569 events and 626,102 daily slices from 2000-11-02 to 2021-05-01. Climate exposure was read from the full-population climate-enhanced slice table. Complete daily centroid climate values were available for 237,235 fires. Variables were maximum temperature in degrees C, minimum temperature in degrees C, VPD in kPa, and wind speed in m s-1. Event-level climate summaries included means, maxima, extreme-day fractions above the population 90th percentile, early/middle/late developmental-time means, and a region-month fire-season anomaly diagnostic.
+Fire histories were read from the repository's FIRED-derived daily VASE slice table, covering 278,569 events and 626,102 daily slices from 2000-11-02 to 2021-05-01. Climate exposure was read from the full-population climate-enhanced slice table. Complete daily centroid climate values were available for 237,235 fires. Variables were maximum temperature in degrees C, minimum temperature in degrees C, VPD in kPa, wind speed in m s-1, precipitation in mm d-1, maximum and minimum relative humidity in percent, specific humidity in kg kg-1, 100-hour and 1000-hour fuel moisture in percent, energy release component, burning index, reference evapotranspiration in mm d-1, potential evapotranspiration in mm d-1, and solar radiation in W m-2. Event-level climate summaries included means, daily minima and maxima, extreme-day fractions, early/middle/late developmental-time means, and a region-month fire-season anomaly diagnostic.
 
 Developmental response variables were defined before model fitting and separated into absolute-scale outcomes, shape-normalized responses, and time-varying state variables. Event-level models used ridge-regularized linear baselines with fixed random seed {SEED}. Validation used random fire splits as a diagnostic and year, region, and region-year blocking as conservative transfer tests. State-dependent models predicted next-day growth, log(1 + km2), using climate at day t and leakage-safe state variables available by day t. All analyses are exploratory baselines rather than causal estimates.
 
@@ -1286,8 +1442,8 @@ Generated: {datetime.now(timezone.utc).isoformat()}
 
 ## Added or elevated
 
-- Population-wide daily centroid gridMET maximum temperature, minimum temperature, VPD, and wind speed are now the main climate basis.
-- Extreme-day fractions for hot, high-VPD, and windy days were derived from population 90th percentile daily-slice thresholds.
+- Population-wide daily centroid gridMET maximum temperature, minimum temperature, VPD, wind speed, precipitation, relative humidity, specific humidity, fuel moisture, fire-danger indices, evapotranspiration, PET, and solar radiation are now the main climate basis.
+- Extreme-day fractions for hot, high-VPD, windy, wet, dry-fuel, and high-ERC days were derived from population daily-slice thresholds.
 - Early, middle, and late developmental-time climate summaries were added.
 - Region-month fire-season anomaly diagnostics were added and clearly labeled as observed-population diagnostics, not true local normals.
 - Leakage-safe state-dependent next-day growth models were added.
@@ -1297,20 +1453,21 @@ Generated: {datetime.now(timezone.utc).isoformat()}
 
 - The manuscript no longer treats the low-dimensional coordinate system as the final discovery.
 - Claims that climate determines fire form were weakened to probabilistic opportunity language.
-- Perimeter, active-edge, and perimeter-extension climate are not used as main evidence because the current table covers only 25 fires.
+- Perimeter, active-edge, and perimeter-extension climate are not used as main evidence unless their coverage approaches the centroid table; the current manuscript labels the perimeter product by actual coverage.
 - Wind presence was removed from substantive interpretation because the complete event table has no variation in `wind_present_fraction`.
 
 ## Moved to supplement
 
 - Defensive PCA and null-model diagnostics.
 - Full feature-ablation and prediction audits.
-- Perimeter/active-edge climate extraction appears as a pilot/limitation figure.
+- Perimeter/active-edge climate extraction appears as a coverage/methods supplement.
 
 ## Model summary
 
 - Best transferable event-level climate representation: {summary['best_event_set']} ({summary['best_event_r2']:.3f} median conservative blocked R2).
 - Best state model: {summary['best_state_set']} ({summary['best_state_r2']:.3f} median conservative blocked R2).
 - Anomalies outperform raw event means: {summary['anomalies_outperform_raw']}.
+- Comprehensive event means outperform core event means: {summary['comprehensive_outperform_core']}.
 - Temporally resolved exposure outperforms event means: {summary['resolved_outperform_event_means']}.
 - Climate-state interactions survive blocking: {summary['interaction_survives_blocking']}.
 
@@ -1318,7 +1475,7 @@ Generated: {datetime.now(timezone.utc).isoformat()}
 
 - Population-wide active-edge, newly burned area, and perimeter-extension climate attribution.
 - True local climate anomalies relative to independent long-term normals.
-- Humidity, precipitation, soil moisture, fuel moisture, topography, vegetation, suppression, ignition cause, wind direction, or gust analyses.
+- Soil moisture, topography, vegetation, suppression, ignition cause, wind direction, or gust analyses.
 """
     CHANGELOG.write_text(changelog)
 
@@ -1398,13 +1555,14 @@ def final_terminal_report(summary: dict) -> None:
 strongest unsupported climate claim: Population-wide active-edge or perimeter climate controls realized morphology.
 best-performing transferable climate representation: {summary['best_event_set']} ({summary['best_event_r2']:.3f} median conservative blocked R2).
 whether anomalies outperform raw climate: {summary['anomalies_outperform_raw']}.
+whether comprehensive climate outperforms core climate: {summary['comprehensive_outperform_core']}.
 whether temporally resolved climate outperforms event means: {summary['resolved_outperform_event_means']}.
 whether developmental state improves interpretation or prediction: yes, state-containing models outperform climate-only models for next-day growth.
 whether climate-state interactions survive blocking: {summary['interaction_survives_blocking']}.
 which summary VASE construct is most effective: empirical climate-conditioned composite VASEs with difference profiles relative to the middle-exposure reference.
 final recommended title: Climate Organizes but Does Not Determine Wildfire Development.
 final recommended number of main figures: 5.
-top three issues still preventing submission: population-wide active-edge/perimeter climate attribution is incomplete; true local climate normals and additional environmental controls are missing; blocked climate transfer remains weak, so causal or deterministic claims should not be made.
+top three issues still preventing submission: population-wide active-edge/perimeter climate attribution is incomplete or still too limited for main inference; true local climate normals are missing; blocked climate transfer remains weak, so causal or deterministic claims should not be made.
 """
     FINAL_REPORT.write_text(text)
     print(text)
@@ -1416,10 +1574,10 @@ def update_prompt_log(summary: dict) -> None:
 ## 2026-07-22 - Climate-centered Fire VASE manuscript revision
 
 - User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
-- Data decision: used the full population daily centroid gridMET table for maximum temperature, minimum temperature, VPD, and wind speed ({summary['best_event_set']} was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate as a 25-fire pilot only.
+- Data decision: used the full population daily centroid gridMET table for expanded climate variables ({summary['best_event_set']} was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate according to actual coverage.
 - Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
 - Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
-- Caveats: no population-wide active-edge climate, true local-normal anomalies, fuel moisture, topography, vegetation, suppression, ignition cause, humidity, precipitation, wind direction, or gust products were available locally.
+- Caveats: no complete population-wide active-edge climate, true local-normal anomalies, topography, vegetation, suppression, ignition cause, wind direction, or gust products were available locally.
 """
     with log.open("a") as fh:
         fh.write(entry)

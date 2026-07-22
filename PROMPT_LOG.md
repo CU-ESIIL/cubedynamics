@@ -1692,3 +1692,11 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
 - Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
 - Caveats: no population-wide active-edge climate, true local-normal anomalies, fuel moisture, topography, vegetation, suppression, ignition cause, humidity, precipitation, wind direction, or gust products were available locally.
+
+## 2026-07-22 - Climate-centered Fire VASE manuscript revision
+
+- User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
+- Data decision: used the full population daily centroid gridMET table for expanded climate variables (core event means was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate according to actual coverage.
+- Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
+- Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
+- Caveats: no complete population-wide active-edge climate, true local-normal anomalies, topography, vegetation, suppression, ignition cause, wind direction, or gust products were available locally.

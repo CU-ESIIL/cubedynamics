@@ -11,7 +11,7 @@ Similar centroid climate summaries can be paired with divergent VASE morphology,
 
 ## Unsupported claim
 
-The current repository does not support a population-wide claim about active-edge climate, newly burned area climate, fuel moisture, topography, vegetation, suppression, ignition cause, or true local climate anomalies. Those are next-stage controls.
+The current repository supports population-wide centroid climate for expanded gridMET variables, but not yet a complete population-wide active-edge or perimeter-extension attribution product. Topography, vegetation, suppression, ignition cause, wind direction/gusts, and true local climate anomalies remain next-stage controls.
 
 ## Example-pair table
 
