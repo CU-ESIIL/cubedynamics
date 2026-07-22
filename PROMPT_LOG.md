@@ -131,6 +131,89 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Ran `.venv/bin/python -m pytest tests/test_fire_vase_panel.py
   tests/test_fire_hull_api.py -q` with 9 passing tests and 2 warnings.
 
+## 2026-07-21 — Fire VASE Developmental Decision Atlas
+
+### User Goals
+- Revise the exploratory report away from a terminal/death framing and toward a
+  scientific decision atlas for wildfire developmental trajectories and
+  environmental transitions.
+- Use real cached FIRED candidate fires and real cached gridMET `tmmx`, `tmmn`,
+  `vpd`, and `vs` data.
+- Distinguish final meaningful expansion, terminal observed record, and
+  physical extinction.
+- Add task-specific QC, event detection, alignment comparisons, geometry-only
+  typology, continuous developmental axes, event-centered climate diagnostics,
+  state transitions, terminal-observation secondary analysis, outlier checks,
+  sample-size diagnostics, and a manuscript decision matrix.
+
+### Implementation Summary
+- Added `config/fire_vase_developmental_atlas.yml` with configurable activity
+  metric, pulse thresholds, quiescence length, lag window, clustering settings,
+  climate variables, and outlier-sensitivity options.
+- Added `examples/fire_vase_developmental_atlas.py`, a full real-data atlas
+  generator that writes:
+  `outputs/fire_vase_developmental_atlas.pdf`,
+  `outputs/fire_vase_developmental_atlas.html`,
+  `outputs/fire_vase_time_table.csv`,
+  `outputs/fire_vase_developmental_traits.csv`,
+  `outputs/fire_vase_event_table.csv`,
+  `outputs/fire_vase_qc_table.csv`, and
+  `outputs/fire_vase_candidate_results.csv`.
+- Generated 15 major PNG figures and 15 SVG companions under
+  `outputs/fire_vase_developmental_figures/`.
+- The PDF contains a one-page scientific decision summary, task-specific QC,
+  major diagnostic sections, a two-page final interpretation, and full-page
+  developmental profiles for each of the 25 fires.
+
+### Validation
+- Ran `MPLCONFIGDIR=/private/tmp/mplconfig .venv/bin/python
+  examples/fire_vase_developmental_atlas.py`; manifest reports 25 fires and 229
+  fire-time records.
+- Confirmed all four climate columns are present and complete in
+  `outputs/fire_vase_time_table.csv`: `tmmx_c`, `tmmn_c`, `vpd_kpa`, and
+  `wind_speed_m_s`.
+- Confirmed first-observation alignment includes 25 fires and that
+  `physical_extinction_observed` is `False` for all fire-time rows.
+- Rendered the final 50-page PDF with `pdftoppm` and visually inspected the
+  executive summary, QC table, observation raster, event sensitivity, alignment
+  comparison, manuscript decision matrix, two interpretation pages, and a
+  profile page.
+- Audited the new atlas outputs for prohibited terminal/death and prescribed
+  comparison language.
+- Ran `.venv/bin/python -m py_compile
+  examples/fire_vase_developmental_atlas.py`.
+- Ran `.venv/bin/python -m pytest tests/test_fire_vase_panel.py
+  tests/test_fire_hull_api.py -q` with 9 passing tests and 2 warnings.
+
+### 2026-07-21 Follow-up: 100-fire Size-stratified Developmental Atlas
+- Created
+  `artifacts/fire-vase-gridmet-real/candidate_events_100_size_stratified_2001_2003.csv`
+  using random seed 4217.
+- Sampling design: eligible FIRED events were constrained to CONUS gridMET
+  coverage, cached climate years 2001-2003, at least 5 observed daily records,
+  and positive final area. The final sample uses 10 log-area bins with 10 fires
+  per bin, spanning about 1.1-229 km2.
+- Ran the developmental atlas workflow with
+  `--candidates-csv artifacts/fire-vase-gridmet-real/candidate_events_100_size_stratified_2001_2003.csv`
+  and `--outputs outputs/fire_vase_developmental_atlas_100_size_sample`.
+- Generated a 125-page PDF, HTML companion, fire-time table with 784 rows,
+  developmental traits for 100 fires, 730 detected events, task-specific QC,
+  manuscript candidate results, and 15 PNG/15 SVG figure files.
+- Patched hard-coded "25 fires" text in the atlas generator so summaries and
+  compound-condition figures use the actual sample size.
+
+### Validation
+- Confirmed the 100-fire sample has 10 fires in each size bin and complete
+  cached climate for `tmmx_c`, `tmmn_c`, `vpd_kpa`, and `wind_speed_m_s`.
+- Rendered the 125-page PDF with `pdftoppm` and visually inspected the
+  executive summary, alignment comparison, and a representative fire profile.
+- Confirmed no physical extinction is inferred and no prescribed-fire
+  comparison is made.
+- Ran `.venv/bin/python -m py_compile
+  examples/fire_vase_developmental_atlas.py`.
+- Ran `.venv/bin/python -m pytest tests/test_fire_vase_panel.py
+  tests/test_fire_hull_api.py -q` with 9 passing tests and 2 warnings.
+
 ## 2026-07-17 — FIRED vs Classic Model Scaling Overlay
 
 ### User Goals
@@ -1095,3 +1178,134 @@ secrets, credentials, private tokens, or unrelated transcript text.
   artifacts/fire-area-perimeter/make_fire_log_log_data_only_plot.py`.
 - Visually inspected the PNG to confirm the colored reference lines and line
   legend were removed.
+
+## 2026-07-21 — Fire VASE Lakehouse Scaffolding
+
+### User Goals
+- Treat fire VASEs as real scientific data objects rather than synthetic or
+  image-first products.
+- Design a scalable architecture for many fires while keeping GitHub light.
+- Add schemas, storage/config templates, repository-size guardrails, modular
+  lakehouse helpers, and a small real-data pilot path.
+
+### Implementation Summary
+- Added `src/cubedynamics/fire_vase_lakehouse/` with deterministic cache keys,
+  component invalidation, cohort partitioning, manifest transitions, QC helpers,
+  schema loading/validation, and cohort/medoid/event-aligned summary helpers.
+- Added JSON schemas for raw observations, canonical fire time, geometry,
+  traits, events, VASE slices, rendered assets, manifests, runs, catalog,
+  failures, and cohort summaries.
+- Added `config/fire_vase_pipeline.yml`, `config/storage.example.yml`, and
+  `config/repository_policy.yml`; `config/storage.yml` is ignored for real
+  local or production storage settings.
+- Extended `.gitignore` for lakehouse outputs, scratch roots, Zarr, Parquet,
+  NetCDF, GeoParquet, GLB/GLTF, TIFF, and runtime manifests.
+- Added repository protection through `scripts/check_repository_size.py`,
+  `.pre-commit-config.yaml`, and `.github/workflows/repository-size-check.yml`.
+- Added `scripts/fire_vase_lakehouse_pilot.py`, which samples only real rows
+  from the configured fire catalog and writes a pilot manifest under an ignored
+  output root.
+- Added architecture docs in `docs/dev/fire_vase_lakehouse.md` and repository
+  boundary notes in README/data/output/manifest READMEs.
+
+### Validation
+- Ran `.venv/bin/python -m pytest tests/test_fire_vase_lakehouse.py -q`
+  (`10 passed`, one unrelated Planetary Computer pydantic warning).
+- Ran `.venv/bin/python scripts/fire_vase_lakehouse_pilot.py --config
+  config/fire_vase_pipeline.yml --output-root ./scratch/fire_vase_run
+  --sample-size 1000`. The configured real catalog had 100 rows, so the pilot
+  wrote 100 real-fire rows and recorded
+  `source_catalog_smaller_than_requested_sample` in
+  `scratch/fire_vase_run/pilot_report.json`.
+- Ran `.venv/bin/python scripts/check_repository_size.py --mode staged`
+  successfully. Full tracked-file mode correctly flagged pre-existing tracked
+  generated outputs under `artifacts/` and `tmp/`; cleaning those from Git index
+  should be a separate explicit cleanup step.
+
+### Caveats
+- `pyarrow` and `duckdb` were not installed in the project virtualenv, so the
+  pilot wrote CSV fallback tables rather than Parquet and did not run DuckDB
+  queries. No full-population 250k fire job was attempted.
+
+### 2026-07-21 Follow-up: All Available Configured Fires
+- Installed `pyarrow==25.0.0` and `duckdb==1.5.4` into the project `.venv`
+  with `uv pip install --python .venv/bin/python pyarrow duckdb`.
+- Re-ran the lakehouse pilot with `--sample-size 100000` and output root
+  `./scratch/fire_vase_run_all`. The configured real catalog still contained
+  100 rows, so the all-available run wrote 100 real fires to Parquet and
+  recorded `source_catalog_smaller_than_requested_sample`.
+- DuckDB validation over the Parquet outputs found 100 catalog rows, 100 trait
+  rows, and 100 processing manifest rows at `geometry_complete`.
+- Ran the broad offline suite with `.venv/bin/python -m pytest -m "not
+  integration and not online" -q`; it reached 266 passed, 3 skipped, and 8
+  deselected with no failures before being interrupted after a long quiet
+  Matplotlib/backend wait.
+
+### 2026-07-21 Follow-up: Full Cached FIRED Event Source
+- Corrected the lakehouse pipeline source from the 100-fire stratified CSV to
+  the cached full FIRED event GeoPackage:
+  `artifacts/fire-vase-gridmet-real/fired-cache/fired_conus-ak_events_nov2001-march2021.gpkg`.
+- Updated `scripts/fire_vase_lakehouse_pilot.py` to read GeoPackage/GeoJSON/SHP
+  sources, normalize FIRED event columns, compute lon/lat centroids through
+  EPSG:5070, and avoid an expensive exact medoid calculation over very large
+  cohorts.
+- Ran the full cached event manifest/table pass with output root
+  `./scratch/fire_vase_run_full`; it processed 278,569 real FIRED event rows and
+  wrote Parquet tables under the ignored scratch root.
+- DuckDB validation reported 278,569 catalog rows, 278,569 trait rows, 278,569
+  `geometry_complete` manifest rows, event years 2000-2021, and a total scratch
+  footprint of about 49 MB.
+
+### 2026-07-22 Follow-up: Population Summary PDF Atlas
+- Added `scripts/fire_vase_population_atlas_pdf.py` to build a full-population
+  summary atlas from the Parquet lakehouse pilot tables using DuckDB,
+  matplotlib, and ReportLab.
+- Generated `output/pdf/fire_vase_population_summary_atlas.pdf` and
+  `output/pdf/fire_vase_population_summary_atlas_manifest.json` from
+  `scratch/fire_vase_run_full/tables`.
+- The atlas summarizes 278,569 real FIRED event rows with annual counts,
+  regional summaries, region-year density, size-duration structure, largest
+  events, longest-duration events, processing status, and provenance/limits.
+- Rendered all PDF pages to PNG under
+  `tmp/pdfs/fire_vase_population_summary_atlas_render/` with Poppler and
+  visually checked the layout. Fixed a wrapped year-range callout and rebuilt
+  the PDF.
+
+### 2026-07-22 Follow-up: Visual Morphology VASE Atlas
+- Added `scripts/fire_vase_morphology_atlas_pdf.py` to build a visual atlas
+  from real FIRED daily/event caches, including many VASE profile glyphs,
+  morphology categories, category trait fingerprints, and climate-vs-shape
+  comparisons.
+- Generated `output/pdf/fire_vase_morphology_atlas.pdf` and
+  `output/pdf/fire_vase_morphology_atlas_manifest.json`.
+- Classified 278,569 real FIRED events using daily area trajectories. Counts:
+  single flash 161,073; skinny persistent 38,094; compact steady 31,250;
+  multi-pulse complex 24,418; late surge 16,079; front-loaded plateau 7,655.
+- The main panel shows 216 real VASE profile glyphs sampled across categories.
+  Climate comparisons use a balanced 300-event real gridMET sample from cached
+  2001-2003 CONUS event windows.
+- Moved generated sidecar CSVs to ignored
+  `scratch/fire_vase_morphology_atlas/` rather than `output/pdf/`.
+- Rendered atlas pages to PNG under `tmp/pdfs/fire_vase_morphology_atlas_render/`
+  and visually checked the main VASE panel, category exemplars, shape summary,
+  trait heat map, and climate comparison pages.
+
+### 2026-07-22 Follow-up: Climate-Attributed VASE Slice Tables
+- Added `scripts/fire_vase_build_climate_tables.py` to populate durable
+  `vase_slices` Parquet rows from real FIRED daily/event caches and cached
+  daily gridMET NetCDF files.
+- Updated `config/fire_vase_pipeline.yml` to label the current gridMET
+  attribution as daily centroid-nearest-grid-cell extraction rather than
+  hourly.
+- Expanded `schemas/vase_slices.schema.json` with maximum/minimum temperature,
+  VPD, wind speed, climate source/resolution/method, climate availability, and
+  failure reason fields.
+- Built `scratch/fire_vase_run_full/tables/vase_slices.parquet` for all
+  supported cached gridMET years (2001-2003): 67,522 VASE slice rows across
+  30,544 fires.
+- Marked 26,877 fires as `climate_complete` in
+  `processing_manifest_climate.parquet`. Recorded retryable failures for 3,667
+  cached-year fires with missing gridMET values and 248,025 fires whose slice
+  years are not yet cached locally.
+- DuckDB validation confirmed available climate ranges and schema validation
+  passed on sample records. Focused lakehouse tests pass (`13 passed`).

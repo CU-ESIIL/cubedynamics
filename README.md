@@ -145,6 +145,31 @@ Useful extras:
 - `pip install -e ".[docs]"` for MkDocs builds
 - `pip install -e ".[viz]"` for Lexcube-backed visualization helpers
 
+## Data and generated outputs
+
+CubeDynamics keeps code, schemas, config templates, docs, and small fixtures in
+Git. Large scientific products belong outside the repository: local scratch
+roots, shared object storage, or a lakehouse path configured by the user.
+
+Fire VASE work treats the VASE as a scientific data object first. Source fire
+observations, canonical fire time, geometry, climate attribution, detected
+events, derived traits, VASE slices, rendered assets, manifests, and cohort
+summaries are separate versioned products. Rendered panels and PDFs are views of
+those data products, not the source of truth.
+
+Use `config/storage.example.yml` as the committed template and copy it to the
+ignored `config/storage.yml` for local paths or credentials. Pipeline output
+roots should be explicit and default to ignored locations such as
+`./scratch/fire_vase_run/`. The repository size guardrail is configured in
+`config/repository_policy.yml` and can be checked with:
+
+```bash
+python scripts/check_repository_size.py --mode tracked
+```
+
+Generated Parquet, GeoParquet, Zarr, NetCDF, GLB, TIFF, bulk rendered assets,
+and runtime manifests should not be committed.
+
 ---
 
 ## Project status & scope

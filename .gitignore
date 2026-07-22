@@ -33,8 +33,34 @@ dist/
 
 # Generated analysis outputs and real-data caches
 artifacts/
+scratch/
+local-data/
+lakehouse/
+manifests/runs/
+manifests/checkpoints/
+config/storage.yml
+outputs/**/*.parquet
+outputs/**/*.geoparquet
+outputs/**/*.zarr/
+outputs/**/*.nc
+outputs/**/*.nc4
+outputs/**/*.glb
+outputs/**/*.gltf
+outputs/**/*.las
+outputs/**/*.laz
+outputs/**/*.tif
+outputs/**/*.tiff
+tmp/
 *.gpkg
 *.nc
 *.nc4
 *.zarr/
+*.parquet
+*.geoparquet
+*.glb
+*.gltf
+*.las
+*.laz
+*.tif
+*.tiff
 *.zip

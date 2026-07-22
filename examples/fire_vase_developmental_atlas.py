@@ -1118,7 +1118,8 @@ def plot_compound_conditions(time_table: pd.DataFrame, paths: AtlasPaths, cfg: d
     axes[2].set_title("Rising VPD + wind")
     for ax in axes:
         ax.grid(alpha=0.2)
-    fig.suptitle("Transparent compound-condition displays; no large model forced on 25 fires")
+    n_fires = time_table["fire_id"].nunique()
+    fig.suptitle(f"Transparent compound-condition displays; no large model forced on {n_fires} fires")
     return ensure_fig(paths.figures / "11_compound_conditions.png", fig)
 
 
@@ -1336,7 +1337,7 @@ def scientific_decision_summary(qc: pd.DataFrame, traits: pd.DataFrame, alignmen
             "WHAT THE CURRENT DATA DO NOT SUPPORT",
             [
                 "A common terminal climate endpoint is unsupported with current data; terminal observed records remain heterogeneous.",
-                "Causal claims about wind, VPD, or temperature triggering expansion are not supported with 25 daily fire sequences.",
+                f"Causal claims about wind, VPD, or temperature triggering expansion are not supported with {n_fires} daily fire sequences.",
                 "No prescribed-fire comparison is made or implied.",
             ],
         ),
@@ -1550,26 +1551,32 @@ def render_pdf(
         )
         text_page(
             pdf,
-            "Section 18. Final scientific interpretation",
+            "Section 18. Final scientific interpretation - page 1",
             [
                 (
-                    "Page 1: What the current data show",
+                    "What the current data show",
                     [
-                        "Observation: the cached sample contains daily fire perimeters, gaps, and nearest-grid-cell daily climate for 25 candidate fires.",
+                        f"Observation: the cached sample contains daily fire perimeters, gaps, and nearest-grid-cell daily climate for {time_table['fire_id'].nunique()} candidate fires.",
                         "Statistical result: expansion activity is uneven, with pulse-like growth, low-growth periods, and variable timing of final meaningful expansion.",
                         "Scientific inference: the current sample is consistent with fire development being organized around geometric events rather than a verified extinction endpoint.",
                         "Speculation: some fires may occupy recurring developmental pathways, but discrete groups are not yet stable enough to name mechanistically.",
                     ],
-                ),
+                )
+            ],
+        )
+        text_page(
+            pdf,
+            "Section 18. Final scientific interpretation - page 2",
+            [
                 (
-                    "Page 2: What the current data do not yet establish",
+                    "What the current data do not yet establish",
                     [
                         "The current data do not distinguish terminal observed record from physical extinction.",
                         "The current data do not establish causal climate controls on expansion pulses.",
                         "This pattern is sensitive to observation gaps, pulse thresholds, and large-fire influence.",
                         "This result is strongest as a scientific decision atlas for manuscript selection, not as a polished causal argument.",
                     ],
-                ),
+                )
             ],
         )
         for fire_id, fire in time_table.groupby("fire_id", sort=True):
