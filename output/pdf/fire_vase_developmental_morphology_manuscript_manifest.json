@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-07-22T17:20:47+00:00",
+  "pdf": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/output/pdf/fire_vase_developmental_morphology_manuscript.pdf",
+  "source_atlas": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/output/pdf/fire_vase_developmental_morphology_atlas.pdf",
+  "figures": [
+    "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/tmp/pdfs/fire_vase_manuscript_figures/morphospace.png",
+    "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/tmp/pdfs/fire_vase_manuscript_figures/field_guide.png",
+    "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/tmp/pdfs/fire_vase_manuscript_figures/climate.png",
+    "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/tmp/pdfs/fire_vase_manuscript_figures/control.png",
+    "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/tmp/pdfs/fire_vase_manuscript_figures/matched.png"
+  ],
+  "format": "Science initial-submission-style draft: single column, double spaced, line numbered, figures grouped after text",
+  "compliance_note": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/docs/manuscripts/fire_vase_developmental_morphology/science_author_guidelines_compliance.md"
+}

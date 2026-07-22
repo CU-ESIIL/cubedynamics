@@ -1384,3 +1384,67 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Added a results narrative and figure sequence for a tight six-figure
   manuscript, plus confidence levels and analyses still needed before
   submission.
+
+### 2026-07-22 Follow-up: Science-Paper-Style Manuscript PDF
+- Added `scripts/fire_vase_science_manuscript_pdf.py` to generate a compact
+  science-paper-style PDF manuscript from the Fire VASE developmental morphology
+  narrative and atlas figures.
+- Generated
+  `output/pdf/fire_vase_developmental_morphology_manuscript.pdf` and
+  `output/pdf/fire_vase_developmental_morphology_manuscript_manifest.json`.
+- The PDF uses a manuscript title/abstract page, two-column body text,
+  numbered references, and full-width figure plates cropped from the real
+  developmental morphology atlas outputs.
+- Rendered the 8-page manuscript PDF to PNG with Poppler and visually checked
+  the title page, two-column body page, morphospace figure plate, and final
+  developmental control profile page. Fixed an orphan word and cropped figure
+  label issues before finalizing.
+- Validation: script compiles, PDF metadata reports 8 letter pages, and staged
+  repository size policy check passes.
+
+### 2026-07-22 Follow-up: Formal Reviews And Review-Revised Manuscript PDF
+- Created
+  `docs/manuscripts/fire_vase_developmental_morphology/formal_reviews_round_1.md`
+  with three formal review perspectives: conceptual framing/theory, wildfire
+  science/data interpretation, and methods/statistical evidence.
+- Revised `scripts/fire_vase_science_manuscript_pdf.py` to expand the manuscript
+  toward a 10-page short-paper draft with a clearer representational gap,
+  explicit constraint hypothesis, morphospace rationale, fuller Results and
+  Methods sections, and a data/code availability note.
+- Filled reviewer-requested arguments: climate is framed as state-dependent
+  rather than unimportant; centroid gridMET attribution is described as a
+  first-pass proxy; short one-day fires are treated as both a result and caveat;
+  R2 values are consistently framed as linear baselines; PCA axes and medoid
+  labels are interpreted cautiously.
+- Improved manuscript figure preparation by auto-cropping nonblank atlas content
+  before embedding, which made the matched-comparison plate substantially more
+  legible while preserving real atlas-derived figures.
+- Regenerated
+  `output/pdf/fire_vase_developmental_morphology_manuscript.pdf` and
+  `output/pdf/fire_vase_developmental_morphology_manuscript_manifest.json`.
+- Validation: script compiles, the revised PDF renders to PNG with Poppler,
+  visual QA checked the title/body/figure pages, PDF metadata reports 10 letter
+  pages, and staged repository size policy check passes.
+
+### 2026-07-22 Follow-up: Science Author-Guideline Compliance Pass
+- Looked up accessible Science.org / AAAS author-guideline material and a
+  secondary Science magazine initial-submission format summary after direct
+  Science instruction pages were not retrievable from this environment.
+- Added
+  `docs/manuscripts/fire_vase_developmental_morphology/science_author_guidelines_compliance.md`
+  documenting the guideline assumptions, changes made, and remaining
+  pre-submission placeholders.
+- Revised `scripts/fire_vase_science_manuscript_pdf.py` from a two-column
+  print-style PDF to a conservative Science initial-submission-style PDF:
+  single column, double spaced, 1-inch margins, 12-point Times-style body text,
+  line-numbered pages, <=125-word abstract, short One Sentence Summary,
+  ordered figure callouts, "References and Notes," acknowledgments, funding,
+  author contributions, competing interests, data/materials availability, and
+  supplementary materials statements.
+- Regenerated
+  `output/pdf/fire_vase_developmental_morphology_manuscript.pdf` and
+  `output/pdf/fire_vase_developmental_morphology_manuscript_manifest.json`.
+- Validation: abstract is 112 words, One Sentence Summary is 64 characters,
+  visual QA checked front matter/body/back matter/figure pages, script compiles,
+  PDF metadata reports 17 letter pages, and staged repository size policy check
+  passes.
