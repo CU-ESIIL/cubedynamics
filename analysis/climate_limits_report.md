@@ -3,7 +3,7 @@
 The final figure explicitly tests where climate explanation fails.
 
 Climate-complete fires: 237,235.
-Perimeter/active-edge pilot fires: 25.
+Perimeter/active-edge pilot fires: 100.
 
 ## Supported limit
 

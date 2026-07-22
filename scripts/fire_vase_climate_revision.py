@@ -655,52 +655,94 @@ def plot_history(ax: plt.Axes, profile: pd.DataFrame, color: str) -> None:
     clean_axis(ax)
 
 
+def story_header(fig: plt.Figure, number: int, title: str, subtitle: str, color: str) -> None:
+    fig.text(
+        0.015,
+        0.982,
+        str(number),
+        ha="left",
+        va="top",
+        fontsize=11,
+        weight="bold",
+        color="white",
+        bbox={"boxstyle": "square,pad=0.28", "facecolor": color, "edgecolor": color},
+    )
+    fig.text(0.065, 0.982, title, ha="left", va="top", fontsize=14, weight="bold", color=INK)
+    fig.text(0.065, 0.938, subtitle, ha="left", va="top", fontsize=8.4, color=MUTED)
+
+
+def takeaway(fig: plt.Figure, text: str, color: str) -> None:
+    fig.text(
+        0.5,
+        0.025,
+        text,
+        ha="center",
+        va="bottom",
+        fontsize=8.4,
+        color=color,
+        weight="bold",
+        bbox={"boxstyle": "round,pad=0.35,rounding_size=0.05", "facecolor": "#ffffff", "edgecolor": color, "alpha": 0.96},
+    )
+
+
+def plot_history_for_story(ax: plt.Axes, profile: pd.DataFrame, color: str) -> None:
+    p = profile.sort_values("slice_index")
+    x = np.arange(len(p))
+    daily = p["ring_area_km2"].fillna(0).clip(lower=0).to_numpy(float)
+    cum = p["cumulative_area_km2"].fillna(0).clip(lower=0).to_numpy(float)
+    if np.nanmax(daily) > 0:
+        daily_scaled = daily / np.nanmax(daily)
+    else:
+        daily_scaled = daily
+    if np.nanmax(cum) > 0:
+        cum_scaled = cum / np.nanmax(cum)
+    else:
+        cum_scaled = cum
+    ax.bar(x, daily_scaled, color=color, alpha=0.22, width=0.85)
+    ax.plot(x, cum_scaled, color=color, lw=1.8)
+    ax.set_ylim(0, 1.05)
+    ax.set_xlabel("Day")
+    ax.set_yticks([0, 1])
+    ax.set_yticklabels(["0", "1"])
+    clean_axis(ax)
+
+
+def choose_story_fire(features: pd.DataFrame, label: str, query: str, score_col: str, ascending: bool = False) -> str:
+    d = features.query(query).replace([np.inf, -np.inf], np.nan).dropna(subset=[score_col, "fire_id"])
+    if d.empty:
+        d = features.replace([np.inf, -np.inf], np.nan).dropna(subset=[score_col, "fire_id"])
+    row = d.sort_values(score_col, ascending=ascending).iloc[0]
+    return str(row.fire_id)
+
+
 def figure_1(bundle: DataBundle) -> dict[str, str]:
     features = bundle.features.copy()
-    pairs = select_same_size_examples(features)
-    fig = plt.figure(figsize=(8.7, 6.8))
-    gs = fig.add_gridspec(4, 8, height_ratios=[1.1, 1.1, 1.1, 1.65], hspace=0.72, wspace=0.78)
-    for r, (a, b, label) in enumerate(pairs):
-        for c, fid in enumerate([a, b]):
-            prof = profile_for_fire(bundle.slices, fid)
-            axh = fig.add_subplot(gs[r, c * 2])
-            axv = fig.add_subplot(gs[r, c * 2 + 1])
-            color = BLUE if c == 0 else RED
-            plot_history(axh, prof, color)
-            draw_vase(axv, prof, color=color)
-            frow = features.loc[features.fire_id.astype(str) == str(fid)].iloc[0]
-            axh.set_title(f"{label}: {frow.final_area_km2:.1f} km2, {frow.duration_days:.0f} d", fontsize=7.6)
-        ax = fig.add_subplot(gs[r, 5:])
-        ax.axis("off")
-        ax.text(0, 0.70, "Matched final size,\ncontrasting history", fontsize=8.6, weight="bold", color=INK)
-        ax.text(0, 0.28, "Daily increments become rings;\nordered rings become comparable forms.", fontsize=7.3, color=MUTED)
-    axm = fig.add_subplot(gs[3, :5])
-    sample = features.sample(min(45000, len(features)), random_state=SEED)
-    for label, g in sample.groupby("shape_label", observed=True):
-        axm.scatter(g["morph_pc1"], g["morph_pc2"], s=1, alpha=0.18, color=SHAPE_COLORS.get(label, MUTED), rasterized=True)
-    axm.set_xlabel("Developmental gradient 1")
-    axm.set_ylabel("Developmental gradient 2")
-    axm.set_title("Matched examples sit inside the population morphospace", fontsize=7.6)
-    clean_axis(axm)
-    panel_label(axm, "a")
-    axr = fig.add_subplot(gs[3, 5:])
-    corr_rows = []
-    for pc in ["morph_pc1", "morph_pc2", "morph_pc3"]:
-        for x in ["final_area_km2", "duration_days"]:
-            pair = features[[pc, x]].replace([np.inf, -np.inf], np.nan).dropna()
-            rho, _ = stats.spearmanr(pair[pc], pair[x])
-            corr_rows.append((pc.replace("morph_", "").upper(), "final size" if x == "final_area_km2" else "duration", abs(rho)))
-    cdf = pd.DataFrame(corr_rows, columns=["axis", "summary", "abs_rho"])
-    for i, summary in enumerate(["final size", "duration"]):
-        sub = cdf[cdf.summary == summary]
-        axr.bar(np.arange(len(sub)) + i * 0.35, sub.abs_rho, width=0.32, label=summary, color=[BLUE, GOLD][i])
-    axr.set_xticks(np.arange(3) + 0.175, ["PC1", "PC2", "PC3"])
-    axr.set_ylabel("|Spearman correlation|")
-    axr.set_title("Axes are not only size or duration", fontsize=7.6)
-    axr.legend(frameon=False)
-    clean_axis(axr)
-    panel_label(axr, "b")
-    fig.suptitle("Fire VASE preserves developmental differences hidden by final outcomes", y=0.995, fontsize=12, weight="bold")
+    examples = [
+        ("Early burst", "most growth early", RED, "duration_days >= 4 and final_area_km2 >= 1", "front_loaded_fraction", False),
+        ("Steady growth", "persistent accumulation", BLUE, "duration_days >= 8 and final_area_km2 >= 1", "growth_entropy", False),
+        ("Late surge", "rapid growth late", PURPLE, "duration_days >= 4 and final_area_km2 >= 1", "late_growth_fraction", False),
+        ("Multi-pulse", "complex pattern", ORANGE, "duration_days >= 5 and final_area_km2 >= 1", "pulse_count", False),
+    ]
+    fig = plt.figure(figsize=(9.2, 6.6))
+    gs = fig.add_gridspec(3, 4, height_ratios=[1.05, 1.0, 0.18], hspace=0.44, wspace=0.42, top=0.83, bottom=0.12)
+    for i, (title, desc, color, query, score, asc) in enumerate(examples):
+        fid = choose_story_fire(features, title, query, score, ascending=asc)
+        prof = profile_for_fire(bundle.slices, fid)
+        frow = features.loc[features.fire_id.astype(str) == fid].iloc[0]
+        axh = fig.add_subplot(gs[0, i])
+        plot_history_for_story(axh, prof, color)
+        axh.set_title(f"{title}\n{desc}", fontsize=8.5, color=color, weight="bold")
+        if i == 0:
+            axh.set_ylabel("Scaled burned area")
+        axh.text(0.02, 0.94, f"{frow.final_area_km2:.1f} km2, {frow.duration_days:.0f} d", transform=axh.transAxes, ha="left", va="top", fontsize=6.8, color=MUTED)
+        axv = fig.add_subplot(gs[1, i])
+        draw_vase(axv, prof, color=color)
+        axv.set_title("Fire VASE", fontsize=7.4, color=MUTED)
+    axnote = fig.add_subplot(gs[2, :])
+    axnote.axis("off")
+    axnote.text(0.02, 0.35, "Daily increments become ordered rings; ring width tracks cumulative burned area through developmental time.", fontsize=8.2, color=INK)
+    story_header(fig, 1, "Every fire has a life history.", "Fires with simple final summaries can develop through different sequences.", RED)
+    takeaway(fig, "Takeaway: final area and duration hide when growth occurs; Fire VASE preserves the developmental sequence.", RED)
     return savefig(fig, MAIN_FIGURE_DIR, "Figure_1_climate_revision")
 
 
@@ -708,38 +750,52 @@ def figure_2(bundle: DataBundle) -> dict[str, str]:
     f = bundle.features.copy()
     labels = f["shape_label"].value_counts().index.tolist()
     reps = []
-    for label in labels[:8]:
+    for label in labels[:6]:
         g = f[f.shape_label == label]
         if g.empty:
             continue
         center = g[["morph_pc1", "morph_pc2"]].median()
         dist = ((g["morph_pc1"] - center.morph_pc1) ** 2 + (g["morph_pc2"] - center.morph_pc2) ** 2).sort_values()
         reps.append((label, str(dist.index[0])))
-    fig = plt.figure(figsize=(7.2, 5.7))
-    gs = fig.add_gridspec(4, 4, height_ratios=[1, 1, 1, 1.05], hspace=0.55, wspace=0.45)
-    for i, (label, idx) in enumerate(reps[:8]):
-        row, col = divmod(i, 4)
+    fig = plt.figure(figsize=(9.2, 6.7))
+    gs = fig.add_gridspec(3, 6, height_ratios=[1.05, 1.85, 0.72], hspace=0.55, wspace=0.52, top=0.82, bottom=0.12)
+    for i, (label, idx) in enumerate(reps[:6]):
         fid = f.loc[int(idx), "fire_id"]
         prof = profile_for_fire(bundle.slices, fid)
-        axv = fig.add_subplot(gs[row, col])
+        axv = fig.add_subplot(gs[0, i])
         draw_vase(axv, prof, color=SHAPE_COLORS.get(label, BLUE))
-        axv.set_title(label, fontsize=8.1)
-    axp = fig.add_subplot(gs[2:, :2])
-    counts = f["shape_label"].value_counts(normalize=True).sort_values()
+        axv.set_title(label.replace(" ", "\n"), fontsize=8.0, color=SHAPE_COLORS.get(label, INK), weight="bold")
+    axc = fig.add_subplot(gs[1, :4])
+    sample = f.sample(min(65000, len(f)), random_state=SEED)
+    for label, g in sample.groupby("shape_label", observed=True):
+        axc.scatter(g["morph_pc1"], g["morph_pc2"], s=1.3, alpha=0.22, color=SHAPE_COLORS.get(label, MUTED), rasterized=True, label=label)
+    axc.set_xlabel("VASE axis 1: concentration / front-loading")
+    axc.set_ylabel("VASE axis 2: timing / persistence")
+    axc.set_title("Population of fires occupies a continuous morphospace")
+    clean_axis(axc)
+    panel_label(axc, "a")
+    axp = fig.add_subplot(gs[1, 4:])
+    counts = f["shape_label"].value_counts(normalize=True).sort_values(ascending=True)
     axp.barh(counts.index, counts.values * 100, color=[SHAPE_COLORS.get(x, MUTED) for x in counts.index])
     axp.set_xlabel("Share of fires (%)")
-    axp.set_title("Developmental neighborhoods are unevenly occupied")
+    axp.set_title("Recurring neighborhoods are unevenly occupied")
     clean_axis(axp)
-    panel_label(axp, "a")
-    axc = fig.add_subplot(gs[2:, 2:])
-    sample = f.sample(min(55000, len(f)), random_state=SEED)
-    axc.scatter(sample["morph_pc1"], sample["morph_pc2"], s=1, color=MUTED, alpha=0.18, rasterized=True)
-    axc.set_xlabel("Developmental gradient 1")
-    axc.set_ylabel("Developmental gradient 2")
-    axc.set_title("Neighborhoods grade into one another")
-    clean_axis(axc)
-    panel_label(axc, "b")
-    fig.suptitle("Wildfire histories vary along recurring developmental gradients", y=0.995, fontsize=12, weight="bold")
+    panel_label(axp, "b")
+    axg = fig.add_subplot(gs[2, :])
+    axg.axis("off")
+    gradient_text = [
+        "Timing of growth",
+        "Persistence",
+        "Concentration of growth",
+        "Pulse structure",
+        "Reactivation",
+        "Termination",
+    ]
+    for i, text in enumerate(gradient_text):
+        x = 0.02 + i * 0.16
+        axg.text(x, 0.55, f"[x] {text}", transform=axg.transAxes, fontsize=8.2, color=INK)
+    story_header(fig, 2, "Wildfire histories occupy recurring developmental gradients.", "Fires follow continuous patterns in timing, persistence, pulse structure, reactivation, and termination.", BLUE)
+    takeaway(fig, "Takeaway: development varies along continuous gradients, not as hard discrete types.", BLUE)
     return savefig(fig, MAIN_FIGURE_DIR, "Figure_2_climate_revision")
 
 
@@ -764,8 +820,8 @@ def climate_label_from_feature(name: str) -> str:
 def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: pd.DataFrame) -> dict[str, str]:
     cf = climate_features.dropna(subset=["mean_vpd_kpa"]).copy()
     cf["vpd_group"] = climate_terciles(cf, "mean_vpd_kpa")
-    fig = plt.figure(figsize=(9.0, 7.2))
-    gs = fig.add_gridspec(3, 6, height_ratios=[1.0, 1.05, 1.2], hspace=0.82, wspace=0.88)
+    fig = plt.figure(figsize=(9.2, 7.0))
+    gs = fig.add_gridspec(3, 6, height_ratios=[1.0, 1.0, 1.15], hspace=0.82, wspace=0.88, top=0.82, bottom=0.12)
     ax = fig.add_subplot(gs[0, :2])
     sample = cf.sample(min(45000, len(cf)), random_state=SEED)
     sc = ax.scatter(sample["morph_pc1"], sample["morph_pc2"], c=sample["mean_vpd_kpa"], s=2, cmap=CLIMATE_CMAP, alpha=0.45, rasterized=True)
@@ -773,7 +829,7 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     cb.set_label("Mean VPD (kPa)")
     ax.set_xlabel("Developmental gradient 1")
     ax.set_ylabel("Developmental gradient 2")
-    ax.set_title("VPD varies across developmental space")
+    ax.set_title("Where are high- and low-VPD fires?")
     clean_axis(ax)
     panel_label(ax, "a")
 
@@ -786,17 +842,21 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
         axv.set_title(label, fontsize=8)
 
     axd = fig.add_subplot(gs[1, :2])
-    base = composite_profile(bundle.slices, cf.loc[cf.vpd_group == "middle", "fire_id"].sample(6000, random_state=SEED))
-    hi = composite_profile(bundle.slices, cf.loc[cf.vpd_group == "high", "fire_id"].sample(6000, random_state=SEED))
-    lo = composite_profile(bundle.slices, cf.loc[cf.vpd_group == "low", "fire_id"].sample(6000, random_state=SEED))
-    axd.axvline(0, color=INK, lw=0.7)
-    axd.plot(hi["width"] - base["width"], hi["relative_time"], color=RED, label="high minus middle")
-    axd.plot(lo["width"] - base["width"], lo["relative_time"], color=BLUE, label="low minus middle")
-    axd.set_xlabel("Difference in normalized width")
-    axd.set_ylabel("Developmental time")
-    axd.set_title("VPD shifts where growth is allocated")
-    axd.legend(frameon=False)
-    clean_axis(axd)
+    axd.axis("off")
+    axd.set_title("Climate dimensions used\n(daily, at fire centroid)", fontsize=8.2, loc="left")
+    climate_groups = [
+        ("Temperature", "maximum and minimum"),
+        ("Atmospheric dryness", "VPD and humidity"),
+        ("Wind", "daily wind speed"),
+        ("Water input", "precipitation"),
+        ("Fuel state", "100h and 1000h moisture"),
+        ("Fire danger", "ERC and burning index"),
+        ("Energy balance", "ET, PET, solar radiation"),
+    ]
+    for i, (name, detail) in enumerate(climate_groups):
+        y = 0.88 - i * 0.12
+        axd.text(0.02, y, name, transform=axd.transAxes, fontsize=7.7, weight="bold", color=INK)
+        axd.text(0.52, y, detail, transform=axd.transAxes, fontsize=7.2, color=MUTED)
     panel_label(axd, "b")
 
     axp = fig.add_subplot(gs[1, 2:])
@@ -807,7 +867,7 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
         axp.plot(x, prev.loc[keep, grp], marker="o", lw=1.3, label=f"{grp} VPD", color=[BLUE, GOLD, RED][j])
     axp.set_xticks(x, keep, rotation=18, ha="right")
     axp.set_ylabel("Share within VPD group (%)")
-    axp.set_title("Climate changes neighborhood prevalence")
+    axp.set_title("Developmental-neighborhood prevalence shifts")
     axp.legend(frameon=False, ncol=3)
     clean_axis(axp)
     panel_label(axp, "c")
@@ -832,7 +892,7 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     im = axh.imshow(mat, cmap="coolwarm", vmin=-0.35, vmax=0.35, aspect="auto")
     axh.set_xticks(np.arange(len(pred_names)), [climate_label_from_feature(p) for p in pred_names], rotation=35, ha="right")
     axh.set_yticks(np.arange(len(resp_names)), ["front loaded", "late growth", "entropy", "pulse count", "reactivations", "gradient 1"])
-    axh.set_title("Associations are distributed across responses")
+    axh.set_title("Climate dimensions relate to different developmental responses")
     cb2 = fig.colorbar(im, ax=axh, fraction=0.032, pad=0.035)
     cb2.ax.set_title("rho", fontsize=6.4, pad=2)
     panel_label(axh, "d")
@@ -853,16 +913,17 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axm.set_yticks(ypos, [short_labels.get(x, x) for x in summary.index])
     axm.axvline(0, color=INK, lw=0.7)
     axm.set_xlabel("Median held-out R2 across responses")
-    axm.set_title("Blocked transfer remains weak")
+    axm.set_title("Association does not imply deterministic prediction")
     clean_axis(axm)
     panel_label(axm, "e")
-    fig.suptitle("Climate shifts the probability of developmental forms", y=0.997, fontsize=12, weight="bold")
+    story_header(fig, 3, "Climate shifts the probability of developmental forms.", "Many climate dimensions are associated with where fires fall in VASE space, but they do not determine a single pathway.", BLUE)
+    takeaway(fig, "Takeaway: climate redistributes fires across developmental possibilities.", BLUE)
     return savefig(fig, MAIN_FIGURE_DIR, "Figure_3_climate_revision")
 
 
 def figure_4(bundle: DataBundle, state_df: pd.DataFrame, state_models: pd.DataFrame) -> dict[str, str]:
-    fig = plt.figure(figsize=(8.8, 6.5))
-    gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 1.12], hspace=0.82, wspace=0.82)
+    fig = plt.figure(figsize=(9.2, 6.6))
+    gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 1.16], hspace=0.82, wspace=0.82, top=0.82, bottom=0.12)
     long = bundle.features.dropna(subset=["duration_days", "mean_vpd_kpa"]).sort_values("duration_days", ascending=False).head(300)
     chosen = long.sample(3, random_state=SEED)["fire_id"].astype(str).tolist()
     for i, fid in enumerate(chosen):
@@ -877,14 +938,15 @@ def figure_4(bundle: DataBundle, state_df: pd.DataFrame, state_models: pd.DataFr
             vpd = (vpd - np.nanmin(vpd)) / (np.nanmax(vpd) - np.nanmin(vpd))
         ax.bar(x, growth, color=BLUE, alpha=0.35, label="growth")
         ax.plot(x, vpd, color=RED, lw=1.3, label="VPD")
-        ax.set_title(f"Fire {fid}", fontsize=7.4)
+        ax.set_title(f"Observed fire {i + 1}", fontsize=7.4)
         ax.set_xticks([])
         ax.set_yticks([0, 1])
         clean_axis(ax)
     axleg = fig.add_subplot(gs[0, 3])
     axleg.axis("off")
-    axleg.text(0, 0.72, "Same daily exposure can occur\nbefore, during, or after growth.", fontsize=8.7, weight="bold", color=INK)
-    axleg.text(0, 0.34, "State models use only current and prior fire history: elapsed day, current growth, cumulative area, and acceleration.", fontsize=7.2, color=MUTED, wrap=True)
+    axleg.text(0, 0.78, "Climate exposure is read\nthrough fire state.", fontsize=9.0, weight="bold", color=INK)
+    axleg.text(0, 0.42, "The red line is daily VPD scaled within each fire. The blue bars are daily growth. The same exposure can occur before, during, or after rapid expansion.", fontsize=7.3, color=MUTED, wrap=True)
+    axleg.text(0, 0.12, "State models use only information available by day t.", fontsize=7.3, color=INK, weight="bold", wrap=True)
 
     axm = fig.add_subplot(gs[1, :2])
     preferred_order = [
@@ -912,7 +974,7 @@ def figure_4(bundle: DataBundle, state_df: pd.DataFrame, state_models: pd.DataFr
         "core climate-state interaction": "interaction",
     }
     axm.set_xticks(range(len(order)), [labels.get(name, name) for name in order], rotation=18, ha="right")
-    axm.set_title("Developmental state improves next-day growth interpretation")
+    axm.set_title("Adding current state improves near-term growth models")
     axm.legend(frameon=False, fontsize=6.8)
     clean_axis(axm)
     panel_label(axm, "a")
@@ -936,7 +998,8 @@ def figure_4(bundle: DataBundle, state_df: pd.DataFrame, state_models: pd.DataFr
     axs.legend(frameon=False)
     clean_axis(axs)
     panel_label(axs, "b")
-    fig.suptitle("Developmental state changes how climate is expressed through growth", y=0.995, fontsize=12, weight="bold")
+    story_header(fig, 4, "Climate acts through developmental state.", "The same weather exposure can mean different things depending on when it occurs in a fire history.", PURPLE)
+    takeaway(fig, "Takeaway: climate effects depend on when exposure occurs and on the current developmental state.", PURPLE)
     return savefig(fig, MAIN_FIGURE_DIR, "Figure_4_climate_revision")
 
 
@@ -971,8 +1034,8 @@ def figure_5(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     clim_df, morph_df = find_mismatch_examples(climate_features)
     cf = climate_features.set_index("fire_id")
     top = clim_df.sort_values("morphology_distance", ascending=False).head(2)
-    fig = plt.figure(figsize=(7.2, 5.6))
-    gs = fig.add_gridspec(2, 4, hspace=0.62, wspace=0.6)
+    fig = plt.figure(figsize=(9.2, 6.4))
+    gs = fig.add_gridspec(2, 5, hspace=0.70, wspace=0.72, top=0.82, bottom=0.13)
     for col, (_, row) in enumerate(top.iterrows()):
         for rr, fid in enumerate([row.fire_id_a, row.fire_id_b]):
             axv = fig.add_subplot(gs[rr, col])
@@ -980,16 +1043,22 @@ def figure_5(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
             draw_vase(axv, prof, color=[BLUE, RED][rr])
             vals = cf.loc[str(fid)]
             axv.set_title(f"{vals.mean_vpd_kpa:.2f} kPa VPD\n{vals.mean_maximum_temperature_c:.1f} C Tmax", fontsize=7.5)
-    axh = fig.add_subplot(gs[0, 2:])
+    axpair = fig.add_subplot(gs[:, 2])
+    axpair.axis("off")
+    axpair.text(0.5, 0.72, "Similar centroid\nclimate", ha="center", fontsize=8.6, weight="bold", color=INK)
+    axpair.text(0.5, 0.52, "can still produce", ha="center", fontsize=7.5, color=MUTED)
+    axpair.text(0.5, 0.34, "different VASE\nforms", ha="center", fontsize=8.6, weight="bold", color=RED)
+    axpair.text(0.5, 0.16, "Climate organizes opportunity;\nit does not assign one path.", ha="center", fontsize=7.1, color=MUTED)
+    axh = fig.add_subplot(gs[0, 3:])
     axh.hist(clim_df["morphology_distance"], bins=28, alpha=0.7, color=RED, label="similar climate pairs")
     axh.hist(morph_df["morphology_distance"], bins=28, alpha=0.55, color=BLUE, label="similar morphology pairs")
     axh.set_xlabel("Morphology distance")
     axh.set_ylabel("Pair count")
-    axh.set_title("Similar climate can still yield divergent morphology")
+    axh.set_title("Mismatch distributions expose the limit")
     axh.legend(frameon=False)
     clean_axis(axh)
     panel_label(axh, "a")
-    axc = fig.add_subplot(gs[1, 2:])
+    axc = fig.add_subplot(gs[1, 3:])
     blocks = ["random_fire", "year_block", "region_block", "region_year_hash"]
     med = event_models.groupby(["predictor_set", "block"])["r2"].median().reset_index()
     for predictor_set, color in [
@@ -1006,11 +1075,12 @@ def figure_5(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axc.axhline(0, color=INK, lw=0.7)
     axc.set_xticks(np.arange(len(blocks)), ["random", "year", "region", "region-year"], rotation=15)
     axc.set_ylabel("Median held-out R2")
-    axc.set_title("Transfer failures bound the climate claim")
+    axc.set_title("Blocked transfer bounds the climate claim")
     axc.legend(frameon=False, fontsize=6.6)
     clean_axis(axc)
     panel_label(axc, "b")
-    fig.suptitle("Climate organizes opportunity without uniquely determining outcome", y=0.995, fontsize=12, weight="bold")
+    story_header(fig, 5, "Climate is not destiny.", "Similar climates can lead to different outcomes, and similar forms can arise under different climate pathways.", RED)
+    takeaway(fig, "Takeaway: climate organizes opportunity, but state and landscape context help determine the path a fire takes.", RED)
     return savefig(fig, MAIN_FIGURE_DIR, "Figure_5_climate_revision")
 
 
@@ -1178,10 +1248,6 @@ For each fire, daily slice index is mapped to normalized developmental time from
 
 This revision uses empirical climate-conditioned composites for low, middle, and high VPD exposure groups. Climate groups are terciles of event-mean daily centroid gridMET VPD among climate-complete fires. The profiles are observed composites, not synthetic fires.
 
-## Difference VASE
-
-Difference profiles are calculated as `conditioned median width - reference median width` over normalized developmental time. The reference in Figure 3 is the middle-VPD composite. Positive values indicate greater expected normalized width at that developmental time than the reference group.
-
 ## Probability VASE
 
 The reusable framework can summarize pulse, zero-growth, acceleration, reactivation, or termination probabilities by developmental time. The current main figures avoid overloading one glyph and instead use the simplest probability summary: developmental-neighborhood prevalence across VPD terciles.
@@ -1336,15 +1402,15 @@ def write_legends(summary: dict) -> None:
 
 ## Figure 1. Fire VASE preserves developmental differences hidden by final outcomes.
 
-Real FIRED events matched approximately on final burned area are shown as daily growth histories and as VASE glyphs. Bars show daily burned area scaled within fire, lines show cumulative area scaled within fire, and VASE ring width shows normalized cumulative burned area through developmental time. The lower panels place these examples in the population morphospace and summarize correlations between the first VASE axes and final size or duration. The figure establishes the opening premise: final size and duration are necessary descriptors but do not preserve developmental history.
+Four real FIRED events illustrate distinct life-history patterns: early burst, steady growth, late surge, and multi-pulse development. Bars show daily burned area scaled within fire, lines show cumulative area scaled within fire, and VASE ring width shows normalized cumulative burned area through developmental time. The figure establishes the opening premise: final area and duration are necessary descriptors but do not preserve when growth occurs.
 
 ## Figure 2. Wildfire histories vary along recurring developmental gradients.
 
-Observed representative fires mark recurring developmental neighborhoods. VASEs are labeled with interpretable shape descriptors rather than medoid IDs. The prevalence panel gives the population share of each neighborhood, and the morphospace panel shows that labels grade continuously rather than forming isolated classes. The figure supports a descriptive vocabulary of timing, persistence, concentration, pulse structure, reactivation, and termination.
+Observed representative fires mark recurring developmental neighborhoods. VASEs are labeled with interpretable shape descriptors rather than medoid IDs. The morphospace panel shows that labels grade continuously rather than forming isolated classes, the prevalence panel gives the population share of each neighborhood, and the bottom annotation names the developmental gradients that the axes summarize. The figure supports a descriptive vocabulary of timing, persistence, concentration, pulse structure, reactivation, and termination.
 
 ## Figure 3. Climate shifts the probability of developmental forms.
 
-Daily centroid gridMET climate is projected onto the developmental representation. Panel a maps mean VPD in kPa across the VASE morphospace. The composite VASEs summarize low, middle, and high event-mean VPD terciles; each composite is the median normalized profile with an interquartile shell and reports group sample size. The difference panel compares high- and low-VPD composites with the middle-VPD reference. The prevalence panel shows how developmental-neighborhood frequency changes across VPD groups. The effect-size heatmap reports Spearman associations for temperature, VPD, precipitation, relative humidity, fuel moisture, and fire-danger summaries against interpretable responses. The blocked validation panel compares core event means, comprehensive event means, moisture/humidity, fire-danger/energy, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved exposure summaries. The strongest supported conclusion is redistribution of developmental probabilities, not deterministic prediction.
+Daily centroid gridMET climate is projected onto the developmental representation. The morphospace panel maps mean VPD in kPa across VASE axes. The composite VASEs summarize low, middle, and high event-mean VPD terciles; each composite is the median normalized profile with an interquartile shell and reports group sample size. The climate-dimension panel lists the daily centroid variables used in the analysis. The prevalence panel shows how developmental-neighborhood frequency changes across VPD groups. The effect-size heatmap reports Spearman associations for temperature, VPD, precipitation, relative humidity, fuel moisture, and fire-danger summaries against interpretable responses. The blocked validation panel compares core event means, comprehensive event means, moisture/humidity, fire-danger/energy, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved exposure summaries. The strongest supported conclusion is redistribution of developmental probabilities, not deterministic prediction.
 
 ## Figure 4. Developmental state changes how climate is expressed through growth.
 
@@ -1352,7 +1418,7 @@ Representative histories align daily growth and daily VPD to show that similar e
 
 ## Figure 5. Climate organizes opportunity without uniquely determining outcome.
 
-The closing figure shows the limit of climate explanation. The VASE examples are pairs selected for similar centroid climate summaries but divergent developmental morphology. Population mismatch distributions show that similar climate does not guarantee similar form, and blocked model performance shows that climate representations lose transferability across years and regions. The figure motivates missing controls that are still absent from the population table: active-edge exposure, topography, vegetation, suppression, ignition context, wind direction or gusts, and true local climate anomalies.
+The closing figure shows the limit of climate explanation. The VASE examples are pairs selected for similar centroid climate summaries but divergent developmental morphology. The central annotation states the inferential boundary: similar centroid climate can still lead to different developmental paths. Population mismatch distributions show that similar climate does not guarantee similar form, and blocked model performance shows that climate representations lose transferability across years and regions. The figure motivates missing controls that are still absent from the population table: active-edge exposure, topography, vegetation, suppression, ignition context, wind direction or gusts, and true local climate anomalies.
 """
     FIGURE_LEGENDS_MD.write_text(legends)
 
@@ -1382,7 +1448,7 @@ Here we rebuild the Fire VASE analysis around one question: how does climate org
 
 ### Fire VASE preserves developmental differences hidden by final outcomes
 
-Fires matched on final burned area can follow visibly different daily growth histories. Figure 1 shows real events with similar final sizes but contrasting temporal allocation: some accumulate most area early, others grow late, and others persist over multiple increments. The corresponding VASEs preserve those differences in one visual grammar. Across the population, the first developmental axes are correlated with final size and duration but are not reducible to either summary. This establishes Fire VASE as the instrument for the climate analysis rather than as the paper's endpoint.
+Simple final summaries can hide visibly different daily growth histories. Figure 1 shows real events with contrasting temporal allocation: some accumulate most area early, others grow steadily, others grow late, and others develop through multiple pulses. The corresponding VASEs preserve those differences in one visual grammar. This establishes Fire VASE as the instrument for the climate analysis rather than as the paper's endpoint.
 
 ### Wildfire histories vary along recurring developmental gradients
 
@@ -1570,15 +1636,18 @@ top three issues still preventing submission: population-wide active-edge/perime
 
 def update_prompt_log(summary: dict) -> None:
     log = ROOT / "PROMPT_LOG.md"
+    heading = "## 2026-07-22 - Comprehensive Fire VASE climate rebuild and manuscript refresh"
     entry = f"""
-## 2026-07-22 - Climate-centered Fire VASE manuscript revision
+{heading}
 
-- User goal: rebuild the Fire VASE manuscript and figures around the claim that climate organizes wildfire developmental opportunity without uniquely determining realized form.
+- User goal: rebuild the VASE database and manuscript so the analysis uses the expanded gridMET variables and no longer presents the climate revision as a four-variable product.
 - Data decision: used the full population daily centroid gridMET table for expanded climate variables ({summary['best_event_set']} was the best transferable event-level representation); treated perimeter/active-burned-area/perimeter-extension climate according to actual coverage.
 - Created analysis reports under `analysis/`, revised figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, a revised manuscript source at `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and a rendered PDF at `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
 - Validation: generated all figures and reports with `scripts/fire_vase_climate_revision.py`; rendered the manuscript PDF for visual QA.
-- Caveats: no complete population-wide active-edge climate, true local-normal anomalies, topography, vegetation, suppression, ignition cause, wind direction, or gust products were available locally.
+- Caveats: centroid climate is population-wide; perimeter exposure is expanded but still sampled. True local-normal anomalies, complete active-edge/perimeter attribution, topography, vegetation, suppression, ignition cause, wind direction, and gust products remain future work.
 """
+    if log.exists() and heading in log.read_text(encoding="utf-8"):
+        return
     with log.open("a") as fh:
         fh.write(entry)
 

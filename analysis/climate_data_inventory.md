@@ -1,6 +1,6 @@
 # Climate Data Inventory
 
-Generated: 2026-07-22T23:23:43.591969+00:00
+Generated: 2026-07-22T23:47:38.509394+00:00
 
 ## Population-wide daily centroid climate
 
@@ -34,17 +34,17 @@ Missingness pattern: 41,334 fires have missing cached climate values, reported a
 ## Perimeter, active-burned-area, and perimeter-extension pilot
 
 Source: `scratch/fire_vase_run_full/tables/vase_climate_exposures.parquet`, produced by `scratch/fire_vase_run_full/perimeter_climate_build_comprehensive_report.json`.
-Fire count: 25. Rows: 255. Climate-available rows: 175.
+Fire count: 100. Rows: 1,095. Climate-available rows: 795.
 Exposure bases present: active_burned_area, cumulative_burned_area, perimeter_extension.
-Extension distances:  m.
+Extension distances: 5000.0, 10000.0, 25000.0 m.
 Variables are summarized by zone as mean/min/max/std where present, plus sampled cell count and exposure area.
 Status: useful as a methods/perimeter-exposure product. If its fire count is lower than the centroid table, it remains a coverage limitation rather than the main inferential basis.
 
 | exposure_zone | rows | fires | climate_available |
 | --- | --- | --- | --- |
-| active_burned_area | 51 | 25 | 0.686 |
-| cumulative_burned_area | 51 | 25 | 0.686 |
-| perimeter_extension | 153 | 25 | 0.686 |
+| active_burned_area | 219 | 100 | 0.726 |
+| cumulative_burned_area | 219 | 100 | 0.726 |
+| perimeter_extension | 657 | 100 | 0.726 |
 
 ## Variables still not available as population-wide analysis products
 
