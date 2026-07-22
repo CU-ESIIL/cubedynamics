@@ -13,6 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import matplotlib
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -67,7 +68,7 @@ def _write_legends(stats) -> None:
 
 ## Figure 1. Whole-fire histories collapse into a common developmental coordinate system.
 
-(A) Fire VASE converts each real FIRED event into a comparable developmental object by mapping event time from bottom to top and normalized cumulative burned area to ring width. The five examples pair each daily cumulative-area history with its VASE glyph; labels give the descriptive shape name, duration in days, and final burned area in square kilometers. (B) Geometry-only morphospace for {stats.observed['n_fires']:,} fires. The gray density field shows all events along the first two developmental gradients, darker tones indicate higher fire density, and red points identify high-occupancy real representative fires used as atlas landmarks. Axes report the variance explained by the underlying geometry-only principal components. (C) Scree plot and cumulative explained variance for the first ten developmental axes; vertical intervals mark stratified bootstrap variation for the first five axes. (D) Null comparisons place the observed five-axis variance against feature-wise and within-fire growth-timing permutation nulls. (E) Duration sensitivity repeats the PCA after excluding increasingly short fires. The low-dimensional result is strong for the full population but weakens for longer-duration subsets.
+(A) Fire VASE converts each real FIRED event into a comparable developmental object by mapping event time from bottom to top and normalized cumulative burned area to ring width. The examples pair each daily cumulative-area history with its VASE glyph; labels give the descriptive shape name, duration in days, and final burned area in square kilometers. (B) Geometry-only morphospace for {stats.observed['n_fires']:,} fires. The gray density field shows all events along the first two developmental gradients, darker tones indicate higher fire density, and red points identify high-occupancy real representative fires used as atlas landmarks. Axes report the variance explained by the underlying geometry-only principal components. (C) Scree plot and cumulative explained variance for the first ten developmental axes; vertical intervals mark stratified bootstrap variation for the first five axes. (D) Simple null comparisons place the observed five-axis variance against feature-wise and within-fire growth-timing permutation nulls. (E) Duration sensitivity repeats the PCA after excluding increasingly short fires. The low-dimensional result is strongest for the full population and weakens for longer-duration subsets.
 
 Alt text: A multi-panel scientific figure showing real fire histories transformed into vase-shaped glyphs, a dense low-dimensional morphospace, PCA variance curves, null-model separation, and duration sensitivity.
 
@@ -77,11 +78,11 @@ Alt text: A multi-panel scientific figure showing real fire histories transforme
 
 Alt text: A morphospace atlas with many small Fire VASE glyphs, occupancy bars, medoid coverage curves, transects of changing glyph shape, and an overlap metric.
 
-## Figure 3. The major axes encode interpretable dimensions of fire development.
+## Figure 3. PC1 is a robust but partly redundant developmental profile axis.
 
-(A-C) Real-fire transects along developmental gradients 1, 2, and 3 pair Fire VASE glyphs with normalized cumulative-area histories. Each example is an observed fire selected along the corresponding axis-score gradient. Gradient 1 primarily tracks growth allocation and temporal concentration, gradient 2 mixes taper, duration, late growth, and scale, and gradient 3 emphasizes pulse/reactivation and timing structure. (D) Grouped feature contributions summarize how feature domains contribute to the first three axes. (E) Raw-history regression proxies relate axis scores to active-day count, burstiness, late growth share, and growth concentration while controlling for duration, final area, and observation count. These analyses make the coordinate system interpretable, but they do not identify fuels, climate, suppression, or topography as mechanisms.
+(A) Variance explained by PC1 under feature ablations: the full current feature set, features with scale and duration removed, normalized profile features only, growth-share profiles only, interpolated profile features removed, and fires lasting at least 10 days. (B) Cumulative variance in the first five axes for the same ablations. (C) A null hierarchy compares observed five-axis variance with developmental universes that preserve progressively more trivial structure. Feature permutation breaks all covariance; stricter nulls preserve final area, duration, zero-growth frequency, observed growth increments, or duration-bin mean profiles. (D) Support diagnostics compare null covariance volume and null-to-observed distance in the observed PC1-PC5 coordinate space. The figure supports a reproducible low-dimensional coordinate system but cautions against claiming that observed fires occupy a restricted subset of all plausible trajectories.
 
-Alt text: Fire VASE glyphs and area trajectories arranged along each major PC, plus grouped feature-loading and raw-history validation panels.
+Alt text: Four quantitative panels showing PC1 sensitivity, first-five-axis variance, a hierarchy of null developmental models, and support-overlap diagnostics.
 
 ## Figure 4. Climate aligns with developmental geometry but does not uniquely determine it.
 
@@ -89,7 +90,7 @@ Alt text: Fire VASE glyphs and area trajectories arranged along each major PC, p
 
 Alt text: Climate-colored morphospace maps, predictive performance bars with intervals, matched Fire VASE pairs, and population matching summaries.
 
-## Figure 5. Fixed-day partial histories provide a leakage-audited developmental benchmark.
+## Supplementary Figure 2. Fixed-day partial histories provide a leakage-audited developmental benchmark.
 
 (A) A real fire is truncated at fixed observed-day stages to illustrate the prediction task. For each stage, the partial VASE contains only information available by that day, while the adjacent final VASE shows the complete event. (B) Region-blocked prediction accuracy for final shape compares trivial stage summaries, climate-only predictors, geometry-only predictors, and geometry-plus-climate predictors. Values near or below zero mean that the fixed-day linear model does not generalize beyond the held-out mean under blocked validation. (C) Incremental climate value is shown as the accuracy gain from adding climate beyond geometry-only prediction. (D) Observed versus predicted final main shape score for held-out day-4 region-blocked predictions illustrates the conservative benchmark. (E) Leakage audit explains why older fractional-stage variables normalized by final area or counted future pulses are excluded; only fixed-day safe predictors are used in this figure.
 
@@ -181,7 +182,7 @@ def _describe_column(col: str) -> str:
 def _write_readme(args) -> None:
     text = f"""# Fire VASE Main Figure Suite
 
-This directory contains a publication-oriented five-figure suite for the manuscript **Wildfire Occupies a Continuous Developmental Morphospace**.
+This directory contains a publication-oriented four-figure suite for the manuscript **Fire VASE Provides a Low-Dimensional Coordinate System for Wildfire Development**.
 
 ## Regenerate
 
@@ -206,12 +207,13 @@ Use `--force-validation` to recompute cached validation tables. Use `--bootstrap
 
 ## Outputs
 
-Each main figure is exported as PDF, PNG, and SVG: `Figure_1` through `Figure_5`.
-Supplementary validation output is written under `figures/supplement/`.
+Each main figure is exported as PDF, PNG, and SVG: `Figure_1` through `Figure_4`.
+Fixed-day prediction is exported as `figures/supplement/Supplementary_Figure_2_prediction.*`.
+Supplementary validation output is also written under `figures/supplement/`.
 
 ## Statistical Analyses
 
-The pipeline performs geometry-only PCA recomputation, stratified bootstrap PCA stability, feature-permutation and within-fire growth-profile nulls, duration sensitivity, feature ablation, medoid coverage, neighborhood label-overlap analysis, random/blocked predictive climate coupling, matched-neighborhood diagnostics, and a leakage-audited fixed-day stage prediction analysis.
+The pipeline performs geometry-only PCA recomputation, stratified bootstrap PCA stability, feature-permutation and within-fire growth-profile nulls, duration sensitivity, feature ablation, audited PC1 robustness, defensible null-developmental-universe summaries, medoid coverage, neighborhood label-overlap analysis, random/blocked climate association, matched-neighborhood diagnostics, and a leakage-audited fixed-day stage prediction analysis.
 
 ## Runtime
 
@@ -223,15 +225,16 @@ Typography, palette, figure dimensions, and output resolution are controlled in 
 
 ## Robust Conclusions
 
-- Geometry-only Fire VASE features occupy a strongly concentrated low-dimensional linear subspace.
-- The result persists under duration sensitivity and reduced feature sets.
+- Fire VASE provides a shared, reproducible, low-dimensional coordinate system for whole-fire histories.
+- The result persists under many feature ablations but weakens for longer-duration fire subsets.
 - Medoids are real observed fires and provide a compact atlas of occupied regions.
 - Climate aligns with morphology but does not uniquely determine developmental form.
 
-## Provisional Conclusions
+## Conservative Conclusions
 
-- Climate prediction and matched-neighborhood inference should be expanded with richer spatial blocking, nonlinear models, and public archived covariates.
-- Stage-wise prediction has been leakage-audited here; it should replace the older fractional-stage table in future manuscript language unless the original stage features are redesigned.
+- The current data do not yet justify the stronger claim that observed fires occupy a restricted subset of all plausible developmental trajectories after accounting for monotonicity, size, duration, and feature redundancy.
+- Climate analysis should remain a proof of concept until perimeter/active-area climate exposure and local anomalies are integrated.
+- Stage-wise prediction is retained as a supplementary leakage audit, not a main affirmative result.
 """
     (MAIN_FIGURE_DIR / "README.md").write_text(text, encoding="utf-8")
 
@@ -281,17 +284,15 @@ def render(args: argparse.Namespace) -> dict:
         ("Figure_2", build_figure_2),
         ("Figure_3", build_figure_3),
         ("Figure_4", build_figure_4),
-        ("Figure_5", build_figure_5),
     ]:
         fig = builder(data, stats)
         outputs[name] = save_figure(fig, name)
-        import matplotlib.pyplot as plt
-
         plt.close(fig)
+    pred = build_figure_5(data, stats)
+    outputs["Supplementary_Figure_2_prediction"] = save_supplement(pred, "Supplementary_Figure_2_prediction")
+    plt.close(pred)
     supp = build_supplement(data, stats)
     outputs["Supplementary_Figure_1_validation"] = save_supplement(supp, "Supplementary_Figure_1_validation")
-    import matplotlib.pyplot as plt
-
     plt.close(supp)
     _write_legends(stats)
     _write_validation(stats)

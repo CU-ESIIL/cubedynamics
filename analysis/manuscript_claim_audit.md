@@ -18,7 +18,7 @@
 
 - PC1 weakens sharply after removing the many one-day fires. With duration >= 10 days, PC1-PC5 cumulative variance is 0.785.
 - Removing scale and duration variables still leaves PC1-PC5 variance at 0.976, but this reflects profile redundancy as much as developmental constraint.
-- Profile-only features have very high five-PC variance (0.996); growth-share profiles alone are lower (0.999), showing the cumulative-width encoding itself contributes strong monotone redundancy.
+- Profile-only features have very high five-PC variance (0.996); growth-share profiles alone are even higher (0.999), showing that profile encoding itself contributes strong redundancy.
 - Within-fire and duration-conditioned nulls are the critical tests. The manuscript should not claim that observed fires occupy a restricted subset of all plausible trajectories unless those nulls show a clear support or volume separation.
 
 ## Recommended Final Claim

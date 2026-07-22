@@ -1548,3 +1548,35 @@ secrets, credentials, private tokens, or unrelated transcript text.
   the smoke output, compiled the changed scripts, ran
   `pytest tests/test_fire_vase_lakehouse.py -q` with 16 passing tests, and
   confirmed the staged repository size policy check passes.
+
+### 2026-07-22 Follow-up: Manuscript Claim Audit And Conservative Revision
+- Read the attached manuscript-audit brief and inspected the current manuscript
+  PDF text, figure/statistics scripts, derived tables, and validation outputs.
+- Added and ran `scripts/fire_vase_manuscript_claim_audit.py`, a reproducible
+  claim-audit workflow that writes PCA ablations, PC1 loading/correlation
+  diagnostics, a null-model hierarchy, climate/prediction section decisions,
+  a revised manuscript source, an audited figure plan, and a terminal-style
+  final report.
+- Generated required audit deliverables under `analysis/`, including
+  `manuscript_claim_audit.md`, `pc1_robustness_report.md`,
+  `null_model_report.md`, `climate_section_decision.md`,
+  `prediction_section_decision.md`, `figure_restructure_plan.md`, and
+  `final_terminal_report.txt`.
+- Revised the manuscript source as
+  `docs/manuscripts/fire_vase_developmental_morphology/manuscript_audited_revision.md`
+  with the claim level lowered from strong "constrained/restricted possible
+  trajectories" language to the strongest supported claim: a reproducible
+  low-dimensional developmental coordinate system.
+- Updated the audited figure set under `figures/main_audited/`, including a
+  new `Figure_3_null_universes` diagnostic figure and revised audited figure
+  legends. The recommended main-text structure is now four figures, with
+  fixed-day prediction moved to the supplement as a leakage audit.
+- Audit conclusion: PC1 survives scale/duration controls but is strongly tied
+  to profile/allocation redundancy; observed histories differ clearly from
+  feature-permutation nulls but not enough from stricter duration/profile
+  nulls to justify Level 4 possible-space constraint language.
+- Validation: compiled the changed scripts, ran the audit with 6,000-fire
+  samples and 12 null replicates, visually inspected the revised null figure
+  for label overlap, ran `pytest tests/test_fire_vase_lakehouse.py -q` with
+  16 passing tests, and confirmed the staged repository size policy check
+  passes.

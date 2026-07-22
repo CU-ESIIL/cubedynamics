@@ -860,8 +860,19 @@ def draw_audit_figure(tables: AuditTables) -> dict[str, str]:
         s=36,
         color=MORPH_BLUE,
     )
+    label_offsets = {1: 0, 2: 9, 3: -9, 4: 8, 5: -8, 6: 0}
     for i, row in enumerate(null.itertuples(index=False), start=1):
-        axes[3].text(row.synthetic_logdet_cov_pc1_5_mean, row.synthetic_to_observed_median_mean, str(i), fontsize=7.0, ha="center", va="center", color="white")
+        axes[3].annotate(
+            str(i),
+            xy=(row.synthetic_logdet_cov_pc1_5_mean, row.synthetic_to_observed_median_mean),
+            xytext=(0, label_offsets.get(i, 0)),
+            textcoords="offset points",
+            fontsize=7.0,
+            ha="center",
+            va="center",
+            color=CHARCOAL,
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.85, "pad": 0.4},
+        )
     axes[3].axvline(float(null["observed_logdet_cov_pc1_5"].iloc[0]), color=FIREBRICK, lw=1.2)
     axes[3].set_xlabel("Log covariance volume in observed PC1-PC5")
     axes[3].set_ylabel("Null-to-observed median distance")
