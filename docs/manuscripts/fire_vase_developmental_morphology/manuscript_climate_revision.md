@@ -22,7 +22,7 @@ Here we rebuild the Fire VASE analysis around one question: how does climate org
 
 ### Fire VASE preserves developmental differences hidden by final outcomes
 
-Fires matched on final burned area can follow visibly different daily growth histories. Figure 1 shows real events with similar final sizes but contrasting temporal allocation: some accumulate most area early, others grow late, and others persist over multiple increments. The corresponding VASEs preserve those differences in one visual grammar. Across the population, the first developmental axes are correlated with final size and duration but are not reducible to either summary. This establishes Fire VASE as the instrument for the climate analysis rather than as the paper's endpoint.
+Simple final summaries can hide visibly different daily growth histories. Figure 1 shows real events with contrasting temporal allocation: some accumulate most area early, others grow steadily, others grow late, and others develop through multiple pulses. The corresponding VASEs preserve those differences in one visual grammar. This establishes Fire VASE as the instrument for the climate analysis rather than as the paper's endpoint.
 
 ### Wildfire histories vary along recurring developmental gradients
 

@@ -10,10 +10,6 @@ For each fire, daily slice index is mapped to normalized developmental time from
 
 This revision uses empirical climate-conditioned composites for low, middle, and high VPD exposure groups. Climate groups are terciles of event-mean daily centroid gridMET VPD among climate-complete fires. The profiles are observed composites, not synthetic fires.
 
-## Difference VASE
-
-Difference profiles are calculated as `conditioned median width - reference median width` over normalized developmental time. The reference in Figure 3 is the middle-VPD composite. Positive values indicate greater expected normalized width at that developmental time than the reference group.
-
 ## Probability VASE
 
 The reusable framework can summarize pulse, zero-growth, acceleration, reactivation, or termination probabilities by developmental time. The current main figures avoid overloading one glyph and instead use the simplest probability summary: developmental-neighborhood prevalence across VPD terciles.

@@ -6,7 +6,7 @@ whether comprehensive climate outperforms core climate: False.
 whether temporally resolved climate outperforms event means: False.
 whether developmental state improves interpretation or prediction: yes, state-containing models outperform climate-only models for next-day growth.
 whether climate-state interactions survive blocking: True.
-which summary VASE construct is most effective: empirical climate-conditioned composite VASEs with difference profiles relative to the middle-exposure reference.
+which summary VASE construct is most effective: empirical climate-conditioned composite VASEs paired with developmental-neighborhood prevalence shifts.
 final recommended title: Climate Organizes but Does Not Determine Wildfire Development.
 final recommended number of main figures: 5.
 top three issues still preventing submission: population-wide active-edge/perimeter climate attribution is incomplete or still too limited for main inference; true local climate normals are missing; blocked climate transfer remains weak, so causal or deterministic claims should not be made.

@@ -792,8 +792,10 @@ def figure_2(bundle: DataBundle) -> dict[str, str]:
         "Termination",
     ]
     for i, text in enumerate(gradient_text):
-        x = 0.02 + i * 0.16
-        axg.text(x, 0.55, f"[x] {text}", transform=axg.transAxes, fontsize=8.2, color=INK)
+        row, col = divmod(i, 3)
+        x = 0.12 + col * 0.28
+        y = 0.68 - row * 0.34
+        axg.text(x, y, f"[x] {text}", transform=axg.transAxes, fontsize=8.2, color=INK, ha="left")
     story_header(fig, 2, "Wildfire histories occupy recurring developmental gradients.", "Fires follow continuous patterns in timing, persistence, pulse structure, reactivation, and termination.", BLUE)
     takeaway(fig, "Takeaway: development varies along continuous gradients, not as hard discrete types.", BLUE)
     return savefig(fig, MAIN_FIGURE_DIR, "Figure_2_climate_revision")
@@ -1625,7 +1627,7 @@ whether comprehensive climate outperforms core climate: {summary['comprehensive_
 whether temporally resolved climate outperforms event means: {summary['resolved_outperform_event_means']}.
 whether developmental state improves interpretation or prediction: yes, state-containing models outperform climate-only models for next-day growth.
 whether climate-state interactions survive blocking: {summary['interaction_survives_blocking']}.
-which summary VASE construct is most effective: empirical climate-conditioned composite VASEs with difference profiles relative to the middle-exposure reference.
+which summary VASE construct is most effective: empirical climate-conditioned composite VASEs paired with developmental-neighborhood prevalence shifts.
 final recommended title: Climate Organizes but Does Not Determine Wildfire Development.
 final recommended number of main figures: 5.
 top three issues still preventing submission: population-wide active-edge/perimeter climate attribution is incomplete or still too limited for main inference; true local climate normals are missing; blocked climate transfer remains weak, so causal or deterministic claims should not be made.
