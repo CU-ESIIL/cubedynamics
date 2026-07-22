@@ -611,7 +611,7 @@ def write_reports(tables: AuditTables, sample_size: int, reps: int) -> dict[str,
 
 - PC1 weakens sharply after removing the many one-day fires. With duration >= 10 days, PC1-PC5 cumulative variance is {duration10_text}.
 - Removing scale and duration variables still leaves PC1-PC5 variance at {_fmt(float(no_scale_duration['cumvar_pc1_5']))}, but this reflects profile redundancy as much as developmental constraint.
-- Profile-only features have very high five-PC variance ({_fmt(float(profile_only['cumvar_pc1_5']))}); growth-share profiles alone are lower ({_fmt(float(growth_only['cumvar_pc1_5']))}), showing the cumulative-width encoding itself contributes strong monotone redundancy.
+- Profile-only features have very high five-PC variance ({_fmt(float(profile_only['cumvar_pc1_5']))}); growth-share profiles alone are even higher ({_fmt(float(growth_only['cumvar_pc1_5']))}), showing that profile encoding itself contributes strong redundancy.
 - Within-fire and duration-conditioned nulls are the critical tests. The manuscript should not claim that observed fires occupy a restricted subset of all plausible trajectories unless those nulls show a clear support or volume separation.
 
 ## Recommended Final Claim
@@ -794,7 +794,7 @@ A fifth figure is justified only if a dynamic transition analysis or perimeter-c
 
 def draw_audit_figure(tables: AuditTables) -> dict[str, str]:
     set_style()
-    fig, axes = plt.subplots(2, 2, figsize=(7.1, 5.8))
+    fig, axes = plt.subplots(2, 2, figsize=(7.1, 6.2))
     axes = axes.ravel()
     ab = tables.pca_ablation.copy()
     keep = [
@@ -841,7 +841,15 @@ def draw_audit_figure(tables: AuditTables) -> dict[str, str]:
         capsize=2,
     )
     axes[2].axvline(float(null["observed_cumvar_pc1_5"].iloc[0]) * 100, color=FIREBRICK, lw=1.2, label="observed")
-    axes[2].set_yticks(y, [label.replace(" ", "\n") for label in order], fontsize=6.4)
+    short_labels = {
+        "duration-bin mean profile": "duration-bin\nmean",
+        "shuffled daily growth order within fire": "shuffled\norder",
+        "duration-bin empirical increments": "empirical\nincrements",
+        "dirichlet duration and final area": "dirichlet\nsize+duration",
+        "zero-preserving dirichlet": "zero-preserving\ndirichlet",
+        "independent feature permutation": "feature\npermutation",
+    }
+    axes[2].set_yticks(y, [short_labels.get(label, label) for label in order], fontsize=6.9)
     axes[2].set_xlabel("First five axes variance (%)")
     axes[2].set_title("C. Null developmental universes", loc="left", fontsize=9, fontweight="bold")
     axes[2].legend(frameon=False, fontsize=7)
@@ -852,12 +860,14 @@ def draw_audit_figure(tables: AuditTables) -> dict[str, str]:
         s=36,
         color=MORPH_BLUE,
     )
-    for row in null.itertuples(index=False):
-        axes[3].text(row.synthetic_logdet_cov_pc1_5_mean, row.synthetic_to_observed_median_mean, row.null_model.split()[0], fontsize=6.5)
+    for i, row in enumerate(null.itertuples(index=False), start=1):
+        axes[3].text(row.synthetic_logdet_cov_pc1_5_mean, row.synthetic_to_observed_median_mean, str(i), fontsize=7.0, ha="center", va="center", color="white")
     axes[3].axvline(float(null["observed_logdet_cov_pc1_5"].iloc[0]), color=FIREBRICK, lw=1.2)
     axes[3].set_xlabel("Log covariance volume in observed PC1-PC5")
     axes[3].set_ylabel("Null-to-observed median distance")
     axes[3].set_title("D. Support overlap diagnostics", loc="left", fontsize=9, fontweight="bold")
+    key = "\n".join(f"{i}. {short_labels.get(label, label).replace(chr(10), ' ')}" for i, label in enumerate(order, start=1))
+    axes[3].text(0.99, 0.98, key, transform=axes[3].transAxes, ha="right", va="top", fontsize=5.9, color=CHARCOAL)
     for ax in axes:
         ax.spines[["top", "right"]].set_visible(False)
         ax.tick_params(labelsize=7)
