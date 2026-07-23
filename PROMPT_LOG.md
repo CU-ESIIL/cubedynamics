@@ -1780,3 +1780,18 @@ secrets, credentials, private tokens, or unrelated transcript text.
   reran the offline suite successfully (`297 passed, 5 skipped, 8 deselected`),
   verified the package import under Python 3.9, and reran the repository-size
   check successfully.
+
+## 2026-07-22 - Google Docs-ready manuscript DOCX
+
+- User goal: provide the current Fire VASE climate-revision manuscript in DOCX
+  form suitable for uploading/importing into Google Docs.
+- Added `scripts/build_fire_vase_google_docs_docx.py`, which builds a
+  Google-Docs-style manuscript DOCX from
+  `manuscript_climate_revision_science_style.md`, the climate-revision figure
+  PNGs, and the comprehensive figure legends.
+- Generated
+  `output/docx/fire_vase_climate_revision_google_docs_sanitized.docx`.
+- Validation: ran the Google Docs title sanitizer and check, rendered the DOCX
+  to 13 page PNGs plus an internal QA PDF with the document renderer, and
+  visually checked the title page, back matter, dense Figure 3 page, caption
+  continuation page, and final figure page.

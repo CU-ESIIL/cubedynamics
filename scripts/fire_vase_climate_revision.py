@@ -761,6 +761,18 @@ def figure_2(bundle: DataBundle) -> dict[str, str]:
     axc.set_ylabel("VASE axis 2: timing / persistence")
     axc.set_title("Population of fires occupies a continuous morphospace")
     clean_axis(axc)
+    for label, idx in reps[:6]:
+        row = f.loc[int(idx)]
+        prof = profile_for_fire(bundle.slices, row.fire_id)
+        add_vase_inset_on_morphospace(
+            axc,
+            prof,
+            float(row.morph_pc1),
+            float(row.morph_pc2),
+            color=SHAPE_COLORS.get(label, INK),
+            label=label.replace(" ", "\n"),
+            size=0.115,
+        )
     panel_label(axc, "a")
     axp = fig.add_subplot(gs[1, 4:])
     counts = f["shape_label"].value_counts(normalize=True).sort_values(ascending=True)
@@ -807,48 +819,106 @@ def climate_label_from_feature(name: str) -> str:
     return f"{label}\n({units})" if units else label
 
 
+def add_vase_inset_on_morphospace(
+    ax: plt.Axes,
+    profile: pd.DataFrame,
+    x: float,
+    y: float,
+    *,
+    color: str,
+    label: str,
+    size: float = 0.135,
+) -> None:
+    """Place a small VASE glyph at a morphospace coordinate."""
+
+    xmin, xmax = ax.get_xlim()
+    ymin, ymax = ax.get_ylim()
+    fx = (x - xmin) / max(xmax - xmin, 1e-9)
+    fy = (y - ymin) / max(ymax - ymin, 1e-9)
+    fx = float(np.clip(fx, 0.08, 0.92))
+    fy = float(np.clip(fy, 0.12, 0.88))
+    inset = ax.inset_axes([fx - size / 2, fy - size / 2, size, size * 1.25], zorder=5)
+    draw_vase(inset, profile, color=color, outline="#1c1d1f", alpha=0.92)
+    ax.annotate(
+        label,
+        xy=(x, y),
+        xycoords="data",
+        xytext=(fx, min(fy + size * 0.83, 0.98)),
+        textcoords=ax.transAxes,
+        ha="center",
+        va="bottom",
+        fontsize=6.7,
+        color=color,
+        weight="bold",
+        arrowprops={"arrowstyle": "-", "lw": 0.55, "color": color, "alpha": 0.7},
+        zorder=6,
+    )
+
+
+def climate_morphospace_panel(
+    fig: plt.Figure,
+    ax: plt.Axes,
+    sample: pd.DataFrame,
+    column: str,
+    *,
+    title: str,
+    cmap: str,
+    panel: str,
+) -> None:
+    data = sample.dropna(subset=[column, "morph_pc1", "morph_pc2"])
+    vals = data[column].to_numpy(float)
+    if len(vals) == 0:
+        ax.axis("off")
+        return
+    lo, hi = np.nanquantile(vals, [0.03, 0.97])
+    if not np.isfinite(lo) or not np.isfinite(hi) or lo == hi:
+        lo, hi = float(np.nanmin(vals)), float(np.nanmax(vals))
+    sc = ax.scatter(
+        data["morph_pc1"],
+        data["morph_pc2"],
+        c=vals,
+        s=1.7,
+        cmap=cmap,
+        vmin=lo,
+        vmax=hi,
+        alpha=0.42,
+        rasterized=True,
+    )
+    ax.set_title(title, fontsize=8.0)
+    ax.set_xlabel("VASE axis 1", fontsize=7.0)
+    ax.set_ylabel("VASE axis 2", fontsize=7.0)
+    ax.tick_params(axis="both", labelsize=6.2)
+    clean_axis(ax)
+    cb = fig.colorbar(sc, ax=ax, fraction=0.045, pad=0.018)
+    cb.ax.tick_params(labelsize=5.8)
+    panel_label(ax, panel)
+
+
 def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: pd.DataFrame) -> dict[str, str]:
     cf = climate_features.dropna(subset=["mean_vpd_kpa"]).copy()
     cf["vpd_group"] = climate_terciles(cf, "mean_vpd_kpa")
-    fig = plt.figure(figsize=(9.2, 7.0))
-    gs = fig.add_gridspec(3, 6, height_ratios=[1.0, 1.0, 1.15], hspace=0.82, wspace=0.88, top=0.94, bottom=0.06)
-    ax = fig.add_subplot(gs[0, :2])
-    sample = cf.sample(min(45000, len(cf)), random_state=SEED)
-    sc = ax.scatter(sample["morph_pc1"], sample["morph_pc2"], c=sample["mean_vpd_kpa"], s=2, cmap=CLIMATE_CMAP, alpha=0.45, rasterized=True)
-    cb = fig.colorbar(sc, ax=ax, fraction=0.045, pad=0.02)
-    cb.set_label("Mean VPD (kPa)")
-    ax.set_xlabel("Developmental gradient 1")
-    ax.set_ylabel("Developmental gradient 2")
-    ax.set_title("Where are high- and low-VPD fires?")
-    clean_axis(ax)
-    panel_label(ax, "a")
+    fig = plt.figure(figsize=(9.4, 7.3))
+    gs = fig.add_gridspec(3, 8, height_ratios=[1.08, 0.92, 1.05], hspace=0.86, wspace=0.95, top=0.95, bottom=0.06)
+    sample = cf.sample(min(55000, len(cf)), random_state=SEED)
+    climate_maps = [
+        ("mean_maximum_temperature_c", "Maximum temperature\n(degrees C)", "inferno", "a"),
+        ("mean_vpd_kpa", "Vapor pressure deficit\n(kPa)", CLIMATE_CMAP, "b"),
+        ("mean_fuel_moisture_1000hr_pct", "1000-hour fuel moisture\n(%)", "YlGnBu", "c"),
+        ("mean_wind_speed_m_s", "Wind speed\n(m s-1)", "magma", "d"),
+    ]
+    for i, (column, title, cmap, label) in enumerate(climate_maps):
+        ax = fig.add_subplot(gs[0, 2 * i : 2 * i + 2])
+        climate_morphospace_panel(fig, ax, sample, column, title=title, cmap=cmap, panel=label)
 
     for i, grp in enumerate(["low", "middle", "high"]):
-        axv = fig.add_subplot(gs[0, 3 + i])
+        axv = fig.add_subplot(gs[1, i])
         ids = cf.loc[cf.vpd_group == grp, "fire_id"]
         prof = composite_profile(bundle.slices, ids.sample(min(6000, len(ids)), random_state=SEED + i))
         draw_composite_vase(axv, prof, color=[BLUE, GOLD, RED][i])
         label = f"{grp} VPD\nn={len(ids):,}"
         axv.set_title(label, fontsize=8)
 
-    axd = fig.add_subplot(gs[1, :2])
-    axd.axis("off")
-    axd.set_title("Climate dimensions used\n(daily, at fire centroid)", fontsize=8.2, loc="left")
-    climate_groups = [
-        "Temperature",
-        "VPD and humidity",
-        "Wind speed",
-        "Precipitation",
-        "Fuel moisture",
-        "Fire danger",
-        "ET, PET, solar radiation",
-    ]
-    for i, name in enumerate(climate_groups):
-        y = 0.86 - i * 0.11
-        axd.text(0.10, y, f"- {name}", transform=axd.transAxes, fontsize=7.7, color=INK)
-    panel_label(axd, "b")
-
-    axp = fig.add_subplot(gs[1, 2:])
+    axp = fig.add_subplot(gs[1, 3:])
     prev = pd.crosstab(cf["shape_label"], cf["vpd_group"], normalize="columns") * 100
     keep = prev.mean(axis=1).sort_values(ascending=False).head(5).index
     x = np.arange(len(keep))
@@ -859,9 +929,9 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axp.set_title("Developmental-neighborhood prevalence shifts")
     axp.legend(frameon=False, ncol=3)
     clean_axis(axp)
-    panel_label(axp, "c")
+    panel_label(axp, "e")
 
-    axh = fig.add_subplot(gs[2, :4])
+    axh = fig.add_subplot(gs[2, :5])
     effects = pd.read_csv(STATS_DIR / "climate_response_spearman_effects.csv")
     pred_candidates = [
         "mean_maximum_temperature_c",
@@ -884,9 +954,9 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axh.set_title("Climate dimensions relate to different developmental responses")
     cb2 = fig.colorbar(im, ax=axh, fraction=0.032, pad=0.035)
     cb2.ax.set_title("rho", fontsize=6.4, pad=2)
-    panel_label(axh, "d")
+    panel_label(axh, "f")
 
-    axm = fig.add_subplot(gs[2, 4:])
+    axm = fig.add_subplot(gs[2, 5:])
     summary = event_models[event_models.block.isin(["year_block", "region_block", "region_year_hash"])].groupby("predictor_set")["r2"].median().sort_values()
     short_labels = {
         "core event means": "core means",
@@ -904,7 +974,7 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axm.set_ylabel("Median held-out predictive fit (R2)", fontsize=7.0)
     axm.set_title("Association does not imply deterministic prediction")
     clean_axis(axm)
-    panel_label(axm, "e")
+    panel_label(axm, "g")
     story_header(fig, 3, "Climate shifts the probability of developmental forms.", "Many climate dimensions are associated with where fires fall in VASE space, but they do not determine a single pathway.", BLUE)
     takeaway(fig, "Takeaway: climate redistributes fires across developmental possibilities.", BLUE)
     return savefig(fig, MAIN_FIGURE_DIR, "Figure_3_climate_revision")
@@ -1395,11 +1465,11 @@ Four real FIRED fire events illustrate why final burned area and duration are in
 
 ## Fig. 2. Wildfire histories vary along recurring developmental gradients.
 
-Representative Fire VASEs identify recurring developmental neighborhoods in the observed population. Neighborhood names describe morphology rather than imposing hard classes. (A) The population morphospace places each fire by the first two VASE axes, which summarize concentration/front-loading and timing/persistence of growth. Points are colored by the descriptive neighborhood assigned to the nearest representative profile. The overlapping clouds indicate continuous gradients rather than isolated types. (B) Neighborhood prevalence shows that these recurring forms are unevenly occupied across the population. The bottom annotations name the developmental features summarized by the representation: timing of growth, persistence, concentration of growth, pulse structure, reactivation, and termination.
+Representative Fire VASEs identify recurring developmental neighborhoods in the observed population. Neighborhood names describe morphology rather than imposing hard classes. (A) The population morphospace places each fire by the first two VASE axes, which summarize concentration/front-loading and timing/persistence of growth. Points are colored by the descriptive neighborhood assigned to the nearest representative profile, and representative VASE glyphs are overlaid at their positions in the space so the reader can see how fire shape changes across the gradients. The overlapping clouds indicate continuous gradients rather than isolated types. (B) Neighborhood prevalence shows that these recurring forms are unevenly occupied across the population. The bottom annotations name the developmental features summarized by the representation: timing of growth, persistence, concentration of growth, pulse structure, reactivation, and termination.
 
 ## Fig. 3. Climate shifts the probability of developmental forms.
 
-Daily centroid gridMET climate is projected onto the developmental representation after the VASE axes are estimated from fire histories. This figure asks whether climate shifts developmental opportunity: the distribution of growth histories that fires are more or less likely to follow. (A) Event-mean vapor pressure deficit (VPD, kPa) varies across VASE space, showing that fires in different developmental regions tend to experience different atmospheric demand. The adjacent composite VASEs summarize low, middle, and high VPD terciles; each composite is the median normalized growth profile with an interquartile shell, and the title gives the group sample size. (B) The complete centroid climate table includes temperature, VPD, humidity, wind speed, precipitation, fuel moisture, fire danger, evapotranspiration, potential evapotranspiration, and solar radiation. (C) Developmental-neighborhood prevalence changes across VPD terciles. (D) Spearman associations show that different climate dimensions relate to different developmental responses, including front-loaded growth, late growth, pulse count, reactivation, and the dominant VASE gradient. (E) Blocked validation compares core event means, comprehensive event means, moisture/humidity summaries, fire-danger/energy summaries, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved summaries. Because these are correlated, centroid-based, linear summaries, lower blocked prediction does not imply that omitted dimensions are unimportant. The central inference is probabilistic: climate redistributes fires across developmental possibilities, but it does not determine a single form.
+Daily centroid gridMET climate is projected onto the developmental representation after the VASE axes are estimated from fire histories. This figure asks whether climate shifts developmental opportunity: the distribution of growth histories that fires are more or less likely to follow. (A-D) The same morphospace is colored by event-mean maximum temperature, vapor pressure deficit (VPD), 1000-hour fuel moisture, and wind speed. These maps show which portions of VASE space align with hotter, drier, windier, or moister/fuel-drier conditions and make clear that different climate variables emphasize different regions of the shape space. (E) Developmental-neighborhood prevalence changes across VPD terciles, and the adjacent composite VASEs summarize low, middle, and high VPD terciles; each composite is the median normalized growth profile with an interquartile shell, and the title gives the group sample size. (F) Spearman associations show that different climate dimensions relate to different developmental responses, including front-loaded growth, late growth, pulse count, reactivation, and the dominant VASE gradient. (G) Blocked validation compares core event means, comprehensive event means, moisture/humidity summaries, fire-danger/energy summaries, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved summaries. Because these are correlated, centroid-based, linear summaries, lower blocked prediction does not imply that omitted dimensions are unimportant. The central inference is probabilistic: climate redistributes fires across developmental possibilities, but it does not determine a single form.
 
 ## Fig. 4. Developmental state changes how climate is expressed through growth.
 
@@ -1447,7 +1517,7 @@ Figure 2 shows that observed fires occupy recurring developmental neighborhoods,
 
 ### Climate shifts the probability of developmental forms
 
-Figure 3 projects climate onto Fire VASE space. Event-mean VPD varies across the developmental axes, and composite VASEs show that low-, middle-, and high-VPD fires differ in where normalized growth is allocated through developmental time. Developmental-neighborhood prevalence shifts across VPD groups, and effect-size summaries show that maximum temperature, VPD, relative humidity, fuel moisture, precipitation, and fire-danger indices relate to different developmental responses. These associations are coherent with the broader literature linking warming, aridity, and fuel dryness to fire activity (1-3), but the VASE analysis resolves the outcome as a developmental distribution rather than a single aggregate burned-area response.
+Figure 3 projects climate onto Fire VASE space. Climate-colored morphospace maps show that maximum temperature, VPD, fuel moisture, and wind emphasize different portions of the developmental space, while composite VASEs show that low-, middle-, and high-VPD fires differ in where normalized growth is allocated through developmental time. Developmental-neighborhood prevalence shifts across VPD groups, and effect-size summaries show that maximum temperature, VPD, relative humidity, fuel moisture, precipitation, and fire-danger indices relate to different developmental responses. These associations are coherent with the broader literature linking warming, aridity, and fuel dryness to fire activity (1-3), but the VASE analysis resolves the outcome as a developmental distribution rather than a single aggregate burned-area response.
 
 The predictive limit is equally important. In conservative blocked validation, which summarizes transfer across year, region, and region-year blocks rather than random-fire splits alone, the best transferable event-level representation is {summary['best_event_set']}, with median held-out R2 of {summary['best_event_r2']:.3f} across developmental responses. Region-season anomaly diagnostics {'outperform' if summary['anomalies_outperform_raw'] else 'do not outperform'} core event means, comprehensive event means {'outperform' if summary['comprehensive_outperform_core'] else 'do not outperform'} core event means, and temporally resolved exposure summaries {'outperform' if summary['resolved_outperform_event_means'] else 'do not outperform'} core event means in the median blocked comparison. This does not mean that humidity, fuel moisture, precipitation, or fire danger are unimportant. It means that, in these correlated daily centroid summaries and linear blocked baselines, adding more climate descriptors did not improve transfer beyond the core atmospheric variables. Modest blocked R2 is therefore a bound on deterministic prediction, not a rejection of the distributional result. The claim is probabilistic: climate redistributes fires across developmental possibilities. It does not assign a unique developmental form.
 
