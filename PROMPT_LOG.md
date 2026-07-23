@@ -1795,3 +1795,62 @@ secrets, credentials, private tokens, or unrelated transcript text.
   to 13 page PNGs plus an internal QA PDF with the document renderer, and
   visually checked the title page, back matter, dense Figure 3 page, caption
   continuation page, and final figure page.
+
+## 2026-07-22 - Morphospace figure story refinement
+
+- User goal: restore the visual story where VASE shapes are laid over the
+  morphospace and the morphospace itself is colored by climate variables to
+  show which climate dimensions align with which developmental forms.
+- Updated `scripts/fire_vase_climate_revision.py` so Figure 2 overlays
+  representative VASE glyphs within the population morphospace with
+  non-overlapping callouts, making shape transitions across VASE axes visible.
+- Updated Figure 3 so panels A-D show the same VASE morphospace colored by
+  event-mean maximum temperature, VPD, 1000-hour fuel moisture, and wind speed,
+  with simplified facet labeling and tighter colorbar spacing.
+- Regenerated `figures/climate_revision_main/Figure_2_climate_revision.png`,
+  `figures/climate_revision_main/Figure_3_climate_revision.png`,
+  `output/pdf/fire_vase_climate_revision_science_style_manuscript.pdf`, and
+  `output/docx/fire_vase_climate_revision_google_docs_sanitized.docx`.
+- Validation: compiled `scripts/fire_vase_climate_revision.py`, rebuilt the
+  full climate-revision figure/manuscript package, ran the Google Docs title
+  sanitizer/check, rendered the DOCX to 13 page PNGs plus an internal QA PDF,
+  and visually checked Figure 2 on page 9 and Figure 3/caption continuation on
+  pages 10-11.
+
+## 2026-07-22 - Science-style figure legends and numbering
+
+- User goal: revise the figure and figure legends so figure numbers/titles are
+  not part of the image artwork and the legends tell the full scientific story
+  of each figure.
+- Updated `scripts/fire_vase_climate_revision.py` so panel labels use
+  lowercase `(a)`, `(b)`, etc., and rewrote all five generated main figure
+  legends to begin with `Fig. N. Title.` followed by self-contained guidance on
+  what is plotted, how to read it, and the science message.
+- Updated both manuscript builders so the figure number/title is emitted as
+  the first sentence of the figure legend rather than as a separate heading
+  above the figure image.
+- Regenerated `figures/climate_revision_main/figure_legends.md`,
+  `output/pdf/fire_vase_climate_revision_science_style_manuscript.pdf`, and
+  `output/docx/fire_vase_climate_revision_google_docs_sanitized.docx`.
+- Validation: compiled the figure/PDF and DOCX builder scripts, rebuilt the
+  figure/manuscript package, sanitized and rendered the DOCX, rendered the PDF
+  with Poppler, visually checked the Figure 2 and Figure 3 pages in both DOCX
+  and PDF outputs, and confirmed by `pdftotext` that the PDF legends begin with
+  `Fig. 2.` and `Fig. 3.` rather than standalone figure headings.
+
+## 2026-07-23 - Final Citation Check
+
+- User goal: perform one last citation check, verify current references and
+  uses, and add any missing citations only if needed.
+- Audited
+  `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision_science_style.md`;
+  all 16 references are cited, no cited number is missing, no reference is
+  uncited, and the abstract has no citations.
+- Verified the current references against external DOI, publisher, and
+  bibliographic records, then checked claim fit by citation group.
+- Added
+  `docs/manuscripts/fire_vase_developmental_morphology/final_citation_check_2026-07-23.md`.
+- No new main-text citations were added; the remaining pre-submission citation
+  item is the final code/data archival DOI or accession, with optional
+  supplementary-method citations for ridge regression, blocked validation, or
+  software if those details are expanded.

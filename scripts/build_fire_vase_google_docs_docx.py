@@ -175,12 +175,13 @@ def add_figures(doc: Document) -> None:
         title, caption = legends[num]
         if num > 1:
             doc.add_page_break()
-        doc.add_heading(f"Figure {num}. {title}", level=2)
         image = FIGURE_DIR / f"Figure_{num}_climate_revision.png"
         doc.add_picture(str(image), width=Inches(6.5))
         last = doc.paragraphs[-1]
         last.alignment = WD_ALIGN_PARAGRAPH.CENTER
         caption_p = doc.add_paragraph(style="Caption")
+        label = caption_p.add_run(f"Fig. {num}. {title} ")
+        label.bold = True
         caption_p.add_run(caption)
 
 
