@@ -1764,3 +1764,19 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Updated `scripts/fire_vase_climate_revision.py` so the generated
   Science-style climate revision manuscript includes an AI transparency
   paragraph in the acknowledgments/back matter.
+
+## 2026-07-22 - GitHub Actions cleanup for updating-figures checks
+
+- User goal: address failing GitHub Actions screenshots for repository size and
+  Python 3.9 tests on the updating-figures run.
+- Untracked previously committed generated artifacts under blocked
+  repository-policy paths (`artifacts/` and `tmp/pdfs/`) while leaving the
+  local files on disk; `scripts/check_repository_size.py --mode tracked` now
+  passes.
+- Fixed a Python 3.9 import-time type-alias failure in
+  `src/cubedynamics/plotting/tail_association.py` by replacing PEP 604
+  module-level type aliases with `typing.Optional`/`typing.Union`.
+- Validation: reproduced the Python 3.9 failure with `uv run --python 3.9`,
+  reran the offline suite successfully (`297 passed, 5 skipped, 8 deselected`),
+  verified the package import under Python 3.9, and reran the repository-size
+  check successfully.
