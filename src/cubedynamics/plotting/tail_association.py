@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, Mapping, Sequence
+from typing import Callable, Iterable, Mapping, Optional, Sequence, Tuple, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -12,8 +12,8 @@ import xarray as xr
 
 from ..stats.tails import _rank_1d
 
-PreprocessMode = str | Callable[[np.ndarray, np.ndarray], tuple[np.ndarray, np.ndarray]] | None
-Selector = Mapping[str, object] | Sequence[int] | None
+PreprocessMode = Optional[Union[str, Callable[[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]]]]
+Selector = Optional[Union[Mapping[str, object], Sequence[int]]]
 
 
 @dataclass(frozen=True)

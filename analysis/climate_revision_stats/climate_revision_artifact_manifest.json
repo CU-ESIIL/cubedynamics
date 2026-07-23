@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-22T23:51:59.597569+00:00",
+  "generated_at": "2026-07-23T00:33:08.920870+00:00",
   "figures": {
     "Figure_1": {
       "png": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/climate_revision_main/Figure_1_climate_revision.png",
@@ -44,8 +44,8 @@
       "svg": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/figures/climate_revision_supplement/Supplementary_Figure_3_perimeter_pilot.svg"
     }
   },
-  "manuscript": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md",
-  "pdf": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/output/pdf/fire_vase_climate_revision_manuscript.pdf",
+  "manuscript": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision_science_style.md",
+  "pdf": "/Users/tuff/Library/CloudStorage/OneDrive-UCB-O365/Documents/github/cubedynamics/output/pdf/fire_vase_climate_revision_science_style_manuscript.pdf",
   "summary": {
     "best_event_set": "core event means",
     "best_event_r2": 0.3493478297928571,

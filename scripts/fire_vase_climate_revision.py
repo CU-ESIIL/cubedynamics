@@ -50,10 +50,10 @@ STATS_DIR = ANALYSIS_DIR / "climate_revision_stats"
 MAIN_FIGURE_DIR = ROOT / "figures/climate_revision_main"
 SUPP_FIGURE_DIR = ROOT / "figures/climate_revision_supplement"
 MANUSCRIPT_DIR = ROOT / "docs/manuscripts/fire_vase_developmental_morphology"
-MANUSCRIPT_MD = MANUSCRIPT_DIR / "manuscript_climate_revision.md"
+MANUSCRIPT_MD = MANUSCRIPT_DIR / "manuscript_climate_revision_science_style.md"
 FIGURE_LEGENDS_MD = MAIN_FIGURE_DIR / "figure_legends.md"
-OUTPUT_PDF = ROOT / "output/pdf/fire_vase_climate_revision_manuscript.pdf"
-OUTPUT_MANIFEST = ROOT / "output/pdf/fire_vase_climate_revision_manuscript_manifest.json"
+OUTPUT_PDF = ROOT / "output/pdf/fire_vase_climate_revision_science_style_manuscript.pdf"
+OUTPUT_MANIFEST = ROOT / "output/pdf/fire_vase_climate_revision_science_style_manuscript_manifest.json"
 CHANGELOG = ROOT / "CHANGELOG_CLIMATE_REVISION.md"
 FINAL_REPORT = ANALYSIS_DIR / "climate_revision_terminal_summary.txt"
 
@@ -219,7 +219,17 @@ def clean_axis(ax: plt.Axes) -> None:
 
 
 def panel_label(ax: plt.Axes, label: str) -> None:
-    ax.text(-0.12, 1.06, label, transform=ax.transAxes, ha="left", va="top", fontsize=11, weight="bold")
+    ax.text(
+        0.01,
+        0.98,
+        label.upper(),
+        transform=ax.transAxes,
+        ha="left",
+        va="top",
+        fontsize=11,
+        weight="bold",
+        bbox={"boxstyle": "square,pad=0.12", "facecolor": "white", "edgecolor": "white", "alpha": 0.88},
+    )
 
 
 def wrapped(text: str, width: int = 92) -> str:
@@ -656,33 +666,11 @@ def plot_history(ax: plt.Axes, profile: pd.DataFrame, color: str) -> None:
 
 
 def story_header(fig: plt.Figure, number: int, title: str, subtitle: str, color: str) -> None:
-    fig.text(
-        0.015,
-        0.982,
-        str(number),
-        ha="left",
-        va="top",
-        fontsize=11,
-        weight="bold",
-        color="white",
-        bbox={"boxstyle": "square,pad=0.28", "facecolor": color, "edgecolor": color},
-    )
-    fig.text(0.065, 0.982, title, ha="left", va="top", fontsize=14, weight="bold", color=INK)
-    fig.text(0.065, 0.938, subtitle, ha="left", va="top", fontsize=8.4, color=MUTED)
+    return
 
 
 def takeaway(fig: plt.Figure, text: str, color: str) -> None:
-    fig.text(
-        0.5,
-        0.025,
-        text,
-        ha="center",
-        va="bottom",
-        fontsize=8.4,
-        color=color,
-        weight="bold",
-        bbox={"boxstyle": "round,pad=0.35,rounding_size=0.05", "facecolor": "#ffffff", "edgecolor": color, "alpha": 0.96},
-    )
+    return
 
 
 def plot_history_for_story(ax: plt.Axes, profile: pd.DataFrame, color: str) -> None:
@@ -724,7 +712,7 @@ def figure_1(bundle: DataBundle) -> dict[str, str]:
         ("Multi-pulse", "complex pattern", ORANGE, "duration_days >= 5 and final_area_km2 >= 1", "pulse_count", False),
     ]
     fig = plt.figure(figsize=(9.2, 6.6))
-    gs = fig.add_gridspec(3, 4, height_ratios=[1.05, 1.0, 0.18], hspace=0.44, wspace=0.42, top=0.83, bottom=0.12)
+    gs = fig.add_gridspec(3, 4, height_ratios=[1.05, 1.0, 0.18], hspace=0.44, wspace=0.42, top=0.94, bottom=0.06)
     for i, (title, desc, color, query, score, asc) in enumerate(examples):
         fid = choose_story_fire(features, title, query, score, ascending=asc)
         prof = profile_for_fire(bundle.slices, fid)
@@ -758,7 +746,7 @@ def figure_2(bundle: DataBundle) -> dict[str, str]:
         dist = ((g["morph_pc1"] - center.morph_pc1) ** 2 + (g["morph_pc2"] - center.morph_pc2) ** 2).sort_values()
         reps.append((label, str(dist.index[0])))
     fig = plt.figure(figsize=(9.2, 6.7))
-    gs = fig.add_gridspec(3, 6, height_ratios=[1.05, 1.85, 0.72], hspace=0.55, wspace=0.52, top=0.82, bottom=0.12)
+    gs = fig.add_gridspec(3, 6, height_ratios=[1.05, 1.85, 0.72], hspace=0.55, wspace=0.52, top=0.94, bottom=0.06)
     for i, (label, idx) in enumerate(reps[:6]):
         fid = f.loc[int(idx), "fire_id"]
         prof = profile_for_fire(bundle.slices, fid)
@@ -823,7 +811,7 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     cf = climate_features.dropna(subset=["mean_vpd_kpa"]).copy()
     cf["vpd_group"] = climate_terciles(cf, "mean_vpd_kpa")
     fig = plt.figure(figsize=(9.2, 7.0))
-    gs = fig.add_gridspec(3, 6, height_ratios=[1.0, 1.0, 1.15], hspace=0.82, wspace=0.88, top=0.82, bottom=0.12)
+    gs = fig.add_gridspec(3, 6, height_ratios=[1.0, 1.0, 1.15], hspace=0.82, wspace=0.88, top=0.94, bottom=0.06)
     ax = fig.add_subplot(gs[0, :2])
     sample = cf.sample(min(45000, len(cf)), random_state=SEED)
     sc = ax.scatter(sample["morph_pc1"], sample["morph_pc2"], c=sample["mean_vpd_kpa"], s=2, cmap=CLIMATE_CMAP, alpha=0.45, rasterized=True)
@@ -847,18 +835,17 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axd.axis("off")
     axd.set_title("Climate dimensions used\n(daily, at fire centroid)", fontsize=8.2, loc="left")
     climate_groups = [
-        ("Temperature", "maximum and minimum"),
-        ("Atmospheric dryness", "VPD and humidity"),
-        ("Wind", "daily wind speed"),
-        ("Water input", "precipitation"),
-        ("Fuel state", "100h and 1000h moisture"),
-        ("Fire danger", "ERC and burning index"),
-        ("Energy balance", "ET, PET, solar radiation"),
+        "Temperature",
+        "VPD and humidity",
+        "Wind speed",
+        "Precipitation",
+        "Fuel moisture",
+        "Fire danger",
+        "ET, PET, solar radiation",
     ]
-    for i, (name, detail) in enumerate(climate_groups):
-        y = 0.88 - i * 0.12
-        axd.text(0.02, y, name, transform=axd.transAxes, fontsize=7.7, weight="bold", color=INK)
-        axd.text(0.52, y, detail, transform=axd.transAxes, fontsize=7.2, color=MUTED)
+    for i, name in enumerate(climate_groups):
+        y = 0.86 - i * 0.11
+        axd.text(0.10, y, f"- {name}", transform=axd.transAxes, fontsize=7.7, color=INK)
     panel_label(axd, "b")
 
     axp = fig.add_subplot(gs[1, 2:])
@@ -902,19 +889,19 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     axm = fig.add_subplot(gs[2, 4:])
     summary = event_models[event_models.block.isin(["year_block", "region_block", "region_year_hash"])].groupby("predictor_set")["r2"].median().sort_values()
     short_labels = {
-        "core event means": "core\nmeans",
-        "comprehensive event means": "all\nmeans",
+        "core event means": "core means",
+        "comprehensive event means": "all means",
         "moisture and humidity": "moisture",
-        "fire danger and energy": "fire\ndanger",
+        "fire danger and energy": "fire danger",
         "time-resolved exposure": "temporal",
         "region-season anomalies": "anomaly",
         "extreme days": "extremes",
     }
-    ypos = np.arange(len(summary))
-    axm.barh(ypos, summary.values, color=[MUTED if x < 0 else TEAL for x in summary.values])
-    axm.set_yticks(ypos, [short_labels.get(x, x) for x in summary.index])
-    axm.axvline(0, color=INK, lw=0.7)
-    axm.set_xlabel("Median held-out R2 across responses")
+    xpos = np.arange(len(summary))
+    axm.bar(xpos, summary.values, color=[MUTED if x < 0 else TEAL for x in summary.values], width=0.72)
+    axm.set_xticks(xpos, [short_labels.get(x, x) for x in summary.index], rotation=48, ha="right", fontsize=6.2)
+    axm.axhline(0, color=INK, lw=0.7)
+    axm.set_ylabel("Median held-out predictive fit (R2)", fontsize=7.0)
     axm.set_title("Association does not imply deterministic prediction")
     clean_axis(axm)
     panel_label(axm, "e")
@@ -925,7 +912,7 @@ def figure_3(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
 
 def figure_4(bundle: DataBundle, state_df: pd.DataFrame, state_models: pd.DataFrame) -> dict[str, str]:
     fig = plt.figure(figsize=(9.2, 6.6))
-    gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 1.16], hspace=0.82, wspace=0.82, top=0.82, bottom=0.12)
+    gs = fig.add_gridspec(2, 4, height_ratios=[1.0, 1.16], hspace=0.82, wspace=0.82, top=0.94, bottom=0.06)
     long = bundle.features.dropna(subset=["duration_days", "mean_vpd_kpa"]).sort_values("duration_days", ascending=False).head(300)
     chosen = long.sample(3, random_state=SEED)["fire_id"].astype(str).tolist()
     for i, fid in enumerate(chosen):
@@ -1037,7 +1024,7 @@ def figure_5(bundle: DataBundle, climate_features: pd.DataFrame, event_models: p
     cf = climate_features.set_index("fire_id")
     top = clim_df.sort_values("morphology_distance", ascending=False).head(2)
     fig = plt.figure(figsize=(9.2, 6.4))
-    gs = fig.add_gridspec(2, 5, hspace=0.70, wspace=0.72, top=0.82, bottom=0.13)
+    gs = fig.add_gridspec(2, 5, hspace=0.70, wspace=0.72, top=0.94, bottom=0.07)
     for col, (_, row) in enumerate(top.iterrows()):
         for rr, fid in enumerate([row.fire_id_a, row.fire_id_b]):
             axv = fig.add_subplot(gs[rr, col])
@@ -1402,25 +1389,25 @@ Defensive PCA, null, feature-ablation, covariance-volume, and fixed-day predicti
 def write_legends(summary: dict) -> None:
     legends = f"""# Climate Revision Figure Legends
 
-## Figure 1. Fire VASE preserves developmental differences hidden by final outcomes.
+## Fig. 1. Fire VASE preserves developmental differences hidden by final outcomes.
 
-Four real FIRED events illustrate distinct life-history patterns: early burst, steady growth, late surge, and multi-pulse development. Bars show daily burned area scaled within fire, lines show cumulative area scaled within fire, and VASE ring width shows normalized cumulative burned area through developmental time. The figure establishes the opening premise: final area and duration are necessary descriptors but do not preserve when growth occurs.
+Four real FIRED fire events illustrate why final burned area and duration are incomplete summaries of wildfire development. The top row shows daily burned area as bars and cumulative burned area as lines, each scaled within fire so that timing rather than absolute size is visually comparable. The lower row converts each daily history into a Fire VASE: vertical position is ordered developmental time and ring width is cumulative burned area. The examples show early burst, steady growth, late surge, and multi-pulse development. Fire VASE preserves the sequence of growth, quiescence, reactivation, and termination that is lost when a fire is represented only by final size or duration.
 
-## Figure 2. Wildfire histories vary along recurring developmental gradients.
+## Fig. 2. Wildfire histories vary along recurring developmental gradients.
 
-Observed representative fires mark recurring developmental neighborhoods. VASEs are labeled with interpretable shape descriptors rather than medoid IDs. The morphospace panel shows that labels grade continuously rather than forming isolated classes, the prevalence panel gives the population share of each neighborhood, and the bottom annotation names the developmental gradients that the axes summarize. The figure supports a descriptive vocabulary of timing, persistence, concentration, pulse structure, reactivation, and termination.
+Representative Fire VASEs identify recurring developmental neighborhoods in the observed population. Neighborhood names describe morphology rather than imposing hard classes. (A) The population morphospace places each fire by the first two VASE axes, which summarize concentration/front-loading and timing/persistence of growth. Points are colored by the descriptive neighborhood assigned to the nearest representative profile. The overlapping clouds indicate continuous gradients rather than isolated types. (B) Neighborhood prevalence shows that these recurring forms are unevenly occupied across the population. The bottom annotations name the developmental features summarized by the representation: timing of growth, persistence, concentration of growth, pulse structure, reactivation, and termination.
 
-## Figure 3. Climate shifts the probability of developmental forms.
+## Fig. 3. Climate shifts the probability of developmental forms.
 
-Daily centroid gridMET climate is projected onto the developmental representation. The morphospace panel maps mean VPD in kPa across VASE axes. The composite VASEs summarize low, middle, and high event-mean VPD terciles; each composite is the median normalized profile with an interquartile shell and reports group sample size. The climate-dimension panel lists the daily centroid variables used in the analysis. The prevalence panel shows how developmental-neighborhood frequency changes across VPD groups. The effect-size heatmap reports Spearman associations for temperature, VPD, precipitation, relative humidity, fuel moisture, and fire-danger summaries against interpretable responses. The blocked validation panel compares core event means, comprehensive event means, moisture/humidity, fire-danger/energy, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved exposure summaries. The strongest supported conclusion is redistribution of developmental probabilities, not deterministic prediction.
+Daily centroid gridMET climate is projected onto the developmental representation after the VASE axes are estimated from fire histories. This figure asks whether climate shifts developmental opportunity: the distribution of growth histories that fires are more or less likely to follow. (A) Event-mean vapor pressure deficit (VPD, kPa) varies across VASE space, showing that fires in different developmental regions tend to experience different atmospheric demand. The adjacent composite VASEs summarize low, middle, and high VPD terciles; each composite is the median normalized growth profile with an interquartile shell, and the title gives the group sample size. (B) The complete centroid climate table includes temperature, VPD, humidity, wind speed, precipitation, fuel moisture, fire danger, evapotranspiration, potential evapotranspiration, and solar radiation. (C) Developmental-neighborhood prevalence changes across VPD terciles. (D) Spearman associations show that different climate dimensions relate to different developmental responses, including front-loaded growth, late growth, pulse count, reactivation, and the dominant VASE gradient. (E) Blocked validation compares core event means, comprehensive event means, moisture/humidity summaries, fire-danger/energy summaries, region-season anomaly diagnostics, extreme-day fractions, and temporally resolved summaries. Because these are correlated, centroid-based, linear summaries, lower blocked prediction does not imply that omitted dimensions are unimportant. The central inference is probabilistic: climate redistributes fires across developmental possibilities, but it does not determine a single form.
 
-## Figure 4. Developmental state changes how climate is expressed through growth.
+## Fig. 4. Developmental state changes how climate is expressed through growth.
 
-Representative histories align daily growth and daily VPD to show that similar exposure can occur at different developmental states. The model comparison predicts next-day growth as log(1 + daily burned area in km2) using core climate, expanded climate, current developmental state, climate plus state, and core climate-state interactions. State predictors use only information available by day t: elapsed day, current growth, current cumulative area, and current acceleration. Conditional curves show that the VPD-growth association differs between low and high current-growth states. These are associational baselines, not causal estimates.
+Representative histories align daily growth and daily VPD to show that similar exposure can occur at different developmental states. The upper row scales VPD and daily growth within each fire so that relative timing is comparable. (A) Blocked next-day models predict log(1 + daily burned area in km2) from core climate, expanded climate, current developmental state, climate plus state, and core climate-state interactions. State predictors use only information available by day t: elapsed day, current daily growth, cumulative burned area, and acceleration. (B) Conditional curves show that the empirical VPD-growth relationship differs between low- and high-current-growth states. These models are leakage-safe, partly autoregressive, associational baselines. They show that recent fire state conditions near-term climate-growth interpretation, but they do not identify causal climate effects.
 
-## Figure 5. Climate organizes opportunity without uniquely determining outcome.
+## Fig. 5. Climate organizes opportunity without uniquely determining outcome.
 
-The closing figure shows the limit of climate explanation. The VASE examples are pairs selected for similar centroid climate summaries but divergent developmental morphology. The central annotation states the inferential boundary: similar centroid climate can still lead to different developmental paths. Population mismatch distributions show that similar climate does not guarantee similar form, and blocked model performance shows that climate representations lose transferability across years and regions. The figure motivates missing controls that are still absent from the population table: active-edge exposure, topography, vegetation, suppression, ignition context, wind direction or gusts, and true local climate anomalies.
+The closing figure marks the inferential boundary of the current climate analysis. VASE examples on the left are paired fires with similar limited centroid summaries but divergent morphology, labeled by event-mean VPD and maximum temperature. These examples are not matched on full weather trajectories or active-edge exposure. (A) Mismatch distributions compare morphology distances for pairs selected to have similar climate with those selected to have similar morphology. Similar centroid climate does not guarantee similar developmental form. (B) Blocked model performance shows that climate representations lose transferability across years and regions. The figure motivates the next data priorities: active-edge and newly burned-area exposure, within-perimeter heterogeneity, topography, vegetation, suppression, ignition context, wind direction, gusts, and independent local climate anomalies.
 """
     FIGURE_LEGENDS_MD.write_text(legends)
 
@@ -1428,77 +1415,113 @@ The closing figure shows the limit of climate explanation. The VASE examples are
 def manuscript_text(summary: dict) -> str:
     return f"""# Climate Organizes but Does Not Determine Wildfire Development
 
-Article type: Research Article draft. Climate-centered revision generated by `scripts/fire_vase_climate_revision.py`.
+Authors: Author names and affiliations to be added.
+
+Correspondence: Corresponding author email to be added.
 
 ## One-Sentence Summary
 
-Fire VASE reveals that climate shifts wildfire developmental opportunity, while prior fire state and unmeasured landscape context shape which opportunity is realized.
+Climate shifts wildfire developmental opportunity without prescribing a single developmental path.
 
 ## Abstract
 
-Wildfire analyses often compare final burned area, duration, or average spread, even though fires with similar outcomes can develop through different sequences of growth, quiescence, reactivation, and termination. We introduce Fire VASE as a developmental representation that converts each daily fire history into a comparable geometric profile. Across 278,569 FIRED events from 2000-2021, 237,235 fires have complete daily centroid gridMET temperature, vapor pressure deficit (VPD), wind, precipitation, humidity, fuel moisture, fire-danger, evapotranspiration, and solar-radiation exposure. Fire VASE shows that wildfire histories vary along recurring but continuous gradients of timing, persistence, concentration, pulse structure, reactivation, and termination. Climate is associated with these gradients: high-VPD, hot, dry-fuel, and high fire-danger exposure groups differ in developmental-neighborhood prevalence and median profile shape. However, blocked validation is weak, region-season anomaly diagnostics do not rescue deterministic prediction, and similar centroid climate can yield divergent VASE forms. Leakage-safe next-day models show that current developmental state improves interpretation of growth response beyond climate alone, whereas climate-state interactions remain suggestive rather than definitive under conservative blocking. Fire VASE therefore changes the climate question: climate organizes developmental opportunity, but it does not uniquely determine realized wildfire development.
+Wildfire risk is commonly summarized by final burned area, duration, or spread rate, but fires can reach similar endpoints through distinct growth histories. We introduce Fire VASE, a developmental representation that converts daily FIRED events into comparable profiles and projects gridMET climate onto them. Across 278,569 U.S. events, 237,235 have complete centroid climate exposure from 2000 to 2021. Fire histories occupy recurring gradients of timing, persistence, pulse structure, reactivation, and termination. Hot, dry, low-fuel-moisture, and high-fire-danger conditions shift the prevalence of these forms, but blocked prediction and matched examples show that centroid climate does not uniquely determine them. Fire VASE reframes climate as shifting developmental opportunity: the growth histories a fire is more or less likely to follow.
 
 ## Introduction
 
-Climate is a first-order constraint on wildfire activity, but burned area is not the same as development. A fire can reach a final area through an early burst, steady accumulation, late surge, repeated pulses, or reactivation after quiescence. These histories matter because the timing and concentration of burning shape exposure, ecological effects, and opportunities for response. Yet continental fire archives are often reduced to final size, duration, or aggregate spread rate.
+Climate is a first-order constraint on wildfire activity, especially through warming, drying, and rising atmospheric demand (1-3). Recent work has also sharpened attention on fire growth itself: the fastest-growing events account for disproportionate damage, and daily expansion can matter as much as final area for hazard and response (4). Yet continental analyses still commonly summarize fires by final burned area, duration, or average spread rate. Those summaries are indispensable, but they flatten development. A fire can reach the same final size through an early burst, steady accumulation, late surge, repeated pulses, or reactivation after quiescence.
 
-Fire VASE was designed to preserve this missing developmental information. It maps developmental time to vertical position and cumulative burned area to ring width, producing a comparable object for every observed fire history. Climate is then projected onto the object rather than used to define the coordinate system. This distinction matters: a representation can reveal how climate is translated into growth without assuming that climate alone prescribes the resulting form.
+Fire VASE was designed to preserve that missing developmental information. It maps developmental time to vertical position and cumulative burned area to ring width, producing a comparable object for every observed daily fire history. The underlying fire histories come from MODIS burned-area event delineation and FIRED perimeter products (5-7). Daily climate exposure comes from gridMET, a high-resolution gridded meteorological data set for ecological applications across the conterminous United States (8). Conceptually, Fire VASE draws from morphometrics, functional data analysis, and dimension reduction: it represents a history as a shape, compares shapes in a shared coordinate system, and then asks what external conditions shift the distribution of those shapes (9-11).
 
-Here we rebuild the Fire VASE analysis around one question: how does climate organize wildfire developmental opportunity? We use daily FIRED fire histories derived from MODIS burned area event delineation [1,2] and daily gridMET climate fields [3]. The population-wide table now includes daily centroid gridMET maximum temperature, minimum temperature, VPD, wind speed, precipitation, relative humidity, specific humidity, 100-hour and 1000-hour fuel moisture, energy release component, burning index, reference evapotranspiration, potential evapotranspiration, and solar radiation for 237,235 climate-complete fires. Perimeter, active-burned-area, and perimeter-extension attribution remain a separate exposure product and are treated according to their actual coverage rather than used as the main inferential basis.
+Here we ask how climate organizes wildfire developmental opportunity, defined as the distribution of growth histories made more or less likely under a given set of conditions. The paper makes two separable contributions. First, it defines a developmental representation that is estimated from fire histories before climate is considered. Second, it projects a comprehensive but centroid-based daily climate table onto that representation. The revised population table includes daily centroid maximum temperature, minimum temperature, vapor pressure deficit (VPD), wind speed, precipitation, relative humidity, specific humidity, 100-hour and 1000-hour fuel moisture, energy release component, burning index, reference evapotranspiration, potential evapotranspiration, and solar radiation for 237,235 climate-complete fires. Perimeter, active-burned-area, and perimeter-extension attribution remain a separate exposure product and are treated according to their actual coverage. The contribution is not a deterministic spread-rate predictor; it is a coordinate system for asking how climate shifts the probability of developmental forms and where centroid climate explanation reaches its limits.
 
 ## Results
 
 ### Fire VASE preserves developmental differences hidden by final outcomes
 
-Simple final summaries can hide visibly different daily growth histories. Figure 1 shows real events with contrasting temporal allocation: some accumulate most area early, others grow steadily, others grow late, and others develop through multiple pulses. The corresponding VASEs preserve those differences in one visual grammar. This establishes Fire VASE as the instrument for the climate analysis rather than as the paper's endpoint.
+Figure 1 establishes the problem. Real fires with simple final summaries can have sharply different daily growth histories. Some accumulate most area early, others grow steadily, others surge late, and others develop through multiple pulses. The corresponding VASEs preserve these temporal differences in one visual grammar. This is the starting point for the climate analysis: climate should be evaluated against the whole developmental history, not only against final size or duration.
 
 ### Wildfire histories vary along recurring developmental gradients
 
-Observed fires occupy recurring neighborhoods that are best interpreted as landmarks along continuous gradients. Figure 2 uses descriptive labels such as skinny persistent, compact steady, late surge, front-loaded plateau, and multi-pulse complex. These categories help communicate form, but they are not hard biological types. The important result is that developmental variation can be described in terms of timing, persistence, concentration, pulse structure, reactivation, and termination, while still preserving absolute-scale outcomes separately.
+Figure 2 shows that observed fires occupy recurring developmental neighborhoods, but those neighborhoods lie along continuous gradients rather than forming isolated types. Labels such as skinny persistent, compact steady, late surge, front-loaded plateau, and multi-pulse complex are descriptive landmarks. The high prevalence of the single-flash neighborhood reflects the short duration of many mapped events, not a claim that most fires share a single mechanism. The quantitative result is a coordinate system for timing, persistence, concentration of growth, pulse structure, reactivation, and termination. Because this space is built from fire histories alone, climate can be projected afterward as an external correlate rather than baked into the axes.
 
 ### Climate shifts the probability of developmental forms
 
-Daily centroid gridMET climate varies systematically across the Fire VASE representation. Event-mean VPD, maximum temperature, humidity, fuel moisture, precipitation, and fire-danger summaries are associated with interpretable developmental responses, including front-loaded growth, late growth, pulse count, reactivation, and the dominant VASE gradient. Composite VASEs across VPD terciles show that high- and low-VPD groups differ in where normalized growth is allocated through developmental time. Developmental-neighborhood prevalence also shifts across VPD groups.
+Figure 3 projects climate onto Fire VASE space. Event-mean VPD varies across the developmental axes, and composite VASEs show that low-, middle-, and high-VPD fires differ in where normalized growth is allocated through developmental time. Developmental-neighborhood prevalence shifts across VPD groups, and effect-size summaries show that maximum temperature, VPD, relative humidity, fuel moisture, precipitation, and fire-danger indices relate to different developmental responses. These associations are coherent with the broader literature linking warming, aridity, and fuel dryness to fire activity (1-3), but the VASE analysis resolves the outcome as a developmental distribution rather than a single aggregate burned-area response.
 
-The predictive limit is equally important. In conservative blocked validation, the best transferable event-level representation is **{summary['best_event_set']}**, with median held-out R2 of {summary['best_event_r2']:.3f} across developmental responses. Region-season anomaly diagnostics {'outperform' if summary['anomalies_outperform_raw'] else 'do not outperform'} core event means, comprehensive event means {'outperform' if summary['comprehensive_outperform_core'] else 'do not outperform'} core event means, and temporally resolved exposure summaries {'outperform' if summary['resolved_outperform_event_means'] else 'do not outperform'} core event means in the median blocked comparison. These results support a probabilistic statement: climate redistributes fires across developmental possibilities. They do not support the stronger statement that climate assigns a unique developmental form.
+The predictive limit is equally important. In conservative blocked validation, which summarizes transfer across year, region, and region-year blocks rather than random-fire splits alone, the best transferable event-level representation is {summary['best_event_set']}, with median held-out R2 of {summary['best_event_r2']:.3f} across developmental responses. Region-season anomaly diagnostics {'outperform' if summary['anomalies_outperform_raw'] else 'do not outperform'} core event means, comprehensive event means {'outperform' if summary['comprehensive_outperform_core'] else 'do not outperform'} core event means, and temporally resolved exposure summaries {'outperform' if summary['resolved_outperform_event_means'] else 'do not outperform'} core event means in the median blocked comparison. This does not mean that humidity, fuel moisture, precipitation, or fire danger are unimportant. It means that, in these correlated daily centroid summaries and linear blocked baselines, adding more climate descriptors did not improve transfer beyond the core atmospheric variables. Modest blocked R2 is therefore a bound on deterministic prediction, not a rejection of the distributional result. The claim is probabilistic: climate redistributes fires across developmental possibilities. It does not assign a unique developmental form.
 
 ### Developmental state changes how climate is expressed through growth
 
 The same daily climate exposure can occur before a fire begins rapid expansion, during the largest growth episode, or after growth has already tapered. We therefore modeled next-day growth as a function of climate, current developmental state, and their interaction. To avoid leakage, state was defined only from information available at day t: elapsed day, current daily growth, current cumulative area, and current acceleration. Final duration, final area fraction, and future VASE coordinates were not used.
 
-State-containing models outperform climate-only baselines for next-day growth. The best conservative state model is **{summary['best_state_set']}**, with median held-out R2 of {summary['best_state_r2']:.3f}. Core climate-state interactions {'survive' if summary['interaction_survives_blocking'] else 'do not clearly survive'} the predeclared blocked-transfer margin. The interpretation is therefore cautious: developmental state improves climate interpretation and near-term growth prediction, but the present centroid climate product is not enough to claim causal state-dependent climate control.
+State-containing models outperform climate-only baselines for next-day growth (Fig. 4). The best conservative state model is {summary['best_state_set']}, with median held-out R2 of {summary['best_state_r2']:.3f}. Core climate-state interactions {'survive' if summary['interaction_survives_blocking'] else 'do not clearly survive'} the predeclared blocked-transfer margin. Because state predictors include current growth and acceleration, this gain is partly autoregressive. The result shows that recent fire state conditions the interpretation of near-term climate-growth associations; it does not show that the model has identified causal state-dependent climate control.
 
 ### Climate organizes opportunity without uniquely determining outcome
 
-The closing analysis asks where climate explanation fails. Pairs of fires with similar centroid climate summaries can have divergent VASE morphologies, and pairs with similar VASE morphologies can occur under contrasting climate pathways. These mismatches are not artifacts to hide; they define the scientific boundary of the current analysis. Climate describes developmental opportunity, while active-edge exposure, local fuels, topography, vegetation, suppression, ignition context, and wind direction likely help determine which opportunity is realized.
+Figure 5 asks where climate explanation fails. Pairs of fires with similar limited centroid summaries can have divergent VASE morphologies, and pairs with similar morphology can occur under contrasting climate pathways. These pairs are not matched on complete weather trajectories, active-edge exposure, or within-perimeter heterogeneity. That limitation is the point: mismatches define the scientific boundary of the current analysis. Climate describes opportunity. Which opportunity is realized likely also depends on active-edge exposure, local fuels, topography, vegetation, suppression, ignition context, human access, wind direction, and gusts. Prior work shows that human ignitions reshape the spatial and seasonal fire niche (12), active-fire studies show why daily fire progression can require spatially explicit growth tracking (13), and environmental controls such as fuels, vegetation, and topography shape fire occurrence, spread, boundaries, and transferability across landscapes (14-16). Those factors belong in the next version of the database, not in an overclaim from centroid climate alone.
 
 ## Discussion
 
-The main result is not that Fire VASE provides a low-dimensional coordinate system. The main result is that Fire VASE makes it possible to see climate as a probabilistic organizer of wildfire development. Climate shifts developmental-neighborhood prevalence and profile allocation, but it does not uniquely determine form.
+Fire VASE makes a common wildfire abstraction visible: final size is an endpoint, not a life history. Once the life history is represented directly, climate appears as a probabilistic shift in developmental opportunity. Hot, dry, high-VPD, low-fuel-moisture, and high-fire-danger conditions shift where fires fall in developmental space and when growth is allocated. But even expanded centroid climate does not collapse wildfire development into a deterministic sequence.
 
-This framing changes how climate-fire relationships should be read. Event means are informative but blunt. Daily exposure, extreme-day fractions, and developmental timing sharpen interpretation, yet transfer across regions and years remains weak. Expanded centroid climate adds moisture, fuel, and fire-danger context, but it does not remove the need for spatially resolved exposure. Scaling perimeter and active-edge attribution, adding true local climate normals, and including topography, vegetation, suppression, ignition context, wind direction, and gusts are the next necessary steps.
+This framing changes how climate-fire relationships should be read. Event means are informative but blunt. Daily exposure, extreme-day fractions, and developmental timing sharpen interpretation, yet transfer across years and regions remains weak. Expanded centroid climate adds moisture, fuel, and fire-danger context, but it does not remove the need for spatially resolved exposure. Scaling perimeter and active-edge attribution, adding independent local climate normals, and integrating topography, vegetation, suppression, ignition context, wind direction, and gusts are the next necessary steps.
 
-The present analyses are associational. They do not isolate causal climate effects, suppression decisions, or fuel continuity. They also use daily centroid climate rather than active-edge weather, so they can miss within-perimeter heterogeneity and directional wind effects. Even with those caveats, the central claim is supported: wildfire development occupies recurring forms whose probabilities shift with climate, while realized form remains contingent on state and context.
+The present analyses are associational baselines. They do not isolate causal climate effects, suppression decisions, or fuel continuity. They also use daily centroid climate as the main population exposure, so they can miss within-perimeter heterogeneity, directional wind effects, and the climate experienced by newly burning edges. A stronger mechanistic account would need complete active-edge and newly burned-area climate, local climate normals, topography, vegetation, suppression, ignition context, wind direction, and gusts. Fire VASE supplies the coordinate system for that next layer of work: it shows that wildfire development occupies recurring forms, that climate shifts the probability of those forms, and that the realized path remains contingent on fire state and landscape context.
 
 ## Materials and Methods
 
-Fire histories were read from the repository's FIRED-derived daily VASE slice table, covering 278,569 events and 626,102 daily slices from 2000-11-02 to 2021-05-01. Climate exposure was read from the full-population climate-enhanced slice table. Complete daily centroid climate values were available for 237,235 fires. Variables were maximum temperature in degrees C, minimum temperature in degrees C, VPD in kPa, wind speed in m s-1, precipitation in mm d-1, maximum and minimum relative humidity in percent, specific humidity in kg kg-1, 100-hour and 1000-hour fuel moisture in percent, energy release component, burning index, reference evapotranspiration in mm d-1, potential evapotranspiration in mm d-1, and solar radiation in W m-2. Event-level climate summaries included means, daily minima and maxima, extreme-day fractions, early/middle/late developmental-time means, and a region-month fire-season anomaly diagnostic.
+Fire histories were read from the repository's FIRED-derived daily VASE slice table, covering 278,569 events and 626,102 daily slices from 2 November 2000 to 1 May 2021. Climate exposure was read from the full-population climate-enhanced slice table. Complete daily centroid climate values were available for 237,235 fires. Variables were maximum temperature in degrees C, minimum temperature in degrees C, VPD in kPa, wind speed in m s-1, precipitation in mm d-1, maximum and minimum relative humidity in percent, specific humidity in kg kg-1, 100-hour and 1000-hour fuel moisture in percent, energy release component, burning index, reference evapotranspiration in mm d-1, potential evapotranspiration in mm d-1, and solar radiation in W m-2. Event-level climate summaries included means, daily minima and maxima, extreme-day fractions, early/middle/late developmental-time means, and a region-month fire-season anomaly diagnostic.
 
-Developmental response variables were defined before model fitting and separated into absolute-scale outcomes, shape-normalized responses, and time-varying state variables. Event-level models used ridge-regularized linear baselines with fixed random seed {SEED}. Validation used random fire splits as a diagnostic and year, region, and region-year blocking as conservative transfer tests. State-dependent models predicted next-day growth, log(1 + km2), using climate at day t and leakage-safe state variables available by day t. All analyses are exploratory baselines rather than causal estimates.
+Developmental response variables were defined before model fitting and separated into absolute-scale outcomes, shape-normalized responses, and time-varying state variables. Event-level models used ridge-regularized linear baselines with fixed random seed {SEED}. Predictors were standardized inside each training fold before fitting and then applied to the corresponding held-out fold. Validation used random fire splits as a diagnostic and year, region, and region-year blocking as conservative transfer tests; reported conservative R2 values summarize the blocked tests. State-dependent models predicted next-day growth, log(1 + km2), using climate at day t and leakage-safe state variables available by day t. Because those state variables include current growth, cumulative area, and acceleration, these models are autoregressive associational baselines rather than causal estimates.
 
-## References
+## References and Notes
 
-[1] Balch JK, St. Denis LA, Mahood AL, Mietkiewicz NP, Williams TM, McGlinchy J, Cook MC. FIRED (Fire Events Delineation): an open, flexible algorithm and database of US fire events derived from the MODIS burned area product (2001-2019). Remote Sensing. 2020;12(21):3498. doi:10.3390/rs12213498.
+1. Westerling AL, Hidalgo HG, Cayan DR, Swetnam TW. Warming and earlier spring increase western U.S. forest wildfire activity. Science. 2006;313:940-943. doi:10.1126/science.1128834.
 
-[2] Mahood AL, Lindrooth EJ, Cook MC, Balch JK. Country-level fire perimeter datasets (2001-2021). Scientific Data. 2022;9:458. doi:10.1038/s41597-022-01572-3.
+2. Abatzoglou JT, Williams AP. Impact of anthropogenic climate change on wildfire across western US forests. Proceedings of the National Academy of Sciences. 2016;113:11770-11775. doi:10.1073/pnas.1607171113.
 
-[3] Abatzoglou JT. Development of gridded surface meteorological data for ecological applications and modelling. International Journal of Climatology. 2013;33(1):121-131. doi:10.1002/joc.3413.
+3. Williams AP, Abatzoglou JT, Gershunov A, Guzman-Morales J, Bishop DA, Balch JK, Lettenmaier DP. Observed impacts of anthropogenic climate change on wildfire in California. Earth's Future. 2019;7:892-910. doi:10.1029/2019EF001210.
 
-[4] United States Geological Survey, US Forest Service, Nelson K. Monitoring Trends in Burn Severity Thematic Burn Severity Mosaic (ver. 12.0, April 2025). U.S. Geological Survey data release. 2021. doi:10.5066/P9NETC0T.
+4. Balch JK, Iglesias V, Mahood AL, Cook MC, Amaral C, DeCastro A, Leyk S, McIntosh TL, Nagy RC, St. Denis L, Tuff T, Verleye E, Williams AP, Kolden CA. The fastest-growing and most destructive fires in the US (2001 to 2020). Science. 2024;386:425-431. doi:10.1126/science.adk5737.
 
-[5] Veraverbeke S, Sedano F, Hook SJ, Randerson JT, Jin Y, Rogers BM. Mapping the daily progression of large wildland fires using MODIS active fire data. International Journal of Wildland Fire. 2014;23(5):655-667. doi:10.1071/WF13015.
+5. Giglio L, Boschetti L, Roy DP, Humber ML, Justice CO. The Collection 6 MODIS burned area mapping algorithm and product. Remote Sensing of Environment. 2018;217:72-85. doi:10.1016/j.rse.2018.08.005.
 
-[6] Littell JS, McKenzie D, Wan HY, Cushman SA. Climate change and future wildfire in the Western United States: an ecological approach to nonstationarity. Earth's Future. 2018;6(8):1097-1111. doi:10.1029/2018EF000878.
+6. Balch JK, St. Denis LA, Mahood AL, Mietkiewicz NP, Williams TM, McGlinchy J, Cook MC. FIRED (Fire Events Delineation): an open, flexible algorithm and database of US fire events derived from the MODIS burned area product (2001-2019). Remote Sensing. 2020;12:3498. doi:10.3390/rs12213498.
+
+7. Mahood AL, Lindrooth EJ, Cook MC, Balch JK. Country-level fire perimeter datasets (2001-2021). Scientific Data. 2022;9:458. doi:10.1038/s41597-022-01572-3.
+
+8. Abatzoglou JT. Development of gridded surface meteorological data for ecological applications and modelling. International Journal of Climatology. 2013;33:121-131. doi:10.1002/joc.3413.
+
+9. Bookstein FL. Morphometric Tools for Landmark Data: Geometry and Biology. Cambridge University Press; 1991.
+
+10. Ramsay JO, Silverman BW. Functional Data Analysis. 2nd ed. Springer; 2005. doi:10.1007/b98888.
+
+11. Jolliffe IT. Principal Component Analysis. 2nd ed. Springer; 2002. doi:10.1007/b98835.
+
+12. Balch JK, Bradley BA, Abatzoglou JT, Nagy RC, Fusco EJ, Mahood AL. Human-started wildfires expand the fire niche across the United States. Proceedings of the National Academy of Sciences. 2017;114:2946-2951. doi:10.1073/pnas.1617394114.
+
+13. Veraverbeke S, Sedano F, Hook SJ, Randerson JT, Jin Y, Rogers BM. Mapping the daily progression of large wildland fires using MODIS active fire data. International Journal of Wildland Fire. 2014;23:655-667. doi:10.1071/WF13015.
+
+14. Parisien MA, Moritz MA. Environmental controls on the distribution of wildfire at multiple spatial scales. Ecological Monographs. 2009;79:127-154. doi:10.1890/07-1289.1.
+
+15. Holsinger LM, Parks SA, Miller C. Weather, fuels, and topography impede wildland fire spread in western US landscapes. Forest Ecology and Management. 2016;380:59-69. doi:10.1016/j.foreco.2016.08.035.
+
+16. Povak NA, Hessburg PF, Salter RB. Evidence for scale-dependent topographic controls on wildfire spread. Ecosphere. 2018;9:e02443. doi:10.1002/ecs2.2443.
+
+## Acknowledgments
+
+Funding: Funding information to be added before submission. Author contributions: Author contributions to be completed before submission. Competing interests: The authors declare no competing interests. Data and materials availability: The external FIRED, MODIS burned-area, and gridMET inputs are publicly available from the cited sources. Derived analysis tables, figure-generation scripts, and manuscript-generation code for this draft are in the CubeDynamics repository. Repository DOI or archival accession to be added before submission.
+
+AI transparency: OpenAI Codex/ChatGPT was used as an AI-assisted coding, analysis, visualization, and editorial tool during development of this project. AI assistance included drafting and revising Python scripts for Fire VASE data ingestion, climate attribution, morphospace analysis, statistical summaries, figure generation, PDF/report production, and render-based quality checks; drafting and revising manuscript text, figure legends, response-to-review material, and simulated reviewer critiques; searching for and organizing candidate citations and author-guideline requirements; and helping maintain logs, manifests, tests, schemas, and documentation. The AI system did not originate the underlying FIRED, MODIS burned-area, gridMET, PRISM, or other observational data, did not make final scientific judgments independently, and is not listed as an author. Human investigators directed the analyses, selected the scientific claims, reviewed code and outputs, verified calculations and citations where reported, and remain responsible for the integrity, interpretation, and final content of the manuscript. Synthetic or illustrative demonstrations created during repository development are documented separately and were not used as evidentiary data for the manuscript analyses.
+
+## Supplementary Materials
+
+Materials and Methods
+
+Figs. S1 to S3
+
+Tables S1 to S4
 """
 
 
@@ -1551,51 +1574,80 @@ Generated: {datetime.now(timezone.utc).isoformat()}
 def pdf_styles() -> dict[str, ParagraphStyle]:
     base = getSampleStyleSheet()
     return {
-        "title": ParagraphStyle("Title", parent=base["Title"], fontName="Helvetica-Bold", fontSize=15, leading=19, alignment=TA_CENTER, spaceAfter=8),
-        "subtitle": ParagraphStyle("Subtitle", parent=base["BodyText"], fontName="Helvetica", fontSize=9, leading=12, alignment=TA_CENTER, textColor=rl_colors.HexColor(MUTED), spaceAfter=12),
-        "h1": ParagraphStyle("H1", parent=base["Heading1"], fontName="Helvetica-Bold", fontSize=12, leading=16, spaceBefore=8, spaceAfter=4),
-        "h2": ParagraphStyle("H2", parent=base["Heading2"], fontName="Helvetica-Bold", fontSize=10.5, leading=14, spaceBefore=6, spaceAfter=3),
-        "body": ParagraphStyle("Body", parent=base["BodyText"], fontName="Times-Roman", fontSize=10, leading=14, alignment=TA_LEFT, spaceAfter=4),
-        "caption": ParagraphStyle("Caption", parent=base["BodyText"], fontName="Helvetica", fontSize=7.2, leading=9.4, alignment=TA_LEFT, spaceBefore=4, spaceAfter=8),
+        "title": ParagraphStyle("Title", parent=base["Title"], fontName="Helvetica-Bold", fontSize=14, leading=18, alignment=TA_CENTER, spaceAfter=10),
+        "subtitle": ParagraphStyle("Subtitle", parent=base["BodyText"], fontName="Times-Roman", fontSize=12, leading=24, alignment=TA_LEFT, textColor=rl_colors.HexColor(INK), spaceAfter=0),
+        "h1": ParagraphStyle("H1", parent=base["Heading1"], fontName="Helvetica-Bold", fontSize=12, leading=24, spaceBefore=8, spaceAfter=0, keepWithNext=True),
+        "h2": ParagraphStyle("H2", parent=base["Heading2"], fontName="Helvetica-Bold", fontSize=12, leading=24, spaceBefore=6, spaceAfter=0, keepWithNext=True),
+        "body": ParagraphStyle("Body", parent=base["BodyText"], fontName="Times-Roman", fontSize=12, leading=24, alignment=TA_LEFT, spaceAfter=0),
+        "abstract": ParagraphStyle("Abstract", parent=base["BodyText"], fontName="Times-Roman", fontSize=12, leading=24, alignment=TA_LEFT, spaceAfter=6),
+        "caption": ParagraphStyle("Caption", parent=base["BodyText"], fontName="Helvetica", fontSize=8, leading=10, alignment=TA_LEFT, spaceBefore=4, spaceAfter=8),
     }
 
 
 def para(text: str, style: ParagraphStyle) -> Paragraph:
     safe = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     safe = safe.replace("R2", "R<super>2</super>").replace("km2", "km<super>2</super>")
+    safe = safe.replace("log(1 + km<super>2</super>)", "log(1 + km<super>2</super>)")
     return Paragraph(safe, style)
+
+
+def draw_line_numbers(canvas, doc) -> None:
+    canvas.setFont("Helvetica", 6.5)
+    canvas.setFillColor(rl_colors.HexColor("#7a7d82"))
+    y = letter[1] - 0.86 * inch
+    line = 1
+    while y > 0.70 * inch:
+        if line % 5 == 0:
+            canvas.drawRightString(0.52 * inch, y, str(line))
+        y -= 24
+        line += 1
+
+
+def science_page_header(canvas, doc) -> None:
+    canvas.saveState()
+    canvas.setTitle("Climate Organizes but Does Not Determine Wildfire Development")
+    canvas.setAuthor("CubeDynamics Fire VASE manuscript draft")
+    canvas.setStrokeColor(rl_colors.HexColor(LIGHT))
+    canvas.setLineWidth(0.35)
+    canvas.line(0.72 * inch, letter[1] - 0.55 * inch, letter[0] - 0.72 * inch, letter[1] - 0.55 * inch)
+    canvas.setFont("Helvetica", 7.2)
+    canvas.setFillColor(rl_colors.HexColor(MUTED))
+    canvas.drawString(0.72 * inch, letter[1] - 0.43 * inch, "Fire VASE climate revision - Science initial-submission style")
+    canvas.drawRightString(letter[0] - 0.72 * inch, letter[1] - 0.43 * inch, str(doc.page))
+    draw_line_numbers(canvas, doc)
+    canvas.restoreState()
 
 
 def make_pdf() -> None:
     text = MANUSCRIPT_MD.read_text()
     st = pdf_styles()
-    doc = SimpleDocTemplate(str(OUTPUT_PDF), pagesize=letter, rightMargin=0.72 * inch, leftMargin=0.72 * inch, topMargin=0.72 * inch, bottomMargin=0.72 * inch)
+    doc = SimpleDocTemplate(str(OUTPUT_PDF), pagesize=letter, rightMargin=0.72 * inch, leftMargin=0.72 * inch, topMargin=0.78 * inch, bottomMargin=0.72 * inch)
     story = []
     lines = text.splitlines()
     title_done = False
+    current_section = ""
     for line in lines:
         if line.startswith("# "):
             story.append(para(line[2:], st["title"] if not title_done else st["h1"]))
             title_done = True
         elif line.startswith("## "):
-            story.append(para(line[3:], st["h1"]))
+            current_section = line[3:].strip()
+            story.append(para(current_section, st["h1"]))
         elif line.startswith("### "):
             story.append(para(line[4:], st["h2"]))
         elif line.strip() == "":
             continue
-        elif line.startswith("[") and "]" in line:
-            story.append(para(line, st["body"]))
-        elif line.startswith("Article type"):
+        elif line.startswith("Authors:") or line.startswith("Correspondence:"):
             story.append(para(line, st["subtitle"]))
         else:
-            story.append(para(line, st["body"]))
+            story.append(para(line, st["abstract"] if current_section == "Abstract" else st["body"]))
     story.append(PageBreak())
     legends = FIGURE_LEGENDS_MD.read_text().splitlines()
     legend_map = {}
     current = None
     buf: list[str] = []
     for line in legends:
-        if line.startswith("## Figure"):
+        if line.startswith("## Figure") or line.startswith("## Fig."):
             if current:
                 legend_map[current] = " ".join(buf).strip()
             current = line[3:].strip()
@@ -1610,12 +1662,12 @@ def make_pdf() -> None:
             continue
         story.append(para(f"Figure {i}", st["h1"]))
         story.append(Image(str(img), width=7.0 * inch, height=5.4 * inch, kind="proportional"))
-        caption = next((v for k, v in legend_map.items() if k.startswith(f"Figure {i}.")), "")
+        caption = next((v for k, v in legend_map.items() if k.startswith(f"Figure {i}.") or k.startswith(f"Fig. {i}.")), "")
         story.append(para(caption, st["caption"]))
         if i != 5:
             story.append(PageBreak())
-    doc.build(story)
-    OUTPUT_MANIFEST.write_text(json.dumps({"pdf": str(OUTPUT_PDF), "source": str(MANUSCRIPT_MD), "generated_at": datetime.now(timezone.utc).isoformat()}, indent=2))
+    doc.build(story, onFirstPage=science_page_header, onLaterPages=science_page_header)
+    OUTPUT_MANIFEST.write_text(json.dumps({"pdf": str(OUTPUT_PDF), "source": str(MANUSCRIPT_MD), "format": "Science initial-submission-style draft: single column, double spaced, line numbered, figures grouped after text", "generated_at": datetime.now(timezone.utc).isoformat()}, indent=2))
 
 
 def final_terminal_report(summary: dict) -> None:

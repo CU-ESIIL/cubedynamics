@@ -1661,3 +1661,106 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Created updated analysis reports under `analysis/`, refreshed figures under `figures/climate_revision_main/` and `figures/climate_revision_supplement/`, revised `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision.md`, and rebuilt `output/pdf/fire_vase_climate_revision_manuscript.pdf`.
 - Validation: compiled changed scripts, rebuilt the comprehensive centroid table, verified climate columns/non-null counts, generated reports/figures/PDF with `scripts/fire_vase_climate_revision.py`, rendered the PDF to PNG with Poppler, and visually checked representative text and figure pages.
 - Caveats: centroid climate is population-wide; perimeter exposure is expanded but still sampled. True local-normal anomalies, complete active-edge/perimeter attribution, topography, vegetation, suppression, ignition cause, wind direction, and gust products remain future work.
+
+## 2026-07-22 - Science-style climate revision manuscript vetting
+
+- User goal: make the climate-revision manuscript coherent with the five-figure
+  narrative, verify citations, improve the scholarly language, check Science
+  author-guideline alignment, and deliver a fresh formatted PDF.
+- Manuscript decision: rewrote
+  `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision_science_style.md`
+  around the figure sequence: life histories, continuous developmental
+  gradients, climate redistribution, state dependence, and the limits of
+  centroid climate explanation.
+- Citation decision: replaced older, loosely connected references with a
+  13-reference numbered list tied to the claims actually made in the text:
+  climate-fire motivation, MODIS/FIRED/gridMET provenance, morphometrics,
+  functional data analysis, PCA, human ignition context, and spatially explicit
+  daily fire progression.
+- Figure decision: removed embedded storyboard headers/takeaway boxes from the
+  main climate figures, moved explanatory detail into comprehensive figure
+  legends, promoted panel labels to uppercase, and revised Figure 3 panel E so
+  category labels remain readable in the PDF.
+- Created
+  `docs/manuscripts/fire_vase_developmental_morphology/climate_revision_science_citation_audit_2026-07-22.md`
+  and
+  `docs/manuscripts/fire_vase_developmental_morphology/climate_revision_science_compliance_2026-07-22.md`.
+- Output: rebuilt
+  `output/pdf/fire_vase_climate_revision_science_style_manuscript.pdf`, a
+  13-page, U.S. letter, single-column, double-spaced, line-numbered
+  Science-style draft with figures grouped after the text.
+- Validation: compiled `scripts/fire_vase_climate_revision.py`, regenerated the
+  manuscript/figures/PDF, rendered the final PDF to 13 PNG pages with Poppler,
+  checked title/text/figure pages for layout issues, verified title length
+  (61 characters), one-sentence summary length (98 characters), abstract length
+  (118 words), and confirmed all 13 references are cited and all citations
+  resolve.
+- Caveats: live Science instruction pages were attempted but not retrievable
+  from the local browsing tool; compliance was checked against accessible
+  Science-format guidance and must be confirmed in the submission portal.
+  Author, affiliation, funding, contribution, and repository-archive metadata
+  remain placeholders.
+
+## 2026-07-22 - Climate revision round-two formal review and edits
+
+- User goal: run another editor-referred review round with three independent
+  reviewers and incorporate their feedback into the manuscript.
+- Added
+  `docs/manuscripts/fire_vase_developmental_morphology/formal_reviews_climate_revision_round_2.md`
+  with an editor decision letter and three reviews focused on fire/climate
+  attribution, statistical interpretation, and Science-reader narrative.
+- Revised `scripts/fire_vase_climate_revision.py` so regenerated manuscript
+  text and figure legends distinguish the developmental representation from
+  the bounded centroid-climate projection, clarify that expanded climate
+  variables can remain scientifically important even when they do not improve
+  blocked linear prediction, and describe state models as leakage-safe,
+  partly autoregressive associational baselines rather than causal mechanisms.
+- Rebuilt
+  `docs/manuscripts/fire_vase_developmental_morphology/manuscript_climate_revision_science_style.md`,
+  `figures/climate_revision_main/figure_legends.md`, and
+  `output/pdf/fire_vase_climate_revision_science_style_manuscript.pdf`.
+- Validation: compiled `scripts/fire_vase_climate_revision.py`, regenerated
+  the manuscript/figures/PDF, rendered the PDF to 13 PNG pages with Poppler,
+  visually checked revised text and Figure 3 pages, confirmed the abstract is
+  117 words, title is 61 characters, one-sentence summary is 98 characters,
+  and all 13 references remain cited with no missing or uncited references.
+
+## 2026-07-22 - Climate revision round-three optimization review
+
+- User goal: repeat the three-reviewer/editor workflow with an emphasis on
+  self-improvement, story quality, claim support, and making the manuscript
+  feel solid enough to cite.
+- Added
+  `docs/manuscripts/fire_vase_developmental_morphology/formal_reviews_climate_revision_round_3.md`
+  with an editor letter and three reviews focused on conceptual story,
+  statistical guardrails, and citation-worthiness.
+- Revised `scripts/fire_vase_climate_revision.py` and regenerated the
+  manuscript so "developmental opportunity" is defined as the distribution of
+  growth histories made more or less likely under conditions, the modest
+  blocked R2 is explicitly framed as a limit on deterministic prediction
+  rather than a rejection of the distributional claim, and the state model is
+  described as conditional near-term interpretation rather than mechanism.
+- Added three references supporting the final landscape-control claims:
+  Parisien and Moritz 2009, Holsinger et al. 2016, and Povak et al. 2018.
+  Updated the citation audit accordingly.
+- Rebuilt
+  `output/pdf/fire_vase_climate_revision_science_style_manuscript.pdf`.
+  The PDF is now 14 pages because the reference list expanded from 13 to 16
+  entries.
+- Validation: compiled `scripts/fire_vase_climate_revision.py`, regenerated
+  outputs, rendered the PDF to 14 PNG pages with Poppler, visually checked the
+  abstract/text/reference/Figure 3 pages, confirmed the abstract is 121 words,
+  title is 61 characters, one-sentence summary is 98 characters, and all 16
+  references are cited with no missing or uncited references.
+
+## 2026-07-22 - AI transparency statement
+
+- User goal: review the prompt log and write an AI transparency statement that
+  credits AI assistance accurately.
+- Added
+  `docs/manuscripts/fire_vase_developmental_morphology/ai_transparency_statement.md`
+  with a manuscript-ready statement, prompt-log-derived inventory of AI-assisted
+  work, and responsibility boundary.
+- Updated `scripts/fire_vase_climate_revision.py` so the generated
+  Science-style climate revision manuscript includes an AI transparency
+  paragraph in the acknowledgments/back matter.
