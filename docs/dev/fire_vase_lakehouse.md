@@ -38,6 +38,25 @@ Schemas live in `schemas/*.schema.json` for:
 - `processing_failures`
 - `cohort_summaries`
 
+## Manuscript-Scale Products
+
+The current developmental morphology manuscript uses the lakehouse as its
+analysis source of truth. The principal local products are:
+
+| Product | Default local path | Role |
+| --- | --- | --- |
+| Fire catalog | `scratch/fire_vase_run_full/tables/fire_catalog.parquet` | event identities, years, regions, and source provenance |
+| Fire traits | `scratch/fire_vase_run_full/tables/fire_traits.parquet` | final area, duration, peak growth, and other event summaries |
+| VASE slices | `scratch/fire_vase_run_full/tables/vase_slices.parquet` | one row per fire-time slice with ring area, cumulative area, normalized VASE width, and centroid climate |
+| Perimeter climate exposures | `scratch/fire_vase_run_full/tables/vase_climate_exposures.parquet` | exposure-zone summaries for active burned area, cumulative burned area, and exterior perimeter extensions |
+| Developmental morphospace features | `scratch/fire_vase_developmental_morphology/developmental_morphospace_features.parquet` | geometry-first feature matrix and PCA scores |
+| Developmental stage table | `scratch/fire_vase_developmental_morphology/developmental_stage_table.parquet` | time-resolved developmental state summaries |
+| Figure/model stats | `analysis/climate_revision_stats/` | tables used by the climate-revision figures and manuscript text |
+
+Scripts should read from these tables rather than from rendered PDFs or PNGs.
+When a figure or manuscript statement changes, regenerate the tables or stats
+first, then regenerate rendered assets from those products.
+
 ## Versioning
 
 Component versions are independent: source, geometry, climate, events, traits,
@@ -122,3 +141,25 @@ reference and potential evapotranspiration, and solar radiation. Topography,
 vegetation, suppression, ignition cause, and local-normal anomalies remain
 separate data-integration steps because they do not come from the daily
 gridMET cache.
+
+## Manuscript and Atlas Rendering
+
+The population morphology atlas and manuscript figures are downstream views of
+the lakehouse tables:
+
+```bash
+python scripts/fire_vase_developmental_morphology_analysis.py \
+  --table-root scratch/fire_vase_run_full/tables \
+  --data-output-dir scratch/fire_vase_developmental_morphology \
+  --output output/pdf/fire_vase_developmental_morphology_atlas.pdf
+```
+
+```bash
+python scripts/fire_vase_climate_revision.py
+python scripts/build_fire_vase_google_docs_docx.py
+```
+
+`scripts/fire_vase_climate_revision.py` writes manuscript figures,
+supplementary figures, a Science-style manuscript Markdown file, a PDF draft,
+model summary tables, and an output manifest. The DOCX builder then turns the
+same Markdown and figure legends into a Google Docs-targeted manuscript.

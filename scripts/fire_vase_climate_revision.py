@@ -1,8 +1,21 @@
 #!/usr/bin/env python3
 """Generate the climate-centered Fire VASE manuscript revision.
 
-This script intentionally writes new analysis, figure, and manuscript outputs
-without overwriting the prior audited manuscript or figure set.
+This is the final rendering layer for the manuscript-scale Fire VASE analysis.
+It reads the durable VASE slice table, developmental morphospace products,
+centroid climate summaries, and optional perimeter-exposure reports, then
+writes the current Science-style manuscript package:
+
+- main and supplementary figure files
+- self-contained figure legends
+- model/effect-size summary tables
+- `manuscript_climate_revision_science_style.md`
+- `fire_vase_climate_revision_science_style_manuscript.pdf`
+- an output manifest describing the rendered products
+
+The script intentionally treats rendered figures and PDFs as downstream assets.
+If the science data change, regenerate the upstream VASE/climate/morphospace
+tables first, then rerun this script.
 """
 
 from __future__ import annotations

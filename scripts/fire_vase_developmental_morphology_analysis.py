@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Build a developmental morphology analysis atlas for fire VASEs.
+"""Build the population developmental morphology atlas for fire VASEs.
 
-The analysis treats fire VASEs as developmental objects. Morphospace is built
-from geometry-first features. Climate is attached afterward from the durable
-vase_slices table.
+This script is the geometry-first analysis layer. It reads real FIRED-derived
+VASE slices and fire traits, builds shape features and PCA morphospace
+coordinates before climate is considered, assigns descriptive morphology
+neighborhoods, and then projects daily gridMET climate onto those existing
+VASE objects.
+
+Outputs include the feature tables used by later manuscript scripts, matched
+example tables, and a multipage PDF atlas for visually checking population
+variation. The atlas is diagnostic; the Parquet tables are the reusable source
+for downstream manuscript figures.
 """
 
 from __future__ import annotations

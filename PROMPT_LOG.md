@@ -1854,3 +1854,23 @@ secrets, credentials, private tokens, or unrelated transcript text.
   item is the final code/data archival DOI or accession, with optional
   supplementary-method citations for ridge regression, blocked validation, or
   software if those details are expanded.
+
+## 2026-07-23 - Fire VASE Workflow Documentation and Website Update
+
+- User goal: write up the Fire VASE manuscript/analysis work, document the
+  code, and update the website to reflect the current real-data workflow.
+- Added `docs/workflows/fire_vase_developmental_morphology.md` documenting the
+  population-scale FIRED run, centroid and perimeter climate tables,
+  developmental morphospace products, rebuild commands, figure narrative,
+  validation checks, and current limitations.
+- Updated MkDocs navigation, `docs/workflows/fire_analysis.md`,
+  `docs/capabilities/fire-vase.md`, `docs/dev/fire_vase_lakehouse.md`, and
+  `README.md` so users and developers can find the manuscript-scale Fire VASE
+  pipeline.
+- Expanded docstrings in the main Fire VASE manuscript, morphology atlas,
+  perimeter climate, and Google Docs DOCX builder scripts to describe their
+  role in the source-table-to-rendered-asset workflow.
+- Validation: compiled the touched Python scripts, checked MkDocs nav targets,
+  and checked local markdown links in the updated Fire VASE docs. Full
+  `mkdocs build --strict` was not run because MkDocs is not installed in the
+  current `.venv`.

@@ -157,6 +157,12 @@ events, derived traits, VASE slices, rendered assets, manifests, and cohort
 summaries are separate versioned products. Rendered panels and PDFs are views of
 those data products, not the source of truth.
 
+The manuscript-scale Fire VASE workflow now has a dedicated documentation page:
+`docs/workflows/fire_vase_developmental_morphology.md`. It describes the
+real-data FIRED population run, centroid and perimeter climate-attribution
+tables, developmental morphospace products, manuscript figures, PDF/DOCX
+outputs, validation checks, and current limitations.
+
 Use `config/storage.example.yml` as the committed template and copy it to the
 ignored `config/storage.yml` for local paths or credentials. Pipeline output
 roots should be explicit and default to ignored locations such as

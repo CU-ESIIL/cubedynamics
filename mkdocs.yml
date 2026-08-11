@@ -28,6 +28,7 @@ nav:
       - Overview: workflows/index.md
       - Climate Analysis: workflows/climate_analysis.md
       - Fire Analysis: workflows/fire_analysis.md
+      - Fire VASE developmental morphology: workflows/fire_vase_developmental_morphology.md
       - Vegetation Analysis: workflows/vegetation_analysis.md
       - Remote Sensing Analysis: workflows/remote_sensing_analysis.md
       - Fire VASE / FireHull: capabilities/fire-vase.md
@@ -82,6 +83,7 @@ nav:
       - Concepts Overview: concepts/index.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md
       - Fire / VASE status audit: developer/fire_vase_status.md
+      - Fire VASE lakehouse: dev/fire_vase_lakehouse.md
       - Fire plot architecture: dev/fire_plot_architecture.md
       - Figure backend (v.plot): dev/figure_backend.md
       - Viewer backend: dev/viewer_backend.md

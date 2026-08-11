@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """Build perimeter-based fire VASE climate exposure tables from cached gridMET.
 
-The existing VASE climate table samples one gridMET cell at each fire centroid.
-This script creates a companion table with zone summaries over real FIRED daily
-polygons: the active daily burn polygon, the cumulative burned area to date,
-and configurable exterior perimeter-extension buffers.
+The manuscript-scale centroid table samples one gridMET cell at each fire
+centroid for every fire-time slice. This script creates the richer companion
+table requested for the next analysis stage: zone summaries over real FIRED
+daily polygons, cumulative burned area to date, and configurable exterior
+perimeter-extension buffers.
+
+The output is intentionally separate from `vase_slices.parquet`. That keeps the
+complete centroid baseline stable while allowing figures and models to opt into
+active-area, cumulative-perimeter, or perimeter-extension climate attribution
+with explicit coverage and sampling-method metadata.
 """
 
 from __future__ import annotations

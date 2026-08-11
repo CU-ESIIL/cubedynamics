@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Build a Google Docs-targeted DOCX manuscript from the climate revision draft."""
+"""Build a Google Docs-targeted DOCX manuscript from the climate revision draft.
+
+The DOCX is a sharing/editing artifact, not a separate manuscript source. It is
+rebuilt from `manuscript_climate_revision_science_style.md`, the current
+Science-style figure legends, and the rendered main-figure PNGs. Use this after
+`scripts/fire_vase_climate_revision.py` so the PDF and DOCX reflect the same
+text, figure order, and legend wording.
+"""
 
 from __future__ import annotations
 

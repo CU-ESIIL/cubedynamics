@@ -2,6 +2,13 @@
 
 CubeDynamics treats FIRED fire events as spatiotemporal objects, not just a list of polygons or a one-off plot. The fire/VASE workflow turns daily perimeters into a time-stacked hull that can participate in the same cube-centered grammar used elsewhere in the library.
 
+For the current manuscript-scale analysis, Fire VASE is also used as a
+population data product: 278,569 real FIRED events are converted into
+developmental profiles, placed in a shared morphospace, and attributed with
+daily gridMET climate. See
+[Fire VASE developmental morphology](../workflows/fire_vase_developmental_morphology.md)
+for the full analysis pipeline, tables, figures, and manuscript outputs.
+
 ## Core objects
 
 ### `FireEventDaily`
@@ -249,6 +256,21 @@ This is intentionally modest but now mesh-aware. It stores:
 - per-vertex values aligned explicitly to the mesh
 
 It does not yet store a fully local `(x, y, t)` field sampled independently at every hull vertex.
+
+## Population climate tables
+
+The manuscript pipeline separates two climate-attribution products:
+
+- `vase_slices.parquet`: the complete-population daily centroid baseline used
+  for the main manuscript figures.
+- `vase_climate_exposures.parquet`: a companion table with active daily burned
+  area, cumulative burned area, and exterior perimeter-extension exposure
+  zones.
+
+This separation is intentional. Centroid climate is available for the largest
+population and gives a conservative baseline. Perimeter and extension
+attribution are richer, but must be reported with their own coverage and sample
+method metadata.
 
 ## Cube compatibility
 
