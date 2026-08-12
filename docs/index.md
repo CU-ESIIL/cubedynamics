@@ -17,32 +17,16 @@ hide:
     </div>
   </div>
   <div class="cd-hero-art">
-    <img class="cd-logo-signet" src="assets/img/cubedynamics_favicon.png" alt="" aria-hidden="true">
-    <div class="cd-cube-interactive" data-cd-cube>
-      <div class="cd-cube-scene" tabindex="0" aria-label="Interactive spatiotemporal data cube" aria-describedby="cd-cube-instructions">
-        <div class="cd-cube3d" data-cd-cube-object aria-hidden="true">
-          <div class="cd-cube-face cd-cube-face--front"><span>y × x</span></div>
-          <div class="cd-cube-face cd-cube-face--back"></div>
-          <div class="cd-cube-face cd-cube-face--right"><span>time × y</span></div>
-          <div class="cd-cube-face cd-cube-face--left"></div>
-          <div class="cd-cube-face cd-cube-face--top"><span>time × x</span></div>
-          <div class="cd-cube-face cd-cube-face--bottom"></div>
-          <div class="cd-cube-slice cd-cube-slice--time"></div>
-          <div class="cd-cube-slice cd-cube-slice--x"></div>
-          <div class="cd-cube-slice cd-cube-slice--y"></div>
-        </div>
+    <div class="cd-html-cube-hero">
+      <div class="cd-html-cube-frame">
+        <iframe src="assets/figures/synchrony_occurrence_cube.html" title="Interactive occurrence synchrony cube with longitude, latitude, and time axes" loading="eager" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
       </div>
-      <div class="cd-cube-toolbar">
-        <div class="cd-cube-legend" aria-hidden="true">
-          <span><i class="cd-swatch cd-swatch--space"></i>space</span>
-          <span><i class="cd-swatch cd-swatch--time"></i>time</span>
-        </div>
-        <button class="cd-cube-reset" type="button" data-cd-cube-reset>Reset view</button>
+      <div class="cd-html-cube-meta">
+        <p><strong>Live CubeDynamics viewer</strong><span>Occurrence synchrony · longitude × latitude × time</span></p>
+        <a href="assets/figures/synchrony_occurrence_cube.html">Open full viewer <span aria-hidden="true">↗</span></a>
       </div>
-      <p class="cd-cube-instructions" id="cd-cube-instructions">Drag or use arrow keys to inspect the cube. Scroll the page to move through time.</p>
-      <span class="cd-visually-hidden" data-cd-cube-status aria-live="polite"></span>
+      <p class="cd-html-cube-instructions">Drag the cube to rotate it. Scroll over the viewer to zoom.</p>
     </div>
-    <p class="cd-art-caption">Interactive data object<br><code>time · y · x</code></p>
   </div>
 </section>
 

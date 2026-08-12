@@ -130,7 +130,7 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
-  logo: assets/img/cubedynamics_favicon.png
+  logo: assets/img/cubedynamics_banner.png
   favicon: assets/img/cubedynamics_favicon.png
   custom_dir: docs/overrides
 
@@ -139,9 +139,6 @@ extra_css:
   - stylesheets/extra.css
   - assets/styles/landing_cards_v2.css
   - stylesheets/editorial.css
-
-extra_javascript:
-  - javascripts/interactive-cube.js
 
 plugins:
   - search

@@ -64,8 +64,8 @@ input {
 }
 
 .md-logo img {
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 7.2rem;
+  height: 2.3rem;
   object-fit: contain;
 }
 
@@ -247,20 +247,6 @@ input {
 
 /* Small decorative studies of the layered cube logo. */
 
-.cd-logo-signet {
-  position: absolute;
-  top: 1.35rem;
-  right: 1.35rem;
-  width: 3.8rem;
-  height: 3.8rem;
-  margin: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  opacity: 0.82;
-  object-fit: contain;
-}
-
 .cd-data-cube {
   position: absolute;
   z-index: 0;
@@ -434,227 +420,67 @@ input {
   color: var(--cd-ink);
 }
 
-.cd-cube-interactive {
-  width: min(31rem, 90%);
-  display: grid;
-  justify-items: center;
-  gap: 0.8rem;
-}
-
-.cd-cube-scene {
-  --cube-size: clamp(12.5rem, 25vw, 17rem);
-  width: min(100%, 29rem);
-  height: 25rem;
-  display: grid;
-  place-items: center;
-  outline: 0;
-  perspective: 900px;
-  touch-action: none;
-  cursor: grab;
-}
-
-.cd-cube-scene:focus-visible {
-  border-radius: 50%;
-  outline: 2px solid var(--cd-teal);
-  outline-offset: 0.35rem;
-}
-
-.cd-cube-interactive.is-dragging .cd-cube-scene {
-  cursor: grabbing;
-}
-
-.cd-cube3d {
-  --cube-rx: -18deg;
-  --cube-ry: 32deg;
-  --cube-scroll: 0deg;
-  position: relative;
-  width: var(--cube-size);
-  height: var(--cube-size);
-  transform: rotateX(var(--cube-rx)) rotateY(calc(var(--cube-ry) + var(--cube-scroll)));
-  transform-style: preserve-3d;
-  will-change: transform;
-}
-
-.cd-cube-face,
-.cd-cube-slice {
-  position: absolute;
-  inset: 0;
-  border: 1px solid rgba(222, 243, 190, 0.72);
-  backface-visibility: visible;
-  transform-style: preserve-3d;
-}
-
-.cd-cube-face {
-  overflow: hidden;
-  background-color: rgba(35, 119, 77, 0.82);
-  background-image:
-    linear-gradient(124deg, rgba(224, 242, 69, 0.5), transparent 46%),
-    repeating-linear-gradient(0deg, rgba(239, 251, 177, 0.16) 0 1px, transparent 1px 13px),
-    repeating-linear-gradient(90deg, rgba(2, 57, 49, 0.2) 0 1px, transparent 1px 13px);
-  box-shadow: inset 0 0 2.4rem rgba(8, 69, 53, 0.18);
-}
-
-.cd-cube-face::before {
-  content: "";
-  position: absolute;
-  inset: 12% 0 52%;
-  border-top: 1px solid rgba(236, 250, 94, 0.55);
-  border-bottom: 1px solid rgba(236, 250, 94, 0.42);
-  background: rgba(209, 235, 63, 0.1);
-}
-
-.cd-cube-face span {
-  position: absolute;
-  right: 0.55rem;
-  bottom: 0.45rem;
-  color: rgba(248, 255, 224, 0.86);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.56rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.cd-cube-face--front { transform: translateZ(calc(var(--cube-size) / 2)); }
-.cd-cube-face--back { transform: rotateY(180deg) translateZ(calc(var(--cube-size) / 2)); }
-.cd-cube-face--right {
-  background-color: rgba(20, 102, 71, 0.88);
-  transform: rotateY(90deg) translateZ(calc(var(--cube-size) / 2));
-}
-.cd-cube-face--left {
-  background-color: rgba(15, 84, 68, 0.9);
-  transform: rotateY(-90deg) translateZ(calc(var(--cube-size) / 2));
-}
-.cd-cube-face--top {
-  background-color: rgba(119, 166, 58, 0.86);
-  background-image:
-    linear-gradient(145deg, rgba(230, 245, 70, 0.7), transparent 60%),
-    repeating-linear-gradient(0deg, rgba(249, 255, 190, 0.2) 0 1px, transparent 1px 13px),
-    repeating-linear-gradient(90deg, rgba(29, 96, 52, 0.17) 0 1px, transparent 1px 13px);
-  transform: rotateX(90deg) translateZ(calc(var(--cube-size) / 2));
-}
-.cd-cube-face--bottom {
-  background-color: rgba(15, 77, 61, 0.88);
-  transform: rotateX(-90deg) translateZ(calc(var(--cube-size) / 2));
-}
-
-.cd-cube-slice {
-  border-color: rgba(218, 240, 84, 0.42);
-  background:
-    repeating-linear-gradient(0deg, rgba(225, 244, 105, 0.08) 0 1px, transparent 1px 17px),
-    rgba(183, 211, 65, 0.06);
-  pointer-events: none;
-}
-
-.cd-cube-slice--time { transform: translateZ(0); }
-.cd-cube-slice--x { transform: rotateY(90deg); }
-.cd-cube-slice--y { transform: rotateX(90deg); }
-
-.cd-cube3d::after {
-  content: "";
-  position: absolute;
-  left: 8%;
-  bottom: -42%;
-  width: 84%;
-  height: 28%;
-  border-radius: 50%;
-  background: rgba(25, 70, 56, 0.22);
-  filter: blur(1.2rem);
-  transform: rotateX(90deg) translateZ(calc(var(--cube-size) * -0.44));
-}
-
-.cd-cube-toolbar {
-  width: min(100%, 27rem);
+.cd-html-cube-hero {
+  width: 100%;
+  min-width: 0;
+  align-self: stretch;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.2rem;
+}
+
+.cd-html-cube-frame {
+  width: 100%;
+  height: 34rem;
+  overflow: hidden;
+  border: 1px solid #aab9b8;
+  background: #ffffff;
+  box-shadow: 0 0.8rem 2.4rem rgba(23, 36, 44, 0.1);
+}
+
+.cd-html-cube-frame iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  background: #ffffff;
+}
+
+.cd-html-cube-meta {
+  display: flex;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  padding-top: 0.25rem;
-  border-top: 1px solid rgba(63, 111, 114, 0.25);
+  padding: 0.85rem 0 0.5rem;
+  border-bottom: 1px solid rgba(63, 111, 114, 0.25);
 }
 
-.cd-cube-legend {
-  display: flex;
-  gap: 0.9rem;
-  color: #50676c;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.cd-cube-legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.cd-swatch {
-  width: 0.52rem;
-  height: 0.52rem;
-  display: inline-block;
-  border: 1px solid rgba(23, 36, 44, 0.18);
-}
-
-.cd-swatch--space { background: #3f8569; }
-.cd-swatch--time { background: #c7d950; }
-
-.cd-cube-reset {
-  padding: 0.38rem 0.55rem;
-  border: 1px solid #789092;
-  border-radius: 0.14rem;
-  background: transparent;
-  color: #365c61;
-  font: inherit;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.cd-cube-reset:hover,
-.cd-cube-reset:focus-visible {
-  border-color: var(--cd-teal);
-  background: rgba(255, 255, 255, 0.5);
-  outline: 0;
-}
-
-.cd-cube-instructions {
-  width: min(100%, 27rem);
+.cd-html-cube-meta p {
   margin-bottom: 0;
-  color: #536a6e;
+  color: #3f555a;
+  font-size: 0.67rem;
+  line-height: 1.45;
+}
+
+.cd-html-cube-meta strong,
+.cd-html-cube-meta span {
+  display: block;
+}
+
+.cd-html-cube-meta a {
+  flex: 0 0 auto;
+  color: #2f6267 !important;
   font-size: 0.66rem;
-  line-height: 1.5;
-  text-align: left;
-}
-
-.cd-visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
-.cd-art-caption {
-  position: absolute;
-  right: 1.5rem;
-  bottom: 1.5rem;
-  color: #50676c;
-  font-size: 0.64rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  line-height: 1.5;
-  text-align: right;
-  text-transform: uppercase;
+  text-decoration: none !important;
 }
 
-.cd-art-caption code {
-  background: transparent;
-  font-size: inherit;
+.cd-html-cube-instructions {
+  margin: 0.55rem 0 0;
+  color: #536a6e;
+  font-size: 0.64rem;
+  line-height: 1.45;
 }
 
 .cd-manifesto,
@@ -1034,9 +860,9 @@ input {
 }
 
 @media (max-width: 44rem) {
-  .cd-logo-signet {
-    width: 3.1rem;
-    height: 3.1rem;
+  .md-logo img {
+    width: 5.8rem;
+    height: 2rem;
   }
 
   .cd-data-cube {
@@ -1056,21 +882,21 @@ input {
   }
 
   .cd-hero-art {
-    min-height: 29rem;
+    min-height: auto;
   }
 
-  .cd-cube-interactive {
-    width: min(30rem, 94%);
+  .cd-html-cube-hero {
+    padding: 0.75rem;
   }
 
-  .cd-cube-scene {
-    --cube-size: clamp(10.5rem, 48vw, 13rem);
-    height: 19rem;
+  .cd-html-cube-frame {
+    height: min(31rem, 72vh);
+    min-height: 25rem;
   }
 
-  .cd-cube-toolbar,
-  .cd-cube-instructions {
-    width: min(100%, 23rem);
+  .cd-html-cube-meta {
+    flex-direction: column;
+    gap: 0.35rem;
   }
 
   .cd-manifesto-grid,
@@ -1113,8 +939,4 @@ input {
   .cd-action,
   .cd-story,
   .cd-story-image img { transition: none; }
-
-  .cd-cube3d {
-    will-change: auto;
-  }
 }

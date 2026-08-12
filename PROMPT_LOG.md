@@ -1985,3 +1985,23 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Validation: checked JavaScript syntax, homepage structure and control
   attributes, CSS delimiter balance, generated asset references, ran
   `git diff --check`, and completed a clean strict documentation build.
+
+## 2026-08-12 - Repo-native HTML cube hero and full equation mark
+
+- User correction: the hero should use one of the repository's actual custom
+  HTML cube viewers, not a new CSS object derived from the cube portion of the
+  logo; the site header should also show the complete cube equation.
+- Replaced the bespoke hero cube with an iframe embedding the existing,
+  self-contained `docs/assets/figures/synchrony_occurrence_cube.html`. The
+  artifact uses the canonical CubeDynamics HTML/CSS/JS viewer, real
+  longitude/latitude/time axes, pointer rotation, and wheel zoom.
+- Removed the temporary custom cube JavaScript and its MkDocs registration,
+  and removed the now-unused CSS 3D implementation.
+- Changed the MkDocs header mark from the square favicon to
+  `cubedynamics_banner.png`, which shows the full cube-plus-grammar-to-result
+  equation, while retaining the square cube image as the browser favicon.
+- Validation: checked the embedded viewer source and interaction handlers,
+  verified the iframe title and direct-viewer link, checked the rendered logo
+  and script references, ran the focused viewer interaction/rotation tests
+  (`4 passed`), ran `git diff --check`, and completed a clean strict
+  documentation build.
