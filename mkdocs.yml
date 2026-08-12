@@ -1,5 +1,5 @@
 site_name: "CubeDynamics"
-site_description: "CubeDynamics: a grammar of streaming environmental computation."
+site_description: "CubeDynamics: a composable grammar for spatiotemporal science."
 site_author: CubeDynamics Team
 site_url: "https://cu-esiil.github.io/cubedynamics/"
 
@@ -105,7 +105,7 @@ nav:
 repo_url: https://github.com/CU-ESIIL/cubedynamics
 edit_uri: edit/main/docs/
 
-copyright: 'Copyright \u00a9 2024'
+copyright: 'Copyright \u00a9 2026'
 
 theme:
   name: material
@@ -113,6 +113,9 @@ theme:
   features:
     - navigation.sections
     - navigation.expand
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.top
     - content.code.copy
   palette:
     - scheme: default
@@ -127,7 +130,7 @@ theme:
       toggle:
         icon: material/brightness-7
         name: Switch to light mode
-  logo: assets/img/cubedynamics_banner.png
+  logo: assets/img/cubedynamics_favicon.png
   favicon: assets/img/cubedynamics_favicon.png
   custom_dir: docs/overrides
 
@@ -135,6 +138,7 @@ extra_css:
   - stylesheets/brand.css
   - stylesheets/extra.css
   - assets/styles/landing_cards_v2.css
+  - stylesheets/editorial.css
 
 plugins:
   - search

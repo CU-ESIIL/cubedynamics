@@ -1911,3 +1911,25 @@ secrets, credentials, private tokens, or unrelated transcript text.
   deselected`); all three supported notebooks executed offline; `mkdocs build
   --strict` succeeded and rendered each notebook as HTML plus a downloadable
   `.ipynb`; `uv.lock` was refreshed for the new extras.
+
+## 2026-08-12 - Editorial website redesign
+
+- User goal: replace the conventional documentation-style homepage with a
+  more distinctive science-media presentation inspired by Impact Media Lab.
+- Rebuilt `docs/index.md` as an editorial landing page with an oversized
+  grammar-first statement, a visual pipe/verb composition, runnable-vignette
+  stories, an explicit core/integration/project layer model, and direct calls
+  to action.
+- Added `docs/stylesheets/editorial.css` with a warm-paper and black visual
+  system, acid-lime and coral accents, responsive story cards, CSS-native cube
+  artwork, accessible focus states, reduced-motion behavior, and a quieter
+  restyle for the surrounding Material documentation shell.
+- Updated `mkdocs.yml` with persistent section tabs, the compact CubeDynamics
+  mark, refreshed publication metadata, and the editorial stylesheet. Updated
+  the browser theme color in the custom head partial.
+- Used the reference site's editorial traits as design direction without
+  copying its brand, text, or image assets; the landing page reuses existing
+  CubeDynamics scientific figures.
+- Validation: checked the homepage structure and image/link attributes,
+  confirmed the generated homepage loads the new stylesheet and content, ran
+  `git diff --check`, and completed a clean `mkdocs build --strict`.
