@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  {% set icon_path = "assets/img/cubedynamics_favicon.png" %}
+  {% set social_image_path = "assets/img/cubedynamics_logo.png" %}
+  {% set social_image_url = (config.site_url | default('', true)) ~ social_image_path %}
+  {% set page_title = config.site_name %}
+  {% set page_description = config.site_description %}
+  {% set page_url = config.site_url %}
+  {% if page %}
+    {% if page.is_homepage %}
+      {% set page_title = config.site_name %}
+    {% elif page.title %}
+      {% set page_title = page.title ~ " · " ~ config.site_name %}
+    {% endif %}
+    {% if page.meta and page.meta.description %}{% set page_description = page.meta.description %}{% endif %}
+    {% if page.canonical_url %}{% set page_url = page.canonical_url %}{% endif %}
+  {% endif %}
+  <link rel="apple-touch-icon" href="{{ icon_path | url }}">
+  <meta name="theme-color" content="#203640">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ config.site_name | e }}">
+  <meta property="og:title" content="{{ page_title | e }}">
+  <meta property="og:description" content="{{ page_description | e }}">
+  <meta property="og:url" content="{{ page_url }}">
+  <meta property="og:image" content="{{ social_image_url }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ page_title | e }}">
+  <meta name="twitter:description" content="{{ page_description | e }}">
+  <meta name="twitter:image" content="{{ social_image_url }}">
+
+  {% if page and page.is_homepage %}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "CubeDynamics",
+    "description": "A composable grammar of verbs for streaming spatiotemporal cubes.",
+    "url": "https://cu-esiil.github.io/cubedynamics/",
+    "codeRepository": "https://github.com/CU-ESIIL/cubedynamics",
+    "programmingLanguage": "Python",
+    "runtimePlatform": "Python 3.9 or newer",
+    "license": "https://opensource.org/license/mit"
+  }
+  </script>
+  {% endif %}
+
+  {% if config.extra.google_analytics_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ config.extra.google_analytics_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ config.extra.google_analytics_id }}', {
+      'allow_google_signals': false,
+      'allow_ad_personalization_signals': false
+    });
+  </script>
+  {% endif %}
+{% endblock %}

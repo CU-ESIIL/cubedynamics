@@ -89,6 +89,7 @@ nav:
       - Public API and stability: project/public_api.md
   - Publication and Development:
       - Publication audit and plan: project/publication_plan.md
+      - Site analytics and SEO: project/site_analytics_seo.md
       - Project scope: project/scope.md
       - Contributing: dev/contributing.md
       - CI and Testing: dev/ci_testing.md
@@ -106,6 +107,9 @@ repo_url: https://github.com/CU-ESIIL/cubedynamics
 edit_uri: edit/main/docs/
 
 copyright: 'Copyright \u00a9 2026'
+
+extra:
+  google_analytics_id: !ENV [CUBEDYNAMICS_GA_MEASUREMENT_ID, ""]
 
 theme:
   name: material

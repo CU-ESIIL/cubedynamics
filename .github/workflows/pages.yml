@@ -36,6 +36,8 @@ jobs:
           pip install -e ".[docs]"
 
       - name: Build MkDocs site
+        env:
+          CUBEDYNAMICS_GA_MEASUREMENT_ID: ${{ vars.CUBEDYNAMICS_GA_MEASUREMENT_ID }}
         run: mkdocs build --strict --clean --site-dir dist
 
       - name: Configure GitHub Pages

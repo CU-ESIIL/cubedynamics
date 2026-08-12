@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://cu-esiil.github.io/cubedynamics/sitemap.xml

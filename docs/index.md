@@ -1,4 +1,5 @@
 ---
+description: "Compose transparent, reproducible, streaming-aware analyses of spatiotemporal environmental data with the CubeDynamics pipe-and-verb grammar."
 hide:
   - navigation
   - toc

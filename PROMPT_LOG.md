@@ -2005,3 +2005,27 @@ secrets, credentials, private tokens, or unrelated transcript text.
   and script references, ran the focused viewer interaction/rotation tests
   (`4 passed`), ran `git diff --check`, and completed a clean strict
   documentation build.
+
+## 2026-08-12 - Site analytics and search discoverability
+
+- User goal: track documentation-site usage using the Google tooling already
+  present in related repositories and improve technical SEO.
+- Audited sibling CU-ESIIL sites and found that `analytics-library` and
+  `data-library` use distinct GA4 measurement IDs but share one Search Console
+  HTML verification file. Kept the analytics streams separate and reused only
+  the organization verification file.
+- Added optional GA4 loading controlled by the GitHub Actions repository
+  variable `CUBEDYNAMICS_GA_MEASUREMENT_ID`. No analytics request is emitted
+  when the variable is unset, and the tag disables Google Signals and ad
+  personalization signals.
+- Added Search Console verification, `robots.txt`, a discoverable generated
+  sitemap, page-aware Open Graph and Twitter metadata, canonical URLs,
+  homepage `SoftwareSourceCode` structured data, and a focused homepage search
+  description. Documented setup, monitoring, privacy boundaries, and official
+  Google references in `docs/project/site_analytics_seo.md`.
+- Validation: ran `git diff --check`; completed clean strict MkDocs builds with
+  and without a test measurement ID; confirmed the unconfigured build contains
+  no Google tag, the configured build injects the supplied ID and privacy
+  settings, metadata is page-aware, and the verification, robots, and sitemap
+  files are present. Analytics remains inactive until a new CubeDynamics GA4
+  stream is created and its measurement ID is set in GitHub.
