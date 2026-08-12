@@ -14,7 +14,7 @@ Legend:
 | --- | --- | --- | --- |
 | `src/cubedynamics/__init__.py` | A | Exports public symbols via `__all__` and used throughout docs/examples. | Keep; update exports when public surface changes. |
 | `src/cubedynamics/piping.py` | A | `pipe` and `Pipe` referenced in docs (`concepts/grammar`, quickstart) and tests. | Keep as core entry point. |
-| `src/cubedynamics/verbs/` | A | Imported as `verbs` namespace in README, docs, and examples; verbs power plotting and analysis. | Keep; add deprecations per verb if renamed. |
+| `src/cubedynamics/verbs/` | A | Imported as `verbs` namespace in README, docs, and examples. It currently combines common vocabulary, integrations, and project verbs. | Preserve `0.x` imports; classify new verbs by ownership and consider later project extraction with deprecations. |
 | `src/cubedynamics/data/{gridmet,prism}.py` | A | Loaders exposed in `cubedynamics.__all__` and docs/recipes. | Keep; treat as public loaders. |
 | `src/cubedynamics/sentinel.py` | A | New Sentinel-2 loaders exposed in `__all__`; used by docs and pipelines. | Keep; deprecate older aliases. |
 | `src/cubedynamics/data/sentinel2.py` | C | Older loader names (`load_s2_*`) still imported but now emit deprecations. | Keep as warning alias until removal window. |
@@ -54,6 +54,9 @@ Next quarantine candidates (non-breaking, docs-only):
 | Path | Class | Evidence | Proposed action |
 | --- | --- | --- | --- |
 | `tests/` (root) | B | Internal regression tests; not shipped to users. | Keep and expand to cover public API. |
-| `notebooks/`, `examples/` | C | Exploratory content; not tied into nav or CI. | Keep as legacy examples; consider refreshing or moving to `docs/legacy/` later. |
+| `docs/vignettes/` | A | Deterministic offline notebooks, website pages, and CI execution targets. | Keep small and require execution for every publication release. |
+| `notebooks/` | C | Exploratory and historical content; may need network services, optional renderers, or historical APIs. | Keep labeled as exploratory; promote selected stories into supported vignettes. |
+| `examples/custom_verb_project/` | A | Tested scaffold for project-owned extension verbs. | Keep aligned with the custom-verb guide and vignette. |
+| Other `examples/` | C | Exploratory scripts with mixed network and dependency requirements. | Audit individually before promoting to supported vignettes. |
 
 This inventory should be revisited after adding deprecation warnings and redirect stubs to confirm whether any C-class items can be safely removed.

@@ -9,9 +9,8 @@ That composition model is one of the main reasons the package works well for bot
 ```python
 result = (
     pipe(cube)
-    | v.anomaly()
-    | v.aggregate()
-    | v.detrend()
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
 )
 ```
 
@@ -30,3 +29,4 @@ Composition gives you:
 - [Grammar of Streaming](index.md)
 - [Verbs](../api/verbs.md)
 - [Workflows](../workflows/index.md)
+- [Write a custom verb project](../extending/custom_verbs.md)

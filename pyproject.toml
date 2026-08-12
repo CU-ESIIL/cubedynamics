@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "cubedynamics"
 version = "0.1.0"
-description = "Streaming-first climate cube math and correlation tools"
+description = "A composable grammar of verbs for streaming spatiotemporal cubes"
 readme = "README.md"
 requires-python = ">=3.9"
 authors = [
@@ -65,6 +65,13 @@ docs = [
     "mkdocstrings[python]",
     "mkdocs-git-revision-date-plugin",
     "mkdocs-jupyter",
+    "nbclient",
+    "nbformat",
+]
+vignettes = [
+    "nbclient",
+    "nbformat",
+    "ipykernel",
 ]
 dev = [
     "pytest",
@@ -75,6 +82,9 @@ dev = [
     "mkdocstrings[python]",
     "mkdocs-git-revision-date-plugin",
     "mkdocs-jupyter",
+    "nbclient",
+    "nbformat",
+    "ipykernel",
     "lexcube",
 ]
 

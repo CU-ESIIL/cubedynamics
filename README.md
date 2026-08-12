@@ -12,19 +12,16 @@ update your code to use the new package name.
 
 ![Tests](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/pages.yml/badge.svg)
 
-CubeDynamics: a grammar of streaming environmental computation.
+CubeDynamics is a composable grammar for spatiotemporal cubes.
 
-CubeDynamics is a Python framework for computing on environmental data streams through **spatiotemporal cubes**, rather than treating storage, retrieval, and visualization as the main product.
+Its stable center is deliberately small: wrap a cube with `pipe`, then apply
+plain Python verbs with `|`. Data adapters, renderers, and scientific workflows
+connect to that grammar; they are not competing cores.
 
 It is designed for scientists and data practitioners who want to reason explicitly about **space, time, scale, and events**—and to do so reproducibly and efficiently, even for large datasets.
 
-Scientists and AI agents use the same streaming interface, so workflows can be explored interactively, scripted, or orchestrated programmatically without switching mental models.
-
-
-
-
-
----
+The same expression works in a notebook, a script, a streaming job, or an
+agent-driven workflow.
 
 ## Why this project exists
 
@@ -51,46 +48,52 @@ CubeDynamics answers:
 
 ---
 
-## What CubeDynamics enables
+## The package has layers
 
-- **Spatiotemporal cube operations** (means, variance, anomalies, synchrony)
-- **Grammar-based pipelines** using `pipe | verb | verb`
-- **Streaming-first analysis** via VirtualCubes for large datasets
-- **Event- and hull-based workflows** (fires, droughts, phenology)
-- **Integrated visualization** of space–time structure
+| Layer | Role | Examples |
+| --- | --- | --- |
+| **Core grammar** | Compose cube operations | `pipe`, `Pipe`, verb factories, cube contracts |
+| **Built-in vocabulary** | Common operations | `v.mean`, `v.anomaly`, `v.variance`, `v.zscore` |
+| **Integrations** | Connect external systems | dataset loaders, streaming adapters, renderers |
+| **Project extensions** | Add domain-specific verbs | synchrony, biology, Fire VASE, your own package |
 
-Fire events now follow a clearer object model built around:
-
-- `FireEventDaily` for canonical FIRED-like daily event geometry
-- `FireHull` for the derived fire-time hull / VASE geometry
-
-The intent is to keep FIRED ingestion, hull geometry, environmental attribution,
-cube conversion, and visualization separable so fire workflows remain part of
-the same composable cube grammar as the rest of CubeDynamics.
+Existing `0.x` imports remain compatible while the documentation makes these
+ownership boundaries explicit.
 
 ---
 
 ## Minimal example
 
 ```python
+import numpy as np
+import xarray as xr
 from cubedynamics import pipe, verbs as v
-import cubedynamics as cd
 
-cube = cd.ndvi(
-    lat=40.0,
-    lon=-105.25,
-    start="2022-01-01",
-    end="2023-01-01",
+cube = xr.DataArray(
+    np.arange(24, dtype=float).reshape(4, 2, 3),
+    dims=("time", "y", "x"),
 )
 
-pipe(cube) | v.anomaly() | v.variance() | v.plot()
+result = (
+    pipe(cube)
+    | v.anomaly(dim="time")
+    | v.variance(dim="time", keep_dim=False)
+).unwrap()
 ```
 
-This pipeline:
-- loads a spatiotemporal cube
-- computes anomalies through time
-- measures variability at each spatial location
-- visualizes the result
+This example is offline and deterministic. Substitute a Dask-backed xarray
+object or a maintained data adapter without changing the composition model.
+
+Project-specific verbs use the same protocol:
+
+```python
+def clip_values(low, high):
+    def _op(cube):
+        return cube.clip(min=low, max=high)
+    return _op
+
+clipped = (pipe(cube) | clip_values(0, 1)).unwrap()
+```
 
 ---
 
@@ -99,11 +102,12 @@ This pipeline:
 📘 Full documentation website 👉 https://cu-esiil.github.io/cubedynamics/
 
 Key entry points:
-- Concepts – cube abstraction, pipes & verbs, streaming
-- Getting Started – first success in minutes
-- Capabilities & Verbs – complete textbook-style reference
-- Datasets – supported data sources, fields, citations
-- Recipes – end-to-end scientific workflows
+
+- [Core grammar versus project verbs](https://cu-esiil.github.io/cubedynamics/concepts/core_and_projects/)
+- [Runnable notebook vignettes](https://cu-esiil.github.io/cubedynamics/vignettes/)
+- [Write a custom verb project](https://cu-esiil.github.io/cubedynamics/extending/custom_verbs/)
+- [Public API and stability](https://cu-esiil.github.io/cubedynamics/project/public_api/)
+- [Publication audit and plan](https://cu-esiil.github.io/cubedynamics/project/publication_plan/)
 
 ---
 
@@ -143,7 +147,14 @@ See the documentation for optional extras, large-data workflows, and examples.
 Useful extras:
 - `pip install -e ".[test]"` for tests and packaging checks
 - `pip install -e ".[docs]"` for MkDocs builds
+- `pip install -e ".[vignettes]"` for notebook kernels and vignette execution
 - `pip install -e ".[viz]"` for Lexcube-backed visualization helpers
+
+Run the publication notebooks without changing their saved outputs:
+
+```bash
+python scripts/run_vignettes.py
+```
 
 ## Data and generated outputs
 
@@ -151,7 +162,7 @@ CubeDynamics keeps code, schemas, config templates, docs, and small fixtures in
 Git. Large scientific products belong outside the repository: local scratch
 roots, shared object storage, or a lakehouse path configured by the user.
 
-Fire VASE work treats the VASE as a scientific data object first. Source fire
+The included Fire VASE project treats the VASE as a scientific data object first. Source fire
 observations, canonical fire time, geometry, climate attribution, detected
 events, derived traits, VASE slices, rendered assets, manifests, and cohort
 summaries are separate versioned products. Rendered panels and PDFs are views of
@@ -175,6 +186,10 @@ python scripts/check_repository_size.py --mode tracked
 
 Generated Parquet, GeoParquet, Zarr, NetCDF, GLB, TIFF, bulk rendered assets,
 and runtime manifests should not be committed.
+
+The current repository still contains a historical tracked Fire VASE result
+bundle. The [publication plan](docs/project/publication_plan.md) recommends
+archiving that bundle with a DOI and checksums before removing it from Git.
 
 ---
 

@@ -1,5 +1,23 @@
 # CI and Testing
 
+## Publication vignettes
+
+Supported notebooks live in `docs/vignettes/` and declare both
+`supported_vignette: true` and `network: false` in notebook metadata. CI runs:
+
+```bash
+python scripts/run_vignettes.py
+```
+
+The runner executes in-memory copies from the repository root and writes any
+executed notebooks only to a temporary directory. This catches stale APIs,
+missing kernel metadata, ambient path dependencies, and accidental network
+requirements without committing output noise.
+
+Do not add exploratory notebooks to this runner. First make their inputs
+deterministic, add assertions for the scientific result, and document any
+dependency in the `vignettes` extra.
+
 CubeDynamics tests are split into small, fast unit suites and opt-in integration/online checks that hit live services. This page explains how to run them locally and how GitHub Actions orchestrates them.
 
 ## Quick start (local)

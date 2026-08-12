@@ -18,9 +18,8 @@ from cubedynamics import pipe, verbs as v
 
 result = (
     pipe(cube)
-    | v.anomaly()
-    | v.aggregate()
-    | v.detrend()
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
 )
 ```
 
@@ -30,6 +29,8 @@ result = (
 - [Verbs](../api/verbs.md)
 - [Lazy evaluation](lazy_evaluation.md)
 - [Workflow composition](workflow_composition.md)
+- [Core grammar versus project verbs](../concepts/core_and_projects.md)
+- [Runnable vignettes](../vignettes/index.md)
 
 ## Why Grammar Matters
 
@@ -39,3 +40,7 @@ The grammar makes workflows:
 - inspectable
 - reproducible
 - easy to reason about in notebooks and agent-driven execution
+
+The grammar is the core product. Dataset loaders and renderers are integrations;
+synchrony, biology, and Fire VASE are examples of projects that add specialized
+verbs. See [Core grammar, integrations, and project verbs](../concepts/core_and_projects.md).

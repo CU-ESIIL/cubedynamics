@@ -19,9 +19,8 @@ Prefer writing workflows as transformations over a cube interface:
 ```python
 result = (
     pipe(cube)
-    | v.anomaly()
-    | v.aggregate()
-    | v.detrend()
+    | v.anomaly(dim="time")
+    | v.variance(dim="time", keep_dim=False)
 )
 ```
 
@@ -31,3 +30,4 @@ Let the backend decide when actual materialization is required.
 
 - [Virtual Cubes](../concepts/virtual_cubes.md)
 - [Workflow composition](workflow_composition.md)
+- [Executable lazy-composition vignette](../vignettes/lazy_composition.ipynb)

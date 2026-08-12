@@ -1,8 +1,9 @@
 PYTHON ?= python3
 VENV ?= .venv
 PY := $(VENV)/bin/python
+TEST_ENV := MPLBACKEND=Agg
 
-.PHONY: install test test-offline test-streaming test-fire docs clean-venv
+.PHONY: install test test-offline test-streaming test-fire vignettes docs clean-venv
 
 $(PY):
 	$(PYTHON) -m venv $(VENV)
@@ -14,10 +15,10 @@ install: $(PY)
 test: test-offline
 
 test-offline: install
-	$(PY) -m pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q
+	$(TEST_ENV) $(PY) -m pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q
 
 test-streaming: install
-	$(PY) -m pytest tests/test_prism_ncss_streaming.py \
+	$(TEST_ENV) $(PY) -m pytest tests/test_prism_ncss_streaming.py \
 		tests/test_gridmet_streaming_contract.py \
 		tests/test_global_climate_streaming.py \
 		tests/test_median_split_synchrony_verb.py \
@@ -27,14 +28,17 @@ test-streaming: install
 		--maxfail=1 --disable-warnings -q
 
 test-fire: install
-	$(PY) -m pytest tests/test_fire_vase_panel.py \
+	$(TEST_ENV) $(PY) -m pytest tests/test_fire_vase_panel.py \
 		tests/test_diagnostic_panel.py \
 		tests/test_real_fire_vase_gridmet_smoke.py \
 		tests/test_fire_hull_api.py \
 		tests/test_fire_plot_loader_calls.py \
 		-q
 
-docs: install
+vignettes: install
+	$(PY) scripts/run_vignettes.py
+
+docs: install vignettes
 	$(PY) -m mkdocs build --strict
 
 clean-venv:

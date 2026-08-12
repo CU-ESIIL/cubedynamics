@@ -4,16 +4,12 @@
 
 # CubeDynamics: a grammar of streaming environmental computation
 
-CubeDynamics provides a consistent interface for accessing, transforming, and analyzing **environmental data streams**.
+CubeDynamics provides a small composition grammar for transforming and
+analyzing **spatiotemporal cubes**. Data access, rendering, and domain workflows
+connect to that grammar but do not define it.
 
-It is designed for:
-
-- scientists
-- notebooks
-- cloud workflows
-- AI agents
-
-Scientists and AI agents use the same streaming interface. The grammar is intentionally simple so humans and agents can reason about the same operations.
+It is designed so scientists, notebooks, scripts, cloud jobs, and agents can
+all express the same operation as `pipe(cube) | verb() | verb()`.
 
 ## What CubeDynamics Is
 
@@ -53,13 +49,9 @@ CubeDynamics answers:
 
 > How do I compute on a stream of environmental data?
 
-The cube is not the product.
-
-The grammar is not the product.
-
-The stream is not the product.
-
-The product is the combination of **streaming + grammar**.
+The cube is the substrate. Streaming is an execution strategy. The reusable
+product is the **grammar**: a stable way to compose transformations regardless
+of which integration supplies or renders the cube.
 
 ## Core Workflow
 
@@ -72,9 +64,8 @@ cube = load_data(...)
 
 result = (
     pipe(cube)
-    | v.anomaly()
-    | v.aggregate()
-    | v.detrend()
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
 )
 ```
 
@@ -116,6 +107,14 @@ That difference matters when you want to:
 ## Jump Into The Docs
 
 <div class="ccm-card-grid">
+  <a class="ccm-card" href="vignettes/">
+    <div class="ccm-card-title">Run the Vignettes</div>
+    <div class="ccm-card-text">Open real, CI-executed notebooks for the core grammar, project verbs, and lazy composition.</div>
+  </a>
+  <a class="ccm-card" href="concepts/core_and_projects/">
+    <div class="ccm-card-title">Core vs. Projects</div>
+    <div class="ccm-card-text">See what belongs to the grammar, an integration, or a domain-specific custom-verb project.</div>
+  </a>
   <a class="ccm-card" href="why_cubedynamics/">
     <div class="ccm-card-title">Why CubeDynamics?</div>
     <div class="ccm-card-text">Understand the strategic position: streaming computation, not storage, cataloging, or visualization.</div>
@@ -128,9 +127,9 @@ That difference matters when you want to:
     <div class="ccm-card-title">Grammar of Streaming</div>
     <div class="ccm-card-text">Learn `pipe`, verbs, lazy evaluation, and workflow composition.</div>
   </a>
-  <a class="ccm-card" href="workflows/">
-    <div class="ccm-card-title">Workflows</div>
-    <div class="ccm-card-text">See climate, fire, vegetation, and remote sensing analyses built on the same grammar.</div>
+  <a class="ccm-card" href="extending/custom_verbs/">
+    <div class="ccm-card-title">Create Project Verbs</div>
+    <div class="ccm-card-text">Turn a project's scientific vocabulary into small, tested verb factories.</div>
   </a>
   <a class="ccm-card" href="synchrony/">
     <div class="ccm-card-title">Synchrony</div>
@@ -153,5 +152,5 @@ Within the first few minutes, you should be able to tell:
 1. CubeDynamics is not another cube storage system.
 2. It is not another visualization package.
 3. It is a grammar of streaming environmental computation.
-4. It works for both scientists and AI agents.
-5. It can operate on environmental data without requiring you to manage massive local datasets.
+4. Integrations connect data sources and renderers without becoming the core.
+5. Domain add-ons are projects that contribute custom verbs to the same grammar.

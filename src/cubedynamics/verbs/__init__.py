@@ -18,6 +18,12 @@ Canonical API:
 - Statistical verbs: :func:`mean`, :func:`variance`, :func:`anomaly`, :func:`zscore`
 - Plotting verbs: :func:`plot`, :func:`plot_mean`, :func:`diagnostic_panel`, :func:`show_cube_lexcube`
 - Fire/vase verbs: :func:`extract`, :func:`vase`, :func:`fire_plot`, :func:`fire_panel`, :func:`fire_vase_panel`
+
+The namespace contains more than the core grammar. Common statistical verbs are
+cross-project vocabulary; plotting and data-source helpers are integrations;
+synchrony, biology, tubes, and Fire VASE verbs are specialized project
+vocabularies retained here for ``0.x`` compatibility. External projects can
+create verbs as ordinary callable factories without modifying this module.
 """
 
 from __future__ import annotations

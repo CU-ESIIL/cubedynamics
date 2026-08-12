@@ -1,4 +1,4 @@
-"""Cubedynamics public surface and convenience helpers.
+"""CubeDynamics public surface and convenience helpers.
 
 This module is part of the CubeDynamics "grammar-of-cubes":
 - Data loaders produce xarray objects (often dask-backed) with dims ``(time, y, x)``.
@@ -11,6 +11,14 @@ Canonical API:
 - Data loaders: :mod:`cubedynamics.data.gridmet`, :mod:`cubedynamics.data.prism`,
   :mod:`cubedynamics.data.sentinel2`
 - Semantic variable shortcuts: :mod:`cubedynamics.variables`
+
+Ownership layers:
+- The core product is the composition grammar: ``pipe(value) | verb()``.
+- Common verbs provide a maintained cross-project vocabulary.
+- Loaders and renderers are integrations with the grammar.
+- Synchrony, biology, tubes, and Fire VASE are domain/project vocabularies that
+  currently ship in the same distribution for ``0.x`` compatibility. Their
+  scientific assumptions are not part of the minimal grammar contract.
 
 Documentation inventory:
 - Stable, user-facing surface: :mod:`cubedynamics` (this module),

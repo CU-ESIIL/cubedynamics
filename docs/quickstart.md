@@ -1,10 +1,13 @@
 # Getting Started
 
-This guide gets you to a first working streaming workflow as quickly as possible, while showing how the same code scales up when datasets are large.
+This guide gets you to a first working grammar pipeline without a download,
+credential, or optional renderer. After that, the same composition model can be
+connected to streaming integrations.
 
 CubeDynamics is not a storage platform or visualization package. It sits above data sources and gives you a consistent way to compute on environmental streams.
 
-Scientists and AI agents use the same streaming interface, so the workflow you learn here is the same one that scales into notebooks, cloud jobs, and agent-orchestrated runs.
+The stable lesson is `pipe(cube) | verb() | verb()`: the cube's source is a
+separate concern.
 
 ## Installation
 
@@ -22,19 +25,21 @@ pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 
 CubeDynamics runs anywhere `xarray` runs: laptops, HPC clusters, or hosted notebooks.
 
-## Your First Stream
+## Your first cube
 
-Most users start by loading a cube-like stream from an existing dataset. For example, this creates a precipitation cube from PRISM:
+Start with a deterministic xarray object so the example is reproducible
+everywhere:
 
 ```python
-import cubedynamics as cd
+import numpy as np
+import pandas as pd
+import xarray as xr
 
-cube = cd.load_prism_cube(
-    lat=40.0,
-    lon=-105.25,
-    start="2000-01-01",
-    end="2020-12-31",
-    variable="ppt",
+cube = xr.DataArray(
+    np.arange(72, dtype=float).reshape(12, 2, 3),
+    dims=("time", "y", "x"),
+    coords={"time": pd.date_range("2025-01-01", periods=12, freq="MS")},
+    name="environmental_signal",
 )
 ```
 
@@ -53,19 +58,43 @@ Pipelines are built with the pipe (`|`) operator and a grammar of verbs:
 ```python
 from cubedynamics import pipe, verbs as v
 
-result = pipe(cube) | v.mean(dim="time") | v.plot()
+result = (
+    pipe(cube)
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
+).unwrap()
 ```
 
-This example computes the mean through time for every location in the stream-backed cube and plots the result. You can swap in different verbs (e.g., `v.anomaly()`, `v.variance()`, `v.month_filter([6, 7, 8])`) without changing the pipeline structure.
+This example computes an anomaly at every voxel and then a spatial mean for
+each time step. You can swap in `v.variance`, `v.zscore`, or
+`v.month_filter([6, 7, 8])` without changing the pipeline structure.
 
 The important idea is that the cube is not the product by itself. The product is the combination of:
 
 - a streaming interface to environmental data
 - a stable computation grammar built from `pipe(...)` and verbs
 
-## Loading Real Datasets
+## Connect a real-data integration
 
-The same pattern works for other datasets shipped with CubeDynamics. The `load_prism_cube` call above can be expanded to longer time ranges or larger spatial domains, and other loaders follow the same conventions for inputs like latitude, longitude, date ranges, and variable names.
+Once the grammar is clear, an adapter can supply the cube. This PRISM example
+requires network access and is therefore not part of the offline vignette test:
+
+```python
+import cubedynamics as cd
+
+cube = cd.load_prism_cube(
+    lat=40.0,
+    lon=-105.25,
+    start="2020-01-01",
+    end="2020-12-31",
+    variable="ppt",
+)
+
+result = (pipe(cube) | v.anomaly() | v.variance()).unwrap()
+```
+
+Other maintained adapters follow the same separation: obtain a cube, then
+compose verbs.
 
 ## Scaling Up Without Changing Code
 
@@ -113,6 +142,9 @@ When a request is too large for a normal in-memory cube, CubeDynamics:
 
 ## Where to go next
 
+- [Run the publication vignettes](vignettes/index.md)
+- [Understand core versus project verbs](concepts/core_and_projects.md)
+- [Write a custom verb project](extending/custom_verbs.md)
 - [Why CubeDynamics?](why_cubedynamics.md)
 - [Streaming Environmental Data](streaming/index.md)
 - [Grammar of Streaming](grammar/index.md)

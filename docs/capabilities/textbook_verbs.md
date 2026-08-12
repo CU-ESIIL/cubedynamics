@@ -1,193 +1,76 @@
-# Capabilities & Verbs
-*A textbook-style reference for CubeDynamics*
+# Verb vocabulary by ownership
 
-CubeDynamics expresses spatiotemporal analysis as a **grammar**:
+CubeDynamics expresses analysis as `value -> verb -> value`. This page is a
+conceptual catalog of the verbs that currently ship with the distribution; the
+[API reference](../api/verbs.md) is the source for exact signatures.
 
-> **Data → Transformations → Statistics → Events → Visualization**
+## Core cross-project vocabulary
 
-This page walks through that grammar step by step. Each verb is presented with:
-1. **The scientific operation (math)**
-2. **A copy-paste Python example**
+These verbs demonstrate the stable composition model and are useful across
+domains:
 
----
-
-## Shared setup (used in all examples)
+| Verb | Contract |
+| --- | --- |
+| `v.apply(function, **kwargs)` | Apply an ordinary function as a one-off pipe stage |
+| `v.mean(dim=...)` | Reduce a dimension, optionally retaining it at length one |
+| `v.variance(dim=...)` | Compute variance with the same dimension convention |
+| `v.anomaly(dim="time")` | Subtract the mean while preserving cube shape |
+| `v.zscore(dim="time")` | Center and scale along a dimension |
+| `v.month_filter(months)` | Select calendar months |
+| `v.flatten_space()` | Stack spatial dimensions for table/model workflows |
+| `v.flatten_cube()` | Stack non-time dimensions |
 
 ```python
 from cubedynamics import pipe, verbs as v
-import cubedynamics as cd
 
-# Example spatiotemporal cube
-cube = cd.ndvi(
-    lat=40.0,
-    lon=-105.25,
-    start="2022-01-01",
-    end="2023-01-01",
-)
+regional_anomaly = (
+    pipe(cube)
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
+).unwrap()
 ```
 
----
+## Integration verbs
 
-## 1. Aggregation verbs (collapse time)
-These verbs reduce a spatiotemporal cube \(X(x,y,t)\) into a spatial field by aggregating over time.
+Integration verbs connect the grammar to a source, file format, or renderer.
+They can have optional dependencies, network behavior, or explicit side
+effects:
 
-### `v.mean`
-\[
-\bar{X}(x,y)=\frac{1}{T}\sum_{t=1}^T X(x,y,t)
-\]
-```python
-pipe(cube) | v.mean() | v.plot(title="Mean NDVI")
-```
+- `v.ndvi_from_s2`, `v.landsat8_mpc`, and related remote-sensing adapters;
+- `v.correlation_cube` and block-signature adapters;
+- `v.to_netcdf` for explicit materialization;
+- `v.plot`, `v.plot_mean`, `v.diagnostic_panel`, and
+  `v.show_cube_lexcube` for rendering.
 
-### `v.sum`
-\[
-S(x,y)=\sum_{t=1}^T X(x,y,t)
-\]
-```python
-pipe(cube) | v.sum() | v.plot(title="Cumulative NDVI")
-```
+These are maintained conveniences, not requirements for creating or composing
+a verb.
 
-### `v.min` / `v.max`
-\[
-\min_t X(x,y,t), \quad \max_t X(x,y,t)
-\]
-```python
-pipe(cube) | v.max() | v.plot(title="Maximum NDVI")
-```
+## Project vocabularies
 
----
+The distribution currently includes specialized vocabularies developed by
+projects:
 
-## 2. Distributional & tail behavior
+- state and event construction;
+- occurrence, severity, timing, duration, and lagged synchrony;
+- biological observation rasterization and alignment;
+- fire-event extraction, Fire VASE geometry, climate attribution, and panels;
+- suitability tubes.
 
-### `v.quantile`
-\[
-Q_q(x,y)=\inf \{ z : P(X(x,y,t) \le z) \ge q \}
-\]
-```python
-pipe(cube) | v.quantile(0.9) | v.plot(title="90th percentile NDVI")
-```
+They remain available for `0.x` compatibility. Their domain assumptions belong
+to their project documentation and should not be inferred as part of the
+minimal grammar.
 
-### `v.lower_tail`
-\[
-X_L(x,y,t)=X(x,y,t)\mid X \le Q_q(x,y)
-\]
-```python
-pipe(cube) | v.lower_tail(q=0.1) | v.plot(title="Lower-tail NDVI")
-```
+## Verbs that do not exist
 
-### `v.upper_tail`
-\[
-X_U(x,y,t)=X(x,y,t)\mid X \ge Q_q(x,y)
-\]
-```python
-pipe(cube) | v.upper_tail(q=0.9) | v.plot(title="Upper-tail NDVI")
-```
+Older design pages used prospective names such as `v.sum`, `v.min`, `v.max`,
+`v.quantile`, `v.rolling`, `v.climatology`, `v.synchrony`, and `v.detrend` as if
+they were implemented. They are not exported in version `0.1.0` and should not
+appear in runnable examples. Use xarray through `v.apply` for a one-off, create a
+project verb, or propose a focused built-in with tests and a clear cube
+contract.
 
----
+## Add your own vocabulary
 
-## 3. Variability & synchrony
-
-### `v.variance`
-\[
-\operatorname{Var}(x,y)=\frac{1}{T-1}\sum_{t=1}^T\big(X(x,y,t)-\bar{X}(x,y)\big)^2
-\]
-```python
-pipe(cube) | v.variance() | v.plot(title="NDVI Variability")
-```
-
-### `v.std`
-\[
-\sigma(x,y)=\sqrt{\operatorname{Var}(x,y)}
-\]
-```python
-pipe(cube) | v.std() | v.plot(title="NDVI Std Dev")
-```
-
-### `v.synchrony`
-\[
-\phi = \frac{\operatorname{Var}\left(\sum_i X_i(t)\right)}{\sum_i \operatorname{Var}\big(X_i(t)\big)}
-\]
-```python
-pipe(cube) | v.synchrony() | v.plot(title="Spatial Synchrony")
-```
-
----
-
-## 4. Temporal structure
-
-### `v.climatology`
-\[
-\bar{X}(x,y,d)=\mathbb{E}[X(x,y,t)\mid d]
-\]
-```python
-pipe(cube) | v.climatology()
-```
-
-### `v.anomaly`
-\[
-A(x,y,t)=X(x,y,t)-\bar{X}(x,y,t)
-\]
-```python
-pipe(cube) | v.anomaly() | v.plot(title="NDVI Anomalies")
-```
-
-### `v.rolling`
-\[
-\bar{X}_w(x,y,t)=\frac{1}{w}\sum_{k=0}^{w-1} X(x,y,t-k)
-\]
-```python
-pipe(cube) | v.rolling(window=30) | v.mean()
-```
-
-### `v.detrend`
-\[
-X'(x,y,t)=X(x,y,t)-(\alpha t+\beta)
-\]
-```python
-pipe(cube) | v.detrend() | v.plot(title="Detrended NDVI")
-```
-
----
-
-## 5. Event & hull-based operations
-
-### `v.vase`
-\[
-X^{\mathcal{V}} = X(x,y,t) \cdot \mathbf{1}_{(x,y,t)\in \mathcal{V}}
-\]
-```python
-from cubedynamics.fire_time_hull import load_fired_conus_ak
-
-fired = load_fired_conus_ak(which="daily")
-event_geom = fired.geometry.iloc[0]
-
-pipe(cube) | v.vase(vase=event_geom) | v.plot()
-```
-
----
-
-## 6. Visualization verbs
-
-### `v.plot`
-```python
-pipe(cube) | v.mean() | v.plot()
-```
-
-### `v.lexcube`
-```python
-pipe(cube) | v.lexcube()
-```
-
-### Event visualization
-```python
-pipe(cube) | v.vase(vase=event_geom) | v.lexcube()
-```
-
-### Putting it all together
-```python
-pipe(cube) \
-    | v.anomaly() \
-    | v.variance() \
-    | v.vase(vase=event_geom) \
-    | v.lexcube()
-```
+Custom project verbs use exactly the same pipe contract. Continue with
+[Write a custom verb project](../extending/custom_verbs.md) or run the
+[custom-verb vignette](../vignettes/custom_verb_project.ipynb).

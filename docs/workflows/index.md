@@ -1,8 +1,10 @@
 # Workflows
 
-Workflows are where streaming and grammar meet scientific questions.
+Workflows are projects where the shared grammar meets scientific questions.
 
-CubeDynamics is not just about loading cubes or defining verbs. It is about applying a stable computation interface to environmental analysis.
+The workflows in this section are demonstrations and project extensions. The
+stable center of CubeDynamics is the `pipe | verb` contract; a workflow can add
+its own verbs without adding every domain assumption to the core package.
 
 ## Workflow Families
 
@@ -20,8 +22,10 @@ cube = load_data(...)
 
 result = (
     pipe(cube)
-    | v.anomaly()
-    | v.aggregate()
-    | v.detrend()
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
 )
 ```
+
+See [Core grammar, integrations, and project verbs](../concepts/core_and_projects.md)
+before treating any case study as a stability guarantee.

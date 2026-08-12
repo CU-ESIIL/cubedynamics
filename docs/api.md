@@ -2,7 +2,7 @@
 
 This project originally exposed a small demo API for ruled time hull
 visualizations. Those helpers now live alongside the broader
-`cubedynamics` package inside `code/`. For the comprehensive module-level
+`cubedynamics` runtime package inside `src/`. For the comprehensive module-level
 reference, see the [`cubedynamics` API page](api/cubedynamics.md).
 
 The older demo utilities remain available for anyone still exploring the ruled

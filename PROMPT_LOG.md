@@ -1874,3 +1874,40 @@ secrets, credentials, private tokens, or unrelated transcript text.
   and checked local markdown links in the updated Fire VASE docs. Full
   `mkdocs build --strict` was not run because MkDocs is not installed in the
   current `.venv`.
+
+## 2026-08-12 - Publication audit, grammar-first organization, and vignettes
+
+- User goal: audit and clean up the repository for publication, make the core
+  grammar visibly distinct from add-on projects that create custom verbs, and
+  add reproducible website vignettes with runnable Jupyter notebooks.
+- Audited the tracked tree, runtime/public API, MkDocs navigation, documentation
+  duplication, notebook metadata/execution state, package dependencies, CI, and
+  generated artifacts. Recorded findings and a compatibility-preserving phased
+  extraction/archive plan in `docs/project/publication_plan.md`.
+- Key measured finding: 203 tracked files and 104.71 MiB were under `output/`,
+  `outputs/`, and `figures/`, compared with 0.66 MiB of runtime source. These
+  Fire VASE research products were not deleted because they should first be
+  archived with checksums and a DOI.
+- Reorganized MkDocs around Core Grammar, Vignettes, Extend the Grammar,
+  Integrations, Projects Built With It, and publication/reference sections.
+  Corrected mkdocstrings discovery from the legacy `code/` mirror to runtime
+  `src/`.
+- Added core-versus-project ownership guidance, a custom-verb authoring guide,
+  a project overview, a tested `examples/custom_verb_project/` scaffold, and
+  clarified the same boundary in package docstrings, the README, public API,
+  scope, and contributing docs.
+- Replaced canonical examples of nonexistent prospective verbs such as
+  `v.aggregate()` and `v.detrend()` with current exported APIs, and rewrote the
+  old textbook verb page to distinguish current vocabulary from proposals.
+- Added three deterministic offline notebooks under `docs/vignettes/` covering
+  grammar basics, a project-owned custom verb, and Dask-backed lazy composition.
+  Added a deterministic notebook builder, a temporary-copy execution runner,
+  `vignettes` dependencies, Makefile support, and CI execution. Labeled the
+  top-level `notebooks/` collection as exploratory.
+- Removed seven orphaned generated/cache files from the repository root and
+  `.cache`, and added ignore rules for viewer scratch HTML/PNG and MkDocs cache.
+- Validation: focused tests passed (`7 passed`); the full offline suite passed
+  with a noninteractive Matplotlib backend (`299 passed, 5 skipped, 8
+  deselected`); all three supported notebooks executed offline; `mkdocs build
+  --strict` succeeded and rendered each notebook as HTML plus a downloadable
+  `.ipynb`; `uv.lock` was refreshed for the new extras.

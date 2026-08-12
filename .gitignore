@@ -6,6 +6,7 @@ __pycache__/
 *.so
 .ipynb_checkpoints/
 .pytest_cache/
+.cache/
 .mypy_cache/
 .coverage
 htmlcov/
@@ -30,6 +31,12 @@ ENV/
 # MkDocs artifacts
 site/
 dist/
+
+# Scratch HTML emitted by interactive viewer defaults
+/cube_da*.html
+/fire_plot_projection_*.html
+/fire_plot_projection_*.png
+/fire-vase-*.png
 
 # Generated analysis outputs and real-data caches
 artifacts/

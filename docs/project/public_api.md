@@ -13,7 +13,22 @@ from cubedynamics import pipe, verbs as v
 
 `cubedynamics` is the only supported top-level namespace. Symbols imported through `cd.*` follow the stability guidance below.
 
-## Dataset loaders
+## Core grammar
+
+The supported center of the package is:
+
+- `pipe(value)` and `Pipe`, which compose callables with `|` and expose
+  `unwrap()` at the workflow boundary;
+- `verbs`, conventionally imported as `v`;
+- the verb-factory protocol: a configured outer function returns a callable
+  that accepts the current value and returns the next one;
+- common cross-project verbs: `v.apply`, `v.mean`, `v.variance`, `v.anomaly`,
+  `v.zscore`, `v.month_filter`, `v.flatten_space`, and `v.flatten_cube`.
+
+Plain callables are valid pipe stages. Projects do not need to register or
+subclass anything to extend the grammar.
+
+## Maintained integrations: dataset loaders
 
 These helpers create xarray-backed cubes or streaming-friendly structures. Network access may be required depending on the data source.
 
@@ -31,13 +46,22 @@ These helpers create xarray-backed cubes or streaming-friendly structures. Netwo
   - `load_s2_ndvi_cube`
   - `load_sentinel2_ndvi_zscore_cube`
 
-## Pipe and verbs
+## Maintained vocabulary and project extensions
 
-- `pipe` wraps any xarray `DataArray` or `Dataset` so verbs can be chained via the `|` operator.
-- `verbs` is the canonical namespace for operations. Import as `from cubedynamics import verbs as v`.
-- Core verbs include statistical reducers (`v.mean`, `v.variance`, `v.anomaly`, `v.zscore`), median-split synchrony (`v.rolling_median_split_synchrony`), block helpers (`v.block_signature`, `v.collect_blocks`, `v.compare_blocks`), time filters (`v.month_filter`), correlation helpers (`v.correlation_cube`), NDVI utilities (`v.ndvi_from_s2`), flattening (`v.flatten_cube`, `v.flatten_space`), and visualization verbs (`v.plot`, `v.plot_mean`, `v.show_cube_lexcube`). Early AOI names (`v.aoi_signature`, `v.compare_aoi_signature`) remain available for compatibility.
+- Maintained adapters and vocabulary include block helpers
+  (`v.block_signature`, `v.collect_blocks`, `v.compare_blocks`), correlation and
+  NDVI helpers, I/O, and visualization verbs. Their external dependencies and
+  side effects are documented per verb.
+- Early AOI names (`v.aoi_signature`, `v.compare_aoi_signature`) remain
+  available for compatibility.
 - Synchrony grammar verbs include state constructors (`v.threshold_state`, `v.quantile_state`, `v.binary_state`, `v.change_state`), event detection (`v.detect_events`), primitive synchrony operators (`v.occurrence_synchrony`, `v.severity_synchrony`, `v.timing_synchrony`, `v.duration_synchrony`), biological cube helpers (`v.rasterize_observations`, `v.align_cube`), and same-pixel lagged coupling (`v.sync_with`). These are public but intentionally narrow in their first implementation: cross-location coupling, richer null diagnostics, and complex event sequence grammars are future extensions.
 - Fire/VASE verbs include `v.fire_plot` for a single event, `v.fire_panel` for compact hull/histogram panels, and `v.fire_vase_panel` for multi-event prescribed-burn VASE panels. Vase-aware helpers (`v.vase`, `v.vase_extract`, `v.vase_mask`) preserve hull metadata on cubes.
+
+Synchrony, biological coupling, tubes, and Fire VASE are domain extensions that
+currently ship in the same distribution and retain their documented `0.x`
+imports. Their presence does not expand the core grammar contract. Future
+extraction into separately versioned projects requires normal deprecation
+notice.
 
 ## Visualization entry points
 
@@ -52,6 +76,8 @@ Treat the following as implementation details that may change without notice:
 
 - Modules under `cubedynamics.ops`, `cubedynamics.streaming`, `cubedynamics.ops_fire`, `cubedynamics.ops_io`, and `cubedynamics.viewers`; use the documented `cd.stream_*` helpers when you need a supported streaming entry point.
 - Demo helpers such as `demo`/`demo_vase` and example notebooks.
+- Exploratory notebooks under top-level `notebooks/`; supported publication
+  notebooks are explicitly marked under `docs/vignettes/` and run in CI.
 - Private utilities (`cubedynamics.utils`, `cubedynamics.config`, `cubedynamics.progress`, etc.).
 
 Internal modules may be refactored or renamed as the streaming architecture stabilizes. Prefer accessing functionality through the documented loaders, `pipe`, and `verbs`.

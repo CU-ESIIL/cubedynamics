@@ -1,5 +1,8 @@
 name: Tests
 
+env:
+  MPLBACKEND: Agg
+
 on:
   push:
     branches: [ main, master ]
@@ -118,3 +121,7 @@ jobs:
       - name: Build docs
         run: |
           mkdocs build --strict
+
+      - name: Execute supported vignettes
+        run: |
+          python scripts/run_vignettes.py

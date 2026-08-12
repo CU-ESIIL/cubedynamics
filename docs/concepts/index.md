@@ -41,13 +41,19 @@ Instead of chaining methods, you compose verbs with `pipe(...)` to build declara
 ```python
 from cubedynamics import pipe, verbs as v
 
-pipe(cube) | v.mean() | v.rolling() | v.plot()
+result = (
+    pipe(cube)
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
+).unwrap()
 ```
 
 Pipelines remain inspectable objects, making it straightforward to debug, document, extend analyses, or hand the same workflow to an agent.
 
 ## Read next
 - [Getting Started](../quickstart.md)
+- [Core grammar versus project verbs](core_and_projects.md)
+- [Runnable vignettes](../vignettes/index.md)
 - [Verbs & Examples](../capabilities/textbook_verbs.md)
 - [Datasets Overview](../datasets/index.md)
 - [Recipes Overview](../recipes/index.md)

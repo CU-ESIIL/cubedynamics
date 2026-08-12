@@ -5,70 +5,79 @@ site_url: "https://cu-esiil.github.io/cubedynamics/"
 
 nav:
   - Home: index.md
-  - Getting Started: quickstart.md
-  - Why CubeDynamics?: why_cubedynamics.md
-  - Streaming Environmental Data:
-      - Overview: streaming/index.md
-      - What is Streaming?: streaming/what_is_streaming.md
-      - Virtual Cubes: concepts/virtual_cubes.md
-      - Local Sources: streaming/local_sources.md
-      - Cloud Sources: streaming/cloud_sources.md
-      - STAC Sources: streaming/stac_sources.md
-  - Grammar of Streaming:
+  - Get Started:
+      - First pipeline: quickstart.md
+      - Installation: getting_started/install.md
+      - Why CubeDynamics?: why_cubedynamics.md
+      - What is a cube?: concepts/cubes.md
+  - Core Grammar:
       - Overview: grammar/index.md
+      - Core vs. project verbs: concepts/core_and_projects.md
       - Pipe: api/pipe.md
       - Verbs: api/verbs.md
       - Lazy Evaluation: grammar/lazy_evaluation.md
       - Workflow Composition: grammar/workflow_composition.md
-      - What is a cube?: concepts/cubes.md
-      - Synchrony Grammar: concepts/synchrony_grammar.md
       - Glossary: concepts/glossary.md
       - Why not xarray?: why_not_xarray.md
-  - Workflows:
-      - Overview: workflows/index.md
-      - Climate Analysis: workflows/climate_analysis.md
-      - Fire Analysis: workflows/fire_analysis.md
-      - Fire VASE developmental morphology: workflows/fire_vase_developmental_morphology.md
-      - Vegetation Analysis: workflows/vegetation_analysis.md
-      - Remote Sensing Analysis: workflows/remote_sensing_analysis.md
-      - Fire VASE / FireHull: capabilities/fire-vase.md
-  - Synchrony:
-      - Overview: synchrony/index.md
-      - Theory Map: synchrony/theory.md
-      - State Cubes and Events: synchrony/state_events.md
-      - Four Primitives: synchrony/primitives.md
-      - Biology Coupling: synchrony/biology_coupling.md
-      - Center-Pixel Recipe: synchrony/center_recipe.md
-      - Roadmap and Validation: synchrony/roadmap.md
-      - Verb Reference: reference/verbs_synchrony.md
-  - Datasets:
-      - Overview: datasets/index.md
-      - Which dataset should I use?: datasets/which_dataset.md
-      - Compatibility matrix: datasets/compatibility.md
-      - gridMET: datasets/gridmet.md
-      - PRISM: datasets/prism.md
-      - Sentinel-2 NDVI: datasets/sentinel2_ndvi.md
-      - Landsat 8 (MPC): datasets/landsat8_mpc.md
-      - FIRED: datasets/fired.md
-  - Recipes / How-tos:
+  - Vignettes:
+      - Overview and reproducibility: vignettes/index.md
+      - The core grammar: vignettes/grammar_basics.ipynb
+      - A custom verb project: vignettes/custom_verb_project.ipynb
+      - Lazy composition: vignettes/lazy_composition.ipynb
+  - Extend the Grammar:
+      - Write a custom verb project: extending/custom_verbs.md
+      - Recipe authoring template: recipes/recipe_template.md
+      - Contributor guide: dev/contributing.md
+      - Spatial and CRS contract: design/spatial_dataset_contract.md
+  - Integrations:
+      - Streaming data:
+          - Overview: streaming/index.md
+          - What is streaming?: streaming/what_is_streaming.md
+          - Virtual cubes: concepts/virtual_cubes.md
+          - Local sources: streaming/local_sources.md
+          - Cloud sources: streaming/cloud_sources.md
+          - STAC sources: streaming/stac_sources.md
+      - Dataset adapters:
+          - Overview: datasets/index.md
+          - Which dataset?: datasets/which_dataset.md
+          - Compatibility matrix: datasets/compatibility.md
+          - gridMET: datasets/gridmet.md
+          - PRISM: datasets/prism.md
+          - Sentinel-2 NDVI: datasets/sentinel2_ndvi.md
+          - Landsat 8 (MPC): datasets/landsat8_mpc.md
+          - FIRED: datasets/fired.md
+      - Renderers:
+          - Overview: viz/index.md
+          - Cube viewer: viz/cube_viewer.md
+          - Maps: viz/maps.md
+          - Suitability tubes: viz/suitability_tubes.md
+  - Projects Built With It:
+      - Why projects?: projects/index.md
+      - Workflow gallery: workflows/index.md
+      - Climate analysis: workflows/climate_analysis.md
+      - Vegetation analysis: workflows/vegetation_analysis.md
+      - Remote sensing analysis: workflows/remote_sensing_analysis.md
+      - Synchrony:
+          - Overview: synchrony/index.md
+          - State cubes and events: synchrony/state_events.md
+          - Four primitives: synchrony/primitives.md
+          - Biological coupling: synchrony/biology_coupling.md
+          - Theory map: synchrony/theory.md
+          - Roadmap and validation: synchrony/roadmap.md
+      - Fire VASE:
+          - Capability guide: capabilities/fire-vase.md
+          - Fire analysis: workflows/fire_analysis.md
+          - Developmental morphology: workflows/fire_vase_developmental_morphology.md
+  - Recipe Gallery:
       - Overview: recipes/index.md
       - Cube math primitives: recipes/cube_math_primitives.md
-      - gridMET variance cube: recipes/gridmet_variance_cube.md
-      - PRISM variance cube: recipes/prism_variance_cube.md
-      - Fire event vase + climate merge (fire_plot): recipes/fire_event_vase_hull.md
-      - Synthetic fire/VASE recipe: recipes/fire_vase_synthetic.md
-      - Sentinel-2 NDVI z-score cube: recipes/s2_ndvi_zcube.md
-      - Sentinel-2 correlation center: recipes/s2_corr_center.md
-      - Climate synchrony (center): recipes/climate_tail_dep_center.md
-      - Ghosh-style tail association: recipes/ghosh_tail_association.md
+      - gridMET variance: recipes/gridmet_variance_cube.md
+      - PRISM variance: recipes/prism_variance_cube.md
+      - Sentinel-2 NDVI z-score: recipes/s2_ndvi_zcube.md
+      - Fire event and climate: recipes/fire_event_vase_hull.md
+      - Synthetic Fire VASE: recipes/fire_vase_synthetic.md
       - Spatial synchrony blocks: recipes/spatial_synchrony_units.md
-      - Sentinel-2 tail dependence (manual): recipes/s2_tail_dep_manual.md
-  - Visualization:
-      - Overview: viz/index.md
-      - Cube viewer (v.plot): viz/cube_viewer.md
-      - Maps (v.map): viz/maps.md
-      - Suitability tubes: viz/suitability_tubes.md
-  - API:
+  - Reference:
       - Overview: api/index.md
       - Pipe: api/pipe.md
       - Verbs: api/verbs.md
@@ -77,10 +86,12 @@ nav:
       - Inventory (User): function_inventory.md
       - Inventory (Full / Dev): api/inventory_full.md
       - Reference: api/reference.md
-  - Developer:
+      - Public API and stability: project/public_api.md
+  - Publication and Development:
+      - Publication audit and plan: project/publication_plan.md
+      - Project scope: project/scope.md
       - Contributing: dev/contributing.md
       - CI and Testing: dev/ci_testing.md
-      - Concepts Overview: concepts/index.md
       - Cube viewer invariants: dev/cube_viewer_invariants.md
       - Fire / VASE status audit: developer/fire_vase_status.md
       - Fire VASE lakehouse: dev/fire_vase_lakehouse.md
@@ -88,12 +99,8 @@ nav:
       - Figure backend (v.plot): dev/figure_backend.md
       - Viewer backend: dev/viewer_backend.md
       - Legacy reference: dev/legacy_reference.md
-      - Public API & scope: project/public_api.md
       - Synchrony Roadmap: project/synchrony_roadmap.md
-      - Project Scope: project/scope.md
       - Deprecation inventory: project/deprecation_inventory.md
-  - Design:
-      - Spatial & CRS Dataset Contract: design/spatial_dataset_contract.md
 
 repo_url: https://github.com/CU-ESIIL/cubedynamics
 edit_uri: edit/main/docs/
@@ -135,7 +142,7 @@ plugins:
       handlers:
         python:
           paths:
-            - code
+            - src
           options:
             docstring_style: numpy
             merge_init_into_class: true
