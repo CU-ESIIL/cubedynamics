@@ -8,51 +8,61 @@ hide:
 
 <section class="cd-editorial-hero">
   <div class="cd-hero-copy">
-    <p class="cd-kicker"><span></span> Open-source · grammar-first · streaming-aware</p>
-    <h1>Make cubes<br><em>speak.</em></h1>
-    <p class="cd-hero-deck">CubeDynamics turns spatiotemporal data into readable scientific stories—one composable verb at a time.</p>
+    <p class="cd-kicker"><span></span> Open-source methods for spatiotemporal research</p>
+    <h1>A composable grammar for spatiotemporal science.</h1>
+    <p class="cd-hero-deck">CubeDynamics provides a transparent, streaming-aware way to express environmental analyses as small, testable operations.</p>
     <div class="cd-hero-actions">
-      <a class="cd-action cd-action--acid" href="vignettes/">Run a vignette <span aria-hidden="true">↗</span></a>
-      <a class="cd-action cd-action--ghost" href="grammar/">Meet the grammar <span aria-hidden="true">→</span></a>
+      <a class="cd-action cd-action--acid" href="grammar/">Read the core methods <span aria-hidden="true">→</span></a>
+      <a class="cd-action cd-action--ghost" href="vignettes/">Run a vignette <span aria-hidden="true">↗</span></a>
     </div>
   </div>
-  <div class="cd-hero-art" aria-label="Cube plus verb becomes a transformed cube">
-    <div class="cd-orbit cd-orbit--one"></div>
-    <div class="cd-orbit cd-orbit--two"></div>
-    <div class="cd-cube-stack">
-      <div class="cd-cube-token cd-cube-token--input">
-        <span class="cd-token-label">cube</span>
-        <span class="cd-token-meta">time · y · x</span>
+  <div class="cd-hero-art">
+    <img class="cd-logo-signet" src="assets/img/cubedynamics_favicon.png" alt="" aria-hidden="true">
+    <div class="cd-cube-interactive" data-cd-cube>
+      <div class="cd-cube-scene" tabindex="0" aria-label="Interactive spatiotemporal data cube" aria-describedby="cd-cube-instructions">
+        <div class="cd-cube3d" data-cd-cube-object aria-hidden="true">
+          <div class="cd-cube-face cd-cube-face--front"><span>y × x</span></div>
+          <div class="cd-cube-face cd-cube-face--back"></div>
+          <div class="cd-cube-face cd-cube-face--right"><span>time × y</span></div>
+          <div class="cd-cube-face cd-cube-face--left"></div>
+          <div class="cd-cube-face cd-cube-face--top"><span>time × x</span></div>
+          <div class="cd-cube-face cd-cube-face--bottom"></div>
+          <div class="cd-cube-slice cd-cube-slice--time"></div>
+          <div class="cd-cube-slice cd-cube-slice--x"></div>
+          <div class="cd-cube-slice cd-cube-slice--y"></div>
+        </div>
       </div>
-      <div class="cd-verb-token">
-        <span>+</span>
-        <strong>verb()</strong>
+      <div class="cd-cube-toolbar">
+        <div class="cd-cube-legend" aria-hidden="true">
+          <span><i class="cd-swatch cd-swatch--space"></i>space</span>
+          <span><i class="cd-swatch cd-swatch--time"></i>time</span>
+        </div>
+        <button class="cd-cube-reset" type="button" data-cd-cube-reset>Reset view</button>
       </div>
-      <div class="cd-cube-token cd-cube-token--output">
-        <span class="cd-token-label">result</span>
-        <span class="cd-token-meta">lazy · named · ready</span>
-      </div>
+      <p class="cd-cube-instructions" id="cd-cube-instructions">Drag or use arrow keys to inspect the cube. Scroll the page to move through time.</p>
+      <span class="cd-visually-hidden" data-cd-cube-status aria-live="polite"></span>
     </div>
-    <p class="cd-art-caption">A small grammar.<br>A huge field of view.</p>
+    <p class="cd-art-caption">Interactive data object<br><code>time · y · x</code></p>
   </div>
 </section>
 
 <section class="cd-manifesto">
-  <p class="cd-section-label">The big idea</p>
-  <h2>The grammar is the core.<br><span>Projects bring the verbs.</span></h2>
+  <div class="cd-data-cube cd-data-cube--manifesto" aria-hidden="true"><span></span><span></span><span></span></div>
+  <p class="cd-section-label">Research design</p>
+  <h2>A stable grammar for transparent, extensible analysis.</h2>
   <div class="cd-manifesto-grid">
-    <p class="cd-manifesto-lead">Environmental science already has arrays, catalogs, renderers, and cloud archives. CubeDynamics gives them a shared language for computation.</p>
-    <p>Wrap a cube. Apply a verb. Keep space, time, metadata, and intent visible. Build project-specific vocabularies without turning every scientific assumption into framework code.</p>
+    <p class="cd-manifesto-lead">CubeDynamics separates a small computational framework from the domain-specific methods developed by research projects.</p>
+    <p>Researchers can compose operations while keeping space, time, metadata, and analytical intent visible. Project assumptions remain explicit in custom verbs instead of becoming hidden framework behavior.</p>
   </div>
 </section>
 
 <section class="cd-grammar-strip" aria-label="CubeDynamics grammar example">
+  <div class="cd-data-cube cd-data-cube--grammar" aria-hidden="true"><span></span><span></span><span></span></div>
   <div class="cd-grammar-heading">
-    <p class="cd-section-label">One line, many scales</p>
-    <h2>Readable enough<br>to reason about.</h2>
+    <p class="cd-section-label">Computational model</p>
+    <h2>Readable workflows. Explicit operations.</h2>
   </div>
   <div class="cd-code-stage">
-    <div class="cd-code-dots" aria-hidden="true"><span></span><span></span><span></span></div>
     <pre><code><span class="cd-code-muted">from</span> cubedynamics <span class="cd-code-muted">import</span> pipe, verbs <span class="cd-code-muted">as</span> v
 
 result = (
@@ -60,17 +70,18 @@ result = (
     <span class="cd-code-acid">| v.anomaly</span>(dim=<span class="cd-code-coral">"time"</span>)
     <span class="cd-code-acid">| v.mean</span>(dim=(<span class="cd-code-coral">"y"</span>, <span class="cd-code-coral">"x"</span>))
 ).unwrap()</code></pre>
-    <p>NumPy-sized today. Dask-backed tomorrow. The expression stays legible.</p>
+    <p>The same expression works with in-memory arrays and Dask-backed data while preserving a reviewable record of the analysis.</p>
   </div>
 </section>
 
 <section class="cd-stories">
+  <div class="cd-data-cube cd-data-cube--stories" aria-hidden="true"><span></span><span></span><span></span></div>
   <div class="cd-stories-head">
     <div>
-      <p class="cd-section-label">Start with a story</p>
-      <h2>See the grammar<br>doing science.</h2>
+      <p class="cd-section-label">Reproducible examples</p>
+      <h2>From method to implementation.</h2>
     </div>
-    <p>Runnable notebooks, project vocabularies, and research workflows—each built on the same small compositional idea.</p>
+    <p>Each vignette is an executable research example with deterministic inputs and a clear relationship to the public API.</p>
   </div>
 
   <div class="cd-story-grid">
@@ -82,9 +93,9 @@ result = (
       </div>
       <div class="cd-story-copy">
         <p class="cd-story-tag">01 · Runnable notebook</p>
-        <h3>The core grammar</h3>
-        <p>Build a deterministic cube, compose public verbs, and unwrap the result—offline, in minutes.</p>
-        <span class="cd-story-link">Open the vignette ↗</span>
+        <h3>Core grammar and data model</h3>
+        <p>Construct a deterministic cube, compose public verbs, and inspect the resulting dimensions and metadata.</p>
+        <span class="cd-story-link">Open the methods vignette →</span>
       </div>
     </a>
 
@@ -93,10 +104,10 @@ result = (
         <img src="assets/figures/synchrony_coupling_lag_curve.png" alt="A scientific plot of synchrony across time lags">
       </div>
       <div class="cd-story-copy">
-        <p class="cd-story-tag">02 · Streaming mindset</p>
-        <h3>Lazy by design</h3>
-        <p>Watch Dask-backed data stay lazy across an ordinary CubeDynamics pipeline.</p>
-        <span class="cd-story-link">Follow the computation ↗</span>
+        <p class="cd-story-tag">02 · Computational scaling</p>
+        <h3>Lazy composition</h3>
+        <p>Verify that Dask-backed data remain lazy across an ordinary CubeDynamics pipeline.</p>
+        <span class="cd-story-link">Examine the computation →</span>
       </div>
     </a>
 
@@ -105,10 +116,10 @@ result = (
         <img src="assets/figures/synchrony_event_diagnostics.png" alt="A scientific diagnostic panel showing event synchrony">
       </div>
       <div class="cd-story-copy">
-        <p class="cd-story-tag">03 · Extend the language</p>
-        <h3>Your science, your verbs</h3>
-        <p>Turn a project’s methods and assumptions into a small, tested vocabulary.</p>
-        <span class="cd-story-link">Build a project verb ↗</span>
+        <p class="cd-story-tag">03 · Research extensions</p>
+        <h3>Project-specific verbs</h3>
+        <p>Encode a project’s methods and assumptions as a small, documented, and tested vocabulary.</p>
+        <span class="cd-story-link">Author a custom verb →</span>
       </div>
     </a>
   </div>
@@ -116,8 +127,8 @@ result = (
 
 <section class="cd-layers">
   <div class="cd-layers-intro">
-    <p class="cd-section-label">Know what you are using</p>
-    <h2>One ecosystem.<br>Four clear layers.</h2>
+    <p class="cd-section-label">Software architecture</p>
+    <h2>A clear boundary between framework and research.</h2>
   </div>
   <ol class="cd-layer-list">
     <li><span>01</span><div><strong>Core grammar</strong><p><code>pipe</code>, <code>Pipe</code>, verb factories, and cube contracts.</p></div></li>
@@ -128,11 +139,12 @@ result = (
 </section>
 
 <section class="cd-final-cta">
-  <p class="cd-section-label">Ready to move?</p>
-  <h2>Bring a cube.<br><em>Leave with a workflow.</em></h2>
+  <div class="cd-data-cube cd-data-cube--final" aria-hidden="true"><span></span><span></span><span></span></div>
+  <p class="cd-section-label">Documentation and reproducibility</p>
+  <h2>Inspect the method. Run the analysis.</h2>
   <div class="cd-final-actions">
-    <a class="cd-action cd-action--dark" href="quickstart/">Get started <span aria-hidden="true">↗</span></a>
-    <a class="cd-text-link" href="concepts/core_and_projects/">Understand core vs. projects →</a>
+    <a class="cd-action cd-action--dark" href="quickstart/">Start with the quickstart <span aria-hidden="true">→</span></a>
+    <a class="cd-text-link" href="concepts/core_and_projects/">Review core and project boundaries →</a>
   </div>
 </section>
 

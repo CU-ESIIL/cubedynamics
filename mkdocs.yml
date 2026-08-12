@@ -140,6 +140,9 @@ extra_css:
   - assets/styles/landing_cards_v2.css
   - stylesheets/editorial.css
 
+extra_javascript:
+  - javascripts/interactive-cube.js
+
 plugins:
   - search
   - mkdocstrings:

@@ -1933,3 +1933,55 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Validation: checked the homepage structure and image/link attributes,
   confirmed the generated homepage loads the new stylesheet and content, ran
   `git diff --check`, and completed a clean `mkdocs build --strict`.
+
+## 2026-08-12 - Academic refinement of the website
+
+- User goal: retain the improved website structure while making the design
+  less playful and more appropriate for an academic research project.
+- Reframed the homepage around transparent methods, reproducibility,
+  computational scaling, research extensions, and the boundary between the
+  stable framework and project-specific science.
+- Replaced the high-saturation palette, oversized display typography,
+  rotations, hard offset shadows, decorative orbits, and animated card
+  treatments with a restrained navy, warm-paper, muted-teal, and rust system;
+  serif research-publication headings; fine rules; and quieter interactions.
+- Preserved the full-width landing-page structure, runnable vignettes,
+  scientific figures, responsive behavior, and direct routes into the core
+  grammar and custom-verb documentation.
+- Validation: checked HTML structure and accessibility attributes, checked CSS
+  delimiter balance, ran `git diff --check`, and completed a clean strict
+  documentation build.
+
+## 2026-08-12 - Logo-derived website details
+
+- User goal: add a small amount of visual playfulness based on the
+  CubeDynamics logo without losing the academic research direction.
+- Added a compact logo signet to the hero, subtle layered data-cube marks at
+  selected section edges, and a quiet raster/layer pattern behind the grammar
+  vignette graphic. All additions use the logo's green, teal, and yellow-green
+  cues within the site's muted palette.
+- Kept the motifs decorative, noninteractive, hidden from assistive
+  technologies, responsive at small widths, and secondary to the research
+  content.
+- Validation: checked HTML structure and decorative-image accessibility,
+  checked CSS delimiter balance, ran `git diff --check`, and completed a clean
+  strict documentation build.
+
+## 2026-08-12 - Interactive hero data cube
+
+- User goal: replace the static hero image with a memorable cube that visitors
+  can manipulate and that responds to page scrolling.
+- Replaced the hero's flat cube/verb diagram with a dependency-free CSS 3D
+  spatiotemporal cube whose raster grids, translucent internal slices, and
+  green/yellow layering derive from the CubeDynamics logo.
+- Added pointer and touch dragging, scroll-linked rotation, arrow-key and Home
+  controls, a reset button, focus styling, interaction instructions, and an
+  assistive-technology status announcement. Scroll-linked movement is disabled
+  when the visitor requests reduced motion; direct manipulation remains
+  available.
+- Added `docs/javascripts/interactive-cube.js` through the MkDocs JavaScript
+  configuration and kept initialization compatible with ordinary loads and
+  Material-style document navigation.
+- Validation: checked JavaScript syntax, homepage structure and control
+  attributes, CSS delimiter balance, generated asset references, ran
+  `git diff --check`, and completed a clean strict documentation build.
