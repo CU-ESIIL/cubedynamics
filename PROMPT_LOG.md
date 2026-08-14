@@ -2042,3 +2042,8 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Validation: measured base foreground/background contrast at 13.12:1 in light
   mode and 16.13:1 in dark mode, ran `git diff --check`, and completed a clean
   strict MkDocs build including all three vignettes.
+- Follow-up: the global light-mode code foreground also reached the homepage's
+  intentionally dark “Readable workflows” panel, making the unhighlighted
+  `pipe(cube)` expression dark on dark. Scoped an explicit near-white code
+  foreground to that component so its plain text and syntax spans remain
+  readable independently of the site-wide code palette.
