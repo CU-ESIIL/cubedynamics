@@ -2029,3 +2029,16 @@ secrets, credentials, private tokens, or unrelated transcript text.
   settings, metadata is page-aware, and the verification, robots, and sitemap
   files are present. Analytics remains inactive until a new CubeDynamics GA4
   stream is created and its measurement ID is set in GitHub.
+
+## 2026-08-14 - Accessible code-block contrast
+
+- User goal: make code chunks easier to read after the website redesign left
+  gray code text on a nearly black background.
+- Corrected the inherited-color conflict in `docs/stylesheets/editorial.css`.
+  Light mode now uses an off-white code surface with dark navy text; dark mode
+  uses a deep teal surface with explicit near-white text and accessible syntax
+  colors. Generated Jupyter notebook inputs use the light, high-contrast code
+  surface in either site theme so their embedded syntax palette remains clear.
+- Validation: measured base foreground/background contrast at 13.12:1 in light
+  mode and 16.13:1 in dark mode, ran `git diff --check`, and completed a clean
+  strict MkDocs build including all three vignettes.

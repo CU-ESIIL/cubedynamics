@@ -9,6 +9,10 @@
   --cd-teal-pale: #dfe8e6;
   --cd-rust: #8b543c;
   --cd-line: #c9ceca;
+  --cd-code-bg: #edf1ef;
+  --cd-code-fg: #132a32;
+  --cd-code-border: #b8c5c2;
+  --cd-code-inline-bg: #e3e9e7;
   --cd-display: Georgia, "Times New Roman", serif;
   --cd-body: Inter, "Avenir Next", Avenir, "Helvetica Neue", Helvetica, Arial, sans-serif;
   --md-primary-fg-color: var(--cd-navy);
@@ -16,15 +20,33 @@
   --md-typeset-a-color: #2f6267;
   --md-default-bg-color: var(--cd-paper-bright);
   --md-default-fg-color: var(--cd-ink);
+  --md-code-bg-color: var(--cd-code-bg);
+  --md-code-fg-color: var(--cd-code-fg);
 }
 
 [data-md-color-scheme="slate"] {
   --cd-paper: #1d282d;
   --cd-paper-bright: #152027;
   --cd-line: #46565b;
+  --cd-code-bg: #0c1c23;
+  --cd-code-fg: #f4f7f4;
+  --cd-code-border: #516970;
+  --cd-code-inline-bg: #25383f;
   --md-default-bg-color: #152027;
   --md-default-fg-color: #edf0ed;
   --md-typeset-a-color: #9bc3c1;
+  --md-code-bg-color: var(--cd-code-bg);
+  --md-code-fg-color: var(--cd-code-fg);
+  --md-code-hl-comment-color: #b7c3c7;
+  --md-code-hl-constant-color: #c4b5fd;
+  --md-code-hl-function-color: #e1a6ed;
+  --md-code-hl-keyword-color: #9fc1ff;
+  --md-code-hl-number-color: #ff9b9b;
+  --md-code-hl-operator-color: #c5d0d3;
+  --md-code-hl-punctuation-color: #c5d0d3;
+  --md-code-hl-special-color: #ff9fbd;
+  --md-code-hl-string-color: #8fd4a9;
+  --md-code-hl-variable-color: #dce4e2;
 }
 
 html {
@@ -153,19 +175,29 @@ input {
 
 .md-typeset code {
   border-radius: 0.14rem;
-  background: rgba(23, 36, 44, 0.065);
-  color: inherit;
+  background: var(--cd-code-inline-bg);
+  color: var(--cd-code-fg);
 }
 
 .md-typeset pre {
-  border: 1px solid #33464e;
+  border: 1px solid var(--cd-code-border);
   border-radius: 0.18rem;
-  background: #17242c;
+  background: var(--cd-code-bg);
+  color: var(--cd-code-fg);
   box-shadow: none;
 }
 
 .md-typeset pre > code {
   background: transparent;
+  color: var(--cd-code-fg);
+}
+
+/* Keep generated notebook inputs on the same high-contrast reading surface. */
+[data-md-color-scheme] .jupyter-wrapper {
+  --jp-cell-editor-background: #f1f4f2;
+  --jp-cell-editor-active-background: #f1f4f2;
+  --jp-cell-editor-border-color: #b8c5c2;
+  --jp-mirror-editor-variable-color: #132a32;
 }
 
 .md-typeset table:not([class]) {
