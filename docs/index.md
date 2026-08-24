@@ -66,21 +66,21 @@ result = (
       <p class="cd-section-label">Reproducible examples</p>
       <h2>From method to implementation.</h2>
     </div>
-    <p>Each vignette is an executable research example with deterministic inputs and a clear relationship to the public API.</p>
+    <p>Eight independent notebooks move from arrays, tables, and Datasets through core verbs, events, custom vocabulary, and lazy computation. Every example ends in a plot.</p>
   </div>
 
   <div class="cd-story-grid">
-    <a class="cd-story cd-story--feature" href="vignettes/grammar_basics/">
+    <a class="cd-story cd-story--feature" href="vignettes/">
       <div class="cd-story-visual cd-story-visual--grammar">
         <span class="cd-visual-word">PIPE</span>
         <span class="cd-visual-symbol">|</span>
         <span class="cd-visual-word">VERB</span>
       </div>
       <div class="cd-story-copy">
-        <p class="cd-story-tag">01 · Runnable notebook</p>
-        <h3>Core grammar and data model</h3>
-        <p>Construct a deterministic cube, compose public verbs, and inspect the resulting dimensions and metadata.</p>
-        <span class="cd-story-link">Open the methods vignette →</span>
+        <p class="cd-story-tag">01–08 · Runnable notebook lab</p>
+        <h3>Visual resources for a hackathon</h3>
+        <p>Bring data into the cube model, compose verbs, inspect plots, and build a project-owned operation.</p>
+        <span class="cd-story-link">Open the complete learning path →</span>
       </div>
     </a>
 

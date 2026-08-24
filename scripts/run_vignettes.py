@@ -15,6 +15,7 @@ from nbclient.exceptions import CellExecutionError
 
 ROOT = Path(__file__).resolve().parents[1]
 VIGNETTE_DIR = ROOT / "docs" / "vignettes"
+PLOT_MIME_TYPES = {"image/png", "image/svg+xml"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -48,9 +49,25 @@ def execute(path: Path, *, timeout: int, runtime_dir: Path) -> None:
     except CellExecutionError as exc:
         raise RuntimeError(f"vignette failed: {path.relative_to(ROOT)}") from exc
 
+    if metadata.get("plot_required", False) and not _has_plot_output(notebook):
+        raise RuntimeError(
+            f"vignette did not emit a static plot: {path.relative_to(ROOT)}"
+        )
+
     executed = runtime_dir / path.name
     nbformat.write(notebook, executed)
     print(f"PASS {path.relative_to(ROOT)}")
+
+
+def _has_plot_output(notebook) -> bool:
+    """Return whether an executed notebook emitted a portable static figure."""
+
+    for cell in notebook.cells:
+        for output in cell.get("outputs", []):
+            data = output.get("data", {})
+            if PLOT_MIME_TYPES.intersection(data):
+                return True
+    return False
 
 
 def main() -> int:

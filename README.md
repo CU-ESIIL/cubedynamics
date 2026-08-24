@@ -104,7 +104,7 @@ clipped = (pipe(cube) | clip_values(0, 1)).unwrap()
 Key entry points:
 
 - [Core grammar versus project verbs](https://cu-esiil.github.io/cubedynamics/concepts/core_and_projects/)
-- [Runnable notebook vignettes](https://cu-esiil.github.io/cubedynamics/vignettes/)
+- [Visual hackathon notebook lab](https://cu-esiil.github.io/cubedynamics/vignettes/)
 - [Write a custom verb project](https://cu-esiil.github.io/cubedynamics/extending/custom_verbs/)
 - [Public API and stability](https://cu-esiil.github.io/cubedynamics/project/public_api/)
 - [Publication audit and plan](https://cu-esiil.github.io/cubedynamics/project/publication_plan/)
@@ -155,6 +155,12 @@ Run the publication notebooks without changing their saved outputs:
 ```bash
 python scripts/run_vignettes.py
 ```
+
+The hackathon lab contains eight independent, offline notebooks covering cubes
+from arrays, tidy tables, and multi-variable Datasets; direct and piped verb
+calls; statistical transforms; states, events, synchrony; custom project verbs;
+and Dask-backed lazy execution. Every notebook produces a plot, and the runner
+verifies that the plot was actually emitted.
 
 ## Data and generated outputs
 

@@ -20,10 +20,15 @@ nav:
       - Glossary: concepts/glossary.md
       - Why not xarray?: why_not_xarray.md
   - Vignettes:
-      - Overview and reproducibility: vignettes/index.md
-      - The core grammar: vignettes/grammar_basics.ipynb
-      - A custom verb project: vignettes/custom_verb_project.ipynb
-      - Lazy composition: vignettes/lazy_composition.ipynb
+      - Hackathon lab and reproducibility: vignettes/index.md
+      - "01 · Cube from arrays": vignettes/cube_from_arrays.ipynb
+      - "02 · Cube from a tidy table": vignettes/cube_from_tidy_table.ipynb
+      - "03 · Multi-variable Dataset": vignettes/cube_from_dataset.ipynb
+      - "04 · The core grammar": vignettes/grammar_basics.ipynb
+      - "05 · Visual verb gallery": vignettes/verbs_gallery.ipynb
+      - "06 · States, events, synchrony": vignettes/states_and_events.ipynb
+      - "07 · A custom verb project": vignettes/custom_verb_project.ipynb
+      - "08 · Lazy composition": vignettes/lazy_composition.ipynb
   - Extend the Grammar:
       - Write a custom verb project: extending/custom_verbs.md
       - Recipe authoring template: recipes/recipe_template.md
@@ -157,6 +162,7 @@ plugins:
             show_source: false
   - git-revision-date
   - mkdocs-jupyter:
+      execute: true
       include_source: true
       ignore_h1_titles: true
 

@@ -2047,3 +2047,31 @@ secrets, credentials, private tokens, or unrelated transcript text.
   `pipe(cube)` expression dark on dark. Scoped an explicit near-white code
   foreground to that component so its plain text and syntax spans remain
   readable independently of the site-wide code palette.
+
+## 2026-08-24 - Visual hackathon notebook lab
+
+- User goal: prepare strong educational resources for a hackathon, with
+  independent Jupyter notebooks demonstrating several ways to create or enter
+  cubes, a broad range of verbs, working sample code, and a plot showing every
+  workflow's result.
+- Expanded the supported vignette collection from three to eight offline,
+  deterministic notebooks. The learning path now covers cubes from NumPy
+  arrays, tidy pandas tables, and multi-variable xarray Datasets; direct and
+  piped verb calls; core statistical, generic, and shape-changing verbs;
+  threshold states, event detection, and occurrence synchrony; project-owned
+  custom verbs; and Dask-backed lazy computation.
+- Made the collection hackathon-ready with numbered website navigation,
+  45-minute, 90-minute, and open-build facilitation routes, local execution
+  instructions, downloadable notebook sources, and a homepage/README entry
+  point. Enabled notebook execution during documentation rendering so the
+  published pages include their generated figures.
+- Added notebook metadata and runner guardrails requiring each supported
+  vignette to remain offline and emit a portable PNG or SVG plot. Added focused
+  catalog tests covering the eight notebooks, metadata, plotting source, and
+  documentation links. The interactive cube example uses inline viewer HTML so
+  documentation builds do not leave randomly named helper files in the source
+  tree.
+- Validation: all eight notebooks executed successfully offline and passed the
+  plot-output requirement; 13 focused catalog, pipe, statistics, and shape tests
+  passed; `git diff --check` passed; and a clean strict MkDocs build executed and
+  rendered all eight notebooks with figures and downloadable `.ipynb` files.
