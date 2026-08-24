@@ -2075,3 +2075,17 @@ secrets, credentials, private tokens, or unrelated transcript text.
   plot-output requirement; 13 focused catalog, pipe, statistics, and shape tests
   passed; `git diff --check` passed; and a clean strict MkDocs build executed and
   rendered all eight notebooks with figures and downloadable `.ipynb` files.
+- Follow-up: added inline teaching comments throughout every notebook code cell.
+  The annotations explain coordinate and broadcasting choices, cube contracts,
+  direct versus piped calls, reducer and transform shapes, Dataset variable
+  selection, state/event/synchrony semantics, custom verb factories, plotting
+  comparisons, Dask chunks, and the explicit compute boundary. Each notebook
+  now contains 7–12 comment lines focused on intent and expected outputs.
+- Follow-up validation: all eight annotated notebooks again executed offline and
+  emitted their required plots, and the clean strict documentation build
+  rendered all annotated code and figures successfully.
+- Header follow-up: corrected malformed output on the cube-from-arrays page.
+  The interactive viewer had been inserted as a complete nested HTML document,
+  allowing its `<head>`, `<body>`, and styles to interfere with the MkDocs page.
+  The notebook now escapes that document into an isolated, titled, sandboxed
+  iframe `srcdoc`, retaining manipulation without a helper file or DOM leakage.

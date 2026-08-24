@@ -49,3 +49,16 @@ def test_vignette_index_links_every_supported_notebook() -> None:
     index = (VIGNETTE_DIR / "index.md").read_text(encoding="utf-8")
     for name in EXPECTED:
         assert f"({name})" in index
+
+
+def test_array_cube_viewer_is_isolated_from_the_document_page() -> None:
+    notebook = _read_notebook(VIGNETTE_DIR / "cube_from_arrays.ipynb")
+    code_source = "\n".join(
+        "".join(cell["source"])
+        for cell in notebook["cells"]
+        if cell["cell_type"] == "code"
+    )
+
+    assert "viewer_srcdoc = escape(viewer.to_html(), quote=True)" in code_source
+    assert 'sandbox="allow-scripts"' in code_source
+    assert "HTML(viewer.to_html())" not in code_source
