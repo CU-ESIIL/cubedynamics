@@ -2114,3 +2114,22 @@ secrets, credentials, private tokens, or unrelated transcript text.
   passed; `git diff --check` passed; and a clean strict MkDocs build executed
   and rendered all eight lessons, figures, downloads, navigation labels, and
   the new vignette stylesheet.
+
+## 2026-08-25 - CI plot-output backend fix
+
+- User-reported failure: the GitHub Actions vignette runner executed the first
+  notebook but found no portable static plot output.
+- Root cause: the workflow globally sets `MPLBACKEND=Agg` for headless tests.
+  Agg can draw figures but does not publish them into Jupyter output cells, so
+  the vignette runner's PNG/SVG contract correctly failed.
+- Updated `scripts/run_vignettes.py` to select Matplotlib's Jupyter inline
+  backend explicitly for its temporary kernel environment, overriding Agg only
+  for publication notebook execution. The documentation build step now uses
+  the same inline backend so its rendered pages retain notebook figures.
+- Added a catalog guardrail requiring the runner's backend override. Preserved
+  the workflow's Agg default for ordinary unit and integration tests.
+- Validation: reproduced the original failure locally with `MPLBACKEND=Agg`;
+  reran that exact environment after the fix and all eight vignettes passed
+  their plot-output checks; six catalog tests passed; `git diff --check`
+  passed; and the strict documentation build succeeded with the corrected
+  inline backend.

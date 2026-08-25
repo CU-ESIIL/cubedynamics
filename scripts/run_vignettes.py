@@ -16,6 +16,7 @@ from nbclient.exceptions import CellExecutionError
 ROOT = Path(__file__).resolve().parents[1]
 VIGNETTE_DIR = ROOT / "docs" / "vignettes"
 PLOT_MIME_TYPES = {"image/png", "image/svg+xml"}
+INLINE_MATPLOTLIB_BACKEND = "module://matplotlib_inline.backend_inline"
 
 
 def parse_args() -> argparse.Namespace:
@@ -70,6 +71,18 @@ def _has_plot_output(notebook) -> bool:
     return False
 
 
+def _configure_execution_environment(runtime_dir: Path) -> None:
+    """Configure kernels for portable, publication-ready notebook output."""
+
+    # CI uses Agg for ordinary tests, but Agg does not publish figures into a
+    # notebook's output cells. The vignette contract requires portable image
+    # output, so the execution runner must deliberately override that default.
+    os.environ["MPLBACKEND"] = INLINE_MATPLOTLIB_BACKEND
+    os.environ.setdefault("MPLCONFIGDIR", str(runtime_dir / "matplotlib"))
+    os.environ.setdefault("IPYTHONDIR", str(runtime_dir / "ipython"))
+    os.environ.setdefault("JUPYTER_RUNTIME_DIR", str(runtime_dir / "jupyter"))
+
+
 def main() -> int:
     args = parse_args()
     paths = args.notebooks or sorted(VIGNETTE_DIR.glob("*.ipynb"))
@@ -78,9 +91,7 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="cubedynamics-vignettes-") as temp:
         runtime_dir = Path(temp)
-        os.environ.setdefault("MPLCONFIGDIR", str(runtime_dir / "matplotlib"))
-        os.environ.setdefault("IPYTHONDIR", str(runtime_dir / "ipython"))
-        os.environ.setdefault("JUPYTER_RUNTIME_DIR", str(runtime_dir / "jupyter"))
+        _configure_execution_environment(runtime_dir)
         for raw_path in paths:
             path = raw_path if raw_path.is_absolute() else ROOT / raw_path
             execute(path.resolve(), timeout=args.timeout, runtime_dir=runtime_dir)

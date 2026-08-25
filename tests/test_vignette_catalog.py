@@ -92,3 +92,13 @@ def test_array_cube_viewer_is_isolated_from_the_document_page() -> None:
     assert "viewer_srcdoc = escape(viewer.to_html(), quote=True)" in code_source
     assert 'sandbox="allow-scripts"' in code_source
     assert "HTML(viewer.to_html())" not in code_source
+
+
+def test_vignette_runner_forces_inline_plot_output() -> None:
+    runner = (ROOT / "scripts" / "run_vignettes.py").read_text(encoding="utf-8")
+
+    assert 'os.environ["MPLBACKEND"] = INLINE_MATPLOTLIB_BACKEND' in runner
+    assert (
+        'INLINE_MATPLOTLIB_BACKEND = "module://matplotlib_inline.backend_inline"'
+        in runner
+    )

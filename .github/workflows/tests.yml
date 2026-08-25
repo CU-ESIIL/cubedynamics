@@ -119,6 +119,9 @@ jobs:
           pip install -e ".[docs]"
 
       - name: Build docs
+        env:
+          # The site build executes notebooks and must capture their figures.
+          MPLBACKEND: module://matplotlib_inline.backend_inline
         run: |
           mkdocs build --strict
 
