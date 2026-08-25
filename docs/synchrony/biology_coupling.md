@@ -64,11 +64,10 @@ climate_biology = (
 ```
 
 Positive lags mean the right-hand cube is interpreted as responding after the
-left-hand climate cube. In the synthetic example below, the response was
-constructed four days after the climate state, and the coupling curve peaks at
-`4D`.
-
-![Climate-biology coupling lag curve](../assets/figures/synchrony_coupling_lag_curve.png)
+left-hand climate cube. CubeDynamics does not currently publish a biological
+coupling figure because the repository does not yet carry a vetted, licensed
+biological observation fixture aligned to the climate grid. The API contract is
+documented here; a visual example should be added only with traceable real data.
 
 ## Current Scope
 

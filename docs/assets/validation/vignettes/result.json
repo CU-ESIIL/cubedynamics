@@ -1,0 +1,16 @@
+{
+  "module": "vignettes",
+  "status": "PASS",
+  "checks": {
+    "eight_supported_lessons": true,
+    "all_use_real_fixture": true,
+    "all_record_provenance": true,
+    "all_are_offline": true,
+    "all_emit_static_plot_code": true,
+    "no_random_data_generation": true,
+    "public_learning_paths_use_observations": true,
+    "historical_generated_assets_not_published": true,
+    "homepage_cube_uses_reviewed_prism": true,
+    "all_notebooks_execute": true
+  }
+}

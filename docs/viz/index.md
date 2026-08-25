@@ -11,7 +11,7 @@ Key links:
 - [Cube viewer (v.plot)](cube_viewer.md)
 - [Maps (v.map)](maps.md)
 - [Suitability tubes](suitability_tubes.md)
-- [Climate synchrony views](../recipes/climate_tail_dep_center.md)
+- [Validated real-data cube views](../validation/cube.md)
 
 ## Visualization tools
 - [Cube viewer (v.plot)](cube_viewer.md): interactive cube slicing and summaries.

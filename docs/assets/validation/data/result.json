@@ -1,0 +1,16 @@
+{
+  "module": "data",
+  "status": "PASS",
+  "checks": {
+    "fixture_sha256_matches": true,
+    "official_source_declared": true,
+    "observational_not_generated": true,
+    "dimensions_exact": true,
+    "daily_time_complete": true,
+    "coordinates_ordered": true,
+    "all_cells_finite": true,
+    "physical_order_tmin_lte_tmax": true,
+    "derived_range_exact": true,
+    "source_archive_evidence_complete": true
+  }
+}

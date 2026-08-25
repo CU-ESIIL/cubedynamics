@@ -1,0 +1,15 @@
+{
+  "module": "cube",
+  "status": "PASS",
+  "checks": {
+    "six_unique_shell_faces": true,
+    "complete_textures_not_css_cropped": true,
+    "front_is_newest": true,
+    "back_is_oldest_with_declared_x_reversal": true,
+    "left_time_oldest_to_newest": true,
+    "right_time_newest_to_oldest": true,
+    "top_time_oldest_to_newest": true,
+    "bottom_time_newest_to_oldest": true,
+    "every_rgba_pixel_exact": true
+  }
+}

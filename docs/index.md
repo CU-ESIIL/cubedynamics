@@ -20,11 +20,11 @@ hide:
   <div class="cd-hero-art">
     <div class="cd-html-cube-hero">
       <div class="cd-html-cube-frame">
-        <iframe src="assets/figures/synchrony_occurrence_cube.html" title="Interactive occurrence synchrony cube with longitude, latitude, and time axes" loading="eager" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
+        <iframe src="assets/figures/prism_boulder_tmax_cube.html" title="Interactive cube of observed PRISM daily maximum temperature" loading="eager" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
       </div>
       <div class="cd-html-cube-meta">
-        <p><strong>Live CubeDynamics viewer</strong><span>Occurrence synchrony · longitude × latitude × time</span></p>
-        <a href="assets/figures/synchrony_occurrence_cube.html">Open full viewer <span aria-hidden="true">↗</span></a>
+        <p><strong>Live CubeDynamics viewer</strong><span>Observed PRISM temperature · longitude × latitude × time</span></p>
+        <a href="assets/figures/prism_boulder_tmax_cube.html">Open full viewer <span aria-hidden="true">↗</span></a>
       </div>
       <p class="cd-html-cube-instructions">Drag the cube to rotate it. Scroll over the viewer to zoom.</p>
     </div>
@@ -86,7 +86,7 @@ result = (
 
     <a class="cd-story" href="vignettes/lazy_composition/">
       <div class="cd-story-image">
-        <img src="assets/figures/synchrony_coupling_lag_curve.png" alt="A scientific plot of synchrony across time lags">
+        <img src="assets/validation/grammar/diagnostic.png" alt="A validation plot comparing pipe results with direct calculations on observed PRISM data">
       </div>
       <div class="cd-story-copy">
         <p class="cd-story-tag">02 · Computational scaling</p>
@@ -98,7 +98,7 @@ result = (
 
     <a class="cd-story" href="extending/custom_verbs/">
       <div class="cd-story-image cd-story-image--coral">
-        <img src="assets/figures/synchrony_event_diagnostics.png" alt="A scientific diagnostic panel showing event synchrony">
+        <img src="assets/validation/data/diagnostic.png" alt="Validated maps and time series from observed PRISM temperature data">
       </div>
       <div class="cd-story-copy">
         <p class="cd-story-tag">03 · Research extensions</p>

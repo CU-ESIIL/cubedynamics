@@ -9,6 +9,16 @@ Supported notebooks live in `docs/vignettes/` and declare both
 python scripts/run_vignettes.py
 ```
 
+The publication gate wraps this execution with data, grammar, decoded-cube,
+and expected-failure checks:
+
+```bash
+python scripts/run_validation.py --run-vignettes
+```
+
+It writes module JSON/PNG evidence, a suite manifest, and a collated PDF under
+`artifacts/validation/`; CI uploads that directory even when a check fails.
+
 The runner executes in-memory copies from the repository root and writes any
 executed notebooks only to a temporary directory. This catches stale APIs,
 missing kernel metadata, ambient path dependencies, and accidental network

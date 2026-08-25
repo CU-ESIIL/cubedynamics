@@ -1,0 +1,471 @@
+{
+  "schema_version": 1,
+  "fixture": "prism_boulder_january_2024.nc",
+  "source": "PRISM Group, Oregon State University",
+  "source_url": "https://prism.oregonstate.edu",
+  "source_product": "AN91d daily 4 km time series",
+  "source_accessed": "2026-08-25",
+  "terms_url": "https://prism.oregonstate.edu/terms/",
+  "dataset_documentation": "https://www.prism.oregonstate.edu/documents/PRISM_datasets.pdf",
+  "is_synthetic": false,
+  "bbox": [
+    -105.75,
+    39.5,
+    -104.75,
+    40.5
+  ],
+  "time_coverage": [
+    "2024-01-01",
+    "2024-01-30"
+  ],
+  "dimensions": {
+    "time": 30,
+    "y": 24,
+    "x": 24
+  },
+  "variables": {
+    "tmin": {
+      "units": "degC",
+      "minimum": -31.73200035095215,
+      "maximum": 3.0920000076293945,
+      "finite_cells": 17280
+    },
+    "tmax": {
+      "units": "degC",
+      "minimum": -20.63800048828125,
+      "maximum": 17.586000442504883,
+      "finite_cells": 17280
+    },
+    "diurnal_range": {
+      "units": "degC",
+      "minimum": 1.1260004043579102,
+      "maximum": 29.726999282836914,
+      "finite_cells": 17280
+    }
+  },
+  "processing": "windowed extraction from checksum-verified official daily GeoTIFF archives",
+  "source_archives": [
+    {
+      "variable": "tmax",
+      "date": "2024-01-01",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240101.zip",
+      "bytes": 2622919,
+      "sha256": "37b33250dcd7190da039dfe0efbf98e430078d361008e3ae0c23a549547a9a6b"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-01",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240101.zip",
+      "bytes": 2704374,
+      "sha256": "0ea0ac30dfdf129649e430c39d005fab917998b4ebd14819dcd2fb7d35364a29"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-02",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240102.zip",
+      "bytes": 2670804,
+      "sha256": "c1a679432f4f4f8966afadb41d0bda838892f3d5a791ace87fefad949d51e493"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-02",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240102.zip",
+      "bytes": 2679273,
+      "sha256": "c99f3612c349dfa254c5710b6b5dee9db42d6963150d5700c27a14bfd422f5cc"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-03",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240103.zip",
+      "bytes": 2647322,
+      "sha256": "408d28d1bbf847ba0533d05381a4024b313c1c563c6172f5fad5b70fe50fcda2"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-03",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240103.zip",
+      "bytes": 2655628,
+      "sha256": "38e4f4cccf005926a451194b0de8a06397d497ac6fb829e12abddc3d94273e0d"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-04",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240104.zip",
+      "bytes": 2668290,
+      "sha256": "bba29ba5c3fcf0a8da2e643afadd81f22cfcf8d7f34932b3de27de33bac88b75"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-04",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240104.zip",
+      "bytes": 2670972,
+      "sha256": "f0f44d062d1b9acab9d4d67450c8a43247ec969d4161fa336fff14110e682105"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-05",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240105.zip",
+      "bytes": 2700898,
+      "sha256": "42d48953d713812427f0392b664b52fc818531f825fca75b85ea44c1e0ab0685"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-05",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240105.zip",
+      "bytes": 2659923,
+      "sha256": "505c16c825fd911732c4c82d22c1f9cd81c57495537904b6ddf13ea0e0aa3e92"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-06",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240106.zip",
+      "bytes": 2688485,
+      "sha256": "578e56aa9453c0ba87f93f4d3dfb68d9ace41e4cfe2c10a6878b529be543ac6e"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-06",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240106.zip",
+      "bytes": 2684611,
+      "sha256": "45a4660e0ab9a3fba4f8b19fdd95f602752d530018edade8a80edbb376866821"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-07",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240107.zip",
+      "bytes": 2697729,
+      "sha256": "763cd23f962ff2f912de146ed4333989574a56e438fbc46b1acc6bc6a9ec83e0"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-07",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240107.zip",
+      "bytes": 2712009,
+      "sha256": "d1ba8cb7bc98fee306796bc7fb5b3ba9a9761c0b204f539ddce1f876cfcb2893"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-08",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240108.zip",
+      "bytes": 2682824,
+      "sha256": "a32eeb2b7b70299e1b844cc31004cb14d630ae91f66112f1eb649f972dba8fc0"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-08",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240108.zip",
+      "bytes": 2697824,
+      "sha256": "d98fb9379efe8d6ad0151560c97e3dec43cafd189548d5eea53cbe9e61233117"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-09",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240109.zip",
+      "bytes": 2698372,
+      "sha256": "d75ffdcc6a27244135deb2edf06477f469536b51982c552b424f05879c087bc4"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-09",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240109.zip",
+      "bytes": 2709147,
+      "sha256": "87c60525ced55f921767e888095a075039dd1c75140ff97f99de663c231c7809"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-10",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240110.zip",
+      "bytes": 2709359,
+      "sha256": "cdc7942defb56e454b49fbbf94ba68f2d4e3661128c2bcf323d1287b5046b396"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-10",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240110.zip",
+      "bytes": 2734430,
+      "sha256": "1e84e54605cdebd2e3c02d18dc33770a0d3e280209217580e70875ac1373ad1a"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-11",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240111.zip",
+      "bytes": 2678474,
+      "sha256": "56e4d1e4cd4586497840ac478b61382a56aa415ade23aafccf5a5ef22bdad3d3"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-11",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240111.zip",
+      "bytes": 2711208,
+      "sha256": "5ff978bfd7e688408ed7969fad66ba2ad18399831c757127958b958478825bc0"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-12",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240112.zip",
+      "bytes": 2678446,
+      "sha256": "2e6fb81fa88dc9ef3fcb5fadd20268a5687f46bf67c8b142c7d6f65243f0be16"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-12",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240112.zip",
+      "bytes": 2703522,
+      "sha256": "4ec038ef587ede8ffdebec29c23468fb2955eaf3f0dd606ba4249ec0c46e4a95"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-13",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240113.zip",
+      "bytes": 2688369,
+      "sha256": "76b615a92ecedabceb988e51270dcf72be810aae082ac71d561c432d63bd928c"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-13",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240113.zip",
+      "bytes": 2689845,
+      "sha256": "b8e3d4e4b61782645c91c4a854322cf7105265b5723a1dc27a2d4795833e85df"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-14",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240114.zip",
+      "bytes": 2656618,
+      "sha256": "88a949247884b9f0eb12c8b8cdac98d46634395f6c37aee48c91c8e2303d2408"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-14",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240114.zip",
+      "bytes": 2683167,
+      "sha256": "de99050822dc240da66d579931416fa2e81302e9d57494df7e7fc606fa49f6ae"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-15",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240115.zip",
+      "bytes": 2669714,
+      "sha256": "884ea3ede2379e161afee9955f5edbd0b8faa287f0f96921b776252840491c60"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-15",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240115.zip",
+      "bytes": 2662923,
+      "sha256": "34937c6411e073bbe82d770020e588763df0b296446ff9cc11f55161e8fa6baa"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-16",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240116.zip",
+      "bytes": 2650956,
+      "sha256": "03c81e7475f08289074f240804884c92dedac435d2398154c227d6b61650c72f"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-16",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240116.zip",
+      "bytes": 2638040,
+      "sha256": "c5c9f8b9ad90fb01835c42a68f6e71c7260f9eb483470e83a2ba0ac6a77ce5b6"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-17",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240117.zip",
+      "bytes": 2676048,
+      "sha256": "fc826637e1f79f0eccaacdb6175cf5d7bb8c4118766eedc9da9e20082a696d45"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-17",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240117.zip",
+      "bytes": 2597509,
+      "sha256": "4c6b6a9acede910bbd182b2eb28258c8d5debf92a8a8168d4a6340ac72a7e256"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-18",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240118.zip",
+      "bytes": 2667616,
+      "sha256": "73f791b3e66d7818392c931529c7713a737dd5c1bbb83fea493f87cd6cc20395"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-18",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240118.zip",
+      "bytes": 2636402,
+      "sha256": "b96c07a88ba8add047e0f03315a25ef93f10cfb9bb135d4c842c11dbf7c57656"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-19",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240119.zip",
+      "bytes": 2646805,
+      "sha256": "2bcac7d4e479a6f4b03fc4b9b7b1bdaf20f71c4ad4b3757dfd314526db99e018"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-19",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240119.zip",
+      "bytes": 2672639,
+      "sha256": "6f0b366274a9c14b0833feaad9651a952a80a1184a8ae35f13b35d2ddb54a0ca"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-20",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240120.zip",
+      "bytes": 2662949,
+      "sha256": "9415024e46d9e98b3f1e66d88910bd4b91390cfc0a00633961c198dab1906665"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-20",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240120.zip",
+      "bytes": 2657175,
+      "sha256": "08214e001ac745de485aae547694c770ea99ffcde18d4aa74f25f90025495c1d"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-21",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240121.zip",
+      "bytes": 2657509,
+      "sha256": "0e6cdbaf256325c9f0ef3e8f4ed92382df6dd257b9e3478ed33dc352aefb0b96"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-21",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240121.zip",
+      "bytes": 2662828,
+      "sha256": "43842ad183b95800d9f03a513164affc57bd84c147864d69107dbe0756374339"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-22",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240122.zip",
+      "bytes": 2671513,
+      "sha256": "2c3a5066cb2b5f054224e69d719b73e9c983defde2d6a6fe76c568186e53b881"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-22",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240122.zip",
+      "bytes": 2691948,
+      "sha256": "c0f898675ed7670b0d63c37c104475dd736eedb3717d1bfe41c7fcdce125b6da"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-23",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240123.zip",
+      "bytes": 2647899,
+      "sha256": "a35f866c366988424f5f20cdb03318e336f3b333adaa7e0b2e5363c7a02ecc30"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-23",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240123.zip",
+      "bytes": 2715616,
+      "sha256": "7b671f9427823af47dc9cc16e2e2efc073f4ec57bbf13408ce854d104ba33a8f"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-24",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240124.zip",
+      "bytes": 2647895,
+      "sha256": "de0c873e783568241395273c7ed24213a7c363f79c79b1f48b29b34007c32a0a"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-24",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240124.zip",
+      "bytes": 2727800,
+      "sha256": "3f2f779703b6b024754ae6ba766ec832477f550c96a5c029853e3aeb8a9e6b16"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-25",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240125.zip",
+      "bytes": 2636067,
+      "sha256": "b2779c0fa3c53e93632b1d4b29a8b00cc17569a3ecba601ca156d51565b6edd9"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-25",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240125.zip",
+      "bytes": 2730458,
+      "sha256": "37542f01ddbbcc682ddf0e6ced32dcdc9479d0f50fe2cca25cb5e7690528e307"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-26",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240126.zip",
+      "bytes": 2641878,
+      "sha256": "98b0c1d2f32600feb6b7815e5e3ccca9993ab47a63e7c8eb9905b7539604675a"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-26",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240126.zip",
+      "bytes": 2724743,
+      "sha256": "392e1690d4d225972ebec161dd6dc69fe6c3408ed309e64051b814a0516a6e38"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-27",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240127.zip",
+      "bytes": 2647386,
+      "sha256": "9343681da12242905b96fbb37e4a538635e7eaa2980c2f51e83f53cc5990a8cf"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-27",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240127.zip",
+      "bytes": 2716133,
+      "sha256": "1d31b2827842853d2f4592c7419b35a29f9e584ecf8a3ca9528825b193f06ad6"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-28",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240128.zip",
+      "bytes": 2620047,
+      "sha256": "16e493c46cfb242f841aeebe3b8ebf63a864c6b8ba0ac8d3a922534909426839"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-28",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240128.zip",
+      "bytes": 2740533,
+      "sha256": "108e01572f9ccb9b42b193449281f6e73b7d333c160be845e13d015171a0e714"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-29",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240129.zip",
+      "bytes": 2609933,
+      "sha256": "3488dd7b72df45b07df1df6ddb8ace46c08fd6352fed75275dee0e437df39e43"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-29",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240129.zip",
+      "bytes": 2750448,
+      "sha256": "114b91f4cb1fc875b2cb4794277efd9d207fa15190c0e4bb558eb0dd208b0f20"
+    },
+    {
+      "variable": "tmax",
+      "date": "2024-01-30",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240130.zip",
+      "bytes": 2598390,
+      "sha256": "a8bab70c0e7ceef60ee1c8f63cff2d52487526c305888f194390f66468d60977"
+    },
+    {
+      "variable": "tmin",
+      "date": "2024-01-30",
+      "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240130.zip",
+      "bytes": 2755342,
+      "sha256": "8caf053679afabae652cfae676a8acb6da6373b42fd4d99496ca48e49d5bb814"
+    }
+  ],
+  "fixture_bytes": 209916,
+  "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7"
+}

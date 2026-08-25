@@ -25,5 +25,5 @@ Recommended starting points:
 
 - [Fire VASE developmental morphology](fire_vase_developmental_morphology.md)
 - [Fire event vase + climate merge](../recipes/fire_event_vase_hull.md)
-- [Synthetic fire/VASE recipe](../recipes/fire_vase_synthetic.md)
+- [Real FIRED event + climate recipe](../recipes/fire_event_vase_hull.md)
 - [Fire VASE / FireHull](../capabilities/fire-vase.md)

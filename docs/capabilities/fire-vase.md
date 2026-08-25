@@ -27,7 +27,6 @@ Useful entry points:
 ```python
 from cubedynamics.fire_time_hull import FireEventDaily
 
-event = FireEventDaily.example()
 event = FireEventDaily.from_fired(fired_daily, event_id=12345)
 ```
 
@@ -56,20 +55,9 @@ hull.plot(color="vpd")
 
 `TimeHull` remains available as a compatibility alias, but `FireHull` is the preferred public name going forward.
 
-## Minimal runnable example
-
-```python
-from cubedynamics.fire_time_hull import FireEventDaily
-
-event = FireEventDaily.example()
-hull = event.to_hull(n_ring_samples=24, n_theta=16)
-
-print(hull.metrics())
-mesh = hull.to_mesh()
-print(mesh["verts_km"].shape, mesh["tris"].shape)
-```
-
-For a complete lightweight example that does not require live FIRED downloads, see [Synthetic fire/VASE recipe](../recipes/fire_vase_synthetic.md).
+The [real FIRED event and climate recipe](../recipes/fire_event_vase_hull.md)
+shows the complete data-loading and hull workflow. The publication site does
+not substitute generated perimeters when FIRED or climate access fails.
 
 ## Interactive example
 
@@ -109,58 +97,6 @@ directory and streams the gridMET climate cube for the selected event window.
 It also writes `real_fire_vase_gridmet_diagnostic.png`, a static panel with
 VASE projections, climate traces, inside/outside samples, and hull metrics.
 The second command is only needed when refreshing the website copy.
-
-## Prescribed-burn VASE panel example
-
-The multi-event VASE panel uses the same single-event fire VASE workflow, then
-lays the successful prescribed burns into a shared Plotly scene grid. This
-sample is synthetic so the website can be rebuilt without downloading FIRED or
-gridMET data, but it exercises the public `v.fire_vase_panel(...)` verb.
-
-<div class="interactive-embed">
-  <iframe
-    src="/cubedynamics/assets/figures/fire_vase_panel_sample.html"
-    title="Prescribed-burn VASE panel sample"
-    loading="lazy"
-  ></iframe>
-  <p class="interactive-embed__fallback">
-    If the VASE panel doesn’t load,
-    <a href="/cubedynamics/assets/figures/fire_vase_panel_sample.html" target="_blank" rel="noopener">open it in a new tab</a>.
-  </p>
-</div>
-
-Recreate the embedded panel locally:
-
-```bash
-python examples/fire_vase_panel_demo.py \
-  --output docs/assets/figures/fire_vase_panel_sample.html
-```
-
-The example script builds synthetic prescribed-burn perimeters and a synthetic
-temperature cube, then runs:
-
-```python
-from cubedynamics import pipe, verbs as v
-
-panel = (
-    pipe(climate_cube)
-    | v.fire_vase_panel(
-        fired_daily=fired_daily,
-        fired_events=fired_events,
-        prescribed_column="fire_type",
-        prescribed_values=("prescribed burn",),
-        climate_variable="tmmx",
-        max_events=4,
-        columns=2,
-        n_ring_samples=32,
-        n_theta=32,
-    )
-).unwrap()
-
-panel["fig_panel"].write_html("fire_vase_panel_sample.html")
-panel["records"]
-panel["failures"]
-```
 
 ## Pipe verbs
 

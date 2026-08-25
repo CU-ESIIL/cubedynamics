@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-25T20:17:08.539530+00:00",
+  "fixture": "data/vignettes/prism_boulder_january_2024.nc",
+  "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7",
+  "status": "PASS",
+  "modules": [
+    {
+      "module": "data",
+      "status": "PASS",
+      "checks": {
+        "fixture_sha256_matches": true,
+        "official_source_declared": true,
+        "observational_not_generated": true,
+        "dimensions_exact": true,
+        "daily_time_complete": true,
+        "coordinates_ordered": true,
+        "all_cells_finite": true,
+        "physical_order_tmin_lte_tmax": true,
+        "derived_range_exact": true,
+        "source_archive_evidence_complete": true
+      }
+    },
+    {
+      "module": "grammar",
+      "status": "PASS",
+      "checks": {
+        "zscore_matches_xarray": true,
+        "composed_pipe_matches_direct": true,
+        "coordinates_preserved": true,
+        "source_provenance_preserved": true
+      }
+    },
+    {
+      "module": "cube",
+      "status": "PASS",
+      "checks": {
+        "six_unique_shell_faces": true,
+        "complete_textures_not_css_cropped": true,
+        "front_is_newest": true,
+        "back_is_oldest_with_declared_x_reversal": true,
+        "left_time_oldest_to_newest": true,
+        "right_time_newest_to_oldest": true,
+        "top_time_oldest_to_newest": true,
+        "bottom_time_newest_to_oldest": true,
+        "every_rgba_pixel_exact": true
+      }
+    },
+    {
+      "module": "vignettes",
+      "status": "PASS",
+      "checks": {
+        "eight_supported_lessons": true,
+        "all_use_real_fixture": true,
+        "all_record_provenance": true,
+        "all_are_offline": true,
+        "all_emit_static_plot_code": true,
+        "no_random_data_generation": true,
+        "public_learning_paths_use_observations": true,
+        "historical_generated_assets_not_published": true,
+        "homepage_cube_uses_reviewed_prism": true,
+        "all_notebooks_execute": true
+      }
+    },
+    {
+      "module": "contrast",
+      "status": "PASS",
+      "checks": {
+        "rejects_unreversed_back": true,
+        "rejects_unreversed_right_time": true,
+        "rejects_transposed_top_time_axis": true,
+        "rejects_unreversed_bottom_time": true,
+        "rejects_duplicate_front_face": true,
+        "rejects_cropping_css": true
+      }
+    }
+  ]
+}

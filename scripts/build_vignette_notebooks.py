@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Build the small, source-controlled publication vignettes.
-
-The notebook content is kept here as plain text so metadata and cell structure
-can be reviewed and regenerated consistently. Run this script only when editing
-the vignettes; normal validation uses ``scripts/run_vignettes.py``.
-"""
+"""Build the source-controlled publication vignettes from reviewed text."""
 
 from __future__ import annotations
 
@@ -53,6 +48,8 @@ def notebook(*cells: dict) -> dict:
                 "network": False,
                 "plot_required": True,
                 "supported_vignette": True,
+                "data_fixture": "data/vignettes/prism_boulder_january_2024.nc",
+                "provenance": "data/vignettes/prism_boulder_january_2024.provenance.json",
             },
         },
         "nbformat": 4,
@@ -60,63 +57,87 @@ def notebook(*cells: dict) -> dict:
     }
 
 
+DATA_NOTE = """
+### Data used in this lesson
+
+Every value comes from the PRISM Group at Oregon State University's AN91d
+daily 4 km climate product. This repository carries a small Boulder-region
+extract for 1–30 January 2024 so the lesson runs offline without replacing
+observations with generated values. The [data validation page](../validation/data.md)
+records source URLs, terms, checksums, bounds, units, and acceptance tests.
+"""
+
+
+LOAD_PRISM = """
+from pathlib import Path
+
+import xarray as xr
+
+# Find the repository from either a root-level documentation build or a kernel
+# started beside this notebook, then open the checksum-controlled PRISM extract.
+data_path = next(
+    candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc"
+    for candidate in (Path.cwd(), *Path.cwd().parents)
+    if (candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc").exists()
+)
+prism = xr.open_dataset(data_path, engine="scipy").load()
+
+# These assertions are part of the teaching contract: official source,
+# canonical cube dimensions, complete daily time, and declared Celsius units.
+assert prism.attrs["source"] == "PRISM Group, Oregon State University"
+assert prism.attrs["is_synthetic"] == 0
+assert prism.sizes == {"time": 30, "y": 24, "x": 24}
+assert prism["tmax"].attrs["units"] == "degC"
+"""
+
+
 NOTEBOOKS = {
     "cube_from_arrays.ipynb": notebook(
         markdown(
-            """
+            f"""
 # 01 · From an array to a scientific cube
 
 ## Context
 
-A simulation has returned monthly temperature values as a three-dimensional
-NumPy array. The numbers are useful, but the axes do not yet say which direction
-is time, latitude, or longitude.
+A raster workflow has returned a three-dimensional array of observed daily
+maximum temperatures. The values are real, but the array alone does not retain
+which axis represents time, latitude, or longitude.
 
 ## Question
 
-How can we turn those values into a self-describing scientific object and
-inspect both its spatial and temporal structure?
+How can we reconstruct a self-describing cube and verify it as a map, a site
+history, and an interactive space-time object?
 
 ## Analysis story
 
-We will name the axes and attach coordinates, units, and provenance. Then we
-will compare two familiar slices before sending the same cube through one
-minimal plotting pipe into CubeDynamics' interactive viewer.
+We will deliberately separate values from metadata, rebuild their scientific
+context, and send the result through one minimal plotting pipe.
+
+{DATA_NOTE}
 """
         ),
-        markdown("## Give the array space, time, a name, units, and provenance"),
+        markdown("## Prepare · Recover coordinates and provenance for the array"),
         code(
-            """
+            LOAD_PRISM
+            + """
 import numpy as np
-import pandas as pd
-import xarray as xr
 
-from cubedynamics import pipe, verbs as v
+# Use an inspectable 18-day, 5-row × 6-column portion of the official grid.
+source = prism["tmax"].isel(time=slice(0, 18), y=slice(8, 13), x=slice(8, 14))
+values = source.values
 
-# Coordinates turn anonymous array axes into scientific dimensions. Here each
-# monthly time step contains a 5-row × 6-column spatial grid.
-time = pd.date_range("2025-01-01", periods=18, freq="MS")
-y = np.linspace(40.4, 39.6, 5)
-x = np.linspace(-105.5, -104.5, 6)
-
-# The singleton axes make NumPy broadcast a temporal signal across space and a
-# spatial signal across time. Their sum has shape (time, y, x).
-month = np.arange(time.size)[:, None, None]
-season = 8 * np.sin(2 * np.pi * month / 12)
-spatial = 3 * (y[None, :, None] - y.mean()) - 2 * (x[None, None, :] - x.mean())
-
-# A DataArray pairs values with dimension names, coordinates, a variable name,
-# units, and provenance—the minimum useful cube contract for these examples.
+# Reattach the coordinate and provenance fields that an anonymous NumPy array
+# cannot carry. No temperatures are generated or altered in this conversion.
 cube = xr.DataArray(
-    16 + season + spatial,
+    values,
     dims=("time", "y", "x"),
-    coords={"time": time, "y": y, "x": x},
-    name="air_temperature",
-    attrs={"units": "degC", "source": "deterministic vignette example"},
+    coords={name: source[name] for name in ("time", "y", "x")},
+    name="tmax",
+    attrs=dict(source.attrs),
 )
+cube.attrs.update(source=prism.attrs["source"], is_synthetic=0)
 
-# Assertions double as executable documentation: if the cube contract changes,
-# the notebook stops here with a useful failure instead of producing a bad plot.
+np.testing.assert_array_equal(cube.values, source.values)
 assert cube.dims == ("time", "y", "x")
 cube
 """
@@ -125,53 +146,51 @@ cube
             """
 ## Figure 1 · Read the cube in familiar views
 
-Before using an interactive cube, compare a single map with the history of one
-pixel. Both views come from the same labeled object.
+Compare a map from the cold outbreak with the history of one grid cell. Both
+views must retain the observed PRISM values.
 """
         ),
         code(
             """
 import matplotlib.pyplot as plt
 
-# Two familiar 2D views help participants understand the 3D object: isel chooses
-# a slice by integer position; sel chooses one location by coordinate value.
 fig, axes = plt.subplots(1, 2, figsize=(10, 3.6), constrained_layout=True)
-cube.isel(time=6).plot(ax=axes[0], cmap="magma", cbar_kwargs={"label": "°C"})
-axes[0].set_title("One spatial slice")
-cube.sel(y=y[2], x=x[3]).plot(ax=axes[1], marker="o", color="#2f6f6d")
-axes[1].set_title("One pixel through time")
-axes[1].set_ylabel("Air temperature (°C)")
+cube.isel(time=15).plot(ax=axes[0], cmap="magma", cbar_kwargs={"label": "°C"})
+axes[0].set_title("PRISM maximum temperature · 16 January")
+cube.isel(y=2, x=3).plot(ax=axes[1], marker="o", color="#2f6f6d")
+axes[1].set_title("One PRISM grid cell through time")
+axes[1].set_ylabel("Daily maximum temperature (°C)")
 plt.show()
 """
         ),
         markdown(
             """
-## Pipe · Open the repository-native cube viewer
+## Pipe · Inspect the same evidence as a cube
 
-The analytical sentence is deliberately small. `pipe` introduces the value,
-`v.plot` says what to do, and `unwrap()` returns the viewer object. Drag the
-resulting cube to rotate it and use the wheel or trackpad to zoom.
+The method remains one short sentence. The viewer is generated from the same
+validated `DataArray`; it does not become a second data authority.
 """
         ),
         code(
             """
 from html import escape
-
 from IPython.display import HTML
+from cubedynamics import pipe, verbs as v
 
-# The scientific intent stays visible even though the renderer is sophisticated.
 viewer = (
     pipe(cube)
-    | v.plot(title="Synthetic air-temperature cube", cmap="magma")
+    | v.plot(
+        title="PRISM daily maximum temperature · Boulder region",
+        cmap="magma",
+        thin_time_factor=1,
+    )
 ).unwrap()
 
-# Escape the viewer's complete HTML document into an iframe srcdoc so it cannot
-# interfere with the surrounding documentation header or styles.
-assert viewer.data.dims == ("time", "y", "x")
+# Isolate the complete viewer document from the surrounding MkDocs page.
 viewer_srcdoc = escape(viewer.to_html(), quote=True)
 HTML(
     f'''<iframe
-        title="Interactive synthetic air-temperature cube"
+        title="Interactive PRISM maximum-temperature cube"
         srcdoc="{viewer_srcdoc}"
         style="width: 100%; height: 760px; border: 1px solid #b8c5c2; border-radius: 4px;"
         sandbox="allow-scripts"
@@ -184,119 +203,97 @@ HTML(
             """
 ## What the figure tells us
 
-The map shows a smooth spatial gradient while the pixel history preserves the
-seasonal cycle. The interactive viewer confirms that these are not separate
-products: they are different readings of one `(time, y, x)` cube.
+The mid-January cold outbreak is visible through depth and across the map. The
+validation suite independently decodes all six HTML textures and checks them
+against these source indices, including the declared back-face reversal.
 
 ## Try the next variation
 
-Change the seasonal amplitude or reverse the `y` coordinates. Which visual
-features change, and which parts of the pipe remain identical?
+Choose a different observed time window or spatial subset. The reconstruction
+and pipe stay unchanged.
 """
         ),
     ),
     "cube_from_tidy_table.ipynb": notebook(
         markdown(
-            """
+            f"""
 # 02 · From observations to a comparable signal
 
 ## Context
 
-A sensor network stores one observation per date and location in a tidy table.
-The sites share a weekly temperature pattern, but their raw values differ
-slightly because of geography.
+Climate observations are often exchanged as one row per date and location.
+Here we flatten official PRISM minimum temperature into that familiar table,
+then recover the cube without changing a value.
 
 ## Question
 
-How can we reshape the observations into a cube and compare change through time
-on the same scale at every site?
+Can we compare departures through time at sites with different baseline
+temperatures?
 
 ## Analysis story
 
-We will turn coordinate columns into cube dimensions, standardize each pixel
-through time with one verb, and compare one site's raw and standardized series.
+We will prove the table-to-cube round trip, standardize each location through
+time, and compare the observed and standardized series at one grid cell.
+
+{DATA_NOTE}
 """
         ),
+        markdown("## Prepare · Round-trip real observations through a tidy table"),
         code(
-            """
+            LOAD_PRISM
+            + """
 import numpy as np
-import pandas as pd
 
-from cubedynamics import pipe, verbs as v
+source = prism["tmin"].isel(y=slice(9, 14), x=slice(9, 15))
+table = source.to_dataframe(name="tmin").reset_index()
 
-# Build every time/location combination. Real field data would usually be read
-# from CSV or Parquet, but the following table has the same tidy structure.
-time = pd.date_range("2025-06-01", periods=14, freq="D")
-y = [40.2, 40.0, 39.8]
-x = [-105.2, -105.0, -104.8, -104.6]
-index = pd.MultiIndex.from_product([time, y, x], names=["time", "y", "x"])
-table = index.to_frame(index=False)
-
-# Create a deterministic weekly cycle plus small latitude/longitude effects.
-# Vectorized columns keep the recipe close to ordinary pandas workflows.
-day = (table["time"] - time[0]).dt.days.to_numpy()
-table["temperature"] = (
-    27
-    + 5 * np.sin(2 * np.pi * day / 7)
-    + 1.5 * (table["y"].to_numpy() - 40)
-    - 0.8 * (table["x"].to_numpy() + 105)
-)
-
-# Indexing by time, y, and x tells xarray which columns define cube axes.
-# transpose makes the conventional (time, y, x) order explicit.
 cube = (
     table.set_index(["time", "y", "x"])
-    .to_xarray()["temperature"]
+    .to_xarray()["tmin"]
     .transpose("time", "y", "x")
+    .sel(time=source.time, y=source.y, x=source.x)
 )
-cube.name = "temperature"
-cube.attrs.update(units="degC", source="synthetic tidy table")
+cube.attrs.update(source.attrs)
+cube.attrs.update(source=prism.attrs["source"], is_synthetic=0)
 
-assert cube.shape == (14, 3, 4)
+np.testing.assert_array_equal(cube.values, source.values)
+assert len(table) == source.size
 cube
 """
         ),
         markdown(
             """
-## Pipe · Standardize every location through time
+## Pipe · Standardize each location through time
 
-Data preparation is complete. The full analytical method is now one verb:
-`v.zscore(dim="time")`.
+Preparation is complete. The analytical method is one verb.
 """
         ),
         code(
             """
+from cubedynamics import pipe, verbs as v
+
 standardized = (
     pipe(cube)
     | v.zscore(dim="time")
 ).unwrap()
 
-# A temporal z-score should have mean zero at every location (up to rounding).
-assert abs(float(standardized.mean("time").max())) < 1e-12
+assert float(abs(standardized.mean("time")).max()) < 1e-5
 standardized
 """
         ),
-        markdown(
-            """
-## Figure · Compare before and after
-
-Hold the location constant so the visual difference comes from the verb rather
-than from comparing different sites.
-"""
-        ),
+        markdown("## Figure · Compare the observed and standardized records"),
         code(
             """
 import matplotlib.pyplot as plt
 
-# Compare the same coordinate before and after the verb so its effect is clear.
-site = {"y": 40.0, "x": -105.0}
+site = {"y": float(cube.y[2]), "x": float(cube.x[3])}
 fig, axes = plt.subplots(2, 1, figsize=(9, 5.5), sharex=True, constrained_layout=True)
 cube.sel(**site).plot(ax=axes[0], marker="o", color="#8b543c")
-axes[0].set_title("Table values after reshaping to a cube")
+axes[0].set_title("Observed PRISM daily minimum temperature")
 axes[0].set_ylabel("Temperature (°C)")
 standardized.sel(**site).plot(ax=axes[1], marker="o", color="#3f6f72")
 axes[1].axhline(0, color="0.35", linewidth=0.8)
-axes[1].set_title("The same pixel after v.zscore(dim='time')")
+axes[1].set_title("The same grid cell after v.zscore(dim='time')")
 axes[1].set_ylabel("Standard deviations")
 plt.show()
 """
@@ -305,794 +302,468 @@ plt.show()
             """
 ## What the figure tells us
 
-The peaks and troughs occur on the same dates in both panels, but the lower
-panel expresses them as deviations from that site's own mean. The pipe changed
-the scale, not the temporal story.
+Standardization preserves the January timing—including the sharp cold
+outbreak—while expressing each value relative to that location's own record.
 
 ## Try the next variation
 
-Select another site or replace `v.zscore` with `v.anomaly`. Which comparison is
-more useful for your scientific question?
+Replace `v.zscore` with `v.anomaly` and explain which scale is more useful for
+your question.
 """
         ),
     ),
     "cube_from_dataset.ipynb": notebook(
-        markdown(
-            """
+        markdown(f"""
 # 03 · Two variables, two questions
 
 ## Context
 
-A field campaign has collected temperature and precipitation on the same grid.
-The variables align in space and time, but they answer different questions and
-carry different units.
+PRISM minimum and maximum temperature share one coordinate system, so we can
+ask related questions without juggling separate grids.
 
 ## Question
 
-Where is the latest temperature unusual, and how did average precipitation
-change across the region?
+Where was maximum temperature unusual on the coldest regional day, and how did
+the day-to-night temperature range change through January?
 
 ## Analysis story
 
-We will keep both variables in one xarray `Dataset`, select each by meaning, and
-write a separate compact pipe for each scientific question.
-"""
-        ),
-        code(
-            """
-import numpy as np
-import pandas as pd
-import xarray as xr
+We validate the physical relationship between variables, then answer a spatial
+and a temporal question with two readable pipes.
 
+{DATA_NOTE}
+"""),
+        markdown("## Prepare · Validate the shared dataset"),
+        code(LOAD_PRISM + """
+import numpy as np
+
+# Minimum temperature cannot exceed maximum temperature, and the derived range
+# must be exactly traceable to those two observed PRISM variables.
+assert bool((prism["tmin"] <= prism["tmax"]).all())
+np.testing.assert_allclose(
+    prism["diurnal_range"], prism["tmax"] - prism["tmin"], rtol=0, atol=1e-5
+)
+coldest_day = prism["tmax"].mean(("y", "x")).argmin("time")
+"""),
+        markdown("## Pipes · Express each analysis as one sentence"),
+        code("""
 from cubedynamics import pipe, verbs as v
 
-# A fixed seed makes the example exactly repeatable while still looking like
-# measurements with natural variation.
-rng = np.random.default_rng(19)
-time = pd.date_range("2024-04-01", periods=20, freq="D")
-y = np.linspace(41.0, 40.0, 4)
-x = np.linspace(-106.0, -105.0, 5)
-temperature = 18 + np.linspace(0, 7, time.size)[:, None, None] + rng.normal(0, 1, (20, 4, 5))
-precipitation = rng.gamma(1.4, 2.2, size=(20, 4, 5))
-
-# A Dataset is a labeled collection of aligned DataArrays. Each variable has
-# its own units but shares the same time/y/x coordinate system.
-dataset = xr.Dataset(
-    {
-        "temperature": (("time", "y", "x"), temperature, {"units": "degC"}),
-        "precipitation": (("time", "y", "x"), precipitation, {"units": "mm day-1"}),
-    },
-    coords={"time": time, "y": y, "x": x},
-    attrs={"source": "deterministic multi-variable example"},
-)
-dataset
-"""
-        ),
-        markdown(
-            """
-## Pipes · Let each question choose its verb
-
-The first pipe preserves a cube of anomalies. The second deliberately reduces
-the two spatial dimensions to one regional time series.
-"""
-        ),
-        code(
-            """
-# Question 1: how unusual is temperature at every grid cell?
-temperature_anomaly = (
-    pipe(dataset["temperature"])
+maximum_temperature_anomaly = (
+    pipe(prism["tmax"])
     | v.anomaly(dim="time")
 ).unwrap()
 
-# Question 2: what was the region-wide precipitation on each date?
-regional_precipitation = (
-    pipe(dataset["precipitation"])
-    | v.mean(dim=("y", "x"), keep_dim=False)
+regional_diurnal_range = (
+    pipe(prism["diurnal_range"])
+    | v.mean(dim=("y", "x"))
 ).unwrap()
-
-assert temperature_anomaly.dims == ("time", "y", "x")
-assert regional_precipitation.dims == ("time",)
-"""
-        ),
-        markdown(
-            """
-## Figure · Bring the answers together
-
-The outputs have different shapes because the questions differ: a map for
-spatial departures and a line for regional change through time.
-"""
-        ),
-        code(
-            """
+"""),
+        markdown("## Figure · Put the spatial and temporal answers together"),
+        code("""
 import matplotlib.pyplot as plt
 
-# The side-by-side views answer different questions from the same Dataset.
-fig, axes = plt.subplots(1, 2, figsize=(10, 3.7), constrained_layout=True)
-temperature_anomaly.isel(time=-1).plot(
-    ax=axes[0], cmap="RdBu_r", center=0, cbar_kwargs={"label": "°C anomaly"}
+fig, axes = plt.subplots(1, 2, figsize=(10, 3.8), constrained_layout=True)
+maximum_temperature_anomaly.isel(time=coldest_day).plot(
+    ax=axes[0], cmap="RdBu_r", center=0, cbar_kwargs={"label": "Anomaly (°C)"}
 )
-axes[0].set_title("Latest temperature anomaly")
-regional_precipitation.plot(ax=axes[1], marker="o", color="#2f6267")
-axes[1].set_title("Spatial mean precipitation")
-axes[1].set_ylabel("mm day⁻¹")
+date = str(prism.time.isel(time=coldest_day).values)[:10]
+axes[0].set_title(f"Maximum-temperature anomaly · {date}")
+regional_diurnal_range.plot(ax=axes[1], marker="o", color="#775a3a")
+axes[1].set_title("Boulder-region diurnal temperature range")
+axes[1].set_ylabel("Daily range (°C)")
 plt.show()
-"""
-        ),
-        markdown(
-            """
+"""),
+        markdown("""
 ## What the figure tells us
 
-Temperature departures vary across the final map, while precipitation is
-summarized as one value per date. A shared `Dataset` does not force a shared
-analysis; each short pipe makes its own question and output shape explicit.
+The coldest regional day was not equally unusual everywhere, while the
+day-to-night range followed a separate trajectory.
 
 ## Try the next variation
 
-Compute a precipitation anomaly instead of a spatial mean. How does the output
-shape—and therefore the figure you would choose—change?
-"""
-        ),
+Pipe `tmin` through the same anomaly verb and compare its spatial pattern.
+"""),
     ),
     "grammar_basics.ipynb": notebook(
-        markdown(
-            """
-# 04 · Write the analysis as a sentence
+        markdown(f"""
+# 04 · Read the analysis from left to right
 
 ## Context
 
-A collaborator needs to review a transformation before trusting its result.
-They should be able to distinguish the input, each scientific operation, and
-the point where ordinary Python resumes without reading framework machinery.
+CubeDynamics makes the order of operations visible: a cube flows through small
+verbs instead of disappearing inside a long function call.
 
 ## Question
 
-Can a complete method remain both compact and explicit?
+Does the pipe grammar change the calculation, or only make the method easier
+to read and extend?
 
 ## Analysis story
 
-We will compare direct and piped calls, then compose a built-in anomaly with an
-ordinary project function. The pipe is the readable analytical sentence; the
-surrounding cells provide evidence and interpretation.
-"""
-        ),
-        code(
-            """
-import numpy as np
-import pandas as pd
-import xarray as xr
+We compare direct and piped standardization exactly, then compose a regional
+anomaly in one compact expression.
 
+{DATA_NOTE}
+"""),
+        markdown("## Prepare · Select an observed temperature cube"),
+        code(LOAD_PRISM + """
+# Keep the labeled PRISM DataArray intact as it enters the grammar.
+cube = prism["tmax"]
+cube
+"""),
+        markdown("## Pipe · Verify equivalence, then compose"),
+        code("""
+import numpy as np
 from cubedynamics import pipe, verbs as v
 
-# This signal combines a repeating temporal pattern, a spatial offset, and a
-# tiny seeded noise term so each operation has something visible to transform.
-rng = np.random.default_rng(42)
-time = pd.date_range("2024-01-01", periods=12, freq="MS")
-season = np.sin(np.linspace(0, 2 * np.pi, time.size, endpoint=False))[:, None, None]
-spatial = np.array([[0.0, 0.2, 0.4], [0.1, 0.3, 0.5]])[None, :, :]
-cube = xr.DataArray(
-    season + spatial + rng.normal(0, 0.02, size=(12, 2, 3)),
-    dims=("time", "y", "x"),
-    coords={"time": time, "y": [40.1, 40.0], "x": [-105.2, -105.1, -105.0]},
-    name="environmental_signal",
-    attrs={"units": "1", "source": "deterministic synthetic vignette"},
-)
-cube
-"""
-        ),
-        markdown(
-            """
-## Pipe · Read from top to bottom
+# The grammar must preserve the mathematical definition of a z-score.
+direct = (cube - cube.mean("time")) / cube.std("time")
+through_grammar = (pipe(cube) | v.zscore(dim="time")).unwrap()
+np.testing.assert_allclose(through_grammar, direct, rtol=1e-6, atol=1e-6)
 
-`pipe(cube)` supplies the subject. Each verb adds one operation. `unwrap()`
-marks the return to xarray and ordinary Python.
-"""
-        ),
-        code(
-            """
-# Direct and piped calls use the same verb contract.
-direct = v.zscore(dim="time")(cube)
-through_pipe = (
-    pipe(cube)
-    | v.zscore(dim="time")
-).unwrap()
-
-# v.apply lets a compatible project function join the same sentence.
-scaled_anomaly = (
+# The method reads left to right: anomaly first, then spatial mean.
+regional_anomaly = (
     pipe(cube)
     | v.anomaly(dim="time")
-    | v.apply(lambda value, factor: value * factor, factor=1.5)
+    | v.mean(dim=("y", "x"))
 ).unwrap()
-
-# This is a compact regression test embedded in the lesson.
-xr.testing.assert_allclose(direct, through_pipe)
-"""
-        ),
-        markdown(
-            """
-## Figure · Verify meaning, not just syntax
-
-Compare the same location before and after standardization, then check that the
-composed anomaly still preserves the spatial cube.
-"""
-        ),
-        code(
-            """
+"""),
+        markdown("## Figure · See the effect of each method"),
+        code("""
 import matplotlib.pyplot as plt
 
-# Hold location constant so the first two panels compare like with like; use a
-# map in the third panel to show that the full spatial cube was preserved.
-site = {"y": 40.0, "x": -105.1}
-fig, axes = plt.subplots(1, 3, figsize=(12, 3.5), constrained_layout=True)
-cube.sel(**site).plot(ax=axes[0], color="#8b543c")
-axes[0].set_title("Input cube at one pixel")
-through_pipe.sel(**site).plot(ax=axes[1], color="#3f6f72")
+site = cube.isel(y=12, x=12)
+fig, axes = plt.subplots(3, 1, figsize=(9, 7), sharex=True, constrained_layout=True)
+site.plot(ax=axes[0], marker="o", color="#8f513b")
+axes[0].set_title("Observed PRISM maximum temperature")
+axes[0].set_ylabel("°C")
+through_grammar.isel(y=12, x=12).plot(ax=axes[1], marker="o", color="#3b6d74")
 axes[1].axhline(0, color="0.4", linewidth=0.8)
-axes[1].set_title("Direct call = pipe call")
-scaled_anomaly.isel(time=3).plot(ax=axes[2], cmap="RdBu_r", center=0)
-axes[2].set_title("v.anomaly | v.apply")
+axes[1].set_title("pipe(cube) | v.zscore(dim='time')")
+axes[1].set_ylabel("Standard deviations")
+regional_anomaly.plot(ax=axes[2], marker="o", color="#5b6848")
+axes[2].axhline(0, color="0.4", linewidth=0.8)
+axes[2].set_title("pipe(cube) | v.anomaly(...) | v.mean(dim=('y', 'x'))")
+axes[2].set_ylabel("Regional anomaly (°C)")
 plt.show()
-"""
-        ),
-        markdown(
-            """
+"""),
+        markdown("""
 ## What the figure tells us
 
-The standardized series retains timing while expressing values on a comparable
-scale. The map shows that chaining `v.anomaly` and `v.apply` preserved spatial
-structure. The code reads like the method because each line adds one idea.
+The exact comparison proves that the pipe is a composition language, not a new
+statistical definition. Its advantage is a method that remains visible.
 
 ## Try the next variation
 
-Change the `factor` passed to `v.apply`, or insert `v.mean` at the end. Predict
-the output shape before running the cell.
-"""
-        ),
+Replace the final mean with a variance and explain how the question changes.
+"""),
     ),
     "verbs_gallery.ipynb": notebook(
-        markdown(
-            """
-# 05 · Ask several questions of one cube
+        markdown(f"""
+# 05 · One cube, six analytical views
 
 ## Context
 
-A single environmental record can support several legitimate summaries. A
-researcher may care about typical conditions, variability, departures from a
-baseline, comparable scales, or a matrix suitable for modeling.
+Verbs should be small enough to understand independently and consistent enough
+to combine. Every panel answers a real question about the same observations.
 
 ## Question
 
-How does the choice of verb change both the scientific meaning and the shape of
-the result?
+How do summaries, departures, standardization, clipping, and reshaping reveal
+different aspects of January minimum temperature?
 
 ## Analysis story
 
-We will hold the evidence constant and vary only the analytical question. A
-small set of parallel pipes makes those choices easy to compare.
-"""
-        ),
-        code(
-            """
-import numpy as np
-import pandas as pd
-import xarray as xr
+Each result begins from the same PRISM cube, so the verb remains the focus.
 
+{DATA_NOTE}
+"""),
+        markdown("## Prepare · Use the reviewed minimum-temperature cube"),
+        code(LOAD_PRISM + """
+cube = prism["tmin"]
+cube
+"""),
+        markdown("## Pipes · Build a small, auditable verb gallery"),
+        code("""
 from cubedynamics import pipe, verbs as v
 
-# Build one cube with temporal trend, seasonality, spatial structure, and noise.
-# Every verb below therefore starts from exactly the same evidence.
-rng = np.random.default_rng(8)
-time = pd.date_range("2023-01-01", periods=24, freq="MS")
-y = np.arange(5)
-x = np.arange(6)
-trend = np.linspace(0, 2, time.size)[:, None, None]
-season = 2 * np.sin(2 * np.pi * np.arange(time.size)[:, None, None] / 12)
-landscape = np.linspace(-1, 1, y.size)[None, :, None] + np.linspace(0, 1, x.size)[None, None, :]
-cube = xr.DataArray(
-    10 + trend + season + landscape + rng.normal(0, 0.3, (24, 5, 6)),
-    dims=("time", "y", "x"),
-    coords={"time": time, "y": y, "x": x},
-    name="signal",
-)
-cube
-"""
-        ),
-        markdown(
-            """
-## Pipes · One input, six analytical questions
+temporal_mean = (pipe(cube) | v.mean(dim="time")).unwrap()
+temporal_variance = (pipe(cube) | v.variance(dim="time")).unwrap()
+anomaly = (pipe(cube) | v.anomaly(dim="time")).unwrap()
+standardized = (pipe(cube) | v.zscore(dim="time")).unwrap()
+bounded = (pipe(standardized) | v.apply(lambda x: x.clip(-2, 2))).unwrap()
+flat = (pipe(cube) | v.flatten_cube()).unwrap()
 
-Each expression is intentionally short. Reducers remove a dimension,
-transforms preserve it, and `v.flatten_space` prepares a matrix for modeling.
-"""
-        ),
-        code(
-            """
-# What is typical at each location?
-mean_map = (
-    pipe(cube)
-    | v.mean(dim="time", keep_dim=False)
-).unwrap()
-
-# Where does the signal vary most?
-variance_map = (
-    pipe(cube)
-    | v.variance(dim="time", keep_dim=False)
-).unwrap()
-
-# How far is each value from its local baseline?
-anomaly = (
-    pipe(cube)
-    | v.anomaly(dim="time")
-).unwrap()
-
-# How unusual is each value on a common scale?
-zscore = (
-    pipe(cube)
-    | v.zscore(dim="time")
-).unwrap()
-
-# How can a project rule limit extreme standardized values?
-clipped = (
-    pipe(zscore)
-    | v.apply(lambda value: value.clip(min=-1, max=1))
-).unwrap()
-
-# How can the anomaly become a time × feature matrix?
-flat = (
-    pipe(anomaly)
-    | v.flatten_space(new_dim="pixel")
-).unwrap()
-
-assert flat.dims == ("time", "pixel")
-"""
-        ),
-        markdown(
-            """
-## Figure · Compare the consequences
-
-The six panels make shape and meaning visible. Read each title as the question
-answered by the pipe above it.
-"""
-        ),
-        code(
-            """
+# Flattening changes layout, not the number of observed spatial samples.
+assert flat.sizes["sample"] == cube.sizes["y"] * cube.sizes["x"]
+"""),
+        markdown("## Figure · Compare what each verb preserves and changes"),
+        code("""
 import matplotlib.pyplot as plt
 
-# Each panel is labeled with the verb and the question its output can answer.
 fig, axes = plt.subplots(2, 3, figsize=(12, 7), constrained_layout=True)
-mean_map.plot(ax=axes[0, 0], cmap="viridis")
-axes[0, 0].set_title("v.mean: typical spatial pattern")
-variance_map.plot(ax=axes[0, 1], cmap="magma")
-axes[0, 1].set_title("v.variance: variable locations")
-anomaly.isel(time=-1).plot(ax=axes[0, 2], cmap="RdBu_r", center=0)
-axes[0, 2].set_title("v.anomaly: departure from normal")
-zscore.sel(y=2, x=3).plot(ax=axes[1, 0], color="#3f6f72")
-axes[1, 0].axhline(0, color="0.45", linewidth=0.8)
-axes[1, 0].set_title("v.zscore: comparable units")
-clipped.isel(time=-1).plot(ax=axes[1, 1], cmap="RdBu_r", vmin=-1, vmax=1)
-axes[1, 1].set_title("v.apply: project function")
-axes[1, 2].imshow(flat.values.T, aspect="auto", cmap="RdBu_r")
-axes[1, 2].set(title="v.flatten_space: time × pixel", xlabel="time index", ylabel="pixel")
+temporal_mean.plot(ax=axes[0, 0], cmap="coolwarm", cbar_kwargs={"label": "°C"})
+axes[0, 0].set_title("Mean through time")
+temporal_variance.plot(ax=axes[0, 1], cmap="viridis", cbar_kwargs={"label": "°C²"})
+axes[0, 1].set_title("Variance through time")
+anomaly.isel(time=15).plot(ax=axes[0, 2], cmap="RdBu_r", center=0)
+axes[0, 2].set_title("Anomaly · 16 January")
+standardized.isel(y=12, x=12).plot(ax=axes[1, 0], color="#356d76")
+axes[1, 0].set_title("Standardized site history")
+bounded.isel(time=15).plot(ax=axes[1, 1], cmap="RdBu_r", vmin=-2, vmax=2)
+axes[1, 1].set_title("Custom clipped z-score")
+flat.mean("sample").plot(ax=axes[1, 2], color="#6b6544")
+axes[1, 2].set_title("Flattened regional mean")
 plt.show()
-"""
-        ),
-        markdown(
-            """
+"""),
+        markdown("""
 ## What the figure tells us
 
-No verb is universally “best.” Means and variance summarize across time;
-anomalies and z-scores preserve timing; clipping expresses a project decision;
-flattening changes representation for a downstream model. The pipe keeps each
-choice visible and reviewable.
+Summary verbs remove dimensions deliberately; anomaly and z-score preserve the
+cube; `apply` opens a controlled extension point; flattening changes layout.
 
 ## Try the next variation
 
-Add one new pipe with `v.sum`, or change the reduction dimension from `time` to
-space. State the question first, then choose the verb.
-"""
-        ),
+Change the clipping bound and identify which dates and places are affected.
+"""),
     ),
     "states_and_events.ipynb": notebook(
-        markdown(
-            """
-# 06 · Follow heat from value to event
+        markdown(f"""
+# 06 · From cold observations to event evidence
 
 ## Context
 
-Daily maximum temperature is continuous, but many impact questions concern
-episodes: when heat crossed a meaningful threshold, how long it persisted, and
-whether nearby locations experienced it together.
+A threshold is useful when its meaning is explicit. Here, severe cold means an
+observed PRISM daily minimum below −10 °C.
 
 ## Question
 
-Where did multi-day heat events occur, and how closely did their occurrence
-match the center of the study area?
+Where did severe cold persist for at least two days, and how synchronized was
+its occurrence with the center of the study region?
 
 ## Analysis story
 
-We will move through three scientific representations—value, state, and
-event—then compare occurrence in space. Specialized verbs extend the same
-minimal grammar rather than creating a separate workflow language.
-"""
-        ),
-        code(
-            """
-import numpy as np
-import pandas as pd
-import xarray as xr
+We move from temperature to states, from states to events, and from states to a
+synchrony map. Each transition is one named verb.
 
+{DATA_NOTE}
+"""),
+        markdown("## Prepare · Keep the threshold next to its units"),
+        code(LOAD_PRISM + """
+cube = prism["tmin"]
+assert cube.attrs["units"] == "degC"
+"""),
+        markdown("## Pipes · Keep state, event, and synchrony questions separate"),
+        code("""
 from cubedynamics import pipe, verbs as v
 
-# The two pulse groups create two heat episodes. Adding a spatial offset makes
-# some pixels cross the threshold sooner or remain active longer than others.
-time = pd.date_range("2025-07-01", periods=14, freq="D")
-y = [40.2, 40.0, 39.8]
-x = [-105.2, -105.0, -104.8]
-pulse = np.array([0, 0, 5, 7, 6, 0, 0, 4, 6, 7, 5, 0, 0, 0])[:, None, None]
-spatial = np.array([[-1.0, 0.0, 0.5], [-0.5, 1.0, 1.5], [-1.0, 0.5, 2.0]])[None, :, :]
-cube = xr.DataArray(
-    29 + pulse + spatial,
-    dims=("time", "y", "x"),
-    coords={"time": time, "y": y, "x": x},
-    name="daily_max_temperature",
-    attrs={"units": "degC"},
-)
-cube
-"""
-        ),
-        markdown(
-            """
-## Pipes · Translate values into episodes and relationships
-
-Each pipe names one conceptual step. Keeping them separate lets us inspect the
-state Dataset before detecting events or measuring synchrony.
-"""
-        ),
-        code(
-            """
-# Which observations count as hot days?
-states = (
+severe_cold = (
     pipe(cube)
-    | v.threshold_state(threshold=34.0, direction="above", name="hot_day")
+    | v.threshold_state(threshold=-10.0, direction="below", name="severe_cold")
 ).unwrap()
 
-# Which hot spells persist for at least two days?
-events = (
-    pipe(states)
-    | v.detect_events(min_duration=2, max_gap=0)
-).unwrap()
+events = (pipe(severe_cold) | v.detect_events(min_duration=2)).unwrap()
 
-# Where does hot-day occurrence match the center pixel?
 synchrony = (
-    pipe(states)
+    pipe(severe_cold)
     | v.occurrence_synchrony(spatial_mode="reference", reference="center")
 ).unwrap()
 
-# These checks document the output contracts before visualization.
-assert states["state"].dtype == bool
 assert len(events.catalog) > 0
-"""
-        ),
-        markdown(
-            """
-## Figure · Read the progression from value to relation
-
-The event catalog is tabular, so we count catalog rows at each pixel for a map.
-That small presentation step is intentionally outside the scientific pipes.
-"""
-        ),
-        code(
-            """
+"""),
+        markdown("## Figure · Follow the evidence from values to events"),
+        code("""
 import matplotlib.pyplot as plt
 
-# EventResult deliberately separates a cube-like Dataset from a tabular event
-# catalog. Accumulate catalog rows here to make an event-count map for teaching.
-event_count = xr.zeros_like(cube.isel(time=0), dtype=int)
-for row in events.catalog.itertuples():
-    event_count.values[row.y_index, row.x_index] += 1
-sync_map = synchrony["occurrence_synchrony"].isel(time_window_end=0)
+event_count = events.dataset["event_active"].sum("time")
+reference_sync = synchrony["occurrence_synchrony"].isel(time_window_end=0)
 
-# The four panels tell the full progression: value → state → event → relation.
-fig, axes = plt.subplots(2, 2, figsize=(10, 7), constrained_layout=True)
-cube.mean(("y", "x")).plot(ax=axes[0, 0], marker="o", color="#8b543c")
-axes[0, 0].axhline(34, color="0.3", linestyle="--", label="threshold")
-axes[0, 0].legend()
-axes[0, 0].set_title("Continuous regional temperature")
-states["state"].mean(("y", "x")).plot(ax=axes[0, 1], marker="o", color="#3f6f72")
-axes[0, 1].set_title("v.threshold_state: active fraction")
-event_count.plot(ax=axes[1, 0], cmap="YlOrRd", vmin=0)
-axes[1, 0].set_title("v.detect_events: events per pixel")
-sync_map.plot(ax=axes[1, 1], cmap="viridis", vmin=0, vmax=1)
-axes[1, 1].set_title("v.occurrence_synchrony: reference map")
+fig, axes = plt.subplots(2, 2, figsize=(11, 8), constrained_layout=True)
+cube.isel(time=15).plot(ax=axes[0, 0], cmap="coolwarm", cbar_kwargs={"label": "°C"})
+axes[0, 0].set_title("Observed minimum temperature · 16 January")
+severe_cold["state"].isel(time=15).plot(ax=axes[0, 1], cmap="Blues", add_colorbar=False)
+axes[0, 1].set_title("Below −10 °C state")
+event_count.plot(ax=axes[1, 0], cmap="magma", cbar_kwargs={"label": "Event days"})
+axes[1, 0].set_title("Days retained in ≥2-day events")
+reference_sync.plot(ax=axes[1, 1], cmap="viridis", vmin=0, vmax=1)
+axes[1, 1].set_title("Occurrence synchrony with center cell")
 plt.show()
-"""
-        ),
-        markdown(
-            """
+"""),
+        markdown("""
 ## What the figure tells us
 
-The regional series crosses the threshold twice. The active-fraction panel
-shows that sites enter those episodes differently, the event map counts
-qualifying runs, and the synchrony map shows where timing most closely matches
-the center pixel.
+The threshold isolates the observed mid-January outbreak. Duration filtering
+distinguishes persistence, while synchrony shows where its timing matched the
+region's center.
 
 ## Try the next variation
 
-Raise the threshold or allow a one-day gap in `v.detect_events`. Which change
-alters event identity, and which changes only state classification?
-"""
-        ),
+Change only the threshold to −15 °C and compare retained events.
+"""),
     ),
     "custom_verb_project.ipynb": notebook(
-        markdown(
-            """
-# 07 · Give a project its own verb
+        markdown(f"""
+# 07 · Build a project-owned verb
 
 ## Context
 
-A research team defines heat stress as temperature at or above 35 °C. That
-threshold is a project assumption, not a universal CubeDynamics primitive, but
-the team still wants its method to compose cleanly with the shared grammar.
+The core package supplies the grammar; projects supply domain verbs. A good
+custom verb states its input contract and returns labeled data.
 
 ## Question
 
-How can a project package its scientific rule as a reusable verb without
-modifying CubeDynamics itself?
+How much below-freezing exposure accumulated across the observed January
+minimum-temperature record?
 
 ## Analysis story
 
-We will write a small callable factory, apply it in one readable pipe, verify
-the direct and piped forms agree, and visualize both occurrence and magnitude.
-"""
-        ),
-        code(
-            """
+We write one small verb, test direct and piped use, then visualize its state
+and magnitude outputs.
+
+{DATA_NOTE}
+"""),
+        markdown("## Define · Make the scientific contract visible in code"),
+        code('''
 import xarray as xr
 
+def freezing_exposure(threshold=0.0):
+    """Convert Celsius temperature to freezing state and magnitude."""
+    def _op(cube):
+        if cube.attrs.get("units") != "degC":
+            raise ValueError("freezing_exposure requires units='degC'")
+        if "time" not in cube.dims:
+            raise ValueError("freezing_exposure requires a time dimension")
+
+        state = cube <= threshold
+        magnitude = (threshold - cube).where(state, 0.0)
+        result = xr.Dataset({"state": state, "magnitude": magnitude})
+        result.attrs.update(
+            analysis="freezing_exposure",
+            threshold_degC=float(threshold),
+            source=cube.attrs.get("source", ""),
+            is_synthetic=cube.attrs.get("is_synthetic", 0),
+        )
+        return result
+    return _op
+'''),
+        markdown("## Pipe · Test both forms on real observations"),
+        code(LOAD_PRISM + """
+import numpy as np
 from cubedynamics import pipe
 
+cube = prism["tmin"]
+direct = freezing_exposure(-5.0)(cube)
+through_grammar = (pipe(cube) | freezing_exposure(-5.0)).unwrap()
 
-def heat_stress(*, threshold: float = 35.0):
-    '''Return a project-owned cube → Dataset verb.'''
-    # The outer function captures user configuration. CubeDynamics pipes call
-    # the inner function later with the value currently moving through the pipe.
-    def _op(cube: xr.DataArray) -> xr.Dataset:
-        # Fail early when the incoming object cannot satisfy this method's
-        # scientific contract.
-        if "time" not in cube.dims:
-            raise ValueError("heat_stress requires a 'time' dimension")
-
-        # Keep occurrence (state) separate from excess heat (magnitude). A
-        # Dataset lets downstream verbs choose the component they need.
-        state = (cube >= threshold).rename("state")
-        magnitude = (cube - threshold).where(state, 0).rename("magnitude")
-        result = xr.Dataset({"state": state, "magnitude": magnitude})
-
-        # Preserve input provenance and record the project method configuration.
-        result.attrs.update(cube.attrs)
-        result.attrs.update(project_verb="heat_stress", threshold=float(threshold))
-        return result
-
-    # Returning the callable—not a computed result—is what makes this a verb
-    # factory compatible with pipe(cube) | heat_stress(...).
-    return _op
-"""
-        ),
-        markdown(
-            """
-## Prepare a small test case
-
-A project verb needs a deterministic example that crosses the threshold at
-different times and locations. This becomes both a lesson and a regression
-fixture for the project's scientific contract.
-"""
-        ),
-        code(
-            """
-import numpy as np
-import pandas as pd
-
-
-# Build a small heat pulse with spatial offsets so state and magnitude differ
-# across both time and location.
-time = pd.date_range("2025-07-01", periods=10, freq="D")
-y = [1, 0]
-x = [0, 1, 2]
-pulse = np.array([0, 1, 3, 6, 8, 5, 2, 0, -1, 1])[:, None, None]
-spatial = np.array([[-1.0, 0.0, 1.0], [0.0, 1.0, 2.0]])[None, :, :]
-temperature = xr.DataArray(
-    31 + pulse + spatial,
-    dims=("time", "y", "x"),
-    coords={"time": time, "y": y, "x": x},
-    name="air_temperature",
-    attrs={"units": "degC", "source": "deterministic synthetic vignette"},
-)
-temperature
-"""
-        ),
-        markdown(
-            """
-## Pipe · Apply the project rule
-
-The project-owned verb fits the same analytical sentence as a built-in verb.
-The direct call remains useful as a small equivalence test.
-"""
-        ),
-        code(
-            """
-through_pipe = (
-    pipe(temperature)
-    | heat_stress(threshold=35.0)
-).unwrap()
-
-# A project verb should behave identically when called directly or through a
-# pipe. This assertion is the first regression test a new add-on should keep.
-direct = heat_stress(threshold=35.0)(temperature)
-xr.testing.assert_identical(direct, through_pipe)
-through_pipe
-"""
-        ),
-        markdown(
-            """
-## Figure · Audit the scientific rule
-
-Summaries belong outside the verb unless they are part of its stated contract.
-Here we derive two communication-ready views from the returned Dataset.
-"""
-        ),
-        code(
-            """
+np.testing.assert_array_equal(through_grammar["state"], direct["state"])
+np.testing.assert_allclose(through_grammar["magnitude"], direct["magnitude"])
+"""),
+        markdown("## Figure · Interpret the custom verb's two outputs"),
+        code("""
 import matplotlib.pyplot as plt
 
-# Reduce the Dataset into two communication-ready summaries: affected area
-# through time and accumulated magnitude across the study period.
-daily_fraction = through_pipe["state"].mean(("y", "x"))
-cumulative_magnitude = through_pipe["magnitude"].sum("time")
+freezing_fraction = through_grammar["state"].mean(("y", "x"))
+cumulative_exposure = through_grammar["magnitude"].sum("time")
 
-# Plot input, occurrence, and magnitude together so participants can audit how
-# the custom scientific rule produced its outputs.
-fig, axes = plt.subplots(1, 3, figsize=(12, 3.6), constrained_layout=True)
-temperature.mean(("y", "x")).plot(ax=axes[0], marker="o", color="#8b543c")
-axes[0].axhline(35, color="0.35", linestyle="--")
-axes[0].set_title("Input and project threshold")
-daily_fraction.plot(ax=axes[1], marker="o", color="#3f6f72")
-axes[1].set_title("Derived heat-stress fraction")
-axes[1].set_ylim(-0.05, 1.05)
-cumulative_magnitude.plot(ax=axes[2], cmap="YlOrRd", cbar_kwargs={"label": "degree-days"})
-axes[2].set_title("Derived cumulative magnitude")
-plt.show()
-"""
-        ),
-        markdown(
-            """
-## What the figure tells us
-
-The threshold line explains when heat stress begins, the middle panel shows the
-fraction of the study area affected each day, and the map accumulates excess
-heat through time. The project rule is explicit in one verb, while the pipe
-stays as small as a built-in analysis.
-
-## Take it into a project
-
-Move `heat_stress` into `my_project.verbs`, document why 35 °C is meaningful,
-and keep the direct-versus-pipe regression test. The repository's
-`examples/custom_verb_project/` directory provides a minimal package layout.
-"""
-        ),
-    ),
-    "lazy_composition.ipynb": notebook(
-        markdown(
-            """
-# 08 · Scale the analysis lazily
-
-## Context
-
-A monthly cube has grown beyond comfortable in-memory analysis. The scientific
-method should remain readable even when execution must be divided into bounded
-chunks.
-
-## Question
-
-Can we compose an anomaly-variance analysis without loading the source cube,
-then compute only the small final map needed for interpretation?
-
-## Analysis story
-
-We will place deterministic values behind Dask, apply the same two-verb grammar
-used for in-memory cubes, inspect the deferred graph, and materialize only at an
-explicit execution boundary.
-"""
-        ),
-        code(
-            """
-import dask.array as da
-import numpy as np
-import pandas as pd
-import xarray as xr
-
-from cubedynamics import pipe, verbs as v
-
-# Start with ordinary NumPy values, then wrap them in a Dask array split into
-# bounded chunks: 6 time steps × 4 rows × 5 columns per chunk.
-rng = np.random.default_rng(7)
-values = rng.normal(size=(24, 8, 10)).astype("float32")
-lazy_values = da.from_array(values, chunks=(6, 4, 5))
-
-# xarray adds scientific coordinates without changing the lazy Dask backing.
-cube = xr.DataArray(
-    lazy_values,
-    dims=("time", "y", "x"),
-    coords={
-        "time": pd.date_range("2023-01-01", periods=24, freq="MS"),
-        "y": np.arange(8),
-        "x": np.arange(10),
-    },
-    name="signal",
-    attrs={"source": "deterministic synthetic vignette"},
+fig, axes = plt.subplots(1, 2, figsize=(10.5, 3.8), constrained_layout=True)
+freezing_fraction.plot(ax=axes[0], marker="o", color="#365f79")
+axes[0].set_title("Region below −5 °C each day")
+axes[0].set_ylabel("Fraction of PRISM cells")
+cumulative_exposure.plot(
+    ax=axes[1], cmap="magma", cbar_kwargs={"label": "Degree-days below −5 °C"}
 )
-
-assert cube.chunks is not None
-cube
-"""
-        ),
-        markdown(
-            """
-## Pipe · Describe the work without executing it
-
-Nothing about the analytical sentence mentions Dask. Laziness is a property of
-the data, and the verbs preserve it.
-"""
-        ),
-        code(
-            """
-result = (
-    pipe(cube)
-    | v.anomaly(dim="time")
-    | v.variance(dim="time", keep_dim=False)
-).unwrap()
-
-# chunks proves the arrays remain lazy. Counting graph tasks is safe because it
-# inspects the plan rather than computing the array values.
-assert result.chunks is not None
-graph_tasks = len(result.data.__dask_graph__())
-graph_tasks
-"""
-        ),
-        markdown(
-            """
-## Figure · Compute only at the interpretation boundary
-
-`compute()` appears once and visibly. It materializes the reduced 2D result,
-not the full source cube.
-"""
-        ),
-        code(
-            """
-import matplotlib.pyplot as plt
-
-# compute() is the intentional execution boundary. Only the small final map is
-# materialized, and that map—not the full source cube—is sent to Matplotlib.
-materialized = result.compute()
-assert materialized.chunks is None
-fig, ax = plt.subplots(figsize=(7, 4.5), constrained_layout=True)
-materialized.plot(ax=ax, cmap="magma", cbar_kwargs={"label": "anomaly variance"})
-ax.set_title(f"Computed final map · graph previously had {graph_tasks} tasks")
+axes[1].set_title("Cumulative cold exposure")
 plt.show()
-"""
-        ),
-        markdown(
-            """
+"""),
+        markdown("""
 ## What the figure tells us
 
-The map locates pixels with the greatest variance after removing each pixel's
-mean. More importantly, the method stayed identical to an in-memory pipe; only
-the final, explicit execution boundary changed.
+The custom verb separates occurrence from intensity. Its code remains a small
+project extension, while `pipe` supplies the shared composition language.
 
 ## Try the next variation
 
-Change the chunk sizes and inspect `graph_tasks` again. The execution plan will
-change while the scientific pipe remains the same.
-"""
-        ),
+Compose this verb with `v.detect_events` rather than embedding event detection.
+"""),
+    ),
+    "lazy_composition.ipynb": notebook(
+        markdown(f"""
+# 08 · Stay lazy until the answer is requested
+
+## Context
+
+Real cube archives quickly outgrow memory. Lazy arrays let us describe a
+method first and materialize only the final analysis.
+
+## Question
+
+Can a composed pipe preserve Dask-backed execution while computing a compact
+spatial summary from real observations?
+
+## Analysis story
+
+We open the reviewed fixture with chunks, compose anomaly and variance verbs,
+confirm that the result stays lazy, and compute only the final map.
+
+{DATA_NOTE}
+"""),
+        markdown("## Prepare · Open the official extract as a chunked cube"),
+        code("""
+from pathlib import Path
+import xarray as xr
+
+# The checked-in extract makes the lesson reproducible without a live service.
+data_path = next(
+    candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc"
+    for candidate in (Path.cwd(), *Path.cwd().parents)
+    if (candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc").exists()
+)
+cube = xr.open_dataset(
+    data_path,
+    engine="scipy",
+    chunks={"time": 10, "y": 12, "x": 12},
+)["tmax"]
+
+assert cube.attrs["is_synthetic"] == 0
+assert hasattr(cube.data, "chunks")
+cube
+"""),
+        markdown("## Pipe · Describe the method without triggering computation"),
+        code("""
+from cubedynamics import pipe, verbs as v
+
+lazy_variability = (
+    pipe(cube)
+    | v.anomaly(dim="time")
+    | v.variance(dim="time")
+).unwrap()
+
+assert hasattr(lazy_variability.data, "chunks")
+lazy_variability
+"""),
+        markdown("## Figure · Compute only the final spatial answer"),
+        code("""
+import matplotlib.pyplot as plt
+
+variability = lazy_variability.compute()
+assert not hasattr(variability.data, "chunks")
+
+fig, ax = plt.subplots(figsize=(6.5, 4.5), constrained_layout=True)
+variability.plot(ax=ax, cmap="viridis", cbar_kwargs={"label": "Anomaly variance (°C²)"})
+ax.set_title("January maximum-temperature variability")
+plt.show()
+"""),
+        markdown("""
+## What the figure tells us
+
+The final map identifies locations with more variable departures while the
+intermediate anomaly cube remained lazy.
+
+## Try the next variation
+
+Change chunk sizes and confirm that final values remain identical.
+"""),
     ),
 }
 

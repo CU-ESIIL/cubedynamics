@@ -42,7 +42,13 @@ def test_supported_vignettes_are_offline_and_plotting() -> None:
         assert metadata["supported_vignette"] is True
         assert metadata["network"] is False
         assert metadata["plot_required"] is True
+        assert metadata["data_fixture"] == "data/vignettes/prism_boulder_january_2024.nc"
+        assert metadata["provenance"] == (
+            "data/vignettes/prism_boulder_january_2024.provenance.json"
+        )
         assert "plt.show()" in code_source
+        assert "np.random" not in code_source
+        assert "default_rng" not in code_source
 
 
 def test_vignettes_follow_the_narrative_lesson_structure() -> None:

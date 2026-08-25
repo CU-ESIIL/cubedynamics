@@ -10,6 +10,10 @@ description: "Learn CubeDynamics through narrative, executable lessons that begi
   <p class="cd-vignettes-deck">Each lesson begins with a familiar data situation, asks one concrete question, expresses the analysis as a small pipe, and ends by reading a figure.</p>
 </header>
 
+<p><strong>One evidence base:</strong> every lesson uses the same checksum-controlled
+PRISM observational extract. Review its source, bounds, units, and acceptance
+checks in the <a href="../validation/data/">validation report</a>.</p>
+
 <section class="cd-pipe-principle" aria-labelledby="pipe-principle-title">
   <div>
     <p class="cd-vignettes-kicker">The central idea</p>
@@ -77,7 +81,7 @@ do. The code remains small even as the scientific vocabulary becomes richer.
   <a class="cd-vignette-card cd-vignette-card--wide" href="states_and_events/">
     <span class="cd-vignette-number">06</span>
     <p class="cd-vignette-kind">You care about episodes</p>
-    <h3>Follow heat from value to event</h3>
+    <h3>Follow cold from value to event</h3>
     <p>Turn measurements into states, states into events, and events into a spatial relationship.</p>
     <strong>Follow the event story →</strong>
   </a>
@@ -123,16 +127,20 @@ python -m pip install jupyterlab
 jupyter lab docs/vignettes/
 ```
 
-The source notebooks are small, deterministic, and offline. The runner executes
-clean copies, verifies that each lesson emits a plot, and leaves the checked-in
+The source notebooks are small and offline. The runner executes clean copies,
+verifies the real-data metadata and static plot output, and leaves the checked-in
 notebooks unmodified. The documentation build executes the same sources and
 places their figures beside the code on the website.
 
 ## Reproducibility contract
 
 - Every lesson declares a Python 3 kernel and uses only public APIs.
-- Random examples use fixed seeds; other inputs are fully deterministic.
+- Every lesson uses the checked-in PRISM observational fixture; the complete
+  URL and SHA-256 source record is checked in beside it.
+- Publication lessons contain no random or generated measurement values.
 - No lesson requires a token, network service, private path, or hidden state.
 - Assertions sit beside important contracts so a broken example fails loudly.
 - Each lesson ends with an explanatory static figure; the first also includes
   the repository-native interactive cube viewer.
+- The [validation suite](../validation/index.md) executes the notebooks and
+  checks data, grammar, decoded cube pixels, and expected-failure controls.

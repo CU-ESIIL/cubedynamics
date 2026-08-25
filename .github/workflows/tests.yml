@@ -125,6 +125,13 @@ jobs:
         run: |
           mkdocs build --strict
 
-      - name: Execute supported vignettes
+      - name: Run publication validation suite
         run: |
-          python scripts/run_vignettes.py
+          python scripts/run_validation.py --run-vignettes
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cubedynamics-validation
+          path: artifacts/validation/

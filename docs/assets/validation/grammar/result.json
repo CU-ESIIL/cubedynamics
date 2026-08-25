@@ -1,0 +1,10 @@
+{
+  "module": "grammar",
+  "status": "PASS",
+  "checks": {
+    "zscore_matches_xarray": true,
+    "composed_pipe_matches_direct": true,
+    "coordinates_preserved": true,
+    "source_provenance_preserved": true
+  }
+}

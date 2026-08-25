@@ -22,17 +22,9 @@ occurrence = (
 ).unwrap()
 ```
 
-<div class="interactive-embed">
-  <iframe
-    src="/cubedynamics/assets/figures/synchrony_occurrence_cube.html"
-    title="Interactive occurrence synchrony cube"
-    loading="lazy"
-  ></iframe>
-  <p class="interactive-embed__fallback">
-    If the occurrence synchrony cube does not load,
-    <a href="/cubedynamics/assets/figures/synchrony_occurrence_cube.html" target="_blank" rel="noopener">open it in a new tab</a>.
-  </p>
-</div>
+See the [real PRISM states-and-events vignette](../vignettes/states_and_events.ipynb)
+for a complete occurrence analysis with observed values, an explicit threshold,
+event-duration filtering, and a plotted reference-cell synchrony map.
 
 ## Severity Synchrony
 
@@ -51,17 +43,8 @@ severity = (
 ).unwrap()
 ```
 
-<div class="interactive-embed">
-  <iframe
-    src="/cubedynamics/assets/figures/synchrony_severity_cube.html"
-    title="Interactive severity synchrony cube"
-    loading="lazy"
-  ></iframe>
-  <p class="interactive-embed__fallback">
-    If the severity synchrony cube does not load,
-    <a href="/cubedynamics/assets/figures/synchrony_severity_cube.html" target="_blank" rel="noopener">open it in a new tab</a>.
-  </p>
-</div>
+No severity figure is published until the repository carries a vetted
+observational example with enough joint events for the declared estimator.
 
 ## Timing and Duration Synchrony
 
@@ -85,17 +68,9 @@ duration = events | v.duration_synchrony(
 )
 ```
 
-<div class="interactive-embed">
-  <iframe
-    src="/cubedynamics/assets/figures/synchrony_event_timing_duration_panel.html"
-    title="Interactive timing and duration synchrony panel"
-    loading="lazy"
-  ></iframe>
-  <p class="interactive-embed__fallback">
-    If the event synchrony panel does not load,
-    <a href="/cubedynamics/assets/figures/synchrony_event_timing_duration_panel.html" target="_blank" rel="noopener">open it in a new tab</a>.
-  </p>
-</div>
+Timing and duration examples will be published with a reviewed event catalog;
+exact generated truth cases remain software tests rather than reader-facing
+scientific evidence.
 
 ## Output Shapes
 

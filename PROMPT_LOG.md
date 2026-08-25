@@ -2133,3 +2133,42 @@ secrets, credentials, private tokens, or unrelated transcript text.
   their plot-output checks; six catalog tests passed; `git diff --check`
   passed; and the strict documentation build succeeded with the corrected
   inline backend.
+
+## 2026-08-25 - Real-data publication QA and cube-face validation
+
+- User goal: replace generated vignette measurements with vetted real data,
+  repair visibly incorrect cube sides, and publish an evidence-oriented QA
+  pipeline modeled on the Fire VASE validation site.
+- Rebuilt all eight narrative vignettes around one offline PRISM AN91d daily
+  4 km observational extract for the Boulder region, 1–30 January 2024. Added
+  a checked-in NetCDF, a provenance record with URL/byte/SHA-256 evidence for
+  60 official daily archives, and a reproducible builder with an explicit
+  `--download-missing` acquisition mode. No supported vignette generates
+  measurement values or uses random data.
+- Diagnosed the side-face defect in the canonical HTML viewer. Rectangular
+  space-time textures used CSS `background-size: cover`, which cropped source
+  pixels, and the right/bottom time axes did not account for their opposite CSS
+  rotations. The viewer now fits complete textures, orients all six faces to
+  the newest-front/oldest-back contract, and applies the same mapping to VASE
+  masks. Focused tests verify unique faces and exact source-array orientation.
+- Added `scripts/run_validation.py` with real-data, grammar, cube/HTML,
+  vignette, and expected-failure modules. Each writes JSON and PNG evidence;
+  the suite writes a manifest and collated PDF. Cube QA extracts the actual
+  base64 PNGs from rendered HTML and requires exact RGBA equality for every
+  pixel. Six contrast controls cover reversals, transposition, duplication,
+  and texture cropping.
+- Published validation overview, data, cube, contrast, and methods pages plus
+  reviewed evidence assets. CI now runs the full suite with all notebooks and
+  uploads its artifacts. The vignette index links the provenance and validation
+  contract directly. Removed older generated Fire VASE and synchrony examples
+  from the primary publication routes; the gate now checks those route pages so
+  generated examples cannot silently reappear. Exact generated truth cases are
+  retained only as software tests and explicit negative controls.
+- Validation: the five-module suite passed, all eight notebooks executed and
+  emitted plots, 16 focused tests passed, and `mkdocs build --strict` executed
+  every notebook successfully. Browser QA confirmed the validation overview,
+  decoded-face report, and repaired interactive PRISM cube render correctly.
+  The broader offline pytest run reached 277 passed / 3 skipped with no failure
+  before an unrelated long-running Matplotlib test was manually interrupted;
+  a subsequent affected-area batch added 38 passed / 2 skipped before the same
+  environment-specific stall.

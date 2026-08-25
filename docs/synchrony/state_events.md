@@ -68,21 +68,10 @@ The Dataset contains event variables such as `event_active`, `event_id`,
 The catalog is a pandas DataFrame with one row per event. It stays outside
 xarray attrs so large event tables remain visible and inspectable.
 
-## Matched-Event Diagnostics
+## Observational example
 
-The static panel below shows two event-level diagnostics: lag between matched
-events and duration similarity.
-
-![Matched-event diagnostics](../assets/figures/synchrony_event_diagnostics.png)
-
-<p class="figure-note">
-Black cells in the lag map indicate unmatched or unavailable event timing.
-</p>
-
-## Recreate the Website Assets
-
-```bash
-PYTHONPATH=src MPLCONFIGDIR=/private/tmp \
-  .venv/bin/python examples/synchrony_section_assets.py \
-  --output-dir docs/assets/figures
-```
+The [real PRISM states-and-events vignette](../vignettes/states_and_events.ipynb)
+shows the complete value → state → persistent event → occurrence synchrony
+story with a declared source, threshold, units, and plotted results. Matched
+timing and duration diagnostics will be added when a vetted event catalog is
+available for the publication examples.

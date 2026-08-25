@@ -486,9 +486,12 @@ def _render_cube_html(
       position: absolute;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      /* Every pixel is scientific evidence. Fit the complete rectangular
+         texture to the square physical face; `cover` cropped side data. */
+      background-size: 100% 100%;
       background-position: center;
       background-repeat: no-repeat;
+      image-rendering: pixelated;
       backface-visibility: hidden;
       border: 1px solid rgba(0,0,0,0.08);
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
@@ -507,7 +510,7 @@ def _render_cube_html(
       inset: 0;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      background-size: 100% 100%;
       background-position: center;
       opacity: 0.65;
       mix-blend-mode: normal;
@@ -950,8 +953,8 @@ def cube_from_dataarray(
     back_spatial: Optional[np.ndarray] = None
     left_time_y = np.full((ny, nt_eff), np.nan, dtype="float32")
     right_time_y = np.full((ny, nt_eff), np.nan, dtype="float32")
-    top_time_x = np.full((nx, nt_eff), np.nan, dtype="float32")
-    bottom_time_x = np.full((nx, nt_eff), np.nan, dtype="float32")
+    top_time_x = np.full((nt_eff, nx), np.nan, dtype="float32")
+    bottom_time_x = np.full((nt_eff, nx), np.nan, dtype="float32")
 
     for idx, t_idx in enumerate(t_indices):
         frame = da.isel({t_dim: t_idx}).transpose(y_dim, x_dim)
@@ -961,10 +964,14 @@ def cube_from_dataarray(
             back_spatial = np.flip(arr, axis=1)
         front_spatial = arr
 
+        # CSS rotates opposite faces in opposite directions. Orient the source
+        # arrays here so every visible front edge represents the newest time
+        # and every back edge represents the oldest time. The back face alone
+        # reverses x because rotateY(180deg) reverses its horizontal direction.
         left_time_y[:, idx] = arr[:, 0]
-        right_time_y[:, idx] = arr[:, -1]
-        top_time_x[:, idx] = arr[-1, :]
-        bottom_time_x[:, idx] = arr[0, :]
+        right_time_y[:, nt_eff - 1 - idx] = arr[:, -1]
+        top_time_x[idx, :] = arr[-1, :]
+        bottom_time_x[nt_eff - 1 - idx, :] = arr[0, :]
 
         progress.step()
 
@@ -1038,15 +1045,15 @@ def cube_from_dataarray(
                 dtype=bool,
             )
             mask_slices["right"] = np.asarray(
-                vase_mask.isel({x_dim: -1, t_dim: t_indices}).transpose(y_dim, t_dim).values,
+                vase_mask.isel({x_dim: -1, t_dim: t_indices[::-1]}).transpose(y_dim, t_dim).values,
                 dtype=bool,
             )
             mask_slices["top"] = np.asarray(
-                vase_mask.isel({y_dim: -1, t_dim: t_indices}).transpose(x_dim, t_dim).values,
+                vase_mask.isel({y_dim: -1, t_dim: t_indices}).transpose(t_dim, x_dim).values,
                 dtype=bool,
             )
             mask_slices["bottom"] = np.asarray(
-                vase_mask.isel({y_dim: 0, t_dim: t_indices}).transpose(x_dim, t_dim).values,
+                vase_mask.isel({y_dim: 0, t_dim: t_indices[::-1]}).transpose(t_dim, x_dim).values,
                 dtype=bool,
             )
         except Exception as exc:  # pragma: no cover - defensive guard

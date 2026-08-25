@@ -31,22 +31,8 @@ sync = (
 cold_minus_hot = sync["bottom_minus_top"]
 ```
 
-## Existing Interactive Demo
-
 Positive values mean below-median/cold synchrony is stronger. Negative values
-mean above-median/warm synchrony is stronger.
-
-<div class="interactive-embed">
-  <iframe
-    src="/cubedynamics/assets/figures/climate_median_split_synchrony_cube.html"
-    title="Interactive climate median-split synchrony cube"
-    loading="lazy"
-  ></iframe>
-  <p class="interactive-embed__fallback">
-    If the climate synchrony cube does not load,
-    <a href="/cubedynamics/assets/figures/climate_median_split_synchrony_cube.html" target="_blank" rel="noopener">open it in a new tab</a>.
-  </p>
-</div>
-
-For the full recipe and reproduction commands, see
-[Rolling climate synchrony vs center pixel](../recipes/climate_tail_dep_center.md).
+mean above-median/warm synchrony is stronger. This convenience API remains
+available, but the old generated interactive demo is not part of the
+publication site. Start with the [real PRISM states-and-events
+vignette](../vignettes/states_and_events.ipynb) for a vetted synchrony analysis.

@@ -3,6 +3,22 @@ site_description: "CubeDynamics: a composable grammar for spatiotemporal science
 site_author: CubeDynamics Team
 site_url: "https://cu-esiil.github.io/cubedynamics/"
 
+# Retain historical/generated fixtures for software development without
+# publishing them as educational examples. Public learning routes use vetted
+# observational data; exact generated truth cases belong in tests/validation.
+exclude_docs: |
+  recipes/fire_vase_synthetic.md
+  recipes/climate_tail_dep_center.md
+  recipes/ghosh_tail_association.md
+  assets/figures/fire_vase_panel_sample.html
+  assets/figures/synchrony_occurrence_cube.html
+  assets/figures/synchrony_metric_comparison.png
+  assets/figures/synchrony_coupling_lag_curve.png
+  assets/figures/synchrony_severity_cube.html
+  assets/figures/synchrony_event_timing_duration_panel.html
+  assets/figures/climate_median_split_synchrony_cube.html
+  assets/figures/synchrony_event_diagnostics.png
+
 nav:
   - Home: index.md
   - Get Started:
@@ -26,9 +42,15 @@ nav:
       - "03 · Two variables, two questions": vignettes/cube_from_dataset.ipynb
       - "04 · Write the analysis as a sentence": vignettes/grammar_basics.ipynb
       - "05 · Ask several questions of one cube": vignettes/verbs_gallery.ipynb
-      - "06 · Follow heat from value to event": vignettes/states_and_events.ipynb
+      - "06 · Follow cold from value to event": vignettes/states_and_events.ipynb
       - "07 · Give a project its own verb": vignettes/custom_verb_project.ipynb
       - "08 · Scale the analysis lazily": vignettes/lazy_composition.ipynb
+  - Validation:
+      - Overview: validation/index.md
+      - Real data: validation/data.md
+      - Cube / HTML: validation/cube.md
+      - Expected-failure controls: validation/contrast.md
+      - Methods and CI: validation/methods.md
   - Extend the Grammar:
       - Write a custom verb project: extending/custom_verbs.md
       - Recipe authoring template: recipes/recipe_template.md
@@ -80,7 +102,6 @@ nav:
       - PRISM variance: recipes/prism_variance_cube.md
       - Sentinel-2 NDVI z-score: recipes/s2_ndvi_zcube.md
       - Fire event and climate: recipes/fire_event_vase_hull.md
-      - Synthetic Fire VASE: recipes/fire_vase_synthetic.md
       - Spatial synchrony blocks: recipes/spatial_synchrony_units.md
   - Reference:
       - Overview: api/index.md

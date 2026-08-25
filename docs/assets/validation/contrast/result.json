@@ -1,0 +1,12 @@
+{
+  "module": "contrast",
+  "status": "PASS",
+  "checks": {
+    "rejects_unreversed_back": true,
+    "rejects_unreversed_right_time": true,
+    "rejects_transposed_top_time_axis": true,
+    "rejects_unreversed_bottom_time": true,
+    "rejects_duplicate_front_face": true,
+    "rejects_cropping_css": true
+  }
+}
