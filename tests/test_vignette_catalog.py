@@ -1,4 +1,4 @@
-"""Guardrails for the publication-facing hackathon notebook lab."""
+"""Guardrails for the publication-facing narrative vignette collection."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ def _read_notebook(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_hackathon_vignette_catalog_is_complete() -> None:
+def test_vignette_catalog_is_complete() -> None:
     actual = {path.name for path in VIGNETTE_DIR.glob("*.ipynb")}
     assert EXPECTED <= actual
 
@@ -45,10 +45,40 @@ def test_supported_vignettes_are_offline_and_plotting() -> None:
         assert "plt.show()" in code_source
 
 
+def test_vignettes_follow_the_narrative_lesson_structure() -> None:
+    for name in EXPECTED:
+        notebook = _read_notebook(VIGNETTE_DIR / name)
+        markdown_source = "\n".join(
+            "".join(cell["source"])
+            for cell in notebook["cells"]
+            if cell["cell_type"] == "markdown"
+        )
+        code_source = "\n".join(
+            "".join(cell["source"])
+            for cell in notebook["cells"]
+            if cell["cell_type"] == "code"
+        )
+
+        assert "## Context" in markdown_source
+        assert "## Question" in markdown_source
+        assert "## Analysis story" in markdown_source
+        assert "## Pipe" in markdown_source
+        assert "## Figure" in markdown_source
+        assert "## What the figure tells us" in markdown_source
+        assert "pipe(" in code_source
+        assert ").unwrap()" in code_source
+        assert "hackathon" not in markdown_source.lower()
+        assert "hackathon" not in code_source.lower()
+
+
 def test_vignette_index_links_every_supported_notebook() -> None:
     index = (VIGNETTE_DIR / "index.md").read_text(encoding="utf-8")
     for name in EXPECTED:
-        assert f"({name})" in index
+        assert f'href="{Path(name).stem}/"' in index
+    assert "Keep the analytical sentence short" in index
+    assert "Context" in index
+    assert "Interpretation" in index
+    assert "hackathon" not in index.lower()
 
 
 def test_array_cube_viewer_is_isolated_from_the_document_page() -> None:

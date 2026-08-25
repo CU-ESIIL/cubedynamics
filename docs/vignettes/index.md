@@ -1,45 +1,113 @@
-# Hackathon notebook lab
+---
+description: "Learn CubeDynamics through narrative, executable lessons that begin with a research question and end with an interpretable figure."
+---
 
-This collection is a visual, executable introduction to CubeDynamics. Every
-notebook is independent, uses deterministic synthetic data, runs without
-network access or credentials, and produces at least one plot that makes the
-effect of the code visible.
+<div class="cd-vignettes">
 
-The first three notebooks show common ways to bring data into the cube model.
-The remaining notebooks show what the grammar can do and how a hackathon team
-can extend it.
+<header class="cd-vignettes-hero">
+  <p class="cd-vignettes-kicker">Learn by following an analysis</p>
+  <h1>Vignettes</h1>
+  <p class="cd-vignettes-deck">Each lesson begins with a familiar data situation, asks one concrete question, expresses the analysis as a small pipe, and ends by reading a figure.</p>
+</header>
 
-## Bring data into the grammar
+<section class="cd-pipe-principle" aria-labelledby="pipe-principle-title">
+  <div>
+    <p class="cd-vignettes-kicker">The central idea</p>
+    <h2 id="pipe-principle-title">Keep the analytical sentence short.</h2>
+    <p>Preparing data can take several lines. The scientific operation should still be easy to see, explain, change, and review.</p>
+  </div>
+  <pre><code>result = (
+    pipe(cube)
+    | v.anomaly(dim="time")
+    | v.mean(dim=("y", "x"), keep_dim=False)
+).unwrap()</code></pre>
+</section>
 
-| Notebook | Starting point | What participants see |
-| --- | --- | --- |
-| [01 · Build a cube from arrays](cube_from_arrays.ipynb) | NumPy values plus coordinate arrays | A map, a pixel time series, and the interactive HTML cube viewer |
-| [02 · Build a cube from a tidy table](cube_from_tidy_table.ipynb) | A pandas table with time, y, and x columns | The reshaped series and the effect of temporal standardization |
-| [03 · Work with a multi-variable Dataset](cube_from_dataset.ipynb) | Aligned temperature and precipitation cubes | A temperature-anomaly map and regional precipitation series |
+</div>
 
-## Compose and extend verbs
+## Start with the data you have
 
-| Notebook | Main idea | Verbs and concepts |
-| --- | --- | --- |
-| [04 · The core grammar](grammar_basics.ipynb) | Direct calls, pipe calls, and ordinary functions agree | `pipe`, `unwrap`, `v.zscore`, `v.anomaly`, `v.apply` |
-| [05 · Visual gallery of core verbs](verbs_gallery.ipynb) | One cube can answer several questions | `v.mean`, `v.variance`, `v.anomaly`, `v.zscore`, `v.apply`, `v.flatten_space` |
-| [06 · States, events, and synchrony](states_and_events.ipynb) | Continuous measurements can become episodes and relationships | `v.threshold_state`, `v.detect_events`, `v.occurrence_synchrony` |
-| [07 · Build a project-specific verb](custom_verb_project.ipynb) | A research project can own its scientific vocabulary | Verb factories, Dataset outputs, direct-versus-pipe tests |
-| [08 · Lazy composition with Dask](lazy_composition.ipynb) | Pipelines can stay lazy until an intentional result is needed | Chunking, graph construction, `compute()` boundaries |
+Choose the first lesson that resembles your starting point. These stories all
+arrive at the same `(time, y, x)` cube contract.
 
-## Suggested hackathon routes
+<div class="cd-vignette-grid cd-vignette-grid--three">
+  <a class="cd-vignette-card" href="cube_from_arrays/">
+    <span class="cd-vignette-number">01</span>
+    <p class="cd-vignette-kind">You have an array</p>
+    <h3>From values to a scientific cube</h3>
+    <p>Add coordinates, units, and provenance; compare a map with a pixel history; then rotate the cube.</p>
+    <strong>Begin with NumPy →</strong>
+  </a>
+  <a class="cd-vignette-card" href="cube_from_tidy_table/">
+    <span class="cd-vignette-number">02</span>
+    <p class="cd-vignette-kind">You have observations</p>
+    <h3>From a tidy table to a comparable signal</h3>
+    <p>Reshape rows into a cube and use one clean verb to standardize every location through time.</p>
+    <strong>Begin with pandas →</strong>
+  </a>
+  <a class="cd-vignette-card" href="cube_from_dataset/">
+    <span class="cd-vignette-number">03</span>
+    <p class="cd-vignette-kind">You have several variables</p>
+    <h3>Ask two questions of one Dataset</h3>
+    <p>Select aligned variables, preserve their meanings, and compose a separate pipe for each question.</p>
+    <strong>Begin with xarray →</strong>
+  </a>
+</div>
 
-For a **45-minute orientation**, run notebooks 01, 04, and 05. Participants
-learn the cube data model, the composition syntax, and the main vocabulary.
+## Follow the grammar into an analysis
 
-For a **90-minute hands-on lab**, add notebook 02 or 03 based on the data people
-usually bring, then let each team choose notebook 06, 07, or 08 as its extension.
+Once a cube is ready, continue with the story closest to the work you want to
+do. The code remains small even as the scientific vocabulary becomes richer.
 
-For an **open build session**, ask teams to replace one synthetic cube with
-their own xarray object and author one project-owned verb that ends in an
-explanatory plot.
+<div class="cd-vignette-grid cd-vignette-grid--two">
+  <a class="cd-vignette-card cd-vignette-card--wide" href="grammar_basics/">
+    <span class="cd-vignette-number">04</span>
+    <p class="cd-vignette-kind">You want a readable method</p>
+    <h3>Write the analysis as a sentence</h3>
+    <p>See direct and piped calls agree, combine built-in and ordinary functions, and identify the minimal grammar.</p>
+    <strong>Learn the core pipe →</strong>
+  </a>
+  <a class="cd-vignette-card cd-vignette-card--wide" href="verbs_gallery/">
+    <span class="cd-vignette-number">05</span>
+    <p class="cd-vignette-kind">You want to explore possibilities</p>
+    <h3>Ask several questions of one cube</h3>
+    <p>Compare means, variance, anomalies, standardized values, project functions, and model-ready shapes.</p>
+    <strong>Explore the verb gallery →</strong>
+  </a>
+  <a class="cd-vignette-card cd-vignette-card--wide" href="states_and_events/">
+    <span class="cd-vignette-number">06</span>
+    <p class="cd-vignette-kind">You care about episodes</p>
+    <h3>Follow heat from value to event</h3>
+    <p>Turn measurements into states, states into events, and events into a spatial relationship.</p>
+    <strong>Follow the event story →</strong>
+  </a>
+  <a class="cd-vignette-card cd-vignette-card--wide" href="custom_verb_project/">
+    <span class="cd-vignette-number">07</span>
+    <p class="cd-vignette-kind">Your project has a method</p>
+    <h3>Give the project its own verb</h3>
+    <p>Encode a scientific rule as a small callable factory and keep project assumptions visible.</p>
+    <strong>Build a custom verb →</strong>
+  </a>
+  <a class="cd-vignette-card cd-vignette-card--wide" href="lazy_composition/">
+    <span class="cd-vignette-number">08</span>
+    <p class="cd-vignette-kind">Your cube is larger</p>
+    <h3>Scale the same analysis lazily</h3>
+    <p>Keep the grammar unchanged while Dask delays computation until the final result is needed.</p>
+    <strong>Follow the lazy workflow →</strong>
+  </a>
+</div>
 
-## Run the complete lab locally
+## The rhythm of every lesson
+
+<ol class="cd-lesson-rhythm">
+  <li><strong>Context</strong><span>Meet the data and the research situation.</span></li>
+  <li><strong>Question</strong><span>Decide what the analysis must reveal.</span></li>
+  <li><strong>Pipe</strong><span>Read the method as one compact expression.</span></li>
+  <li><strong>Figure</strong><span>See the transformation rather than only inspecting an array.</span></li>
+  <li><strong>Interpretation</strong><span>Connect the visual result back to the question.</span></li>
+</ol>
+
+## Run the vignettes
 
 From a repository checkout:
 
@@ -48,30 +116,23 @@ python -m pip install -e ".[vignettes]"
 python scripts/run_vignettes.py
 ```
 
-The runner executes clean copies in a temporary directory. It checks that each
-notebook is marked offline, finishes without an exception, and emits a portable
-PNG or SVG plot. It does not write execution outputs into the source notebooks.
-
-To explore and edit the notebooks interactively:
+To edit them interactively:
 
 ```bash
 python -m pip install jupyterlab
 jupyter lab docs/vignettes/
 ```
 
-The documentation build executes the notebooks when it renders the website, so
-the published pages include their figures. Each page also provides its source
-`.ipynb` for download.
+The source notebooks are small, deterministic, and offline. The runner executes
+clean copies, verifies that each lesson emits a plot, and leaves the checked-in
+notebooks unmodified. The documentation build executes the same sources and
+places their figures beside the code on the website.
 
 ## Reproducibility contract
 
-- Python 3 kernel metadata is recorded in every notebook.
-- Random examples use fixed seeds; other examples are fully deterministic.
-- No notebook needs a token, account, network service, or private local path.
-- All inputs are small enough for a laptop and all plots use standard package
-  dependencies.
-- Assertions live next to the examples so a broken API fails loudly.
-
-The supported vignettes are the publication-facing examples. Older notebooks
-under the top-level `notebooks/` directory are exploratory records and may use
-network services, optional renderers, or historical APIs.
+- Every lesson declares a Python 3 kernel and uses only public APIs.
+- Random examples use fixed seeds; other inputs are fully deterministic.
+- No lesson requires a token, network service, private path, or hidden state.
+- Assertions sit beside important contracts so a broken example fails loudly.
+- Each lesson ends with an explanatory static figure; the first also includes
+  the repository-native interactive cube viewer.

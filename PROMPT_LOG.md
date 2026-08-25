@@ -2089,3 +2089,28 @@ secrets, credentials, private tokens, or unrelated transcript text.
   allowing its `<head>`, `<body>`, and styles to interfere with the MkDocs page.
   The notebook now escapes that document into an isolated, titled, sandboxed
   iframe `srcdoc`, retaining manipulation without a helper file or DOM leakage.
+
+## 2026-08-24 - Narrative vignette learning path
+
+- User goal: present the educational material as a durable vignette section,
+  organize it around users and analysis stories, and make the minimalist pipe
+  the most visible expression of each method.
+- Replaced event-specific framing with a publication-facing learning path that
+  routes readers by the data they have and the question they want to answer.
+  Added restrained vignette-specific styling and updated the homepage, README,
+  site navigation, and lesson titles to use the same narrative language.
+- Reworked all eight generated notebooks around a consistent sequence:
+  context, concrete question, analysis story, compact pipe, figure, scientific
+  interpretation, and a next variation. Data setup, analytical composition,
+  and plotting now occupy separate cells so realistic preparation does not
+  obscure the small CubeDynamics grammar.
+- Changed the array and tidy-table lessons to use the pipe explicitly, retained
+  inline comments around data contracts and non-obvious implementation choices,
+  and preserved the isolated interactive HTML cube. Added tests requiring the
+  narrative lesson structure, pipe use, complete catalog, offline metadata,
+  plot source, and event-neutral wording.
+- Validation: all eight notebooks executed successfully offline and emitted
+  their required plots; 15 focused vignette, pipe, statistics, and shape tests
+  passed; `git diff --check` passed; and a clean strict MkDocs build executed
+  and rendered all eight lessons, figures, downloads, navigation labels, and
+  the new vignette stylesheet.

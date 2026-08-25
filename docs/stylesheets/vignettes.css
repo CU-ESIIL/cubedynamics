@@ -1,0 +1,218 @@
+/* Narrative learning path for the publication-facing vignette section. */
+
+.cd-vignettes-hero {
+  margin: -0.5rem 0 2rem;
+  padding: clamp(1.6rem, 4vw, 3.2rem);
+  border: 1px solid var(--cd-line);
+  border-top: 4px solid var(--cd-teal);
+  background: #eef2ef;
+}
+
+[data-md-color-scheme="slate"] .cd-vignettes-hero {
+  background: #1b2b31;
+}
+
+.cd-vignettes-hero h1 {
+  max-width: none;
+  margin: 0.25rem 0 0.65rem;
+}
+
+.cd-vignettes-kicker,
+.md-typeset .cd-vignettes-kicker {
+  margin: 0;
+  color: var(--cd-teal);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+[data-md-color-scheme="slate"] .cd-vignettes-kicker,
+[data-md-color-scheme="slate"] .md-typeset .cd-vignettes-kicker {
+  color: #9bc3c1;
+}
+
+.cd-vignettes-deck {
+  max-width: 48rem;
+  margin: 0;
+  color: #41535a;
+  font-family: var(--cd-display);
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  line-height: 1.5;
+}
+
+[data-md-color-scheme="slate"] .cd-vignettes-deck {
+  color: #d9e1df;
+}
+
+.cd-pipe-principle {
+  display: grid;
+  grid-template-columns: minmax(14rem, 0.75fr) minmax(20rem, 1.25fr);
+  gap: clamp(1.2rem, 3vw, 2.4rem);
+  align-items: center;
+  margin: 0 0 3rem;
+  padding: clamp(1.4rem, 3vw, 2.2rem);
+  border: 1px solid var(--cd-line);
+  background: var(--cd-paper-bright);
+}
+
+.cd-pipe-principle h2 {
+  margin: 0.3rem 0 0.7rem;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+.cd-pipe-principle p:last-child {
+  margin-bottom: 0;
+}
+
+.md-typeset .cd-pipe-principle pre {
+  margin: 0;
+  border-left: 4px solid #7d9d48;
+}
+
+.cd-vignette-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 1.25rem 0 3rem;
+}
+
+.cd-vignette-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.cd-vignette-grid--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.md-typeset .cd-vignette-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 15rem;
+  padding: 1.25rem;
+  border: 1px solid var(--cd-line);
+  background: #fbfaf7;
+  color: var(--cd-ink);
+  text-decoration: none;
+  transition: border-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cd-vignette-card {
+  background: #1b282e;
+  color: #edf0ed;
+}
+
+.md-typeset .cd-vignette-card:hover,
+.md-typeset .cd-vignette-card:focus-visible {
+  border-color: var(--cd-teal);
+  box-shadow: 0 8px 20px rgba(23, 36, 44, 0.09);
+  transform: translateY(-2px);
+}
+
+.cd-vignette-number {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: #6e7b7c;
+  font-family: var(--cd-display);
+  font-size: 1.15rem;
+}
+
+.md-typeset .cd-vignette-kind {
+  margin: 0 2.5rem 0.7rem 0;
+  color: var(--cd-rust);
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cd-vignette-kind {
+  color: #d4aa94;
+}
+
+.md-typeset .cd-vignette-card h3 {
+  margin: 0 0 0.65rem;
+  font-size: 1.2rem;
+  line-height: 1.22;
+}
+
+.md-typeset .cd-vignette-card p:not(.cd-vignette-kind) {
+  margin: 0 0 1rem;
+  color: #536167;
+  line-height: 1.55;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cd-vignette-card p:not(.cd-vignette-kind) {
+  color: #bdc9c7;
+}
+
+.md-typeset .cd-vignette-card strong {
+  margin-top: auto;
+  color: #2f6267;
+  font-size: 0.75rem;
+}
+
+[data-md-color-scheme="slate"] .md-typeset .cd-vignette-card strong {
+  color: #9bc3c1;
+}
+
+.cd-lesson-rhythm {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  margin: 1.25rem 0 3rem;
+  padding: 0;
+  border: 1px solid var(--cd-line);
+  list-style: none;
+}
+
+.cd-lesson-rhythm li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 1rem;
+  border-right: 1px solid var(--cd-line);
+}
+
+.cd-lesson-rhythm li:last-child {
+  border-right: 0;
+}
+
+.cd-lesson-rhythm strong {
+  color: var(--cd-teal);
+  font-family: var(--cd-display);
+  font-size: 1rem;
+}
+
+.cd-lesson-rhythm span {
+  color: #58666a;
+  font-size: 0.7rem;
+  line-height: 1.5;
+}
+
+[data-md-color-scheme="slate"] .cd-lesson-rhythm span {
+  color: #bdc9c7;
+}
+
+@media (max-width: 900px) {
+  .cd-pipe-principle,
+  .cd-vignette-grid--three,
+  .cd-vignette-grid--two {
+    grid-template-columns: 1fr;
+  }
+
+  .cd-lesson-rhythm {
+    grid-template-columns: 1fr;
+  }
+
+  .cd-lesson-rhythm li {
+    border-right: 0;
+    border-bottom: 1px solid var(--cd-line);
+  }
+
+  .cd-lesson-rhythm li:last-child {
+    border-bottom: 0;
+  }
+}

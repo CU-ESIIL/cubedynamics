@@ -77,9 +77,9 @@ result = (
         <span class="cd-visual-word">VERB</span>
       </div>
       <div class="cd-story-copy">
-        <p class="cd-story-tag">01–08 · Runnable notebook lab</p>
-        <h3>Visual resources for a hackathon</h3>
-        <p>Bring data into the cube model, compose verbs, inspect plots, and build a project-owned operation.</p>
+        <p class="cd-story-tag">01–08 · Narrative vignettes</p>
+        <h3>Learn through complete analysis stories</h3>
+        <p>Begin with a research question, read the method as a compact pipe, and interpret what the figure reveals.</p>
         <span class="cd-story-link">Open the complete learning path →</span>
       </div>
     </a>
