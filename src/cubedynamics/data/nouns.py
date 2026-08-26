@@ -343,6 +343,15 @@ def _annotate(
     attrs.update(
         {
             "scientific_noun": noun,
+            "semantic_name": noun,
+            "semantic_kind": "continuous_field",
+            "semantic_category": (
+                "surface_observation"
+                if noun in {"surface_reflectance", "vegetation_index"}
+                else "climate"
+            ),
+            "semantic_temporal": "time" in result.dims,
+            "semantic_dimensions": json.dumps(list(result.dims)),
             "source_flavor": source,
             "source_provider": definition["provider"],
             "source_product": definition["product"],

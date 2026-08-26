@@ -32,6 +32,19 @@ def _ensure_dim(obj: xr.Dataset | xr.DataArray, dim: Hashable | Iterable[Hashabl
         raise ValueError(f"Dimension {dim!r} not found in object dims: {tuple(obj.dims)}")
 
 
+def _resolve_over(
+    dim: Hashable | Iterable[Hashable],
+    over: Hashable | Iterable[Hashable] | None,
+) -> Hashable | Iterable[Hashable]:
+    """Resolve the readable ``over=`` spelling without breaking ``dim=``."""
+
+    if over is None:
+        return dim
+    if dim != "time" and dim != over:
+        raise ValueError("Use either dim= or over=, not conflicting values for both.")
+    return over
+
+
 def _expand_dim(
     reduced: xr.Dataset | xr.DataArray,
     dim: Hashable,
@@ -57,7 +70,13 @@ def _broadcast_like(
     return stat.broadcast_like(obj)
 
 
-def mean(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True):
+def mean(
+    dim: str = "time",
+    *,
+    over: Hashable | Iterable[Hashable] | None = None,
+    keep_dim: bool = True,
+    skipna: bool | None = True,
+):
     """Summary
     Compute the mean along a dimension while keeping cubes pipe-ready.
 
@@ -67,6 +86,8 @@ def mean(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True
     Parameters
     dim : str, default "time"
         Dimension to reduce.
+    over : hashable or iterable of hashable, optional
+        Readable alias for ``dim``. Existing ``dim=`` calls remain supported.
     keep_dim : bool, default True
         Preserve the reduced dimension with length 1 to keep a (time, y, x)
         layout when applicable.
@@ -97,6 +118,8 @@ def mean(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True
     cubedynamics.verbs.stats.variance, cubedynamics.verbs.stats.anomaly
     """
 
+    dim = _resolve_over(dim, over)
+
     def _op(obj: xr.Dataset | xr.DataArray | VirtualCube) -> xr.Dataset | xr.DataArray:
         if isinstance(obj, VirtualCube):
             if isinstance(dim, (tuple, list)) and set(dim) == {"y", "x"}:
@@ -112,8 +135,16 @@ def mean(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True
     return _op
 
 
-def variance(dim: str = "time", *, keep_dim: bool = True, skipna: bool | None = True):
+def variance(
+    dim: str = "time",
+    *,
+    over: Hashable | Iterable[Hashable] | None = None,
+    keep_dim: bool = True,
+    skipna: bool | None = True,
+):
     """Return a variance reducer along ``dim`` with optional dimension retention."""
+
+    dim = _resolve_over(dim, over)
 
     def _variance_xarray(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
         _ensure_dim(obj, dim)
@@ -284,12 +315,19 @@ def _mean_virtual_space(vc: VirtualCube) -> xr.DataArray:
     )
 
 
-def anomaly(dim: str = "time", *, keep_dim: bool = True):
+def anomaly(
+    dim: str = "time",
+    *,
+    over: Hashable | Iterable[Hashable] | None = None,
+    keep_dim: bool = True,
+):
     """Return a pipe verb that subtracts the mean over ``dim``.
 
     ``keep_dim`` is accepted for API symmetry; anomalies always preserve the
     input shape so Lexcube visualization remains valid.
     """
+
+    dim = _resolve_over(dim, over)
 
     def _op(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
         _ensure_dim(obj, dim)
@@ -303,6 +341,7 @@ def anomaly(dim: str = "time", *, keep_dim: bool = True):
 def zscore(
     dim: str = "time",
     *,
+    over: Hashable | Iterable[Hashable] | None = None,
     keep_dim: bool = True,
     std_eps: float = STD_EPS,
     skipna: bool | None = True,
@@ -313,6 +352,8 @@ def zscore(
     cube shape regardless of the flag. ``std_eps`` prevents division-by-zero for
     flat series.
     """
+
+    dim = _resolve_over(dim, over)
 
     def _op(obj: xr.Dataset | xr.DataArray | VirtualCube) -> xr.Dataset | xr.DataArray:
         if isinstance(obj, VirtualCube):

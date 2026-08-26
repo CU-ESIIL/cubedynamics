@@ -15,6 +15,21 @@ from __future__ import annotations
 
 from typing import Any, Callable, Generic, TypeVar
 
+from .grammar import (
+    SemanticState,
+    Suggestion,
+    TraceStep,
+    ValidationReport,
+    explain_pipeline,
+    infer_semantic_state,
+    inspect_stage,
+    order_messages,
+    preflight,
+    suggest_next,
+    transition_state,
+    validate_pipeline,
+)
+
 
 T = TypeVar("T")
 
@@ -139,23 +154,78 @@ class Pipe(Generic[T]):
     cubedynamics.piping.Verb, cubedynamics.piping.pipe
     """
 
-    def __init__(self, value: T) -> None:
+    def __init__(
+        self,
+        value: T,
+        *,
+        _initial_state: SemanticState | None = None,
+        _semantic_state: SemanticState | None = None,
+        _trace: tuple[TraceStep, ...] = (),
+    ) -> None:
         self.value = value
+        inferred = _semantic_state or infer_semantic_state(value)
+        self._initial_state = _initial_state or inferred
+        self._semantic_state = inferred
+        self._trace = _trace
 
     def __or__(self, func: Callable[[T], U]) -> "Pipe[U]":
         """Apply ``func`` to the wrapped value and return a new :class:`Pipe`."""
 
+        name, parameters = inspect_stage(func)
+        preflight(name, self._semantic_state)
         new_value = func(self.value)
         if getattr(func, "_cd_passthrough_on_pipe", False):
             viewer = new_value
             _attach_viewer(self.value, viewer)
             new_value = self.value
-        return Pipe(new_value)
+        next_state = transition_state(name, parameters, self._semantic_state, new_value)
+        messages = order_messages(self._trace, name)
+        step = TraceStep(
+            index=len(self._trace) + 1,
+            verb=name,
+            parameters=parameters,
+            input_state=self._semantic_state,
+            output_state=next_state,
+            messages=messages,
+        )
+        return Pipe(
+            new_value,
+            _initial_state=self._initial_state,
+            _semantic_state=next_state,
+            _trace=(*self._trace, step),
+        )
 
     def unwrap(self) -> T:
         """Return the wrapped value, ending the pipe chain."""
 
         return self.value
+
+    @property
+    def semantic_state(self) -> SemanticState:
+        """Semantic description of the current value; no data are computed."""
+
+        return self._semantic_state
+
+    @property
+    def semantic_trace(self) -> tuple[TraceStep, ...]:
+        """Immutable record of stages executed through this pipe."""
+
+        return self._trace
+
+    def explain(self) -> str:
+        """Explain the analysis in plain language without changing it."""
+
+        return explain_pipeline(self._initial_state, self._trace)
+
+    def suggest(self) -> tuple[Suggestion, ...]:
+        """Suggest a short list of compatible, currently implemented verbs."""
+
+        return suggest_next(self._semantic_state)
+
+    def validate(self) -> ValidationReport:
+        """Run metadata-only semantic and ordering checks."""
+
+        return validate_pipeline(self._initial_state, self._trace)
 
     def __repr__(self) -> str:
         """Return the repr of the wrapped value for plain-text displays."""
