@@ -5,7 +5,7 @@ description: "Provenance and acceptance checks for the observational PRISM data 
 # Real-data validation
 
 Every supported vignette uses the same observational teaching extract:
-`data/vignettes/prism_boulder_january_2024.nc`.
+`tests/fixtures/real_data/prism_boulder_january_2024.nc`.
 
 | Field | Reviewed value |
 | --- | --- |
@@ -33,7 +33,7 @@ The validation module rejects the fixture unless:
 - all 60 official daily archives have URL, byte-count, and SHA-256 evidence.
 
 The fixture provenance is machine readable at
-[`data/vignettes/prism_boulder_january_2024.provenance.json`](https://github.com/CU-ESIIL/cubedynamics/blob/main/data/vignettes/prism_boulder_january_2024.provenance.json).
+[`tests/fixtures/real_data/prism_boulder_january_2024.provenance.json`](https://github.com/CU-ESIIL/cubedynamics/blob/main/tests/fixtures/real_data/prism_boulder_january_2024.provenance.json).
 
 Source: [PRISM Group](https://prism.oregonstate.edu/),
 [dataset documentation](https://www.prism.oregonstate.edu/documents/PRISM_datasets.pdf),

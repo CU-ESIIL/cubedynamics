@@ -98,6 +98,38 @@ It also writes `real_fire_vase_gridmet_diagnostic.png`, a static panel with
 VASE projections, climate traces, inside/outside samples, and hull metrics.
 The second command is only needed when refreshing the website copy.
 
+## Prescribed-burn VASE panel example
+
+The multi-event form applies the same single-event workflow to a vetted set of
+prescribed FIRED events and assembles successful results into one panel. For a
+scientific run, supply the observed event tables and a loader that retrieves
+the matching climate cube for each event:
+
+```python
+from cubedynamics import pipe, verbs as v
+
+panel = (
+    pipe(None)
+    | v.fire_vase_panel(
+        fired_daily=fired_daily,
+        fired_events=fired_events,
+        prescribed_column="fire_type",
+        prescribed_values=("prescribed", "rx", "planned"),
+        climate_loader=load_observed_gridmet_for_event,
+        climate_variable="tmmx",
+        max_events=12,
+    )
+).unwrap()
+
+panel["fig_panel"]
+panel["records"]
+panel["failures"]
+```
+
+This public example deliberately requires observed FIRED tables and an
+observed climate loader. It does not substitute generated event geometry or
+climate measurements when either source is unavailable.
+
 ## Pipe verbs
 
 ### `v.fire_plot(...)`

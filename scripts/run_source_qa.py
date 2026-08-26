@@ -25,11 +25,12 @@ from cubedynamics import data
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURE = ROOT / "data" / "vignettes" / "prism_boulder_january_2024.nc"
-PROVENANCE = ROOT / "data" / "vignettes" / "prism_boulder_january_2024.provenance.json"
-GRIDMET_FIXTURE = ROOT / "data" / "source_qa" / "gridmet_badlands_july_2001.nc"
+FIXTURE_DIR = ROOT / "tests" / "fixtures" / "real_data"
+FIXTURE = FIXTURE_DIR / "prism_boulder_january_2024.nc"
+PROVENANCE = FIXTURE_DIR / "prism_boulder_january_2024.provenance.json"
+GRIDMET_FIXTURE = FIXTURE_DIR / "gridmet_badlands_july_2001.nc"
 GRIDMET_PROVENANCE = GRIDMET_FIXTURE.with_suffix(".provenance.json")
-SENTINEL_FIXTURE = ROOT / "data" / "source_qa" / "sentinel2_badlands_june_2023.nc"
+SENTINEL_FIXTURE = FIXTURE_DIR / "sentinel2_badlands_june_2023.nc"
 SENTINEL_PROVENANCE = SENTINEL_FIXTURE.with_suffix(".provenance.json")
 DEFAULT_OUTPUT = ROOT / "artifacts" / "source_qa"
 

@@ -2440,7 +2440,7 @@ secrets, credentials, private tokens, or unrelated transcript text.
 ### Implementation
 
 - Added small real-data gridMET and Sentinel-2 fixtures with checksums, source
-  requests, and provenance under `data/source_qa/`, plus a reproducibility
+  requests, and provenance under `tests/fixtures/real_data/`, plus a reproducibility
   README and `scripts/build_phase1_qa_fixtures.py`.
 - Expanded `scripts/run_source_qa.py` to validate PRISM, gridMET maximum
   temperature, and Sentinel-2 B04/B08 plus derived NDVI. Checks cover checksum,
@@ -2479,3 +2479,38 @@ secrets, credentials, private tokens, or unrelated transcript text.
   the adapter; Sentinel-2 pixel-level cloud masking is not yet implemented.
 - gridMET still downloads annual files before local AOI selection. Live tests
   remain separate from deterministic offline fixture checks.
+
+## 2026-08-26 - CI repository-policy and documentation recovery
+
+### User goal
+
+- Fix the tracked repository-size failure for publication NetCDF fixtures and
+  the offline-suite failure caused by a missing prescribed-burn VASE panel
+  section.
+
+### Implementation
+
+- Moved all four checked-in observational NetCDF baselines and their provenance
+  records to `tests/fixtures/real_data/`, the policy-approved fixture location.
+  This includes PRISM teaching, South Dakota Decision Lab, gridMET, and
+  Sentinel-2 extracts. The real formats and checksums are preserved; the size
+  policy was not weakened and extensions were not disguised.
+- Updated QA runners, fixture builders, validation scripts, tests, documentation,
+  notebook metadata, and notebook loading cells to use the canonical fixture
+  directory. Regenerated all nine supported notebooks from their builders.
+- Restored the “Prescribed-burn VASE panel example” with an observed FIRED plus
+  per-event gridMET loader pattern. Retired synthetic sample output remains
+  excluded from public learning routes.
+- Set Matplotlib's noninteractive `Agg` backend in repository pytest setup so
+  plotting side-effect verbs cannot enter a local GUI event loop during tests.
+
+### Validation
+
+- `python scripts/check_repository_size.py --mode tracked` passed for 887
+  tracked files. The nine prospective files in the new fixture directory also
+  pass the same policy before staging.
+- The exact offline command passed: 383 tests passed, 5 skipped, and 9
+  deselected.
+- Source QA and Decision Lab QA passed. All nine supported notebooks executed
+  offline with required plots, and `mkdocs build --strict` passed after a full
+  notebook cache refresh.

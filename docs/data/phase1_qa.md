@@ -34,7 +34,7 @@ Machine-readable evidence:
 
 - [PRISM result JSON](../assets/source_qa/prism_temperature.json)
 - [Phase 1 source manifest](../assets/source_qa/manifest.json)
-- [Underlying fixture provenance](https://github.com/CU-ESIIL/cubedynamics/blob/main/data/vignettes/prism_boulder_january_2024.provenance.json)
+- [Underlying fixture provenance](https://github.com/CU-ESIIL/cubedynamics/blob/main/tests/fixtures/real_data/prism_boulder_january_2024.provenance.json)
 
 ## Reviewed gridMET result
 
@@ -45,7 +45,7 @@ strict daily dates, finite values, 1/24° resolution, known coordinate
 orientation, requested bounds, and a broad physically plausible Kelvin range.
 
 - [gridMET result JSON](../assets/source_qa/gridmet_temperature.json)
-- [gridMET fixture provenance](https://github.com/CU-ESIIL/cubedynamics/blob/main/data/source_qa/gridmet_badlands_july_2001.provenance.json)
+- [gridMET fixture provenance](https://github.com/CU-ESIIL/cubedynamics/blob/main/tests/fixtures/real_data/gridmet_badlands_july_2001.provenance.json)
 
 ## Reviewed Sentinel-2 result
 
@@ -59,7 +59,7 @@ loader now keeps the record with the latest `s2:generation_time` while leaving
 imagery lazy.
 
 - [Sentinel-2 result JSON](../assets/source_qa/sentinel2_surface_reflectance.json)
-- [Sentinel-2 fixture provenance](https://github.com/CU-ESIIL/cubedynamics/blob/main/data/source_qa/sentinel2_badlands_june_2023.provenance.json)
+- [Sentinel-2 fixture provenance](https://github.com/CU-ESIIL/cubedynamics/blob/main/tests/fixtures/real_data/sentinel2_badlands_june_2023.provenance.json)
 
 ## Reproduce it
 

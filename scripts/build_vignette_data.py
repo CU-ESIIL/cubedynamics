@@ -23,10 +23,8 @@ import xarray as xr
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_CACHE = ROOT / "artifacts" / "prism-real-cache"
-DEFAULT_OUTPUT = ROOT / "data" / "vignettes" / "prism_boulder_january_2024.nc"
-DEFAULT_PROVENANCE = (
-    ROOT / "data" / "vignettes" / "prism_boulder_january_2024.provenance.json"
-)
+DEFAULT_OUTPUT = ROOT / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
+DEFAULT_PROVENANCE = DEFAULT_OUTPUT.with_suffix(".provenance.json")
 DEFAULT_SOURCE_MANIFEST = DEFAULT_PROVENANCE
 BBOX = (-105.75, 39.50, -104.75, 40.50)
 VARIABLES = ("tmin", "tmax")

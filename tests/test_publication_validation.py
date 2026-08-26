@@ -11,8 +11,8 @@ import xarray as xr
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DATA = ROOT / "data" / "vignettes" / "prism_boulder_january_2024.nc"
-PROVENANCE = ROOT / "data" / "vignettes" / "prism_boulder_january_2024.provenance.json"
+DATA = ROOT / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
+PROVENANCE = DATA.with_suffix(".provenance.json")
 
 
 def test_prism_vignette_fixture_matches_provenance_and_physics() -> None:

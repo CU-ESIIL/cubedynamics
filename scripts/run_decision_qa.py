@@ -20,7 +20,7 @@ from cubedynamics import pipe, verbs as v
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURE = ROOT / "data" / "decision_vignettes" / "sd_working_lands_july_2024.nc"
+FIXTURE = ROOT / "tests" / "fixtures" / "real_data" / "sd_working_lands_july_2024.nc"
 PROVENANCE = FIXTURE.with_suffix(".provenance.json")
 DEFAULT_OUTPUT = ROOT / "artifacts" / "decision_qa"
 

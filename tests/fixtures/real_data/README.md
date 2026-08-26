@@ -6,15 +6,18 @@ synthetic data and are not alternative production backends.
 
 | Fixture | Product | Coverage | Purpose |
 | --- | --- | --- | --- |
+| `prism_boulder_january_2024.nc` | PRISM daily minimum and maximum temperature | Boulder region; January 2024 | Publication vignettes and full validation suite |
+| `sd_working_lands_july_2024.nc` | PRISM daily maximum temperature and precipitation | Central South Dakota; July 2024 | Executable Decision Lab lesson and decision QA |
 | `gridmet_badlands_july_2001.nc` | gridMET daily maximum temperature | Badlands, South Dakota; 10 days in July 2001 | Source, grid, time, units, range, and visual checks |
 | `sentinel2_badlands_june_2023.nc` | Sentinel-2 L2A B04/B08 reflectance | Badlands, South Dakota; bounded June 2023 scenes | Source, CRS, bands, acquisition identity, scale, NDVI, and visual checks |
 
-Each fixture has a sibling provenance JSON containing its source request,
-creation method, and SHA-256 checksum. The QA runner refuses a fixture whose
-bytes no longer match that record.
+This directory is the repository-policy-approved home for checked-in test and
+publication fixtures. Each fixture has a sibling provenance JSON containing
+its source request, creation method, and SHA-256 checksum. The QA runners
+refuse a fixture whose bytes no longer match that record.
 
-PRISM uses the existing real-data fixture in `data/vignettes/`. To rebuild the
-two fixtures in this directory, run:
+The PRISM teaching and Decision Lab extracts live here as well. To rebuild the
+gridMET and Sentinel-2 source-QA fixtures, run:
 
 ```bash
 python scripts/build_phase1_qa_fixtures.py

@@ -48,8 +48,8 @@ def notebook(*cells: dict) -> dict:
                 "network": False,
                 "plot_required": True,
                 "supported_vignette": True,
-                "data_fixture": "data/vignettes/prism_boulder_january_2024.nc",
-                "provenance": "data/vignettes/prism_boulder_january_2024.provenance.json",
+                "data_fixture": "tests/fixtures/real_data/prism_boulder_january_2024.nc",
+                "provenance": "tests/fixtures/real_data/prism_boulder_january_2024.provenance.json",
             },
         },
         "nbformat": 4,
@@ -76,9 +76,9 @@ import xarray as xr
 # Find the repository from either a root-level documentation build or a kernel
 # started beside this notebook, then open the checksum-controlled PRISM extract.
 data_path = next(
-    candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc"
+    candidate / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
     for candidate in (Path.cwd(), *Path.cwd().parents)
-    if (candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc").exists()
+    if (candidate / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc").exists()
 )
 prism = xr.open_dataset(data_path, engine="scipy").load()
 
@@ -715,9 +715,9 @@ import xarray as xr
 
 # The checked-in extract makes the lesson reproducible without a live service.
 data_path = next(
-    candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc"
+    candidate / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
     for candidate in (Path.cwd(), *Path.cwd().parents)
-    if (candidate / "data" / "vignettes" / "prism_boulder_january_2024.nc").exists()
+    if (candidate / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc").exists()
 )
 cube = xr.open_dataset(
     data_path,

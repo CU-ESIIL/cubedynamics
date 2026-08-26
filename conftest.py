@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
 import types
 from pathlib import Path
@@ -10,6 +11,12 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent
 SRC_PATH = PROJECT_ROOT / "src"
 SRC_STR = str(SRC_PATH)
+
+# Plotting verbs intentionally call ``plt.show()``. Force a noninteractive
+# backend before importing CubeDynamics so the test suite never enters a GUI
+# event loop on developer machines; CI already applies the same constraint.
+os.environ.setdefault("MPLBACKEND", "Agg")
+
 if SRC_STR not in sys.path:
     sys.path.insert(0, SRC_STR)
 

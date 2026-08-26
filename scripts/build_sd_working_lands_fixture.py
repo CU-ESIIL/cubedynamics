@@ -22,7 +22,7 @@ from cubedynamics import data
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_OUTPUT = ROOT / "data" / "decision_vignettes" / "sd_working_lands_july_2024.nc"
+DEFAULT_OUTPUT = ROOT / "tests" / "fixtures" / "real_data" / "sd_working_lands_july_2024.nc"
 DEFAULT_PROVENANCE = DEFAULT_OUTPUT.with_suffix(".provenance.json")
 BBOX = (-101.2, 43.7, -100.4, 44.3)
 START = "2024-07-01"

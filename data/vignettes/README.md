@@ -8,9 +8,10 @@ daily range (`tmax - tmin`). It contains no generated measurements.
 
 Files:
 
-- `prism_boulder_january_2024.nc` — offline teaching extract.
-- `prism_boulder_january_2024.provenance.json` — fixture hash, bounds, units,
-  summary ranges, and URL/byte/SHA-256 evidence for all 60 source archives.
+- `tests/fixtures/real_data/prism_boulder_january_2024.nc` — offline teaching extract, stored under the repository's policy-approved fixture path.
+- `tests/fixtures/real_data/prism_boulder_january_2024.provenance.json` —
+  fixture hash, bounds, units, summary ranges, and URL/byte/SHA-256 evidence
+  for all 60 source archives.
 
 Rebuild from cached, checksum-verified source archives:
 

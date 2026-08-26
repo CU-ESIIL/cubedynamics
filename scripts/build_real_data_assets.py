@@ -13,8 +13,8 @@ from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 
 
 ROOT = Path(__file__).resolve().parents[1]
-FIXTURE = ROOT / "data" / "vignettes" / "prism_boulder_january_2024.nc"
-PROVENANCE = ROOT / "data" / "vignettes" / "prism_boulder_january_2024.provenance.json"
+FIXTURE = ROOT / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
+PROVENANCE = FIXTURE.with_suffix(".provenance.json")
 OUTPUT = ROOT / "docs" / "assets" / "figures" / "prism_boulder_tmax_cube.html"
 
 

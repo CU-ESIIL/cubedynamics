@@ -62,3 +62,15 @@ def test_fire_vase_page_documents_real_data_example():
     assert "examples/real_fire_vase_gridmet_smoke.py" in text
     assert "does not substitute" in text
     assert "generated perimeters" in text
+
+
+def test_fire_vase_page_documents_real_prescribed_panel_example():
+    page = "docs/capabilities/fire-vase.md"
+
+    text = open(page, encoding="utf-8").read()
+
+    assert "Prescribed-burn VASE panel example" in text
+    assert "climate_loader=load_observed_gridmet_for_event" in text
+    assert "v.fire_vase_panel(" in text
+    assert "does not substitute generated event geometry" in " ".join(text.split())
+    assert "fire_vase_panel_sample.html" not in text

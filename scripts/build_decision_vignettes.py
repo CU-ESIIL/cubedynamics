@@ -95,9 +95,9 @@ import xarray as xr
 root = next(
     candidate
     for candidate in (Path.cwd(), *Path.cwd().parents)
-    if (candidate / "data" / "decision_vignettes" / "sd_working_lands_july_2024.nc").exists()
+    if (candidate / "tests" / "fixtures" / "real_data" / "sd_working_lands_july_2024.nc").exists()
 )
-fixture = root / "data" / "decision_vignettes" / "sd_working_lands_july_2024.nc"
+fixture = root / "tests" / "fixtures" / "real_data" / "sd_working_lands_july_2024.nc"
 provenance_path = fixture.with_suffix(".provenance.json")
 
 observed = xr.open_dataset(fixture, engine="scipy").load()
@@ -310,9 +310,9 @@ cropland and vegetation-response nouns, plus longer climate baselines.
             "minimum_plot_outputs": 2,
             "supported_vignette": True,
             "supported_decision_vignette": True,
-            "data_fixture": "data/decision_vignettes/sd_working_lands_july_2024.nc",
+            "data_fixture": "tests/fixtures/real_data/sd_working_lands_july_2024.nc",
             "provenance": (
-                "data/decision_vignettes/sd_working_lands_july_2024.provenance.json"
+                "tests/fixtures/real_data/sd_working_lands_july_2024.provenance.json"
             ),
         },
     },

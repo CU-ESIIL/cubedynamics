@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-08-25T20:17:08.539530+00:00",
-  "fixture": "data/vignettes/prism_boulder_january_2024.nc",
+  "fixture": "tests/fixtures/real_data/prism_boulder_january_2024.nc",
   "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7",
   "status": "PASS",
   "modules": [

@@ -16,7 +16,7 @@ from cubedynamics import verbs as v
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs" / "decision_vignettes"
-FIXTURE = ROOT / "data" / "decision_vignettes" / "sd_working_lands_july_2024.nc"
+FIXTURE = ROOT / "tests" / "fixtures" / "real_data" / "sd_working_lands_july_2024.nc"
 PROVENANCE = FIXTURE.with_suffix(".provenance.json")
 DEPENDENCY_PAGES = (
     "black_hills.md",
@@ -137,7 +137,7 @@ def test_working_lands_notebook_is_offline_narrative_and_has_two_figures() -> No
     assert metadata["plot_required"] is True
     assert metadata["minimum_plot_outputs"] == 2
     assert metadata["data_fixture"] == (
-        "data/decision_vignettes/sd_working_lands_july_2024.nc"
+        "tests/fixtures/real_data/sd_working_lands_july_2024.nc"
     )
     assert metadata["provenance"].endswith(".provenance.json")
 

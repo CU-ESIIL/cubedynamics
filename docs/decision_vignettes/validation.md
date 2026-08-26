@@ -41,9 +41,9 @@ calls to nonexistent APIs.
 | Generated measurements | None |
 
 The fixture is checked in as
-[`data/decision_vignettes/sd_working_lands_july_2024.nc`](https://github.com/CU-ESIIL/cubedynamics/blob/main/data/decision_vignettes/sd_working_lands_july_2024.nc)
+[`tests/fixtures/real_data/sd_working_lands_july_2024.nc`](https://github.com/CU-ESIIL/cubedynamics/blob/main/tests/fixtures/real_data/sd_working_lands_july_2024.nc)
 with a checked
-[`provenance record`](https://github.com/CU-ESIIL/cubedynamics/blob/main/data/decision_vignettes/sd_working_lands_july_2024.provenance.json).
+[`provenance record`](https://github.com/CU-ESIIL/cubedynamics/blob/main/tests/fixtures/real_data/sd_working_lands_july_2024.provenance.json).
 It is a small publication/QA extract, not a replacement data backend. The
 builder calls the public loaders and refuses generated fallback. PRISM grids
 may be revised; the checksum freezes the values rendered here.

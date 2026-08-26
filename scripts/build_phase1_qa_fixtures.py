@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_GRIDMET_SOURCE = (
     ROOT / "artifacts" / "fire-vase-gridmet-real" / "gridmet-cache" / "tmmx_2001.nc"
 )
-DEFAULT_OUTPUT = ROOT / "data" / "source_qa"
+DEFAULT_OUTPUT = ROOT / "tests" / "fixtures" / "real_data"
 
 
 def sha256(path: Path) -> str:
