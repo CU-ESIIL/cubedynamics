@@ -45,6 +45,20 @@ nav:
       - "06 · Follow cold from value to event": vignettes/states_and_events.ipynb
       - "07 · Give a project its own verb": vignettes/custom_verb_project.ipynb
       - "08 · Scale the analysis lazily": vignettes/lazy_composition.ipynb
+  - South Dakota Decision Lab:
+      - Decision challenges: decision_vignettes/index.md
+      - "A · Black Hills: Growth, Fire & Extraction": decision_vignettes/black_hills.md
+      - "B · Missouri & Watersheds: Water Change": decision_vignettes/missouri_water.md
+      - "C · Working Lands: Hot-and-Dry Weather": decision_vignettes/working_lands.ipynb
+      - "D · Habitat Squeeze": decision_vignettes/habitat_squeeze.md
+      - "E · Communities: Who Is Exposed?": decision_vignettes/communities.md
+      - "Wildcard · What Should South Dakota Know?": decision_vignettes/wildcard.md
+      - Collection validation: decision_vignettes/validation.md
+  - Scientific Data:
+      - Noun vocabulary: data/index.md
+      - Climate & weather: data/climate_weather.md
+      - Surface observations: data/surface_observation.md
+      - Phase 1 source QA: data/phase1_qa.md
   - Validation:
       - Overview: validation/index.md
       - Real data: validation/data.md
@@ -115,6 +129,8 @@ nav:
       - Public API and stability: project/public_api.md
   - Publication and Development:
       - Publication audit and plan: project/publication_plan.md
+      - Scientific data vocabulary plan: project/data_vocabulary_plan.md
+      - Grammar implementation inventory: project/grammar_inventory.md
       - Site analytics and SEO: project/site_analytics_seo.md
       - Project scope: project/scope.md
       - Contributing: dev/contributing.md

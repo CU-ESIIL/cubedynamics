@@ -23,7 +23,9 @@ The supported center of the package is:
 - the verb-factory protocol: a configured outer function returns a callable
   that accepts the current value and returns the next one;
 - common cross-project verbs: `v.apply`, `v.mean`, `v.variance`, `v.anomaly`,
-  `v.zscore`, `v.month_filter`, `v.flatten_space`, and `v.flatten_cube`.
+  `v.zscore`, `v.month_filter`, `v.overlap`, `v.flatten_space`, and
+  `v.flatten_cube`. `v.overlap` is deliberately limited to exactly aligned
+  boolean/state rasters; it is not a vector intersection operation.
 
 Plain callables are valid pipe stages. Projects do not need to register or
 subclass anything to extend the grammar.
@@ -31,6 +33,20 @@ subclass anything to extend the grammar.
 ## Maintained integrations: dataset loaders
 
 These helpers create xarray-backed cubes or streaming-friendly structures. Network access may be required depending on the data source.
+
+The preferred public entry point is the scientific noun namespace:
+
+- `from cubedynamics import data`
+- climate/weather nouns: `data.temperature`, `data.precipitation`, `data.vpd`,
+  `data.wind`, `data.humidity`, and `data.radiation`;
+- surface nouns: `data.surface_reflectance` and `data.vegetation_index`;
+- discovery: `data.sources`, `data.describe`, and `data.list_sources`.
+
+Noun loaders select an implemented source flavor, normalize only names and
+contracts, retain original source fields in provenance, stay lazy where the
+backend allows, and never permit synthetic fallback.
+
+Provider-specific loaders remain supported for deliberate low-level access:
 
 - `load_gridmet_cube`
 - `load_prism_cube`
@@ -77,7 +93,8 @@ Treat the following as implementation details that may change without notice:
 - Modules under `cubedynamics.ops`, `cubedynamics.streaming`, `cubedynamics.ops_fire`, `cubedynamics.ops_io`, and `cubedynamics.viewers`; use the documented `cd.stream_*` helpers when you need a supported streaming entry point.
 - Demo helpers such as `demo`/`demo_vase` and example notebooks.
 - Exploratory notebooks under top-level `notebooks/`; supported publication
-  notebooks are explicitly marked under `docs/vignettes/` and run in CI.
+  notebooks are explicitly marked under `docs/vignettes/` or
+  `docs/decision_vignettes/` and run in CI.
 - Private utilities (`cubedynamics.utils`, `cubedynamics.config`, `cubedynamics.progress`, etc.).
 
 Internal modules may be refactored or renamed as the streaming architecture stabilizes. Prefer accessing functionality through the documented loaders, `pipe`, and `verbs`.

@@ -60,6 +60,12 @@ outputs/**/*.tiff
 tmp/
 *.gpkg
 *.nc
+# Publication fixture: small, observational, checksum-controlled, and required
+# for offline vignette execution in clean clones and CI.
+!data/vignettes/prism_boulder_january_2024.nc
+# South Dakota Decision Lab: bounded observed PRISM fixture used by the
+# executable offline notebook and validated by a checked provenance record.
+!data/decision_vignettes/sd_working_lands_july_2024.nc
 *.nc4
 *.zarr/
 *.parquet

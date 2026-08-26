@@ -111,6 +111,14 @@ do. The code remains small even as the scientific vocabulary becomes richer.
   <li><strong>Interpretation</strong><span>Connect the visual result back to the question.</span></li>
 </ol>
 
+## Apply the grammar to environmental decisions
+
+Ready to move from learning the syntax to framing a multi-source question?
+The [South Dakota Decision Lab](../decision_vignettes/index.md) pairs one
+executable observed-data analysis with four transparent dependency designs.
+It shows both what the grammar can express today and which vetted nouns and
+general spatial verbs still need to be built.
+
 ## Run the vignettes
 
 From a repository checkout:

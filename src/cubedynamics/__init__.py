@@ -36,6 +36,7 @@ from __future__ import annotations
 
 from .version import __version__
 from .piping import Pipe, pipe
+from . import data
 from . import verbs
 from . import tubes
 from .demo_vase import demo
@@ -96,6 +97,7 @@ __all__ = [
     "__version__",
     "Pipe",
     "pipe",
+    "data",
     "verbs",
     "plot",
     "load_gridmet_cube",

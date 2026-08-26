@@ -62,16 +62,17 @@ ownership boundaries explicit.
 
 ---
 
-## Minimal example
+## Minimal scientific example
 
 ```python
-import numpy as np
-import xarray as xr
-from cubedynamics import pipe, verbs as v
+from cubedynamics import data, pipe, verbs as v
 
-cube = xr.DataArray(
-    np.arange(24, dtype=float).reshape(4, 2, 3),
-    dims=("time", "y", "x"),
+cube = data.temperature(
+    source="prism",
+    statistic="maximum",
+    bbox=[-105.75, 39.50, -104.75, 40.50],
+    start="2024-01-01",
+    end="2024-01-30",
 )
 
 result = (
@@ -81,8 +82,14 @@ result = (
 ).unwrap()
 ```
 
-This example is offline and deterministic. Substitute a Dask-backed xarray
-object or a maintained data adapter without changing the composition model.
+Loading names the scientific noun and source flavor. The pipe stays focused on
+the analysis. Source-variable names, provider, query, CRS, normalization, and
+retrieval details remain attached as provenance.
+
+The repository's [narrative vignettes](https://cu-esiil.github.io/cubedynamics/vignettes/)
+run offline from a checksum-controlled observational PRISM extract. CubeDynamics
+never silently substitutes generated measurements when a scientific source is
+unavailable.
 
 Project-specific verbs use the same protocol:
 

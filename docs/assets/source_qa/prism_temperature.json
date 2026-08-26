@@ -1,0 +1,47 @@
+{
+  "aoi": "-105.75,39.50,-104.75,40.50",
+  "checks": {
+    "all_finite": true,
+    "bounds_overlap_requested_aoi": true,
+    "checksum_matches": true,
+    "crs_explicit": true,
+    "minimum_not_above_maximum": true,
+    "observational_source": true,
+    "temperature_range_plausible": true,
+    "time_monotonic": true
+  },
+  "crs": "EPSG:4269",
+  "figure": "prism_temperature.png",
+  "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7",
+  "known_limitations": [
+    "This fixture validates PRISM temperature, not every PRISM variable.",
+    "The offline fixture covers one Colorado AOI and one winter month."
+  ],
+  "missing_fraction": 0.0,
+  "noun": "temperature",
+  "pixel_observations": 34560,
+  "provider": "PRISM Group, Oregon State University",
+  "qa_result": "pass",
+  "shape": {
+    "time": 30,
+    "x": 24,
+    "y": 24
+  },
+  "source_flavor": "prism",
+  "source_product": "AN91d daily 4 km time series",
+  "streaming_mechanism": "NcSS daily AOI requests in production; checksum-controlled GeoTIFF window fixture for offline QA",
+  "time_range": [
+    "2024-01-01",
+    "2024-01-30"
+  ],
+  "value_range": {
+    "tmax": [
+      -20.63800048828125,
+      17.586000442504883
+    ],
+    "tmin": [
+      -31.73200035095215,
+      3.0920000076293945
+    ]
+  }
+}

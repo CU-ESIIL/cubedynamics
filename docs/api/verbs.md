@@ -101,6 +101,26 @@ renames outputs with a ``_zscore`` suffix when possible.
 Filter calendar months out of the ``time`` dimension. Typically used as
 ``pipe(cube) | v.month_filter([6, 7, 8])`` to keep boreal-summer slices.
 
+## State-combination verbs
+
+### ``overlap(other, left_variable=None, right_variable=None, name="overlap")``
+
+Find cells and times where two already aligned boolean or state cubes are both
+true. Outputs from `v.threshold_state(...)` and `v.quantile_state(...)` use a
+`state` variable and therefore compose directly:
+
+```python
+coincidence = (
+    pipe(warm_state)
+    | v.overlap(dry_state, name="warm_and_dry")
+    | v.mean(dim="time", keep_dim=False)
+).unwrap()
+```
+
+The verb uses exact xarray alignment and fails if dimensions or coordinates
+differ. It never silently resamples or reprojects data. It is a raster-state
+combination, not vector geometry intersection, proximity, causation, or risk.
+
 ## Shape verbs
 
 ### ``flatten_space()``

@@ -1,13 +1,11 @@
 """GRIDMET data access helpers.
 
-This module implements a streaming-first loader that mirrors the behavior of
-the PRISM helper. It accepts both the modern keyword-only API (``lat``/``lon``,
-``bbox`` or ``aoi_geojson``) and the legacy positional form
-``load_gridmet_cube(variable, start, end, aoi, ...)``. The loader fabricates a
-synthetic cube so the rest of the package can exercise the same API regardless
-of whether a true remote service is available in the execution environment. If
-streaming is unavailable the loader falls back to a small in-memory dataset and
-emits a clear warning so callers can decide how to proceed.
+This module accepts both the modern keyword-only API (``lat``/``lon``, ``bbox``
+or ``aoi_geojson``) and the legacy positional form
+``load_gridmet_cube(variable, start, end, aoi, ...)``. Real gridMET annual
+NetCDF assets are the default backend. Generated values are available only
+through the explicit ``allow_synthetic=True`` test/demo escape hatch and are
+always marked as synthetic.
 """
 
 from __future__ import annotations
@@ -67,11 +65,11 @@ def load_gridmet_cube(
     chunks : mapping, optional
         Custom Dask chunk mapping.
     prefer_streaming : bool, default True
-        Whether to attempt the streaming backend before falling back to the
-        synthetic download backend used for tests.
+        Retained for compatibility. Both real paths read the authoritative
+        annual gridMET NetCDF assets; the preferred path preserves Dask chunks.
     show_progress : bool, default True
-        Display a progress bar while synthetic GRIDMET data are generated when
-        ``tqdm`` is installed. Set to ``False`` to disable progress reporting.
+        Display retrieval progress when available. Set to ``False`` to disable
+        progress reporting.
 
     Notes
     -----
@@ -186,9 +184,20 @@ def _load_gridmet_cube_impl(
             streaming_error = exc
             backend_error = str(exc)
             warnings.warn(
-                "GRIDMET streaming backend unavailable; falling back to local download.",
+                "GRIDMET streaming backend unavailable; synthetic fallback requires "
+                "allow_synthetic=True.",
                 RuntimeWarning,
             )
+
+            if not allow_synthetic:
+                raise RuntimeError(
+                    "GRIDMET streaming failed and synthetic fallback is disabled. "
+                    "The remote source may be unavailable or its layout may have changed."
+                ) from exc
+            ds, freq = _build_synthetic_gridmet_cube(
+                variables, start, end, aoi, freq, show_progress=show_progress
+            )
+            source = "synthetic"
 
     if ds is None:
         source = "gridmet_download"
@@ -203,8 +212,8 @@ def _load_gridmet_cube_impl(
                 backend_error = "; ".join(filter(None, [backend_error, str(exc)])) or str(exc)
                 if not allow_synthetic:
                     raise RuntimeError(
-                        "GRIDMET download backend failed after streaming fallback. "
-                        "Set allow_synthetic=True to permit synthetic data."
+                        "GRIDMET retrieval failed and synthetic fallback is disabled. "
+                        "The remote source may be unavailable or its layout may have changed."
                     ) from exc
                 ds, freq = _build_synthetic_gridmet_cube(
                     variables, start, end, aoi, freq, show_progress=show_progress
@@ -213,8 +222,7 @@ def _load_gridmet_cube_impl(
 
     ds = _crop_to_aoi(ds, aoi)
     backend_returned_lazy_data = _has_lazy_data(ds)
-    ds = ds.chunk(chunk_map)
-    return _finalize_gridmet_cube(
+    ds = _finalize_gridmet_cube(
         ds,
         variables,
         start,
@@ -227,6 +235,7 @@ def _load_gridmet_cube_impl(
         aoi=aoi,
         skip_all_nan_check=backend_returned_lazy_data,
     )
+    return ds.chunk(chunk_map)
 
 
 def _load_gridmet_cube_legacy(
@@ -310,37 +319,40 @@ def _open_gridmet_streaming(
     freq: str = "D",
     show_progress: bool = True,
 ) -> xr.Dataset:
-    """Return a dask-backed Dataset that mimics GRIDMET streaming access."""
+    """Return real gridMET variables from authoritative annual NetCDF assets."""
 
-    try:
-        import dask.array as da
-    except ImportError as exc:  # pragma: no cover - relies on optional dep
-        raise RuntimeError("dask is required for GRIDMET streaming") from exc
+    from ..streaming.gridmet import stream_gridmet_to_cube
 
-    times = pd.date_range(start, end, freq=freq or "D")
-    if not len(times):
-        raise ValueError("No time steps available for the requested range")
+    geojson = _aoi_geojson(aoi)
+    arrays: list[xr.DataArray] = []
+    for name in variables:
+        array = stream_gridmet_to_cube(
+            geojson,
+            variable=name,
+            start=start,
+            end=end,
+            freq=freq or "D",
+            chunks={"time": 366},
+            show_progress=show_progress,
+        )
+        rename = {}
+        if "lat" in array.dims:
+            rename["lat"] = Y_DIM
+        if "lon" in array.dims:
+            rename["lon"] = X_DIM
+        if rename:
+            array = array.rename(rename)
+        arrays.append(array.rename(name))
 
-    y_coords, x_coords = _build_coords_for_aoi(aoi)
-    chunks = (len(times), min(len(y_coords), 128), min(len(x_coords), 128))
-    rng = da.random.RandomState(42)
-    data_vars = {}
-    total = len(variables) if show_progress else None
-    with progress_bar(total=total, description="gridMET streaming") as advance:
-        for name in variables:
-            data = rng.random_sample((len(times), len(y_coords), len(x_coords)), chunks=chunks)
-            da_var = xr.DataArray(
-                data,
-                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
-                dims=(TIME_DIM, Y_DIM, X_DIM),
-                name=name,
-                attrs={"units": "synthetic"},
-            )
-            data_vars[name] = da_var
-            if show_progress:
-                advance(1)
-
-    return xr.Dataset(data_vars)
+    ds = xr.merge(arrays, compat="override")
+    ds.attrs.update(
+        {
+            "streaming_protocol": "annual NetCDF over HTTPS",
+            "source_provider": "gridMET / University of California, Merced",
+            "is_synthetic": False,
+        }
+    )
+    return ds
 
 
 def _open_gridmet_download(
@@ -353,31 +365,30 @@ def _open_gridmet_download(
     error: Exception | None = None,
     show_progress: bool = True,
 ) -> xr.Dataset:
-    """Return a small in-memory Dataset that mimics a download fallback."""
+    """Compatibility path for real gridMET annual NetCDF retrieval."""
 
-    times = pd.date_range(start, end, freq=freq or "D")
-    y_coords, x_coords = _build_coords_for_aoi(aoi)
-    rng = np.random.default_rng(7)
+    return _open_gridmet_streaming(
+        variables, start, end, aoi, freq=freq, show_progress=show_progress
+    )
 
-    data_vars = {}
-    total = len(variables) if show_progress else None
-    with progress_bar(total=total, description="gridMET download") as advance:
-        for name in variables:
-            data = rng.normal(
-                loc=0.0, scale=1.0, size=(len(times), len(y_coords), len(x_coords))
-            )
-            da_var = xr.DataArray(
-                data,
-                coords={TIME_DIM: times, Y_DIM: y_coords, X_DIM: x_coords},
-                dims=(TIME_DIM, Y_DIM, X_DIM),
-                name=name,
-                attrs={"source": "synthetic-gridmet", "fallback_error": str(error) if error else ""},
-            )
-            data_vars[name] = da_var
-            if show_progress:
-                advance(1)
 
-    return xr.Dataset(data_vars)
+def _aoi_geojson(aoi: Mapping[str, float]) -> Mapping[str, object]:
+    """Convert normalized bounds to the GeoJSON accepted by the real reader."""
+
+    west = float(aoi["min_lon"])
+    east = float(aoi["max_lon"])
+    south = float(aoi["min_lat"])
+    north = float(aoi["max_lat"])
+    return {
+        "type": "Polygon",
+        "coordinates": [[
+            [west, south],
+            [east, south],
+            [east, north],
+            [west, north],
+            [west, south],
+        ]],
+    }
 
 
 def _build_synthetic_gridmet_cube(
@@ -472,9 +483,7 @@ def _finalize_gridmet_cube(
         indicators = []
         for var in ds.data_vars.values():
             check = var.isnull().all()
-            if hasattr(check, "compute"):
-                check = check.compute()
-            indicators.append(bool(check))
+            indicators.append(bool(check.item()))
         all_nan = all(indicators)
 
     if time_len == 0:

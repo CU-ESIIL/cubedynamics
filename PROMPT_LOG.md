@@ -2163,7 +2163,11 @@ secrets, credentials, private tokens, or unrelated transcript text.
   contract directly. Removed older generated Fire VASE and synchrony examples
   from the primary publication routes; the gate now checks those route pages so
   generated examples cannot silently reappear. Exact generated truth cases are
-  retained only as software tests and explicit negative controls.
+  retained only as software tests and explicit negative controls. Replaced the
+  homepage hero with a separately rebuildable interactive cube generated from
+  the same reviewed PRISM fixture, replaced generated homepage thumbnails with
+  validation figures, and excluded historical generated recipes/assets from
+  MkDocs output.
 - Validation: the five-module suite passed, all eight notebooks executed and
   emitted plots, 16 focused tests passed, and `mkdocs build --strict` executed
   every notebook successfully. Browser QA confirmed the validation overview,
@@ -2172,3 +2176,160 @@ secrets, credentials, private tokens, or unrelated transcript text.
   before an unrelated long-running Matplotlib test was manually interrupted;
   a subsequent affected-area batch added 38 passed / 2 skipped before the same
   environment-specific stall.
+
+## 2026-08-25 - Phase 1 scientific noun and source-flavor architecture
+
+### User goal
+
+- Expand CubeDynamics toward a broad environmental noun vocabulary while
+  preserving `pipe(noun) | verb()` as the product center.
+- Begin with a controlled Phase 1 that rationalizes gridMET, PRISM, and
+  Sentinel-2, keeps backends below the public API, preserves rich provenance,
+  stays streaming-first, and never silently substitutes generated data.
+
+### Implementation
+
+- Added `cubedynamics.data` noun functions for temperature, precipitation,
+  VPD, wind, humidity, radiation, surface reflectance, and vegetation index.
+  Added `sources`, `describe`, and `list_sources`; the catalog contains only
+  integrations implemented now.
+- Normalized provider variable names at the noun boundary while recording the
+  original fields, provider/product/version, query, CRS, resolutions, backend,
+  retrieval time, normalization, and raw/normalized/derived state. Existing
+  provider-specific loaders and top-level compatibility helpers remain public.
+- Found and removed a critical gridMET defect: both purported real backends
+  generated random values and labeled them as real. The default now reads the
+  authoritative annual NetCDF product. Explicit low-level synthetic opt-in is
+  retained only for tests/demos and is categorically rejected by noun loaders.
+- Added standardized Sentinel-2 provenance without materializing lazy arrays.
+- Added offline noun, discovery, provenance, laziness, public API, gridMET, and
+  source-QA tests. Updated the stale Fire VASE documentation assertion to check
+  the reviewed real-data example instead of the excluded generated panel.
+- Added a reproducible Phase 1 source-QA workflow and reviewed PRISM map/time
+  series evidence with checksum, source, CRS, time, finite-value, physical
+  range, temperature-order, and bounds checks. The manifest deliberately marks
+  gridMET and Sentinel-2 real visual/numerical QA as pending.
+- Reorganized the public site with a Scientific Data section, noun/source
+  comparison pages, provenance and limitation guidance, a QA status page, and
+  a phased data-vocabulary audit/plan. Corrected gridMET VPD units and removed
+  an unrelated MODIS citation from the Sentinel-2 page.
+
+### Validation
+
+- 64 affected-area tests passed with 2 network-marked skips; the focused
+  source-QA/publication follow-up passed after aligning the stale documentation
+  test.
+- `mkdocs build --strict` passed and rendered all eight observational-data
+  vignettes plus the new noun and QA pages.
+- A bounded live PRISM NcSS integration test passed when run with network
+  access; the initial sandboxed attempt failed only at DNS resolution.
+- The full offline suite reached 293 passed / 3 skipped / 8 deselected. One
+  stale, unrelated documentation assertion failed and was corrected; the run
+  then encountered the repository's pre-existing end-of-suite Matplotlib stall
+  and was interrupted after approximately 100 seconds.
+- The new/changed data library files contain no `.compute()`, `.to_netcdf()`,
+  or `.to_zarr()` calls, and `git diff --check` passes.
+
+### Known limitations and next phase
+
+- Phase 1 architecture is implemented, but source QA is not called complete:
+  gridMET still retrieves annual files before client-side AOI selection, and
+  gridMET/Sentinel-2 need reviewed checksum-controlled real fixtures and QA
+  figures. Finish those items before Phase 2.
+- Recommended next source after closing Phase 1 QA is Daymet, followed by
+  ERA5-Land, ERA5, and TerraClimate only as each meets the full source gate.
+
+## 2026-08-25 - South Dakota environmental Decision Lab
+
+### User goal
+
+- Add a second-layer vignette collection for realistic South Dakota
+  environmental decisions, centered on readable `pipe(noun) | verb()`
+  analytical sentences rather than function-by-function tutorials.
+- Use observed, vetted data; show source QA before decision views; provide
+  reproducible notebooks and validation; never fabricate unavailable nouns or
+  overstate overlap as causation, impact, or risk.
+
+### Audit and design decisions
+
+- Audited the public noun catalog, verb namespace, vignette builder/runner,
+  MkDocs execution path, publication tests, and navigation. Climate/weather
+  and Sentinel-2 nouns are public, but buildings, roads, fire history, mining
+  claims, protected areas, surface water/hydrography, cropland/land cover,
+  critical habitat, and population are not. General vector intersection,
+  categorical change, proximity/density, cross-grid alignment, and transparent
+  grouped summary contracts are also absent.
+- Published four requested analyses as clearly labeled dependency designs
+  rather than runnable calls to nonexistent APIs: Black Hills, Missouri &
+  Watersheds, Habitat Squeeze, and Communities. Each records the decision,
+  missing information, noun requirements, target grammar, QA publication gate,
+  interpretation limits, and short forks. No computed result or fake map is
+  shown.
+- Added an API-current wildcard hackathon template requiring three public
+  nouns, two noun families, visible QA, a decision figure, reproducibility, and
+  explicit limitations. It demonstrates only current APIs and warns that
+  Sentinel-2/climate grids require explicit scientific alignment.
+
+### Executable observed-data vignette
+
+- Added one fully executable Working Lands climate-screening notebook for a
+  bounded central South Dakota window southwest of Pierre, 1–31 July 2024. It
+  uses observed daily PRISM maximum temperature and precipitation acquired
+  through `data.temperature` and `data.precipitation`; it does not claim to
+  identify working lands, drought, vegetation sensitivity, forage loss,
+  economic impact, causation, or risk.
+- Added a reproducible public-loader fixture builder, a 31 × 15 × 19 checked
+  NetCDF, and a provenance record with exact query, source service,
+  documentation, source-revision caveat, physical summaries, and SHA-256
+  `f9f3f0da6c621383b60d4895e661a185d3d58e7393b4f339ee91d36d83228a6a`.
+  The offline fixture is explicitly a small publication/QA extract, not a
+  hidden backend.
+- Added the general `v.overlap` verb for coincident truth in exactly aligned
+  boolean/state rasters. It accepts state Dataset outputs, refuses silent
+  coordinate alignment, and is documented as neither vector intersection nor
+  a risk/causal operation. The notebook composes `quantile_state`,
+  `threshold_state`, `overlap`, and `mean` into a short analytical sentence.
+- The notebook contains an early two-time-series/two-map source QA figure and
+  a separate final co-occurrence-frequency map. Inline comments explain data
+  contracts, thresholds, alignment, and interpretation. Raw xarray echoes were
+  replaced with compact summaries after rendered browser QA showed that the
+  result array disrupted the narrative.
+
+### Publication and validation
+
+- Added a dedicated South Dakota Decision Lab navigation section, landing-page
+  status cards, restrained academic styling, a collection validation report,
+  and a link from the foundational vignette learning path. The validation page
+  is the source of truth for executable/design status, observed fixture
+  evidence, acceptance checks, missing nouns, and missing reusable verbs.
+- Extended the notebook runner to include both vignette collections by default
+  and to enforce a metadata-defined minimum static-plot count; the decision
+  notebook requires two plots. Added a Decision Lab QA script that writes JSON,
+  source-QA PNG, and decision-view PNG evidence and compares the pipe result
+  exactly with direct boolean logic. CI runs and uploads this evidence.
+- Added tests for strict aligned-state behavior, fixture/provenance/physics,
+  narrative structure, link/nav presence, actual API existence, absence of
+  pretend API calls, wildcard requirements, two plot outputs, CI integration,
+  and an opt-in live PRISM smoke test.
+- Validation: 11 focused tests passed; the live two-day public-loader smoke test
+  passed; the decision QA and Phase 1 source QA scripts passed; all nine
+  publication notebooks executed offline and emitted their required plots;
+  and `mkdocs build --strict` executed/rendered every notebook successfully.
+  Browser QA confirmed both result figures, a complete H1/section structure,
+  academic dependency-page presentation, no broken images or horizontal page
+  overflow, and readable dark code on a light background. `git diff --check`
+  passed.
+- The broader offline suite reported 305 passed, 3 skipped, and 9 deselected
+  with no test failure before the repository's pre-existing end-of-suite
+  Matplotlib shutdown stall; it was manually interrupted after 134 seconds.
+
+### Prioritized next integrations
+
+- Highest-value nouns for completing the decision designs are buildings,
+  roads, fire history, protected areas/land management, mining claims, surface
+  water/hydrography, cropland/land cover, critical habitat, and population.
+- Highest-value reusable verbs are geometry-aware intersection, transparent
+  grouped summary, categorical change, explicit proximity/density, and
+  scientifically declared cross-grid alignment. Each must satisfy source,
+  CRS, boundary, units, temporal-support, missingness, and QA contracts before
+  a dependency design is promoted to executable.

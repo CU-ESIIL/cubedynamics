@@ -1,6 +1,8 @@
-# Datasets Overview
+# Provider-specific dataset adapters
 
-This section answers: **Which datasets can flow through the cube grammar and how do they differ?** Use it to compare coverage, cadence, and variables before committing to a workflow.
+This legacy-oriented section documents individual provider products. For new
+work, begin with the [scientific noun vocabulary](../data/index.md), choose a
+source flavor, and keep provider mechanics below the analytical grammar.
 
 In this section you'll find:
 - Loader entry points for climate, vegetation, and fire datasets.

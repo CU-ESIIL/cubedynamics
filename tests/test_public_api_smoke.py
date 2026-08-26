@@ -43,6 +43,19 @@ def test_public_symbols_available():
         assert hasattr(cd, name), f"Expected cubedynamics to expose {name}"
 
     assert hasattr(cd, "pipe")
+    assert hasattr(cd, "data")
+    for noun in (
+        "temperature",
+        "precipitation",
+        "vpd",
+        "wind",
+        "humidity",
+        "radiation",
+        "surface_reflectance",
+        "vegetation_index",
+    ):
+        assert hasattr(cd.data, noun)
+    assert cd.data.sources("temperature") == ("gridmet", "prism")
     assert hasattr(cd, "verbs")
     assert hasattr(cd.verbs, "rolling_median_split_synchrony")
     assert hasattr(cd.verbs, "aoi_signature")

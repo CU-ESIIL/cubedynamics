@@ -128,10 +128,15 @@ jobs:
       - name: Run publication validation suite
         run: |
           python scripts/run_validation.py --run-vignettes
+          python scripts/run_source_qa.py
+          python scripts/run_decision_qa.py
 
       - name: Upload validation evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cubedynamics-validation
-          path: artifacts/validation/
+          path: |
+            artifacts/validation/
+            artifacts/source_qa/
+            artifacts/decision_qa/

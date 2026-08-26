@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "fixture": "sd_working_lands_july_2024.nc",
+  "is_synthetic": false,
+  "decision_scope": "climate screening only; the fixture does not identify cropland, rangeland, ecological sensitivity, forage loss, or economic impact",
+  "aoi": {
+    "name": "bounded central South Dakota window southwest of Pierre",
+    "bbox_wgs84": [
+      -101.2,
+      43.7,
+      -100.4,
+      44.3
+    ],
+    "selection_reason": "A modest CONUS interior window keeps daily PRISM requests and notebook runtime bounded; it was not selected to imply a known impact hotspot."
+  },
+  "time_coverage": [
+    "2024-07-01",
+    "2024-07-31"
+  ],
+  "source": {
+    "flavor": "prism",
+    "provider": "PRISM Climate Group, Oregon State University",
+    "product": "PRISM AN81d/AN91d daily time series",
+    "service": "https://thredds.climate.ncsu.edu/thredds/catalog/prism/daily/combo/catalog.html",
+    "documentation": "https://prism.oregonstate.edu/documents/PRISM_datasets.pdf",
+    "accessed": "2026-08-26",
+    "revision_note": "PRISM grids may be revised as station data and quality control mature; the fixture checksum freezes the observations used for publication."
+  },
+  "public_loader_calls": [
+    {
+      "noun": "temperature",
+      "call": "data.temperature",
+      "arguments": {
+        "source": "prism",
+        "statistic": "maximum",
+        "bbox": [
+          -101.2,
+          43.7,
+          -100.4,
+          44.3
+        ],
+        "start": "2024-07-01",
+        "end": "2024-07-31"
+      }
+    },
+    {
+      "noun": "precipitation",
+      "call": "data.precipitation",
+      "arguments": {
+        "source": "prism",
+        "bbox": [
+          -101.2,
+          43.7,
+          -100.4,
+          44.3
+        ],
+        "start": "2024-07-01",
+        "end": "2024-07-31"
+      }
+    }
+  ],
+  "dimensions": {
+    "time": 31,
+    "y": 15,
+    "x": 19
+  },
+  "variables": {
+    "temperature": {
+      "units": "degC",
+      "minimum": 21.921998977661133,
+      "maximum": 40.386199951171875,
+      "finite_cells": 8835
+    },
+    "precipitation": {
+      "units": "mm",
+      "minimum": 0.0,
+      "maximum": 40.2599983215332,
+      "finite_cells": 8835
+    }
+  },
+  "processing": "public cubedynamics.data.temperature and precipitation noun loaders; server-side daily AOI subsets; no interpolation or synthetic fallback",
+  "fixture_bytes": 74772,
+  "fixture_sha256": "f9f3f0da6c621383b60d4895e661a185d3d58e7393b4f339ee91d36d83228a6a"
+}

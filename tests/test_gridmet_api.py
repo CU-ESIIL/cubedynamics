@@ -2,9 +2,35 @@
 
 from __future__ import annotations
 
+import numpy as np
+import pandas as pd
 import pytest
+import xarray as xr
 
 import cubedynamics as cd
+
+
+@pytest.fixture(autouse=True)
+def _offline_gridmet(monkeypatch):
+    """Keep signature tests deterministic and independent of the network."""
+
+    def fake_backend(variables, start, end, aoi, freq, *args, **kwargs):
+        times = pd.date_range(start, end, freq=freq)
+        y = np.linspace(aoi["min_lat"], aoi["max_lat"], 2)
+        x = np.linspace(aoi["min_lon"], aoi["max_lon"], 2)
+        return xr.Dataset(
+            {
+                name: xr.DataArray(
+                    np.ones((len(times), 2, 2), dtype="float32"),
+                    dims=("time", "y", "x"),
+                    coords={"time": times, "y": y, "x": x},
+                )
+                for name in variables
+            }
+        )
+
+    monkeypatch.setattr("cubedynamics.data.gridmet._open_gridmet_streaming", fake_backend)
+    monkeypatch.setattr("cubedynamics.data.gridmet._open_gridmet_download", fake_backend)
 
 
 def test_load_gridmet_cube_lat_lon_signature():

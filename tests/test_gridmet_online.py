@@ -23,7 +23,7 @@ def test_load_gridmet_cube_streaming_default(recwarn):
     }
 
     ds = load_gridmet_cube(
-        variables=["tmax"],
+        variables=["tmmx"],
         start="2000-01-01",
         end="2000-01-10",
         aoi=aoi,
@@ -34,7 +34,7 @@ def test_load_gridmet_cube_streaming_default(recwarn):
     assert "time" in ds.dims
     assert "y" in ds.dims
     assert "x" in ds.dims
-    assert "tmax" in ds.data_vars
+    assert "tmmx" in ds.data_vars
 
     assert_is_lazy_xarray(ds)
     assert not any(
@@ -43,7 +43,7 @@ def test_load_gridmet_cube_streaming_default(recwarn):
 
 
 @pytest.mark.online
-def test_load_gridmet_cube_fallback_download(monkeypatch, recwarn):
+def test_load_gridmet_cube_failure_does_not_silently_generate_data(monkeypatch, recwarn):
     import cubedynamics.data.gridmet as gridmet_mod
 
     def _always_fail(*args, **kwargs):  # pragma: no cover - used in test
@@ -58,16 +58,15 @@ def test_load_gridmet_cube_fallback_download(monkeypatch, recwarn):
         "max_lat": 40.1,
     }
 
-    ds = load_gridmet_cube(
-        variables=["tmax"],
-        start="2000-01-01",
-        end="2000-01-03",
-        aoi=aoi,
-        prefer_streaming=True,
-    )
+    with pytest.raises(RuntimeError, match="synthetic fallback is disabled"):
+        load_gridmet_cube(
+            variables=["tmmx"],
+            start="2000-01-01",
+            end="2000-01-03",
+            aoi=aoi,
+            prefer_streaming=True,
+        )
 
-    assert isinstance(ds, xr.Dataset)
-    assert "tmax" in ds.data_vars
     assert any(
         "GRIDMET streaming backend unavailable" in str(w.message) for w in recwarn
     )

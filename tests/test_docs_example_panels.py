@@ -52,12 +52,13 @@ def test_climate_sync_page_documents_cube_panel_example():
     assert '.facet_wrap("block"' in text
 
 
-def test_fire_vase_page_documents_vase_panel_example():
+def test_fire_vase_page_documents_real_data_example():
     page = "docs/capabilities/fire-vase.md"
 
-    text = open(page, encoding="utf-8").read()
+    text = " ".join(open(page, encoding="utf-8").read().split())
 
-    assert "Prescribed-burn VASE panel example" in text
-    assert "fire_vase_panel_sample.html" in text
-    assert "examples/fire_vase_panel_demo.py" in text
-    assert "v.fire_vase_panel(" in text
+    assert "real FIRED event paired with streamed gridMET" in text
+    assert "fire_vase_gridmet_interactive.html" in text
+    assert "examples/real_fire_vase_gridmet_smoke.py" in text
+    assert "does not substitute" in text
+    assert "generated perimeters" in text

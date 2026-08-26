@@ -15,6 +15,7 @@ from nbclient.exceptions import CellExecutionError
 
 ROOT = Path(__file__).resolve().parents[1]
 VIGNETTE_DIR = ROOT / "docs" / "vignettes"
+DECISION_VIGNETTE_DIR = ROOT / "docs" / "decision_vignettes"
 PLOT_MIME_TYPES = {"image/png", "image/svg+xml"}
 INLINE_MATPLOTLIB_BACKEND = "module://matplotlib_inline.backend_inline"
 
@@ -25,7 +26,10 @@ def parse_args() -> argparse.Namespace:
         "notebooks",
         nargs="*",
         type=Path,
-        help="Specific notebook paths (default: every docs/vignettes/*.ipynb)",
+        help=(
+            "Specific notebook paths (default: supported notebooks in "
+            "docs/vignettes and docs/decision_vignettes)"
+        ),
     )
     parser.add_argument("--timeout", type=int, default=120, help="Seconds per cell")
     return parser.parse_args()
@@ -50,9 +54,12 @@ def execute(path: Path, *, timeout: int, runtime_dir: Path) -> None:
     except CellExecutionError as exc:
         raise RuntimeError(f"vignette failed: {path.relative_to(ROOT)}") from exc
 
-    if metadata.get("plot_required", False) and not _has_plot_output(notebook):
+    minimum_plots = int(metadata.get("minimum_plot_outputs", 1))
+    plot_count = _plot_output_count(notebook)
+    if metadata.get("plot_required", False) and plot_count < minimum_plots:
         raise RuntimeError(
-            f"vignette did not emit a static plot: {path.relative_to(ROOT)}"
+            f"vignette emitted {plot_count} static plot(s), expected at least "
+            f"{minimum_plots}: {path.relative_to(ROOT)}"
         )
 
     executed = runtime_dir / path.name
@@ -63,12 +70,19 @@ def execute(path: Path, *, timeout: int, runtime_dir: Path) -> None:
 def _has_plot_output(notebook) -> bool:
     """Return whether an executed notebook emitted a portable static figure."""
 
+    return _plot_output_count(notebook) > 0
+
+
+def _plot_output_count(notebook) -> int:
+    """Count outputs containing a portable static figure."""
+
+    count = 0
     for cell in notebook.cells:
         for output in cell.get("outputs", []):
             data = output.get("data", {})
             if PLOT_MIME_TYPES.intersection(data):
-                return True
-    return False
+                count += 1
+    return count
 
 
 def _configure_execution_environment(runtime_dir: Path) -> None:
@@ -85,7 +99,9 @@ def _configure_execution_environment(runtime_dir: Path) -> None:
 
 def main() -> int:
     args = parse_args()
-    paths = args.notebooks or sorted(VIGNETTE_DIR.glob("*.ipynb"))
+    paths = args.notebooks or sorted(VIGNETTE_DIR.glob("*.ipynb")) + sorted(
+        DECISION_VIGNETTE_DIR.glob("*.ipynb")
+    )
     if not paths:
         raise SystemExit("no vignette notebooks found")
 

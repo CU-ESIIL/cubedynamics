@@ -45,7 +45,11 @@ pipe(cube) | v.mean(dim="time") | v.plot()
 The dataset is produced by John Abatzoglou and collaborators at the University of Idaho to support ecological, hydrological, and fire-weather applications across CONUS. It blends PRISM climatology with NLDAS reanalysis to provide spatially consistent daily meteorology widely used in ecological forecasting and climate impact studies.
 
 ### How CubeDynamics accesses it
-`load_gridmet_cube` attempts a streaming backend first, opening yearly NetCDF files over HTTP and subsetting the requested area and time range before chunking into a VirtualCube-like Dask structure. When streaming is unavailable it falls back to a small cached download while preserving the same `(time, y, x)` interface. Users request AOIs by point, bounding box, or GeoJSON, enabling fast analysis without retrieving the full continental archive.
+`load_gridmet_cube` reads authoritative annual NetCDF assets and exposes the
+requested area and time window as a Dask-backed `(time, y, x)` object. It does
+not silently create a cached or generated substitute. The current annual-file
+retrieval is a documented Phase 1 efficiency limitation; the noun-first API is
+`data.temperature(source="gridmet", ...)` and related climate nouns.
 
 !!! important "Temporal frequency and safety"
     - Daily (`freq="D"`) is recommended for fire/event windows. Monthly start (`"MS"`) requests over short ranges can produce an empty time axis; the loader now raises with guidance instead of silently returning NaNs.
@@ -58,7 +62,7 @@ The dataset is produced by John Abatzoglou and collaborators at the University o
 | y / x (lat / lon) | Grid cell centers in geographic coordinates | degrees |
 | pr | Precipitation | mm day⁻¹ |
 | tmmx / tmmn | Daily maximum / minimum temperature | K |
-| vpd | Vapor pressure deficit | Pa |
+| vpd | Vapor pressure deficit | kPa |
 | vs / erc | Wind speed / energy release component | m s⁻¹ / index |
 
 ### Citation

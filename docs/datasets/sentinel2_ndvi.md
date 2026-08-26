@@ -54,8 +54,12 @@ Sentinel-2 scenes are streamed remotely through the `cubo` API, which signs and 
 | NDVI | (NIR − Red) / (NIR + Red) vegetation index | unitless |
 | band (optional, when returning raw bands) | Reflectance bands such as B04 (red) and B08 (NIR) | unitless reflectance |
 
-### Citation
-Didan, K. (2015). *MOD13Q1 MODIS/Terra Vegetation Indices (Version 6)*. NASA EOSDIS Land Processes DAAC. https://doi.org/10.5067/MODIS/MOD13Q1.006
+### Source documentation
+
+See the [Copernicus Sentinel-2 mission](https://dataspace.copernicus.eu/data-collections/copernicus-sentinel-missions/sentinel-2)
+and [Level-2A band documentation](https://documentation.dataspace.copernicus.eu/APIs/SentinelHub/Data/S2L2A.html).
+The previous MODIS citation on this page described a different sensor and
+product and has been removed.
 
 ---
 Back to [Datasets Overview](index.md)  

@@ -48,7 +48,9 @@ hide:
     <h2>Readable workflows. Explicit operations.</h2>
   </div>
   <div class="cd-code-stage">
-    <pre><code><span class="cd-code-muted">from</span> cubedynamics <span class="cd-code-muted">import</span> pipe, verbs <span class="cd-code-muted">as</span> v
+    <pre><code><span class="cd-code-muted">from</span> cubedynamics <span class="cd-code-muted">import</span> data, pipe, verbs <span class="cd-code-muted">as</span> v
+
+cube = data.temperature(source=<span class="cd-code-coral">"prism"</span>, ...)
 
 result = (
     pipe(cube)

@@ -13,7 +13,7 @@ That includes:
 - local files
 - cloud-hosted raster archives
 - STAC-backed assets
-- synthetic or derived cubes
+- reviewed local fixtures or derived cubes
 
 ## Why Streaming Comes First
 

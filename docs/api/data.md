@@ -1,12 +1,28 @@
-# Data loaders and variables
+# Scientific nouns and source loaders
 > **See also:**  \
 > - [API Reference](reference.md)  \
 > - [Inventory (User)](../function_inventory.md)  \
 > - [Inventory (Full / Dev)](inventory_full.md)
 
-User-facing entry points for constructing cubes from remote or synthetic
-backends. These functions live under ``cubedynamics.data`` and
-``cubedynamics.variables``.
+New analyses should load the scientific thing they need through
+`cubedynamics.data`, then express analysis with verbs.
+
+```python
+from cubedynamics import data, pipe, verbs as v
+
+cube = data.precipitation(
+    source="prism",
+    bbox=[-105.75, 39.50, -104.75, 40.50],
+    start="2024-05-01",
+    end="2024-05-31",
+)
+result = pipe(cube) | v.anomaly(dim="time")
+```
+
+Implemented nouns are `temperature`, `precipitation`, `vpd`, `wind`,
+`humidity`, `radiation`, `surface_reflectance`, and `vegetation_index`.
+Use `data.sources(noun)` and `data.describe(noun, source=...)` for discovery.
+Scientific noun loaders never return synthetic fallback data.
 
 ## Core dataset loaders
 
@@ -38,10 +54,10 @@ cube.
 ### ``cubedynamics.data.sentinel2.load_s2_ndvi_zscore_cube(...)``
 Build an NDVI z-score cube by combining the NDVI loader with :func:`verbs.zscore`.
 
-## Semantic variable helpers
+## Compatibility semantic helpers
 
-These wrappers choose the appropriate loader and variable name, with optional
-streaming and tiling behavior baked in.
+The older top-level and `cubedynamics.variables` temperature/NDVI helpers remain
+available for compatibility. Prefer `cubedynamics.data` in new documentation.
 
 ### ``cubedynamics.variables.temperature(...)``
 Mean temperature cube from GRIDMET or PRISM. Accepts AOI/time arguments plus

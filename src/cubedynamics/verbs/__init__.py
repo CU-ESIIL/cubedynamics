@@ -52,6 +52,7 @@ from ..piping import Verb
 from ..streaming import VirtualCube
 from ..vase import VaseDefinition
 from .custom import apply
+from .combine import overlap
 from .diagnostics import diagnostic_panel
 from .flatten import flatten_cube, flatten_space
 from .models import fit_model
@@ -765,6 +766,7 @@ __all__ = [
     "anomaly",
     "aoi_signature",
     "apply",
+    "overlap",
     "block_signature",
     "collect_blocks",
     "compare_blocks",

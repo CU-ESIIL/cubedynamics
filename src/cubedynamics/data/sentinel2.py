@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Mapping, Sequence
 
 import cubo
@@ -53,6 +54,22 @@ def load_s2_cube(
     )
     data = data.transpose(*desired_order)
     data = data.chunk(chunks or DEFAULT_CHUNKS)
+    data = data.copy(deep=False)
+    data.attrs.update(
+        {
+            "source": "sentinel2",
+            "source_provider": "European Union Copernicus Programme / ESA",
+            "source_product": "Sentinel-2 Level-2A surface reflectance",
+            "source_variables": ",".join(selected_bands),
+            "requested_start": str(start),
+            "requested_end": str(end),
+            "spatial_query": f"lat={lat},lon={lon},edge_size={edge_size}",
+            "spatial_resolution": f"{resolution} m requested output",
+            "streaming_protocol": "cubo STAC and cloud-optimized assets",
+            "retrieved_at": datetime.now(timezone.utc).isoformat(),
+            "is_synthetic": False,
+        }
+    )
     return data
 
 
@@ -89,4 +106,19 @@ def load_s2_ndvi_cube(
         chunks=chunks,
     )
     ndvi = compute_ndvi_from_s2(s2)
+    ndvi.attrs.update(
+        {
+            key: value
+            for key, value in s2.attrs.items()
+            if key not in {"long_name", "formula", "bands"}
+        }
+    )
+    ndvi.attrs.update(
+        {
+            "source_product": "NDVI derived from Sentinel-2 Level-2A B08 and B04",
+            "source_variables": "B08,B04",
+            "data_state": "derived",
+            "units": "1",
+        }
+    )
     return ndvi
