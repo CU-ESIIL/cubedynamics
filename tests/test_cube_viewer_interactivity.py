@@ -36,6 +36,10 @@ def test_cube_viewer_emits_interactive_markup(tmp_path):
     assert 'id="cube-wrapper-' in html
     assert 'id="cube-rotation-' in html
     assert 'id="cube-drag-' in html
+    rotation_css = html.split(".cube-rotation {", 1)[1].split("}", 1)[0]
+    drag_css = html.split(".cube-drag-surface {", 1)[1].split("}", 1)[0]
+    assert "pointer-events: none;" in rotation_css
+    assert "pointer-events: auto;" in drag_css
     assert 'id="cube-js-warning-' in html
     assert 'id="cd-drift-center-v1-js"' in html
     assert 'addEventListener("pointerdown"' in html

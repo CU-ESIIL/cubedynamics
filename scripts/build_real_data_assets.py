@@ -36,6 +36,7 @@ def main() -> int:
         cmap="magma",
         title="Observed PRISM daily maximum temperature · Boulder region",
         legend_title="tmax (degC)",
+        size_px=260,
         thin_time_factor=1,
         show_progress=False,
         return_html=True,

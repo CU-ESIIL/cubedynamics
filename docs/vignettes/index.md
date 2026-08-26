@@ -1,25 +1,30 @@
 ---
-description: "Learn CubeDynamics through narrative, executable lessons that begin with a research question and end with an interpretable figure."
+description: "Learn CubeDynamics through narrative, executable lessons and real-data research stories that end in interpretable figures."
+hide:
+  - navigation
+  - toc
 ---
 
-<div class="cd-vignettes">
+<div class="cd-hub">
 
-<header class="cd-vignettes-hero">
-  <p class="cd-vignettes-kicker">Learn by following an analysis</p>
-  <h1>Vignettes</h1>
-  <p class="cd-vignettes-deck">Each lesson begins with a familiar data situation, asks one concrete question, expresses the analysis as a small pipe, and ends by reading a figure.</p>
+<header class="cd-hub-hero" data-parallax>
+  <div class="cd-hub-hero-copy">
+    <p class="cd-hub-kicker">Vignettes · stories, lessons, and examples</p>
+    <h1>Follow the analysis.</h1>
+  </div>
+  <p class="cd-hub-deck">Begin with a research situation, ask one concrete question, express the method as a small pipe, and end by reading a figure.</p>
 </header>
 
-<p><strong>One evidence base:</strong> every lesson uses the same checksum-controlled
-PRISM observational extract. Review its source, bounds, units, and acceptance
-checks in the <a href="../validation/data/">validation report</a>.</p>
-
-<section class="cd-pipe-principle" aria-labelledby="pipe-principle-title">
+<section class="cd-hub-band">
   <div>
-    <p class="cd-vignettes-kicker">The central idea</p>
-    <h2 id="pipe-principle-title">Keep the analytical sentence short.</h2>
-    <p>Preparing data can take several lines. The scientific operation should still be easy to see, explain, change, and review.</p>
+    <p class="cd-hub-kicker">The learning path</p>
+    <h2>Start with the data you have.</h2>
   </div>
+  <p class="cd-hub-intro">The eight core notebooks use the same checksum-controlled PRISM observational extract. They move from arrays, tables, and Datasets into verbs, events, custom vocabulary, and lazy computation.</p>
+</section>
+
+<section class="cd-quick-code">
+  <h2>Keep the analytical sentence short</h2>
   <pre><code>result = (
     pipe(cube)
     | v.anomaly(dim="time")
@@ -27,128 +32,135 @@ checks in the <a href="../validation/data/">validation report</a>.</p>
 ).unwrap()</code></pre>
 </section>
 
-</div>
-
-## Start with the data you have
-
-Choose the first lesson that resembles your starting point. These stories all
-arrive at the same `(time, y, x)` cube contract.
-
-<div class="cd-vignette-grid cd-vignette-grid--three">
-  <a class="cd-vignette-card" href="cube_from_arrays/">
-    <span class="cd-vignette-number">01</span>
-    <p class="cd-vignette-kind">You have an array</p>
-    <h3>From values to a scientific cube</h3>
+<div class="cd-gallery">
+  <a class="cd-gallery-card" href="cube_from_arrays/">
+    <small>01 · You have an array</small>
+    <h3>Build a scientific cube</h3>
     <p>Add coordinates, units, and provenance; compare a map with a pixel history; then rotate the cube.</p>
     <strong>Begin with NumPy →</strong>
   </a>
-  <a class="cd-vignette-card" href="cube_from_tidy_table/">
-    <span class="cd-vignette-number">02</span>
-    <p class="cd-vignette-kind">You have observations</p>
-    <h3>From a tidy table to a comparable signal</h3>
+  <a class="cd-gallery-card cd-gallery-card--wide" href="cube_from_tidy_table/">
+    <small>02 · You have observations</small>
+    <h3>Make locations comparable</h3>
     <p>Reshape rows into a cube and use one clean verb to standardize every location through time.</p>
     <strong>Begin with pandas →</strong>
   </a>
-  <a class="cd-vignette-card" href="cube_from_dataset/">
-    <span class="cd-vignette-number">03</span>
-    <p class="cd-vignette-kind">You have several variables</p>
+  <a class="cd-gallery-card cd-gallery-card--wide" href="cube_from_dataset/">
+    <small>03 · You have several variables</small>
     <h3>Ask two questions of one Dataset</h3>
     <p>Select aligned variables, preserve their meanings, and compose a separate pipe for each question.</p>
     <strong>Begin with xarray →</strong>
   </a>
-</div>
-
-## Follow the grammar into an analysis
-
-Once a cube is ready, continue with the story closest to the work you want to
-do. The code remains small even as the scientific vocabulary becomes richer.
-
-<div class="cd-vignette-grid cd-vignette-grid--two">
-  <a class="cd-vignette-card cd-vignette-card--wide" href="grammar_basics/">
-    <span class="cd-vignette-number">04</span>
-    <p class="cd-vignette-kind">You want a readable method</p>
-    <h3>Write the analysis as a sentence</h3>
-    <p>See direct and piped calls agree, combine built-in and ordinary functions, and identify the minimal grammar.</p>
+  <a class="cd-gallery-card" href="grammar_basics/">
+    <small>04 · You want a readable method</small>
+    <h3>Write analysis as a sentence</h3>
+    <p>Compare direct and piped calls, combine built-in and ordinary functions, and see the minimal grammar.</p>
     <strong>Learn the core pipe →</strong>
   </a>
-  <a class="cd-vignette-card cd-vignette-card--wide" href="verbs_gallery/">
-    <span class="cd-vignette-number">05</span>
-    <p class="cd-vignette-kind">You want to explore possibilities</p>
-    <h3>Ask several questions of one cube</h3>
+  <a class="cd-gallery-card" href="verbs_gallery/">
+    <small>05 · You want possibilities</small>
+    <h3>Explore the verb gallery</h3>
     <p>Compare means, variance, anomalies, standardized values, project functions, and model-ready shapes.</p>
-    <strong>Explore the verb gallery →</strong>
+    <strong>Browse working verbs →</strong>
   </a>
-  <a class="cd-vignette-card cd-vignette-card--wide" href="states_and_events/">
-    <span class="cd-vignette-number">06</span>
-    <p class="cd-vignette-kind">You care about episodes</p>
+  <a class="cd-gallery-card cd-gallery-card--wide" href="states_and_events/">
+    <small>06 · You care about episodes</small>
     <h3>Follow cold from value to event</h3>
     <p>Turn measurements into states, states into events, and events into a spatial relationship.</p>
     <strong>Follow the event story →</strong>
   </a>
-  <a class="cd-vignette-card cd-vignette-card--wide" href="custom_verb_project/">
-    <span class="cd-vignette-number">07</span>
-    <p class="cd-vignette-kind">Your project has a method</p>
+  <a class="cd-gallery-card cd-gallery-card--wide" href="custom_verb_project/">
+    <small>07 · Your project has a method</small>
     <h3>Give the project its own verb</h3>
     <p>Encode a scientific rule as a small callable factory and keep project assumptions visible.</p>
     <strong>Build a custom verb →</strong>
   </a>
-  <a class="cd-vignette-card cd-vignette-card--wide" href="lazy_composition/">
-    <span class="cd-vignette-number">08</span>
-    <p class="cd-vignette-kind">Your cube is larger</p>
+  <a class="cd-gallery-card" href="lazy_composition/">
+    <small>08 · Your cube is larger</small>
     <h3>Scale the same analysis lazily</h3>
     <p>Keep the grammar unchanged while Dask delays computation until the final result is needed.</p>
     <strong>Follow the lazy workflow →</strong>
   </a>
 </div>
 
-## The rhythm of every lesson
+<section class="cd-hub-band">
+  <div>
+    <p class="cd-hub-kicker">The lesson rhythm</p>
+    <h2>Five moves in every story.</h2>
+  </div>
+  <ol class="cd-lesson-rhythm">
+    <li><strong>Context</strong><span>Meet the data and research situation.</span></li>
+    <li><strong>Question</strong><span>Decide what the analysis must reveal.</span></li>
+    <li><strong>Pipe</strong><span>Read the method as one compact expression.</span></li>
+    <li><strong>Figure</strong><span>See the transformation.</span></li>
+    <li><strong>Interpretation</strong><span>Return the result to the question.</span></li>
+  </ol>
+</section>
 
-<ol class="cd-lesson-rhythm">
-  <li><strong>Context</strong><span>Meet the data and the research situation.</span></li>
-  <li><strong>Question</strong><span>Decide what the analysis must reveal.</span></li>
-  <li><strong>Pipe</strong><span>Read the method as one compact expression.</span></li>
-  <li><strong>Figure</strong><span>See the transformation rather than only inspecting an array.</span></li>
-  <li><strong>Interpretation</strong><span>Connect the visual result back to the question.</span></li>
-</ol>
+<section class="cd-hub-band cd-hub-band--tint">
+  <div>
+    <p class="cd-hub-kicker">Applied collections</p>
+    <h2>Move from syntax to decisions.</h2>
+  </div>
+  <p class="cd-hub-intro">These galleries organize longer research narratives, decision questions, domain add-ons, and reusable recipes. They distinguish executable workflows from transparent dependency designs.</p>
+</section>
 
-## Apply the grammar to environmental decisions
+<div class="cd-gallery">
+  <a class="cd-gallery-card cd-gallery-card--wide" href="../decision_vignettes/">
+    <small>Decision lab</small>
+    <h3>South Dakota environmental questions</h3>
+    <p>Working lands, water, fire, habitat, and exposure stories grounded in real-data readiness and explicit missing dependencies.</p>
+    <strong>Enter the Decision Lab →</strong>
+  </a>
+  <a class="cd-gallery-card" href="../workflows/">
+    <small>Research workflows</small>
+    <h3>Climate, vegetation, and remote sensing</h3>
+    <p>See how the same grammar carries across environmental domains.</p>
+    <strong>Browse workflows →</strong>
+  </a>
+  <a class="cd-gallery-card" href="../synchrony/">
+    <small>Project vocabulary</small>
+    <h3>Synchrony and biological coupling</h3>
+    <p>Follow states, events, spatial primitives, theory, and validation boundaries.</p>
+    <strong>Open synchrony stories →</strong>
+  </a>
+  <a class="cd-gallery-card cd-gallery-card--wide" href="../capabilities/fire-vase/">
+    <small>Project vocabulary</small>
+    <h3>Fire VASE and FireHull</h3>
+    <p>Treat fire events as spatiotemporal objects and connect event geometry with environmental context.</p>
+    <strong>Open the capability guide →</strong>
+  </a>
+  <a class="cd-gallery-card" href="../recipes/">
+    <small>Focused examples</small>
+    <h3>Recipe gallery</h3>
+    <p>Adapt compact, task-oriented examples once the core grammar is familiar.</p>
+    <strong>Browse recipes →</strong>
+  </a>
+  <a class="cd-gallery-card cd-gallery-card--wide" href="../examples_gallery/">
+    <small>More educational material</small>
+    <h3>Examples and task-based how-tos</h3>
+    <p>Continue into climate–vegetation correlation, source-specific workflows, state cubes, synchrony, and viewer patterns.</p>
+    <strong>Open the complete example collection →</strong>
+  </a>
+</div>
 
-Ready to move from learning the syntax to framing a multi-source question?
-The [South Dakota Decision Lab](../decision_vignettes/index.md) pairs one
-executable observed-data analysis with four transparent dependency designs.
-It shows both what the grammar can express today and which vetted nouns and
-general spatial verbs still need to be built.
+<section class="cd-hub-band">
+  <div>
+    <p class="cd-hub-kicker">Reproducibility contract</p>
+    <h2>Run, inspect, and verify.</h2>
+  </div>
+  <div class="cd-hub-intro">
+    <p>Every core lesson declares a Python 3 kernel, uses public APIs and observed data, contains assertions beside important contracts, and ends with an explanatory static figure. The first also includes the repository-native interactive cube viewer.</p>
+    <p>The runner executes clean copies, verifies metadata and plot output, and leaves checked-in notebooks unchanged. The documentation build executes the same sources so figures appear beside code on the website.</p>
+  </div>
+</section>
 
-## Run the vignettes
+<section class="cd-quick-code">
+  <h2>Run all core vignettes</h2>
+  <pre><code>python -m pip install -e ".[vignettes]"
+python scripts/run_vignettes.py</code></pre>
+</section>
 
-From a repository checkout:
+<aside class="cd-hub-note">Review source bounds, units, checksums, cube decoding, and expected-failure controls in the <a href="../validation/">validation report</a>.</aside>
 
-```bash
-python -m pip install -e ".[vignettes]"
-python scripts/run_vignettes.py
-```
-
-To edit them interactively:
-
-```bash
-python -m pip install jupyterlab
-jupyter lab docs/vignettes/
-```
-
-The source notebooks are small and offline. The runner executes clean copies,
-verifies the real-data metadata and static plot output, and leaves the checked-in
-notebooks unmodified. The documentation build executes the same sources and
-places their figures beside the code on the website.
-
-## Reproducibility contract
-
-- Every lesson declares a Python 3 kernel and uses only public APIs.
-- Every lesson uses the checked-in PRISM observational fixture; the complete
-  URL and SHA-256 source record is checked in beside it.
-- Publication lessons contain no random or generated measurement values.
-- No lesson requires a token, network service, private path, or hidden state.
-- Assertions sit beside important contracts so a broken example fails loudly.
-- Each lesson ends with an explanatory static figure; the first also includes
-  the repository-native interactive cube viewer.
-- The [validation suite](../validation/index.md) executes the notebooks and
-  checks data, grammar, decoded cube pixels, and expected-failure controls.
+</div>

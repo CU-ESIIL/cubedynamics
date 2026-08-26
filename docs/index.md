@@ -13,20 +13,26 @@ hide:
     <h1>A composable grammar for spatiotemporal science.</h1>
     <p class="cd-hero-deck">CubeDynamics provides a transparent, streaming-aware way to express environmental analyses as small, testable operations.</p>
     <div class="cd-hero-actions">
-      <a class="cd-action cd-action--acid" href="grammar/">Read the core methods <span aria-hidden="true">→</span></a>
+      <a class="cd-action cd-action--acid" href="quickstart/">Get started <span aria-hidden="true">→</span></a>
       <a class="cd-action cd-action--ghost" href="vignettes/">Run a vignette <span aria-hidden="true">↗</span></a>
     </div>
   </div>
   <div class="cd-hero-art">
     <div class="cd-html-cube-hero">
-      <div class="cd-html-cube-frame">
-        <iframe src="assets/figures/prism_boulder_tmax_cube.html" title="Interactive cube of observed PRISM daily maximum temperature" loading="eager" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
+      <div class="cd-html-cube-frame cd-deferred-embed" data-deferred-embed>
+        <iframe src="about:blank" data-src="assets/figures/prism_boulder_tmax_cube.html" title="Interactive cube of observed PRISM daily maximum temperature" loading="lazy" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
+        <div class="cd-embed-loader">
+          <strong>Observed PRISM temperature cube</strong>
+          <span>Interactive viewer loads after the page is ready.</span>
+          <button type="button">Load interactive cube</button>
+        </div>
       </div>
       <div class="cd-html-cube-meta">
         <p><strong>Live CubeDynamics viewer</strong><span>Observed PRISM temperature · longitude × latitude × time</span></p>
         <a href="assets/figures/prism_boulder_tmax_cube.html">Open full viewer <span aria-hidden="true">↗</span></a>
       </div>
       <p class="cd-html-cube-instructions">Drag the cube to rotate it. Scroll over the viewer to zoom.</p>
+      <noscript><p><a href="assets/figures/prism_boulder_tmax_cube.html">Open the interactive cube viewer</a>.</p></noscript>
     </div>
   </div>
 </section>
@@ -88,7 +94,7 @@ result = (
 
     <a class="cd-story" href="vignettes/lazy_composition/">
       <div class="cd-story-image">
-        <img src="assets/validation/grammar/diagnostic.png" alt="A validation plot comparing pipe results with direct calculations on observed PRISM data">
+        <img src="assets/validation/grammar/diagnostic.png" alt="A validation plot comparing pipe results with direct calculations on observed PRISM data" loading="lazy" decoding="async">
       </div>
       <div class="cd-story-copy">
         <p class="cd-story-tag">02 · Computational scaling</p>
@@ -100,7 +106,7 @@ result = (
 
     <a class="cd-story" href="extending/custom_verbs/">
       <div class="cd-story-image cd-story-image--coral">
-        <img src="assets/validation/data/diagnostic.png" alt="Validated maps and time series from observed PRISM temperature data">
+        <img src="assets/validation/data/diagnostic.png" alt="Validated maps and time series from observed PRISM temperature data" loading="lazy" decoding="async">
       </div>
       <div class="cd-story-copy">
         <p class="cd-story-tag">03 · Research extensions</p>

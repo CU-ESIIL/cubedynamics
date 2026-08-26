@@ -1,155 +1,110 @@
-# Getting Started
+---
+description: "Install CubeDynamics, load vetted observational data, and write a first pipe-and-verb analysis."
+hide:
+  - navigation
+  - toc
+---
 
-This guide gets you to a first working grammar pipeline without a download,
-credential, or optional renderer. After that, the same composition model can be
-connected to streaming integrations.
+<div class="cd-hub">
 
-CubeDynamics is not a storage platform or visualization package. It sits above data sources and gives you a consistent way to compute on environmental streams.
+<header class="cd-hub-hero" data-parallax>
+  <div class="cd-hub-hero-copy">
+    <p class="cd-hub-kicker">Get started · one noun, one pipe, two verbs</p>
+    <h1>From data to question.</h1>
+  </div>
+  <p class="cd-hub-deck">Start with observed temperature, keep the analytical sentence short, and leave with a result you can inspect and plot.</p>
+</header>
 
-The stable lesson is `pipe(cube) | verb() | verb()`: the cube's source is a
-separate concern.
+<section class="cd-hub-band">
+  <div>
+    <p class="cd-hub-kicker">01 · Install</p>
+    <h2>A small core, familiar data structures.</h2>
+  </div>
+  <div>
+    <p class="cd-hub-intro">CubeDynamics composes operations on xarray objects. The package supplies the grammar; data adapters supply the observations.</p>
+  </div>
+</section>
 
-## Installation
+<section class="cd-quick-code">
+  <h2>Install the package</h2>
+  <pre><code>pip install cubedynamics</code></pre>
+</section>
 
-Install from PyPI:
+<section class="cd-hub-band cd-hub-band--tint">
+  <div>
+    <p class="cd-hub-kicker">02 · Load a noun</p>
+    <h2>Ask for the scientific thing first.</h2>
+  </div>
+  <p class="cd-hub-intro">This request uses observed PRISM daily maximum temperature near Boulder. It requires network access and retains provider, product, units, query, and retrieval metadata on the returned cube.</p>
+</section>
 
-```bash
-pip install cubedynamics
-```
+<section class="cd-quick-code">
+  <h2>Load observed temperature</h2>
+  <pre><code>from cubedynamics import data, pipe, verbs as v
 
-Or install the latest main branch:
+temperature = data.temperature(
+    source="prism",
+    statistic="maximum",
+    bbox=[-105.55, 39.85, -105.05, 40.15],
+    start="2024-01-01",
+    end="2024-01-30",
+)</code></pre>
+</section>
 
-```bash
-pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
-```
+<section class="cd-hub-band">
+  <div>
+    <p class="cd-hub-kicker">03 · Write the method</p>
+    <h2>Read the analysis as a sentence.</h2>
+  </div>
+  <p class="cd-hub-intro">Calculate the daily anomaly at each cell, then average across space. Parentheses make the sequence clear and defer unwrapping until the final result.</p>
+</section>
 
-CubeDynamics runs anywhere `xarray` runs: laptops, HPC clusters, or hosted notebooks.
-
-## Your first cube
-
-Start with a deterministic xarray object so the example is reproducible
-everywhere:
-
-```python
-import numpy as np
-import pandas as pd
-import xarray as xr
-
-cube = xr.DataArray(
-    np.arange(72, dtype=float).reshape(12, 2, 3),
-    dims=("time", "y", "x"),
-    coords={"time": pd.date_range("2025-01-01", periods=12, freq="MS")},
-    name="environmental_signal",
-)
-```
-
-Inspect the structure to confirm dimensions and metadata:
-
-```python
-cube.dims
-cube.shape
-cube.attrs
-```
-
-## Your First Pipeline
-
-Pipelines are built with the pipe (`|`) operator and a grammar of verbs:
-
-```python
-from cubedynamics import pipe, verbs as v
-
-result = (
-    pipe(cube)
+<section class="cd-quick-code">
+  <h2>Compose two verbs</h2>
+  <pre><code>spatial_anomaly = (
+    pipe(temperature)
     | v.anomaly(dim="time")
     | v.mean(dim=("y", "x"), keep_dim=False)
 ).unwrap()
-```
 
-This example computes an anomaly at every voxel and then a spatial mean for
-each time step. You can swap in `v.variance`, `v.zscore`, or
-`v.month_filter([6, 7, 8])` without changing the pipeline structure.
+spatial_anomaly.plot()</code></pre>
+</section>
 
-The important idea is that the cube is not the product by itself. The product is the combination of:
+<aside class="cd-hub-note">That is the whole model: a noun supplies a cube; the pipe makes a sequence explicit; verbs express what happens next.</aside>
 
-- a streaming interface to environmental data
-- a stable computation grammar built from `pipe(...)` and verbs
+<section class="cd-hub-band">
+  <div>
+    <p class="cd-hub-kicker">Choose the next path</p>
+    <h2>Learn by doing or browse the vocabulary.</h2>
+  </div>
+  <p class="cd-hub-intro">The learning gallery tells complete analysis stories. The library is the faster route when you already know whether you need a noun, verb, source adapter, or project extension.</p>
+</section>
 
-## Connect a real-data integration
+<div class="cd-gallery">
+  <a class="cd-gallery-card cd-gallery-card--wide" href="../vignettes/">
+    <small>Guided learning</small>
+    <h3>Run a complete vignette</h3>
+    <p>Follow context, question, pipe, figure, and interpretation in one executable notebook.</p>
+    <strong>Open the vignette gallery →</strong>
+  </a>
+  <a class="cd-gallery-card" href="../library/">
+    <small>Vocabulary</small>
+    <h3>Browse nouns and verbs</h3>
+    <p>Find data access, transformations, renderers, and extension patterns.</p>
+    <strong>Open the library →</strong>
+  </a>
+  <a class="cd-gallery-card" href="../getting_started/install/">
+    <small>Environment</small>
+    <h3>Installation options</h3>
+    <p>Set up editable, notebook, and development environments.</p>
+    <strong>Review installation →</strong>
+  </a>
+  <a class="cd-gallery-card cd-gallery-card--wide" href="../documentation/">
+    <small>Technical depth</small>
+    <h3>Inspect every contract</h3>
+    <p>Move into API reference, streaming, validation, visualization, and development architecture.</p>
+    <strong>Open documentation →</strong>
+  </a>
+</div>
 
-Once the grammar is clear, an adapter can supply the cube. This PRISM example
-requires network access and is therefore not part of the offline vignette test:
-
-```python
-import cubedynamics as cd
-
-cube = cd.load_prism_cube(
-    lat=40.0,
-    lon=-105.25,
-    start="2020-01-01",
-    end="2020-12-31",
-    variable="ppt",
-)
-
-result = (pipe(cube) | v.anomaly() | v.variance()).unwrap()
-```
-
-Other maintained adapters follow the same separation: obtain a cube, then
-compose verbs.
-
-## Scaling Up Without Changing Code
-
-Large requests automatically stream as **VirtualCubes**, so you do not have to rewrite your pipeline when datasets exceed memory. VirtualCubes:
-
-- represent a cube without materializing it upfront
-- stream tiles of data through the same verbs
-- keep your code and semantics identical at small or large scales
-
-## Working With Large Datasets
-
-If you request a larger area of interest or longer date range, the loader silently returns a VirtualCube that streams tiles through the same verbs. You can inspect and control streaming when needed:
-
-```python
-ndvi = cd.ndvi(
-    lat=40.0,
-    lon=-105.25,
-    start="1970",
-    end="2020",
-    streaming_strategy="virtual",
-    time_tile="5y",
-)
-print(ndvi)           # shows that it is a VirtualCube
-ndvi.debug_tiles()    # prints time + space tiles
-ndvi.materialize()    # forces full load; only for small areas
-```
-
-Try smaller `time_tile` values or reduced spatial bounds if you see slow progress or rate limits.
-
-When a request is too large for a normal in-memory cube, CubeDynamics:
-
-- splits the timeline into tiles (for example, five-year windows)
-- splits the area of interest into spatial tiles when needed
-- streams each tile through the verbs, tracking running statistics like variance or mean
-- returns a normal-looking DataArray/Dataset at the end
-
-## Common Pitfalls
-
-- Make sure the requested variable name matches the dataset.
-- Verify dimensions before running large analyses so operations occur over the intended axis.
-- Use streaming defaults for big pulls instead of forcing full materialization.
-- For event windows, request daily frequency (`freq="D"`)—monthly codes like `"MS"`/`"ME"` over short ranges can return an empty time axis.
-- Leave `allow_synthetic=False` unless you explicitly want demo data; provenance (`source`, `is_synthetic`, `backend_error`) on cubes will confirm what you received.
-- A "streaming backend unavailable" warning means CubeDynamics fell back to a download backend. Install optional dependencies or check network access before re-running if you need streaming.
-
-## Where to go next
-
-- [Run the publication vignettes](vignettes/index.md)
-- [Understand core versus project verbs](concepts/core_and_projects.md)
-- [Write a custom verb project](extending/custom_verbs.md)
-- [Why CubeDynamics?](why_cubedynamics.md)
-- [Streaming Environmental Data](streaming/index.md)
-- [Grammar of Streaming](grammar/index.md)
-- [Workflows](workflows/index.md)
-- [Datasets](datasets/index.md)
-- [Cube viewer (`v.plot`)](viz/cube_viewer.md)
-
-CubeDynamics provides a unified way to compute on environmental data streams: simple enough for quick exploration, strong enough for larger scientific and agent-executed workflows.
+</div>

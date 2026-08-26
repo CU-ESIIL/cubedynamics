@@ -419,6 +419,9 @@ def _render_cube_html(
     .cube-rotation {{
       position: absolute;
       inset: 0;
+      /* The transformed faces are presentation only. Keep pointer events on
+         the dedicated drag surface so rotation works over every visible face. */
+      pointer-events: none;
       transform-style: preserve-3d;
       transform:
         rotateX(var(--rot-x, 0rad))

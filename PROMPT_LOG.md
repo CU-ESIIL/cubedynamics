@@ -2527,3 +2527,45 @@ secrets, credentials, private tokens, or unrelated transcript text.
   publication validation modules. The exact offline suite again passed with
   383 tests, 5 skipped, and 9 deselected; tracked-size policy, prospective
   four-file fixture policy, and `git diff --check` also passed.
+
+## 2026-08-26 - Interactive homepage repair and five-hub website structure
+
+### User goal
+
+- Repair the observed-PRISM cube on the homepage so visitors can rotate it.
+- Replace the crowded top navigation with five useful destinations: Home,
+  Get Started, Vignettes, Library, and Documentation.
+- Gather all lessons, stories, projects, and examples under Vignettes; make
+  nouns, verbs, and extension patterns discoverable under Library; and keep the
+  exhaustive technical material under Documentation.
+- Apply one restrained Impact Media Lab-style gallery system and reduce the
+  amount of work that blocks initial page display.
+
+### Implementation
+
+- Fixed the canonical HTML cube viewer so its transformed presentation layer
+  cannot intercept pointer events intended for the drag surface. Rebuilt the
+  checksum-verified PRISM homepage asset at a more legible embedded size and
+  added a focused interaction regression test.
+- Consolidated thirteen top-level navigation groups into five. Existing deep
+  pages remain available under purpose-driven nested sections rather than
+  competing as primary tabs.
+- Rebuilt the Get Started and Vignettes landings and added Library and
+  Documentation hubs. They share an academic editorial hero, responsive
+  gallery cards, restrained cube-derived line decoration, and reduced-motion
+  behavior. The Library now includes explicit, truthful guidance for project
+  nouns as well as custom verbs.
+- Deferred the homepage iframe until the hero enters the viewport and the
+  browser is idle, while retaining an explicit load button and no-script link.
+  Enabled instant navigation and navigation pruning, and marked below-fold
+  homepage figures for lazy asynchronous decoding.
+
+### Validation
+
+- In-browser QA reproduced the original hit-testing failure, then confirmed a
+  real drag changes the homepage cube's rotation variables after the fix.
+  Browser checks also confirmed exactly five tabs and rendered all four hub
+  pages with their expected gallery cards.
+- The exact offline suite passed: 387 tests passed, 5 skipped, and 9 deselected.
+- `mkdocs build --strict` passed with all nine supported notebooks, and
+  targeted navigation, publication, Decision Lab, and viewer checks passed.

@@ -18,7 +18,7 @@
          --cd-drift-scale-out: scale that enables full drift when zoomed out.
          --cd-drift-smoothing: easing factor for motion smoothing.
       */
-      --cd-cube-size: clamp(300px, min(58vh, 58vw), 640px);
+      --cd-cube-size: 260px;
       --cube-size: var(--cd-cube-size);
       --cd-axis-font: clamp(11px, calc(var(--cd-cube-size) * 0.045), 18px);
       --cd-axis-pill-px: clamp(4px, calc(var(--cd-cube-size) * 0.010), 8px);
@@ -132,6 +132,9 @@
     .cube-rotation {
       position: absolute;
       inset: 0;
+      /* The transformed faces are presentation only. Keep pointer events on
+         the dedicated drag surface so rotation works over every visible face. */
+      pointer-events: none;
       transform-style: preserve-3d;
       transform:
         rotateX(var(--rot-x, 0rad))
@@ -617,16 +620,16 @@
   </style>
 </head>
 <body>
-  <div class="cube-figure" id="cube-figure-138862ea7a7c45cd8527c698a093c012" data-axis-rig="true" data-cb-min="-16.51" data-cb-max="16.16" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Observed PRISM daily maximum temperature · Boulder region</div>
+  <div class="cube-figure" id="cube-figure-e915fd97caaf40d5aa5ac851073c576f" data-axis-rig="true" data-cb-min="-16.51" data-cb-max="16.16" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Observed PRISM daily maximum temperature · Boulder region</div>
     <div class="cube-main">
       <div class="cube-inner">
         <div class="cube-container">
-          <div class="cube-scene" id="cube-scene-138862ea7a7c45cd8527c698a093c012">
-            <div id="cube-wrapper-138862ea7a7c45cd8527c698a093c012" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
-              <canvas class="cube-canvas" id="cube-canvas-138862ea7a7c45cd8527c698a093c012"></canvas>
-              <div class="cube-rotation" id="cube-rotation-138862ea7a7c45cd8527c698a093c012">
+          <div class="cube-scene" id="cube-scene-e915fd97caaf40d5aa5ac851073c576f">
+            <div id="cube-wrapper-e915fd97caaf40d5aa5ac851073c576f" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
+              <canvas class="cube-canvas" id="cube-canvas-e915fd97caaf40d5aa5ac851073c576f"></canvas>
+              <div class="cube-rotation" id="cube-rotation-e915fd97caaf40d5aa5ac851073c576f">
                 
-        <div class="cd-cube" id="cube-138862ea7a7c45cd8527c698a093c012">
+        <div class="cd-cube" id="cube-e915fd97caaf40d5aa5ac851073c576f">
           <div class="cd-face cd-front" style="background-image: url('data:image/png;base64,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');"></div>
           <div class="cd-face cd-back" style="background-image: url('data:image/png;base64,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');"></div>
           <div class="cd-face cd-left" style="background-image: url('data:image/png;base64,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');"></div>
@@ -638,7 +641,7 @@
                 
                 
                 
-      <div class="cd-axis-rig" id="cd-axis-rig-138862ea7a7c45cd8527c698a093c012" data-viewer-id="138862ea7a7c45cd8527c698a093c012" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
+      <div class="cd-axis-rig" id="cd-axis-rig-e915fd97caaf40d5aa5ac851073c576f" data-viewer-id="e915fd97caaf40d5aa5ac851073c576f" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
         <div class="cd-axis-group cd-axis-x" data-axis="x">
           <div class="cd-axis-line"></div>
           <div class="cd-axis-ticks"></div>
@@ -663,7 +666,7 @@
       </div>
     
               </div>
-              <div class="cube-drag-surface" id="cube-drag-138862ea7a7c45cd8527c698a093c012"></div>
+              <div class="cube-drag-surface" id="cube-drag-e915fd97caaf40d5aa5ac851073c576f"></div>
             </div>
 
             <div class="axis-label cube-label cube-label-x axis-x-min">-105.75 degrees_east</div>
@@ -679,7 +682,7 @@
         </div>
       </div>
     </div>
-    <div class="cube-js-warning hidden" id="cube-js-warning-138862ea7a7c45cd8527c698a093c012" aria-live="polite">
+    <div class="cube-js-warning hidden" id="cube-js-warning-e915fd97caaf40d5aa5ac851073c576f" aria-live="polite">
       <div class="dot"></div>
       <div class="cube-warning-text"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
     </div>
@@ -689,16 +692,16 @@
         <div class="cube-warning-text"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
       </div>
     </noscript>
-    <div class="cube-legend-panel">  <div class="cube-legend-card">    <div class="colorbar-title">tmax (degC)</div>    <div class="colorbar-wrapper"><img class="colorbar-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAABCAYAAAAxWXB3AAAAzElEQVR4nH2SCwrEMAhER3v/M7voqNGmLCXM+PyESAV4DBAACnEVpR8q0OAy4tDwz/Er97T3b8beo9Ub2ZxRfunwlrO8P50k6zi1jkwvxQAtL1iqvoLIuXqdbyd59LG3PPuq9vDdv/WL3Tm7Z7Xa7oF1nnzmy1M5w7K27rCPWju1kw3P97l67Stu5YzDaqZBlDyYjrweRfucw19x8fw9qbmUzflwGUsLr2fp79gHkX2dvKj7dOf90ounv3KT01vozalvrlm/2f/aXIwqfjeQLreCysm0AAAAAElFTkSuQmCC" alt="colorbar" /></div>    <div class="colorbar-labels"><span id="cb-min-138862ea7a7c45cd8527c698a093c012"></span><span id="cb-max-138862ea7a7c45cd8527c698a093c012"></span></div>  </div></div>
+    <div class="cube-legend-panel">  <div class="cube-legend-card">    <div class="colorbar-title">tmax (degC)</div>    <div class="colorbar-wrapper"><img class="colorbar-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAABCAYAAAAxWXB3AAAAzElEQVR4nH2SCwrEMAhER3v/M7voqNGmLCXM+PyESAV4DBAACnEVpR8q0OAy4tDwz/Er97T3b8beo9Ub2ZxRfunwlrO8P50k6zi1jkwvxQAtL1iqvoLIuXqdbyd59LG3PPuq9vDdv/WL3Tm7Z7Xa7oF1nnzmy1M5w7K27rCPWju1kw3P97l67Stu5YzDaqZBlDyYjrweRfucw19x8fw9qbmUzflwGUsLr2fp79gHkX2dvKj7dOf90ounv3KT01vozalvrlm/2f/aXIwqfjeQLreCysm0AAAAAElFTkSuQmCC" alt="colorbar" /></div>    <div class="colorbar-labels"><span id="cb-min-e915fd97caaf40d5aa5ac851073c576f"></span><span id="cb-max-e915fd97caaf40d5aa5ac851073c576f"></span></div>  </div></div>
   </div>
 
-  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"138862ea7a7c45cd8527c698a093c012": {"x": {"name": "X", "min_label": "106\u00b0W", "max_label": "105\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.21739130434783124, "label": ""}, {"frac": 0.47826086956521097, "label": ""}, {"frac": 0.7391304347826054, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Y", "min_label": "40\u00b0N", "max_label": "40\u00b0N", "ticks": [{"frac": 1.0, "label": ""}, {"frac": 0.7826086956521762, "label": ""}, {"frac": 0.5217391304347816, "label": ""}, {"frac": 0.2608695652173945, "label": ""}, {"frac": 0.0, "label": ""}]}, "time": {"name": "Time", "min_label": "01.01.2024", "max_label": "30.01.2024", "ticks": [{"frac": 0.0, "label": "01.01.2024"}, {"frac": 1.0, "label": "30.01.2024"}]}}});</script>
+  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"e915fd97caaf40d5aa5ac851073c576f": {"x": {"name": "X", "min_label": "106\u00b0W", "max_label": "105\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.21739130434783124, "label": ""}, {"frac": 0.47826086956521097, "label": ""}, {"frac": 0.7391304347826054, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Y", "min_label": "40\u00b0N", "max_label": "40\u00b0N", "ticks": [{"frac": 1.0, "label": ""}, {"frac": 0.7826086956521762, "label": ""}, {"frac": 0.5217391304347816, "label": ""}, {"frac": 0.2608695652173945, "label": ""}, {"frac": 0.0, "label": ""}]}, "time": {"name": "Time", "min_label": "01.01.2024", "max_label": "30.01.2024", "ticks": [{"frac": 0.0, "label": "01.01.2024"}, {"frac": 1.0, "label": "30.01.2024"}]}}});</script>
   
   <script id="cd-drift-center-v1-js">
     (function() {
       // Drift centering defaults (DYNAMIC DRIFT CENTERING V1):
       // MAX_DRIFT_PX=220, ROT_RANGE_DEG=55, SCALE_IN=1.25, SCALE_OUT=0.85, SMOOTHING=0.18
-      const viewerId = "138862ea7a7c45cd8527c698a093c012";
+      const viewerId = "e915fd97caaf40d5aa5ac851073c576f";
       const defaults = {
         maxDriftPx: 220,
         rotRangeDeg: 55,
@@ -820,7 +823,7 @@
     
   <script>
     (function() {
-      const viewerId = "138862ea7a7c45cd8527c698a093c012";
+      const viewerId = "e915fd97caaf40d5aa5ac851073c576f";
       const root = document.getElementById("cube-figure-" + viewerId);
       if (!root) {
         console.warn("[CubeViewer] Root element not found for viewerId", viewerId);
@@ -856,7 +859,7 @@
       const zoomMin = 0.35;
       const zoomMax = 6.0;
       
-      const axisRig = document.getElementById("cd-axis-rig-138862ea7a7c45cd8527c698a093c012");
+      const axisRig = document.getElementById("cd-axis-rig-e915fd97caaf40d5aa5ac851073c576f");
       if (axisRig) {
         const target =
           (cubeRotation && cubeRotation.querySelector(".cd-cube"))
@@ -867,7 +870,7 @@
           target.appendChild(axisRig);
         }
 
-        const axisMeta = (window.__CD_AXIS_META__ || {})["138862ea7a7c45cd8527c698a093c012"] || null;
+        const axisMeta = (window.__CD_AXIS_META__ || {})["e915fd97caaf40d5aa5ac851073c576f"] || null;
         const labelMax = parseInt(axisRig.dataset.timeLabelMax || "10", 10);
 
         const readRotationFromMatrix = (el) => {
