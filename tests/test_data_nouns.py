@@ -72,6 +72,10 @@ def test_discovery_lists_only_implemented_nouns_and_sources() -> None:
     assert description["provider"] == "PRISM Climate Group, Oregon State University"
     assert description["source_variables"]["mean"] == "tmean"
     assert description["backend"] == "NCSCO THREDDS NetCDF Subset Service"
+    assert description["source_mode"] == "rolling"
+    assert description["current_serving_revision"] == "temperature.prism@2026-08-26.1"
+    assert description["revision_status"] == "VALIDATED"
+    assert description["live_health"] == "STALE"
 
 
 def test_discovery_errors_name_available_choices() -> None:
@@ -119,6 +123,14 @@ def test_climate_nouns_hide_provider_variables_and_preserve_laziness(
     assert result.attrs["semantic_category"] == "climate"
     assert json.loads(result.attrs["semantic_dimensions"]) == ["time", "y", "x"]
     assert result.attrs["source_flavor"] == source
+    assert result.attrs["serving_revision"].startswith(f"{expected_name}.{source}@")
+    assert result.attrs["source_mode"] == "rolling"
+    assert result.attrs["qa_profile"] == "climate_continuous_daily"
+    assert result.attrs["revision_status"] == "VALIDATED"
+    assert result.attrs["live_health"] == "STALE"
+    assert result.attrs["bounded_access"] is True
+    assert result.attrs["schema_fingerprint"].startswith("sha256:")
+    assert json.loads(result.attrs["upstream_identity"])["endpoint"]
     assert result.attrs["is_synthetic"] is False
     assert json.loads(result.attrs["source_variables"]) == [expected_variable]
     assert json.loads(result.attrs["spatial_query"])["bbox"] == [

@@ -22,6 +22,10 @@ from xarray.backends.plugins import list_engines
 from cubedynamics.progress import progress_bar
 
 GRIDMET_BASE_URL = "https://www.northwestknowledge.net/metdata/data"
+GRIDMET_OPENDAP_URL = (
+    "https://thredds.northwestknowledge.net/thredds/dodsC/MET/{variable}/"
+    "{variable}_{year}.nc"
+)
 _ENGINE_PREFERENCE = ("h5netcdf", "netcdf4", "scipy")
 _AVAILABLE_ENGINES = list_engines()
 
@@ -83,6 +87,13 @@ def _select_stream_engine() -> Optional[str]:
 
 
 _STREAM_ENGINE = _select_stream_engine()
+
+
+def _select_opendap_engine() -> Optional[str]:
+    for engine in ("netcdf4", "pydap"):
+        if engine in _AVAILABLE_ENGINES:
+            return engine
+    return None
 
 
 def _prepare_stream_target(buf: io.BytesIO, engine: Optional[str]) -> Any:
@@ -176,6 +187,41 @@ def _open_gridmet_year(
     return ds
 
 
+def _open_gridmet_year_bounded(
+    variable: str,
+    year: int,
+    bbox: Dict[str, float],
+    chunks: Optional[Dict[str, int]] = None,
+) -> xr.Dataset:
+    """Prefer provider OPeNDAP so only the requested AOI/time cells are read."""
+
+    engine = _select_opendap_engine()
+    if engine is None:
+        return _open_gridmet_year(variable, year, chunks=chunks)
+    url = GRIDMET_OPENDAP_URL.format(variable=variable, year=year)
+    dataset = xr.open_dataset(url, engine=engine, chunks=chunks, decode_times=True)
+    if "day" in dataset.dims or "day" in dataset.coords:
+        dataset = dataset.rename({"day": "time"})
+    if variable not in dataset.data_vars and len(dataset.data_vars) == 1:
+        dataset = dataset.rename({next(iter(dataset.data_vars)): variable})
+    lat = dataset.coords.get("lat")
+    lon = dataset.coords.get("lon")
+    if lat is None or lon is None:
+        raise KeyError("gridMET OPeNDAP dataset requires lat/lon coordinates")
+    subset = dataset.sel(
+        lat=_lat_slice(lat, bbox["south"], bbox["north"]),
+        lon=_lon_slice(lon, bbox["west"], bbox["east"]),
+    )
+    subset.attrs.update(
+        {
+            "source_url": url,
+            "bounded_access_backend": "OPeNDAP",
+            "bounded_access": True,
+        }
+    )
+    return subset
+
+
 def stream_gridmet_to_cube(
     aoi_geojson: Dict,
     variable: str,
@@ -237,13 +283,14 @@ def stream_gridmet_to_cube(
     start_year = int(start[:4])
     end_year = int(end[:4])
 
-    # 1) Load all needed years into a list of Datasets
+    bbox = _bbox_from_geojson(aoi_geojson)
+    # 1) Open only the requested AOI from each needed year when OPeNDAP is available.
     year_chunks = chunks or {"time": 366}
     ds_list = []
     total_years = end_year - start_year + 1
     with progress_bar(total=total_years if show_progress else None, description="gridMET years") as advance:
         for year in range(start_year, end_year + 1):
-            ds_y = _open_gridmet_year(variable, year, chunks=year_chunks)
+            ds_y = _open_gridmet_year_bounded(variable, year, bbox, chunks=year_chunks)
             ds_list.append(ds_y)
             if show_progress:
                 advance(1)
@@ -253,7 +300,6 @@ def stream_gridmet_to_cube(
     ds = ds.sel(time=slice(start, end))
 
     # 3) Spatial subset using the AOI bbox
-    bbox = _bbox_from_geojson(aoi_geojson)
     lat_coord = ds.coords.get("lat")
     if lat_coord is None:
         raise KeyError("gridMET dataset is missing the 'lat' coordinate")

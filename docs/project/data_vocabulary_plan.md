@@ -36,8 +36,8 @@ source methods and citations.
 
 | Phase | Goal | Status | Gate before advancing |
 | --- | --- | --- | --- |
-| 1 | Rationalize gridMET, PRISM, and Sentinel-2; noun/source discovery; provenance; publication structure | architecture implemented; QA partially complete | reviewed gridMET and Sentinel-2 real fixtures and visual/numerical QA |
-| 2 | Climate depth: Daymet, ERA5-Land, ERA5, TerraClimate; then justified NLDAS/GLDAS sources | not started | each flavor meets source definition of done |
+| 1 | Rationalize gridMET, PRISM, and Sentinel-2; noun/source discovery; lifecycle provenance; publication structure | complete with documented source-specific limits | immutable serving revisions, reusable profiles, and reviewed real numerical/visual QA |
+| 2 | Climate depth: Daymet, ERA5-Land, ERA5, TerraClimate; then justified NLDAS/GLDAS sources | Daymet candidate blocked on reviewed Earthdata-authenticated evidence; other sources not started | each flavor meets source definition of done |
 | 3 | Raster nouns: HLS, Landsat, MODIS, ECOSTRESS, surface water, land cover, elevation; GEDI if clean | not started | independent source QA and source-choice docs |
 | 4 | Decision/feature nouns: mining claims, buildings, roads, protected areas, land management, hydrography, fire | not started | defensible schema and geometry/time semantics |
 | 5 | Ecology, agriculture, extraction, and exposure nouns | not started | provider definitions and non-conflation checks |
@@ -64,15 +64,18 @@ placeholders.
 - Sentinel-2 scene cloud percentage is not a pixel cloud mask.
 - Automatic cross-source harmonization, unit conversion, regridding, and
   categorical handling are intentionally deferred to explicit verbs.
-- Reviewed real visual/numerical source QA currently covers PRISM temperature.
-  gridMET and Sentinel-2 remain visibly pending on the QA page.
+- Reviewed real visual/numerical source QA covers PRISM temperature, gridMET
+  maximum temperature, and Sentinel-2 B04/B08 plus an NDVI range check. These
+  bounded extracts validate the adapter baselines, not every product variable,
+  place, or date.
 
 ## Next recommended work
 
-Finish Phase 1 evidence before adding nouns: implement a stable server-side
-gridMET subset path and create checksum-controlled real gridMET and Sentinel-2
-fixtures with orientation, CRS, units, nodata/cloud, physical range, and visual
-checks. Then add Daymet first in Phase 2 because it provides authoritative,
-well-documented North American daily climate through a robust THREDDS subset
-service and makes source-flavor comparison immediately useful.
-
+Keep the gridMET server-side subset path as an adapter improvement, then review
+Daymet as the first narrow Phase 2 proposal. It should reuse
+`climate_continuous_daily`, declare provider-native upstream identity, begin as
+an immutable candidate serving revision, and earn promotion with a bounded
+checksum-controlled observational fixture plus numerical and visual evidence.
+Daymet now has a source-controlled candidate revision, credentialed bounded
+request builder, and live-certification path. It remains outside discovery
+until authenticated real-data evidence completes that definition of done.

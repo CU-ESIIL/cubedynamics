@@ -1,5 +1,30 @@
 {
   "aoi": "[726190.0, 4863210.0, 726820.0, 4863840.0]",
+  "certification": {
+    "caveats": [
+      "This extract covers one 640 m South Dakota window and two acquisition dates.",
+      "Cloud metadata are retained, but this baseline does not implement pixel-level cloud masking."
+    ],
+    "evidence": {
+      "figure": "sentinel2_reflectance.png",
+      "fixture_sha256": "eb7c02b01bc741483d28714f7081e08639282685705d5d7a15ff44bf7e97672a"
+    },
+    "gates": {
+      "bounded_access_verified": "PASS",
+      "endpoint_verified": "NOT_TESTED",
+      "fixture_integrity": "PASS",
+      "numerical_qa": "PASS",
+      "reusable_qa_profile": "PASS",
+      "sample_retrieved": "PASS",
+      "schema_validated": "PASS",
+      "upstream_identity_verified": "PASS",
+      "visual_qa": "PASS"
+    },
+    "last_validated": "2026-08-26",
+    "mode": "offline_baseline",
+    "outcome": "PASS_WITH_CAVEATS",
+    "serving_revision": "surface_reflectance.sentinel2@2026-08-26.1"
+  },
   "checks": {
     "all_finite": true,
     "checksum_matches": true,
@@ -27,12 +52,43 @@
   ],
   "noun": "surface_reflectance and vegetation_index",
   "pixel_observations": 16384,
+  "profile_result": {
+    "caveats": [],
+    "checks": {
+      "continuous_numeric_variables": true,
+      "crs_documented": true,
+      "spatial_coordinates_finite": true,
+      "spatial_coordinates_one_dimensional": true,
+      "spatial_coordinates_present": true,
+      "spatial_coordinates_unique": true,
+      "units_documented": true,
+      "xarray_object": true
+    },
+    "details": {
+      "dimensions": [
+        "band",
+        "time",
+        "x",
+        "y"
+      ],
+      "temporal_layers_allowed": true,
+      "variables": [
+        "surface_reflectance"
+      ]
+    },
+    "outcome": "PASS",
+    "profile": "continuous_raster_static"
+  },
   "provider": "European Union Copernicus Programme / ESA",
+  "qa_profile": "continuous_raster_static",
   "qa_result": "pass",
+  "revision_status": "VALIDATED",
   "scene_ids": [
     "S2B_MSIL2A_20230602T173909_R098_T13TGJ_20240911T145543",
     "S2A_MSIL2A_20230607T173911_R098_T13TGJ_20240927T100945"
   ],
+  "schema_fingerprint": "sha256:dbc3c55e4784a8698c7c94e198eab777d122ceeabee6d57b97858572383e16e8",
+  "serving_revision": "surface_reflectance.sentinel2@2026-08-26.1",
   "shape": {
     "band": 2,
     "time": 2,
@@ -40,12 +96,33 @@
     "y": 64
   },
   "source_flavor": "sentinel2",
+  "source_mode": "rolling",
   "source_product": "Sentinel-2 Level-2A surface reflectance",
   "streaming_mechanism": "Planetary Computer STAC plus cloud-optimized asset windows through cubo",
   "time_range": [
     "2023-06-02",
     "2023-06-07"
   ],
+  "upstream_identity": {
+    "endpoint": "https://planetarycomputer.microsoft.com/api/stac/v1",
+    "observed": {
+      "retrieved_at": "2026-08-26T12:55:51.112347+00:00",
+      "scene_ids": "[\"S2B_MSIL2A_20230602T173909_R098_T13TGJ_20240911T145543\", \"S2A_MSIL2A_20230607T173911_R098_T13TGJ_20240927T100945\"]",
+      "source_catalog": "Microsoft Planetary Computer STAC"
+    },
+    "product": "Sentinel-2 Level-2A surface reflectance",
+    "provider": "European Union Copernicus Programme / ESA",
+    "retrieved_at": "2026-08-26T12:55:51.112347+00:00",
+    "strategy": {
+      "fields": [
+        "collection",
+        "item_ids",
+        "processing_baseline",
+        "asset_hrefs"
+      ],
+      "kind": "stac_item_identity"
+    }
+  },
   "value_range": [
     1458.0,
     5808.0

@@ -8,10 +8,13 @@ from typing import Any, Mapping, Sequence
 
 import xarray as xr
 
+from ..version import __version__
 from . import gridmet as _gridmet
 from . import prism as _prism
 from . import sentinel2 as _sentinel2
 from .catalog import _source_definition
+from .lifecycle import UpstreamIdentity
+from .schema import schema_fingerprint
 
 
 def temperature(
@@ -336,10 +339,35 @@ def _annotate(
 ) -> xr.DataArray:
     result = cube.copy(deep=False)
     original_backend = result.attrs.get("source")
+    original_attrs = dict(result.attrs)
     result.name = output_name or noun
     crs = _infer_crs(result) or definition["crs"]
     units = definition.get("units", {}).get(variant)
     attrs = dict(result.attrs)
+    retrieved_at = datetime.now(timezone.utc).isoformat()
+    observed_identity = {
+        key: original_attrs[key]
+        for key in (
+            "source_url",
+            "asset_etag",
+            "last_modified",
+            "scene_ids",
+            "collection",
+            "processing_baseline",
+        )
+        if original_attrs.get(key) not in (None, "")
+    }
+    upstream_identity = UpstreamIdentity(
+        provider=definition["provider"],
+        product=definition["product"],
+        endpoint=definition["source_endpoint"],
+        strategy=definition["upstream_identity_strategy"],
+        observed=observed_identity,
+        retrieved_at=retrieved_at,
+    )
+    bounded_access = bool(spatial_query) and all(
+        temporal_query.get(key) not in (None, "None", "") for key in ("start", "end")
+    )
     attrs.update(
         {
             "scientific_noun": noun,
@@ -356,6 +384,21 @@ def _annotate(
             "source_provider": definition["provider"],
             "source_product": definition["product"],
             "product_version": definition["product_version"],
+            "serving_revision": definition["current_serving_revision"],
+            "source_mode": definition["source_mode"],
+            "source_endpoint": definition["source_endpoint"],
+            "access_backend": definition["access_backend"],
+            "update_cadence": definition["update_cadence"],
+            "qa_profile": definition["qa_profile"],
+            "revision_status": definition["revision_status"],
+            "live_health": definition["live_health"],
+            "adapter_version": __version__,
+            "upstream_identity": json.dumps(upstream_identity.as_dict(), sort_keys=True),
+            "upstream_identity_status": (
+                "provider_identity_observed"
+                if observed_identity
+                else "strategy_declared_identity_not_exposed_by_adapter"
+            ),
             "source_variables": json.dumps(list(source_variables), sort_keys=True),
             "spatial_query": json.dumps(spatial_query, sort_keys=True, default=str),
             "temporal_query": json.dumps(temporal_query, sort_keys=True, default=str),
@@ -366,7 +409,8 @@ def _annotate(
             "normalization": normalization,
             "data_state": data_state,
             "access_state": "remote_lazy",
-            "retrieved_at": datetime.now(timezone.utc).isoformat(),
+            "bounded_access": bounded_access,
+            "retrieved_at": retrieved_at,
             "is_synthetic": False,
         }
     )
@@ -374,7 +418,11 @@ def _annotate(
         attrs["source_backend"] = original_backend
     if units is not None:
         attrs["units"] = units
+    if observed_identity.get("processing_baseline") is not None:
+        attrs["upstream_version"] = str(observed_identity["processing_baseline"])
     result.attrs = attrs
+    # Fingerprinting reads metadata only; it does not materialize lazy values.
+    result.attrs["schema_fingerprint"] = schema_fingerprint(result)
     return result
 
 

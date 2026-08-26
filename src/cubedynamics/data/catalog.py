@@ -10,6 +10,8 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from .lifecycle import validate_source_lifecycle
+
 
 _CATALOG: dict[str, dict[str, dict[str, Any]]] = {
     "temperature": {
@@ -185,6 +187,79 @@ _CATALOG: dict[str, dict[str, dict[str, Any]]] = {
 }
 
 
+_SOURCE_LIFECYCLE_DEFAULTS: dict[str, dict[str, Any]] = {
+    "gridmet": {
+        "source_mode": "rolling",
+        "access_backend": "opendap_with_https_fallback",
+        "update_cadence": "provider-managed daily observations in annual assets",
+        "upstream_identity_strategy": {
+            "kind": "provider_asset_metadata",
+            "fields": ["source_url", "asset_etag", "last_modified", "time_coverage"],
+        },
+        "source_endpoint": "https://thredds.northwestknowledge.net/thredds/dodsC/MET/",
+        "qa_profile": "climate_continuous_daily",
+    },
+    "prism": {
+        "source_mode": "rolling",
+        "access_backend": "thredds_ncss",
+        "update_cadence": "daily observations with provider historical revisions",
+        "upstream_identity_strategy": {
+            "kind": "provider_catalog_and_asset_metadata",
+            "fields": ["catalog_url", "dataset_url", "last_modified", "time_coverage"],
+        },
+        "source_endpoint": (
+            "https://thredds.climate.ncsu.edu/thredds/catalog/"
+            "prism/daily/combo/catalog.html"
+        ),
+        "qa_profile": "climate_continuous_daily",
+    },
+    "sentinel2": {
+        "source_mode": "rolling",
+        "access_backend": "stac_cog",
+        "update_cadence": "scene acquisition and provider reprocessing",
+        "upstream_identity_strategy": {
+            "kind": "stac_item_identity",
+            "fields": [
+                "collection",
+                "item_ids",
+                "processing_baseline",
+                "asset_hrefs",
+            ],
+        },
+        "source_endpoint": "https://planetarycomputer.microsoft.com/api/stac/v1",
+        "qa_profile": "continuous_raster_static",
+    },
+}
+
+
+def _attach_lifecycle_metadata() -> None:
+    """Extend the one catalog in place with reviewed serving metadata."""
+
+    for noun, sources_for_noun in _CATALOG.items():
+        for source_flavor, definition in sources_for_noun.items():
+            defaults = _SOURCE_LIFECYCLE_DEFAULTS[source_flavor]
+            definition.update(deepcopy(defaults))
+            definition.update(
+                {
+                    "lifecycle_state": "implemented",
+                    "current_serving_revision": (
+                        f"{noun}.{source_flavor}@2026-08-26.1"
+                    ),
+                    "revision_status": "VALIDATED",
+                    # Live checks update this independently of revision validity.
+                    "live_health": "STALE",
+                }
+            )
+            validate_source_lifecycle(
+                noun=noun,
+                source_flavor=source_flavor,
+                definition=definition,
+            )
+
+
+_attach_lifecycle_metadata()
+
+
 def list_sources() -> dict[str, tuple[str, ...]]:
     """Return implemented source flavors grouped by scientific noun."""
 
@@ -225,7 +300,7 @@ def describe(noun: str, source: str | None = None) -> dict[str, Any]:
             f"Source {source!r} does not provide {key!r}. Available sources: {choices}."
         )
     result = deepcopy(_CATALOG[key][flavor])
-    result.update({"noun": key, "source": flavor})
+    result.update({"noun": key, "source": flavor, "source_flavor": flavor})
     return result
 
 

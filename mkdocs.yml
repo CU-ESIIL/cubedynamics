@@ -96,6 +96,7 @@ nav:
           - Compatibility matrix: datasets/compatibility.md
           - gridMET: datasets/gridmet.md
           - PRISM: datasets/prism.md
+          - Daymet candidate: datasets/daymet.md
           - Sentinel-2 NDVI: datasets/sentinel2_ndvi.md
           - Landsat 8 (MPC): datasets/landsat8_mpc.md
           - FIRED: datasets/fired.md
@@ -156,6 +157,7 @@ nav:
       - Design and development:
           - Publication audit and plan: project/publication_plan.md
           - Scientific vocabulary plan: project/data_vocabulary_plan.md
+          - Source lifecycle and certification: dev/source_lifecycle.md
           - Grammar inventory: project/grammar_inventory.md
           - Site analytics and SEO: project/site_analytics_seo.md
           - Project scope: project/scope.md

@@ -5,13 +5,18 @@ gridMET, PRISM, and Sentinel-2 integrations. Each Phase 1 source adapter now
 has a checksum-controlled real-data baseline, numerical checks, and a reviewed
 figure. This does **not** imply that every variable or AOI has been validated.
 
+The same evidence now certifies immutable CubeDynamics serving revisions. It
+also records deterministic schema fingerprints and applies a reusable QA
+profile before the source-specific scientific checks. See the
+[source lifecycle and certification contract](../dev/source_lifecycle.md).
+
 ## Current evidence status
 
-| Source flavor | Offline contracts | Scheduled live endpoint test | Reviewed real numerical QA | Reviewed real visual QA |
+| Source flavor | Serving revision | Reusable profile | Offline certification | Scheduled live endpoint test |
 | --- | --- | --- | --- | --- |
-| PRISM temperature | pass | yes | pass | pass |
-| gridMET maximum temperature | pass | yes | pass | pass |
-| Sentinel-2 B04/B08 and derived NDVI | pass | yes | pass | pass |
+| PRISM temperature | `temperature.prism@2026-08-26.1` | `climate_continuous_daily` | pass with documented caveats | yes |
+| gridMET maximum temperature | `temperature.gridmet@2026-08-26.1` | `climate_continuous_daily` | pass with documented caveats | yes |
+| Sentinel-2 B04/B08 and derived NDVI | `surface_reflectance.sentinel2@2026-08-26.1` | `continuous_raster_static` | pass with documented caveats | yes |
 
 The pass applies to the exact products and bounded extracts named in the table.
 Other gridMET variables still require variable-specific scientific QA.
@@ -72,6 +77,11 @@ the broader publication validation suite and uploads both artifact trees. The
 checked website image and JSON were produced by pointing `--output` at
 `docs/assets/source_qa` after review.
 
+Each JSON result keeps its established fields and adds `qa_profile`,
+`profile_result`, `schema_fingerprint`, `serving_revision`, and a structured
+`certification` record. A fixture-level pass is an `offline_baseline`; live
+source health remains a separate state and workflow.
+
 ## Remaining limitations
 
 gridMET still retrieves annual files before client-side AOI selection, so a
@@ -80,3 +90,5 @@ The reviewed gridMET extract covers maximum temperature only. Sentinel-2 cloud
 metadata are retained, but the baseline does not implement pixel-level cloud
 masking and covers only one small South Dakota window. Live endpoint tests
 remain separate because an offline fixture cannot detect provider outages.
+Daymet remains outside implemented-source discovery. Its candidate and current
+authentication blocker are documented on the [Daymet status page](../datasets/daymet.md).

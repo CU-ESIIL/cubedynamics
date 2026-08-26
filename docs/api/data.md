@@ -24,6 +24,25 @@ Implemented nouns are `temperature`, `precipitation`, `vpd`, `wind`,
 Use `data.sources(noun)` and `data.describe(noun, source=...)` for discovery.
 Scientific noun loaders never return synthetic fallback data.
 
+Catalog descriptions also expose source mode, access backend, update cadence,
+upstream identity strategy, current serving revision, reusable QA profile,
+revision status, and live health. Noun results retain existing provenance and
+add those lifecycle fields plus `schema_fingerprint`, `adapter_version`, and
+request-specific `upstream_identity`. See the
+[source lifecycle contract](../dev/source_lifecycle.md).
+
+For integration QA, use `data.list_qa_profiles()`,
+`data.get_qa_profile()`, and `data.evaluate_qa_profile()`. The lower-level
+`data.normalize_xarray_schema()` and `data.schema_fingerprint()` helpers make
+schema drift inspectable without materializing array values.
+
+Serving-history helpers include `data.serving_history()`,
+`data.current_revision_record()`, `data.validate_promotion()`, and
+`data.rollback_target()`. Vector/API normalization and
+`data.compare_normalized_schemas()` support future non-raster integrations.
+`data.certify_live_sample()` writes the same profile evidence in live mode;
+the scheduled command persists results under `artifacts/source_qa/live/`.
+
 ## Core dataset loaders
 
 ### ``cubedynamics.data.gridmet.load_gridmet_cube(...)``

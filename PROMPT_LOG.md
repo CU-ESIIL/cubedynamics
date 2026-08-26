@@ -2569,3 +2569,63 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - The exact offline suite passed: 387 tests passed, 5 skipped, and 9 deselected.
 - `mkdocs build --strict` passed with all nine supported notebooks, and
   targeted navigation, publication, Decision Lab, and viewer checks passed.
+
+## 2026-08-26 - Source lifecycle and reusable QA milestone
+
+### User goal
+
+- Apply the repository-informed data-serving plan without creating a parallel
+  registry, grammar, or CI system.
+- Complete the first architecture milestone: snapshot/rolling source modes,
+  immutable serving revisions, provider-native identity, schema fingerprints,
+  separate revision validity and live health, explicit certification outcomes,
+  additive noun provenance, and four reusable QA profiles.
+- Preserve the existing real-data baselines and stop before broad source
+  expansion unless Daymet remained a clearly small follow-up.
+
+### Implementation
+
+- Extended the existing noun/source catalog with lifecycle, endpoint, access,
+  identity-strategy, serving-revision, QA-profile, revision-status, and
+  live-health metadata. No second registry or loader grammar was added.
+- Added typed lifecycle and certification models plus deterministic responses
+  for content extension, snapshot release, schema/semantic/history changes,
+  and service-health changes. Scientific revision validity remains independent
+  of current endpoint health.
+- Added versioned xarray schema normalization/fingerprinting over scientific
+  structure without reading lazy array values. Added provenance fields to noun
+  outputs while retaining existing source/query/normalization metadata.
+- Added substantive `climate_continuous_daily`,
+  `continuous_raster_static`, `feature_line`, and `station_timeseries` QA
+  profiles. The existing source-QA runner now composes them with its checksum,
+  source-specific science, and visual checks and emits structured offline
+  certification evidence.
+- Updated the checked PRISM, gridMET, and Sentinel-2 evidence JSON and website
+  documentation. Existing report keys, figures, fixtures, noun calls, and pipe
+  behavior remain compatible.
+
+### Validation
+
+- Targeted lifecycle, fingerprint, profile, noun, and source-QA contracts:
+  38 tests passed. The explicit offline streaming lane passed 4 tests.
+- Exact offline suite after final changes: 409 passed, 5 skipped, and 9
+  deselected.
+- `python scripts/run_source_qa.py --output docs/assets/source_qa` passed for
+  all three reviewed real-data sources.
+- `python scripts/run_validation.py --run-vignettes` passed all five
+  publication-validation modules when run with local Jupyter kernel ports.
+- `mkdocs build --strict`, repository-size policy, Python compilation, and
+  `git diff --check` passed.
+- `uv build --out-dir /tmp/cubedynamics-dist` produced both the source
+  distribution and wheel. Setuptools reported pre-existing license-metadata
+  deprecation warnings but the build succeeded.
+
+### Scope boundary and next task
+
+- Daymet was not implemented or registered. The architecture and evidence form
+  a coherent review unit, while a real Daymet adapter, upstream-identity
+  strategy, fixture, online behavior, scientific QA, and documentation are a
+  separate source-integration review.
+- The next narrow task is a Daymet candidate using
+  `climate_continuous_daily`; it should not enter discovery until its bounded
+  real-data evidence and promotion decision pass review.

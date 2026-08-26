@@ -42,7 +42,10 @@ AOI-mean series; it is validation evidence rather than a decorative thumbnail.
    fixture checksum, source and CRS, dates, bounds, coordinate orientation,
    grid resolution, missingness, and broad physical temperature range.
 
-See the complete [Phase 1 source QA report](../data/phase1_qa.md).
+See the complete [Phase 1 source QA report](../data/phase1_qa.md). The runtime
+now prefers AOI-bounded reads through the provider's documented OPeNDAP catalog
+when an OPeNDAP-capable xarray engine is installed, retaining annual HTTPS as a
+compatibility fallback.
 
 ### Who collects it and why
 The dataset is produced by John Abatzoglou and collaborators at the University of Idaho to support ecological, hydrological, and fire-weather applications across CONUS. It blends PRISM climatology with NLDAS reanalysis to provide spatially consistent daily meteorology widely used in ecological forecasting and climate impact studies.

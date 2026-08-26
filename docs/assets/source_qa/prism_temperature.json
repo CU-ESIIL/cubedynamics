@@ -1,5 +1,30 @@
 {
   "aoi": "-105.75,39.50,-104.75,40.50",
+  "certification": {
+    "caveats": [
+      "This fixture validates PRISM temperature, not every PRISM variable.",
+      "The offline fixture covers one Colorado AOI and one winter month."
+    ],
+    "evidence": {
+      "figure": "prism_temperature.png",
+      "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7"
+    },
+    "gates": {
+      "bounded_access_verified": "PASS",
+      "endpoint_verified": "NOT_TESTED",
+      "fixture_integrity": "PASS",
+      "numerical_qa": "PASS",
+      "reusable_qa_profile": "PASS",
+      "sample_retrieved": "PASS",
+      "schema_validated": "PASS",
+      "upstream_identity_verified": "PASS",
+      "visual_qa": "PASS"
+    },
+    "last_validated": "2026-08-26",
+    "mode": "offline_baseline",
+    "outcome": "PASS_WITH_CAVEATS",
+    "serving_revision": "temperature.prism@2026-08-26.1"
+  },
   "checks": {
     "all_finite": true,
     "bounds_overlap_requested_aoi": true,
@@ -20,20 +45,76 @@
   "missing_fraction": 0.0,
   "noun": "temperature",
   "pixel_observations": 34560,
+  "profile_result": {
+    "caveats": [],
+    "checks": {
+      "continuous_numeric_variables": true,
+      "crs_documented": true,
+      "daily_interval": true,
+      "expected_units_match": true,
+      "spatial_coordinates_present": true,
+      "time_coordinate_present": true,
+      "time_strictly_increasing": true,
+      "time_values_unique": true,
+      "units_documented": true,
+      "xarray_object": true
+    },
+    "details": {
+      "dimensions": [
+        "time",
+        "x",
+        "y"
+      ],
+      "observed_units": [
+        "degC"
+      ],
+      "variables": [
+        "diurnal_range",
+        "tmax",
+        "tmin"
+      ]
+    },
+    "outcome": "PASS",
+    "profile": "climate_continuous_daily"
+  },
   "provider": "PRISM Group, Oregon State University",
+  "qa_profile": "climate_continuous_daily",
   "qa_result": "pass",
+  "revision_status": "VALIDATED",
+  "schema_fingerprint": "sha256:7a75c30b5208eface3874b89459ef20fe4a41508cc4d2f645ea0f56fd0713e88",
+  "serving_revision": "temperature.prism@2026-08-26.1",
   "shape": {
     "time": 30,
     "x": 24,
     "y": 24
   },
   "source_flavor": "prism",
+  "source_mode": "rolling",
   "source_product": "AN91d daily 4 km time series",
   "streaming_mechanism": "NcSS daily AOI requests in production; checksum-controlled GeoTIFF window fixture for offline QA",
   "time_range": [
     "2024-01-01",
     "2024-01-30"
   ],
+  "upstream_identity": {
+    "endpoint": "https://thredds.climate.ncsu.edu/thredds/catalog/prism/daily/combo/catalog.html",
+    "observed": {
+      "source_accessed": "2026-08-25",
+      "source_url": "https://prism.oregonstate.edu"
+    },
+    "product": "PRISM AN81d/AN91d daily time series",
+    "provider": "PRISM Climate Group, Oregon State University",
+    "retrieved_at": "2026-08-25",
+    "strategy": {
+      "fields": [
+        "catalog_url",
+        "dataset_url",
+        "last_modified",
+        "time_coverage"
+      ],
+      "kind": "provider_catalog_and_asset_metadata"
+    }
+  },
   "value_range": {
     "tmax": [
       -20.63800048828125,

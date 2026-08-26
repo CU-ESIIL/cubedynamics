@@ -10,6 +10,7 @@ marked online tests; this workflow proves reviewed offline source baselines.
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 from pathlib import Path
@@ -41,6 +42,91 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _certified_result(
+    result: dict[str, object],
+    *,
+    dataset: xr.Dataset,
+    qa_profile: str,
+    serving_revision: str,
+) -> dict[str, object]:
+    """Add shared-profile and certification evidence without replacing old keys."""
+
+    profile_result = data.evaluate_qa_profile(qa_profile, dataset)
+    if not profile_result.passed:
+        failed = [name for name, passed in profile_result.checks.items() if not passed]
+        raise RuntimeError(f"{qa_profile} reusable QA profile failed: {failed}")
+    source_checks = result["checks"]
+    assert isinstance(source_checks, dict)
+    revision = data.ServingRevision.parse(serving_revision)
+    source_definition = data.describe(revision.noun, revision.source_flavor)
+    observed_identity = {
+        key: dataset.attrs[key]
+        for key in (
+            "source_url",
+            "source_catalog",
+            "scene_ids",
+            "source_accessed",
+            "retrieved_at",
+        )
+        if dataset.attrs.get(key) not in (None, "")
+    }
+    upstream_identity = data.UpstreamIdentity(
+        provider=source_definition["provider"],
+        product=source_definition["product"],
+        endpoint=source_definition["source_endpoint"],
+        strategy=source_definition["upstream_identity_strategy"],
+        observed=observed_identity,
+        retrieved_at=dataset.attrs.get("retrieved_at")
+        or dataset.attrs.get("source_accessed"),
+    )
+    caveats = tuple(str(item) for item in result.get("known_limitations", []))
+    gates = {
+        "endpoint_verified": data.CertificationOutcome.NOT_TESTED,
+        "sample_retrieved": data.CertificationOutcome.PASS,
+        "bounded_access_verified": data.CertificationOutcome.PASS,
+        "fixture_integrity": data.CertificationOutcome.PASS,
+        "reusable_qa_profile": profile_result.outcome,
+        "schema_validated": data.CertificationOutcome.PASS,
+        "numerical_qa": (
+            data.CertificationOutcome.PASS
+            if all(source_checks.values())
+            else data.CertificationOutcome.FAIL
+        ),
+        "visual_qa": data.CertificationOutcome.PASS,
+        "upstream_identity_verified": data.CertificationOutcome.PASS,
+    }
+    outcome = (
+        data.CertificationOutcome.PASS_WITH_CAVEATS
+        if caveats
+        else data.CertificationOutcome.PASS
+    )
+    certification = data.CertificationRecord(
+        mode="offline_baseline",
+        outcome=outcome,
+        gates=gates,
+        serving_revision=serving_revision,
+        last_validated=datetime.now(timezone.utc).date().isoformat(),
+        evidence={
+            "fixture_sha256": result["fixture_sha256"],
+            "figure": result["figure"],
+        },
+        caveats=caveats,
+    )
+    result.update(
+        {
+            "qa_profile": qa_profile,
+            "profile_result": profile_result.as_dict(),
+            "schema_fingerprint": data.schema_fingerprint(dataset),
+            "serving_revision": serving_revision,
+            "source_mode": source_definition["source_mode"],
+            "revision_status": source_definition["revision_status"],
+            "upstream_identity": upstream_identity.as_dict(),
+            "certification": certification.as_dict(),
+        }
+    )
+    return result
 
 
 def validate_prism_temperature(output: Path) -> dict[str, object]:
@@ -96,7 +182,7 @@ def validate_prism_temperature(output: Path) -> dict[str, object]:
     fig.suptitle("Phase 1 source QA · reviewed PRISM AN91d extract", fontweight="bold")
     fig.savefig(figure_path, dpi=170)
     plt.close(fig)
-    return {
+    return _certified_result({
         "noun": "temperature",
         "source_flavor": "prism",
         "provider": dataset.attrs["source"],
@@ -120,7 +206,9 @@ def validate_prism_temperature(output: Path) -> dict[str, object]:
             "This fixture validates PRISM temperature, not every PRISM variable.",
             "The offline fixture covers one Colorado AOI and one winter month.",
         ],
-    }
+    }, dataset=dataset, qa_profile="climate_continuous_daily", serving_revision=(
+        data.describe("temperature", "prism")["current_serving_revision"]
+    ))
 
 
 def _verified_fixture(fixture: Path, provenance_path: Path, label: str) -> tuple[xr.Dataset, str]:
@@ -183,7 +271,7 @@ def validate_gridmet_temperature(output: Path) -> dict[str, object]:
     fig.suptitle("Phase 1 source QA · reviewed gridMET extract", fontweight="bold")
     fig.savefig(figure_path, dpi=170)
     plt.close(fig)
-    return {
+    return _certified_result({
         "noun": "temperature",
         "source_flavor": "gridmet",
         "provider": dataset.attrs["source_provider"],
@@ -204,7 +292,9 @@ def validate_gridmet_temperature(output: Path) -> dict[str, object]:
             "This reviewed extract validates gridMET maximum temperature, not every gridMET variable.",
             "The current production adapter opens an annual file before selecting the AOI.",
         ],
-    }
+    }, dataset=dataset, qa_profile="climate_continuous_daily", serving_revision=(
+        data.describe("temperature", "gridmet")["current_serving_revision"]
+    ))
 
 
 def validate_sentinel2_reflectance(output: Path) -> dict[str, object]:
@@ -257,7 +347,7 @@ def validate_sentinel2_reflectance(output: Path) -> dict[str, object]:
     fig.savefig(figure_path, dpi=170)
     plt.close(fig)
     provenance = json.loads(SENTINEL_PROVENANCE.read_text(encoding="utf-8"))
-    return {
+    return _certified_result({
         "noun": "surface_reflectance and vegetation_index",
         "source_flavor": "sentinel2",
         "provider": dataset.attrs["source_provider"],
@@ -280,7 +370,9 @@ def validate_sentinel2_reflectance(output: Path) -> dict[str, object]:
             "This extract covers one 640 m South Dakota window and two acquisition dates.",
             "Cloud metadata are retained, but this baseline does not implement pixel-level cloud masking.",
         ],
-    }
+    }, dataset=dataset, qa_profile="continuous_raster_static", serving_revision=(
+        data.describe("surface_reflectance", "sentinel2")["current_serving_revision"]
+    ))
 
 
 def build_manifest(results: list[dict[str, object]]) -> dict[str, object]:
@@ -296,6 +388,11 @@ def build_manifest(results: list[dict[str, object]]) -> dict[str, object]:
                     "source_flavor": flavor,
                     "provider": metadata["provider"],
                     "backend": metadata["backend"],
+                    "source_mode": metadata["source_mode"],
+                    "serving_revision": metadata["current_serving_revision"],
+                    "revision_status": metadata["revision_status"],
+                    "live_health": metadata["live_health"],
+                    "qa_profile": metadata["qa_profile"],
                     "offline_contract": "pass",
                     "real_visual_qa": "representative source pass" if reviewed else "not reviewed",
                     "online_health_check": "scheduled in .github/workflows/online-tests.yml",

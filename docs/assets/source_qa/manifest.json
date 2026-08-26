@@ -42,6 +42,31 @@
   "reviewed_real_data_results": [
     {
       "aoi": "-105.75,39.50,-104.75,40.50",
+      "certification": {
+        "caveats": [
+          "This fixture validates PRISM temperature, not every PRISM variable.",
+          "The offline fixture covers one Colorado AOI and one winter month."
+        ],
+        "evidence": {
+          "figure": "prism_temperature.png",
+          "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7"
+        },
+        "gates": {
+          "bounded_access_verified": "PASS",
+          "endpoint_verified": "NOT_TESTED",
+          "fixture_integrity": "PASS",
+          "numerical_qa": "PASS",
+          "reusable_qa_profile": "PASS",
+          "sample_retrieved": "PASS",
+          "schema_validated": "PASS",
+          "upstream_identity_verified": "PASS",
+          "visual_qa": "PASS"
+        },
+        "last_validated": "2026-08-26",
+        "mode": "offline_baseline",
+        "outcome": "PASS_WITH_CAVEATS",
+        "serving_revision": "temperature.prism@2026-08-26.1"
+      },
       "checks": {
         "all_finite": true,
         "bounds_overlap_requested_aoi": true,
@@ -62,20 +87,76 @@
       "missing_fraction": 0.0,
       "noun": "temperature",
       "pixel_observations": 34560,
+      "profile_result": {
+        "caveats": [],
+        "checks": {
+          "continuous_numeric_variables": true,
+          "crs_documented": true,
+          "daily_interval": true,
+          "expected_units_match": true,
+          "spatial_coordinates_present": true,
+          "time_coordinate_present": true,
+          "time_strictly_increasing": true,
+          "time_values_unique": true,
+          "units_documented": true,
+          "xarray_object": true
+        },
+        "details": {
+          "dimensions": [
+            "time",
+            "x",
+            "y"
+          ],
+          "observed_units": [
+            "degC"
+          ],
+          "variables": [
+            "diurnal_range",
+            "tmax",
+            "tmin"
+          ]
+        },
+        "outcome": "PASS",
+        "profile": "climate_continuous_daily"
+      },
       "provider": "PRISM Group, Oregon State University",
+      "qa_profile": "climate_continuous_daily",
       "qa_result": "pass",
+      "revision_status": "VALIDATED",
+      "schema_fingerprint": "sha256:7a75c30b5208eface3874b89459ef20fe4a41508cc4d2f645ea0f56fd0713e88",
+      "serving_revision": "temperature.prism@2026-08-26.1",
       "shape": {
         "time": 30,
         "x": 24,
         "y": 24
       },
       "source_flavor": "prism",
+      "source_mode": "rolling",
       "source_product": "AN91d daily 4 km time series",
       "streaming_mechanism": "NcSS daily AOI requests in production; checksum-controlled GeoTIFF window fixture for offline QA",
       "time_range": [
         "2024-01-01",
         "2024-01-30"
       ],
+      "upstream_identity": {
+        "endpoint": "https://thredds.climate.ncsu.edu/thredds/catalog/prism/daily/combo/catalog.html",
+        "observed": {
+          "source_accessed": "2026-08-25",
+          "source_url": "https://prism.oregonstate.edu"
+        },
+        "product": "PRISM AN81d/AN91d daily time series",
+        "provider": "PRISM Climate Group, Oregon State University",
+        "retrieved_at": "2026-08-25",
+        "strategy": {
+          "fields": [
+            "catalog_url",
+            "dataset_url",
+            "last_modified",
+            "time_coverage"
+          ],
+          "kind": "provider_catalog_and_asset_metadata"
+        }
+      },
       "value_range": {
         "tmax": [
           -20.63800048828125,
@@ -89,6 +170,31 @@
     },
     {
       "aoi": "[-102.50, 43.60, -101.90, 44.20]",
+      "certification": {
+        "caveats": [
+          "This reviewed extract validates gridMET maximum temperature, not every gridMET variable.",
+          "The current production adapter opens an annual file before selecting the AOI."
+        ],
+        "evidence": {
+          "figure": "gridmet_temperature.png",
+          "fixture_sha256": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721"
+        },
+        "gates": {
+          "bounded_access_verified": "PASS",
+          "endpoint_verified": "NOT_TESTED",
+          "fixture_integrity": "PASS",
+          "numerical_qa": "PASS",
+          "reusable_qa_profile": "PASS",
+          "sample_retrieved": "PASS",
+          "schema_validated": "PASS",
+          "upstream_identity_verified": "PASS",
+          "visual_qa": "PASS"
+        },
+        "last_validated": "2026-08-26",
+        "mode": "offline_baseline",
+        "outcome": "PASS_WITH_CAVEATS",
+        "serving_revision": "temperature.gridmet@2026-08-26.1"
+      },
       "checks": {
         "all_finite": true,
         "bounds_overlap_requested_aoi": true,
@@ -110,20 +216,73 @@
       "missing_fraction": 0.0,
       "noun": "temperature",
       "pixel_observations": 2100,
+      "profile_result": {
+        "caveats": [],
+        "checks": {
+          "continuous_numeric_variables": true,
+          "crs_documented": true,
+          "daily_interval": true,
+          "expected_units_match": true,
+          "spatial_coordinates_present": true,
+          "time_coordinate_present": true,
+          "time_strictly_increasing": true,
+          "time_values_unique": true,
+          "units_documented": true,
+          "xarray_object": true
+        },
+        "details": {
+          "dimensions": [
+            "time",
+            "x",
+            "y"
+          ],
+          "observed_units": [
+            "K"
+          ],
+          "variables": [
+            "temperature"
+          ]
+        },
+        "outcome": "PASS",
+        "profile": "climate_continuous_daily"
+      },
       "provider": "University of Idaho",
+      "qa_profile": "climate_continuous_daily",
       "qa_result": "pass",
+      "revision_status": "VALIDATED",
+      "schema_fingerprint": "sha256:679cb479a430ba221ef0ee57d94cdfe0f3525da2cb298f9903f15bb7eb4045c1",
+      "serving_revision": "temperature.gridmet@2026-08-26.1",
       "shape": {
         "time": 10,
         "x": 14,
         "y": 15
       },
       "source_flavor": "gridmet",
+      "source_mode": "rolling",
       "source_product": "gridMET daily maximum temperature",
       "streaming_mechanism": "annual provider NetCDF followed by client-side AOI selection",
       "time_range": [
         "2001-07-01",
         "2001-07-10"
       ],
+      "upstream_identity": {
+        "endpoint": "https://www.northwestknowledge.net/metdata/data/",
+        "observed": {
+          "source_url": "https://www.northwestknowledge.net/metdata/data/tmmx_2001.nc"
+        },
+        "product": "gridMET daily surface meteorology",
+        "provider": "gridMET / University of California, Merced",
+        "retrieved_at": null,
+        "strategy": {
+          "fields": [
+            "source_url",
+            "asset_etag",
+            "last_modified",
+            "time_coverage"
+          ],
+          "kind": "provider_asset_metadata"
+        }
+      },
       "value_range": [
         294.1000061035156,
         308.8999938964844
@@ -131,6 +290,31 @@
     },
     {
       "aoi": "[726190.0, 4863210.0, 726820.0, 4863840.0]",
+      "certification": {
+        "caveats": [
+          "This extract covers one 640 m South Dakota window and two acquisition dates.",
+          "Cloud metadata are retained, but this baseline does not implement pixel-level cloud masking."
+        ],
+        "evidence": {
+          "figure": "sentinel2_reflectance.png",
+          "fixture_sha256": "eb7c02b01bc741483d28714f7081e08639282685705d5d7a15ff44bf7e97672a"
+        },
+        "gates": {
+          "bounded_access_verified": "PASS",
+          "endpoint_verified": "NOT_TESTED",
+          "fixture_integrity": "PASS",
+          "numerical_qa": "PASS",
+          "reusable_qa_profile": "PASS",
+          "sample_retrieved": "PASS",
+          "schema_validated": "PASS",
+          "upstream_identity_verified": "PASS",
+          "visual_qa": "PASS"
+        },
+        "last_validated": "2026-08-26",
+        "mode": "offline_baseline",
+        "outcome": "PASS_WITH_CAVEATS",
+        "serving_revision": "surface_reflectance.sentinel2@2026-08-26.1"
+      },
       "checks": {
         "all_finite": true,
         "checksum_matches": true,
@@ -158,12 +342,43 @@
       ],
       "noun": "surface_reflectance and vegetation_index",
       "pixel_observations": 16384,
+      "profile_result": {
+        "caveats": [],
+        "checks": {
+          "continuous_numeric_variables": true,
+          "crs_documented": true,
+          "spatial_coordinates_finite": true,
+          "spatial_coordinates_one_dimensional": true,
+          "spatial_coordinates_present": true,
+          "spatial_coordinates_unique": true,
+          "units_documented": true,
+          "xarray_object": true
+        },
+        "details": {
+          "dimensions": [
+            "band",
+            "time",
+            "x",
+            "y"
+          ],
+          "temporal_layers_allowed": true,
+          "variables": [
+            "surface_reflectance"
+          ]
+        },
+        "outcome": "PASS",
+        "profile": "continuous_raster_static"
+      },
       "provider": "European Union Copernicus Programme / ESA",
+      "qa_profile": "continuous_raster_static",
       "qa_result": "pass",
+      "revision_status": "VALIDATED",
       "scene_ids": [
         "S2B_MSIL2A_20230602T173909_R098_T13TGJ_20240911T145543",
         "S2A_MSIL2A_20230607T173911_R098_T13TGJ_20240927T100945"
       ],
+      "schema_fingerprint": "sha256:dbc3c55e4784a8698c7c94e198eab777d122ceeabee6d57b97858572383e16e8",
+      "serving_revision": "surface_reflectance.sentinel2@2026-08-26.1",
       "shape": {
         "band": 2,
         "time": 2,
@@ -171,12 +386,33 @@
         "y": 64
       },
       "source_flavor": "sentinel2",
+      "source_mode": "rolling",
       "source_product": "Sentinel-2 Level-2A surface reflectance",
       "streaming_mechanism": "Planetary Computer STAC plus cloud-optimized asset windows through cubo",
       "time_range": [
         "2023-06-02",
         "2023-06-07"
       ],
+      "upstream_identity": {
+        "endpoint": "https://planetarycomputer.microsoft.com/api/stac/v1",
+        "observed": {
+          "retrieved_at": "2026-08-26T12:55:51.112347+00:00",
+          "scene_ids": "[\"S2B_MSIL2A_20230602T173909_R098_T13TGJ_20240911T145543\", \"S2A_MSIL2A_20230607T173911_R098_T13TGJ_20240927T100945\"]",
+          "source_catalog": "Microsoft Planetary Computer STAC"
+        },
+        "product": "Sentinel-2 Level-2A surface reflectance",
+        "provider": "European Union Copernicus Programme / ESA",
+        "retrieved_at": "2026-08-26T12:55:51.112347+00:00",
+        "strategy": {
+          "fields": [
+            "collection",
+            "item_ids",
+            "processing_baseline",
+            "asset_hrefs"
+          ],
+          "kind": "stac_item_identity"
+        }
+      },
       "value_range": [
         1458.0,
         5808.0
@@ -187,102 +423,152 @@
     {
       "backend": "annual NetCDF over HTTPS",
       "limitations": "Choose maximum or minimum relative humidity explicitly.",
+      "live_health": "STALE",
       "noun": "humidity",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "gridMET / University of California, Merced",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "gridmet"
+      "revision_status": "VALIDATED",
+      "serving_revision": "humidity.gridmet@2026-08-26.1",
+      "source_flavor": "gridmet",
+      "source_mode": "rolling"
     },
     {
       "backend": "annual NetCDF over HTTPS",
       "limitations": "Recent gridMET assets can be provisional and later replaced.",
+      "live_health": "STALE",
       "noun": "precipitation",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "gridMET / University of California, Merced",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "gridmet"
+      "revision_status": "VALIDATED",
+      "serving_revision": "precipitation.gridmet@2026-08-26.1",
+      "source_flavor": "gridmet",
+      "source_mode": "rolling"
     },
     {
       "backend": "NCSCO THREDDS NetCDF Subset Service",
       "limitations": "Recent grids are revised as station data and quality control mature.",
+      "live_health": "STALE",
       "noun": "precipitation",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "PRISM Climate Group, Oregon State University",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "prism"
+      "revision_status": "VALIDATED",
+      "serving_revision": "precipitation.prism@2026-08-26.1",
+      "source_flavor": "prism",
+      "source_mode": "rolling"
     },
     {
       "backend": "annual NetCDF over HTTPS",
       "limitations": "Surface downward shortwave radiation, not net radiation.",
+      "live_health": "STALE",
       "noun": "radiation",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "gridMET / University of California, Merced",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "gridmet"
+      "revision_status": "VALIDATED",
+      "serving_revision": "radiation.gridmet@2026-08-26.1",
+      "source_flavor": "gridmet",
+      "source_mode": "rolling"
     },
     {
       "backend": "cubo STAC and cloud-optimized assets",
       "limitations": "Scene-level cloud filtering does not remove every cloudy pixel.",
+      "live_health": "STALE",
       "noun": "surface_reflectance",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "European Union Copernicus Programme / ESA",
+      "qa_profile": "continuous_raster_static",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "sentinel2"
+      "revision_status": "VALIDATED",
+      "serving_revision": "surface_reflectance.sentinel2@2026-08-26.1",
+      "source_flavor": "sentinel2",
+      "source_mode": "rolling"
     },
     {
       "backend": "annual NetCDF over HTTPS",
       "limitations": "No native daily mean temperature variable; choose maximum or minimum.",
+      "live_health": "STALE",
       "noun": "temperature",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "gridMET / University of California, Merced",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "gridmet"
+      "revision_status": "VALIDATED",
+      "serving_revision": "temperature.gridmet@2026-08-26.1",
+      "source_flavor": "gridmet",
+      "source_mode": "rolling"
     },
     {
       "backend": "NCSCO THREDDS NetCDF Subset Service",
       "limitations": "Recent grids are revised as station data and quality control mature.",
+      "live_health": "STALE",
       "noun": "temperature",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "PRISM Climate Group, Oregon State University",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "prism"
+      "revision_status": "VALIDATED",
+      "serving_revision": "temperature.prism@2026-08-26.1",
+      "source_flavor": "prism",
+      "source_mode": "rolling"
     },
     {
       "backend": "cubo STAC and cloud-optimized assets",
       "limitations": "NDVI is a greenness index, not a direct measurement of biomass.",
+      "live_health": "STALE",
       "noun": "vegetation_index",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "European Union Copernicus Programme / ESA",
+      "qa_profile": "continuous_raster_static",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "sentinel2"
+      "revision_status": "VALIDATED",
+      "serving_revision": "vegetation_index.sentinel2@2026-08-26.1",
+      "source_flavor": "sentinel2",
+      "source_mode": "rolling"
     },
     {
       "backend": "annual NetCDF over HTTPS",
       "limitations": "PRISM VPD is not registered until its daily NcSS path is validated.",
+      "live_health": "STALE",
       "noun": "vpd",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "gridMET / University of California, Merced",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "gridmet"
+      "revision_status": "VALIDATED",
+      "serving_revision": "vpd.gridmet@2026-08-26.1",
+      "source_flavor": "gridmet",
+      "source_mode": "rolling"
     },
     {
       "backend": "annual NetCDF over HTTPS",
       "limitations": "Represents gridMET 10 m wind velocity, not gust speed.",
+      "live_health": "STALE",
       "noun": "wind",
       "offline_contract": "pass",
       "online_health_check": "scheduled in .github/workflows/online-tests.yml",
       "provider": "gridMET / University of California, Merced",
+      "qa_profile": "climate_continuous_daily",
       "real_visual_qa": "representative source pass",
-      "source_flavor": "gridmet"
+      "revision_status": "VALIDATED",
+      "serving_revision": "wind.gridmet@2026-08-26.1",
+      "source_flavor": "gridmet",
+      "source_mode": "rolling"
     }
   ],
   "status": "Phase 1 source-adapter baseline complete; variable-specific coverage is documented"

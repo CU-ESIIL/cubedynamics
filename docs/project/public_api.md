@@ -47,10 +47,16 @@ The preferred public entry point is the scientific noun namespace:
   `data.wind`, `data.humidity`, and `data.radiation`;
 - surface nouns: `data.surface_reflectance` and `data.vegetation_index`;
 - discovery: `data.sources`, `data.describe`, and `data.list_sources`.
+- source maintenance: `data.ServingRevision`, lifecycle/status enums,
+  `data.decide_source_change`, reusable QA-profile discovery/evaluation, and
+  deterministic xarray schema fingerprinting.
 
 Noun loaders select an implemented source flavor, normalize only names and
 contracts, retain original source fields in provenance, stay lazy where the
 backend allows, and never permit synthetic fallback.
+They add lifecycle and lineage provenance without changing the noun call
+signature or the pipe grammar. Revision scientific validity and current live
+endpoint health are deliberately independent.
 
 Provider-specific loaders remain supported for deliberate low-level access:
 

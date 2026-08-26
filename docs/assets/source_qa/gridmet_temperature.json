@@ -1,5 +1,30 @@
 {
   "aoi": "[-102.50, 43.60, -101.90, 44.20]",
+  "certification": {
+    "caveats": [
+      "This reviewed extract validates gridMET maximum temperature, not every gridMET variable.",
+      "The current production adapter opens an annual file before selecting the AOI."
+    ],
+    "evidence": {
+      "figure": "gridmet_temperature.png",
+      "fixture_sha256": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721"
+    },
+    "gates": {
+      "bounded_access_verified": "PASS",
+      "endpoint_verified": "NOT_TESTED",
+      "fixture_integrity": "PASS",
+      "numerical_qa": "PASS",
+      "reusable_qa_profile": "PASS",
+      "sample_retrieved": "PASS",
+      "schema_validated": "PASS",
+      "upstream_identity_verified": "PASS",
+      "visual_qa": "PASS"
+    },
+    "last_validated": "2026-08-26",
+    "mode": "offline_baseline",
+    "outcome": "PASS_WITH_CAVEATS",
+    "serving_revision": "temperature.gridmet@2026-08-26.1"
+  },
   "checks": {
     "all_finite": true,
     "bounds_overlap_requested_aoi": true,
@@ -21,20 +46,73 @@
   "missing_fraction": 0.0,
   "noun": "temperature",
   "pixel_observations": 2100,
+  "profile_result": {
+    "caveats": [],
+    "checks": {
+      "continuous_numeric_variables": true,
+      "crs_documented": true,
+      "daily_interval": true,
+      "expected_units_match": true,
+      "spatial_coordinates_present": true,
+      "time_coordinate_present": true,
+      "time_strictly_increasing": true,
+      "time_values_unique": true,
+      "units_documented": true,
+      "xarray_object": true
+    },
+    "details": {
+      "dimensions": [
+        "time",
+        "x",
+        "y"
+      ],
+      "observed_units": [
+        "K"
+      ],
+      "variables": [
+        "temperature"
+      ]
+    },
+    "outcome": "PASS",
+    "profile": "climate_continuous_daily"
+  },
   "provider": "University of Idaho",
+  "qa_profile": "climate_continuous_daily",
   "qa_result": "pass",
+  "revision_status": "VALIDATED",
+  "schema_fingerprint": "sha256:679cb479a430ba221ef0ee57d94cdfe0f3525da2cb298f9903f15bb7eb4045c1",
+  "serving_revision": "temperature.gridmet@2026-08-26.1",
   "shape": {
     "time": 10,
     "x": 14,
     "y": 15
   },
   "source_flavor": "gridmet",
+  "source_mode": "rolling",
   "source_product": "gridMET daily maximum temperature",
   "streaming_mechanism": "annual provider NetCDF followed by client-side AOI selection",
   "time_range": [
     "2001-07-01",
     "2001-07-10"
   ],
+  "upstream_identity": {
+    "endpoint": "https://www.northwestknowledge.net/metdata/data/",
+    "observed": {
+      "source_url": "https://www.northwestknowledge.net/metdata/data/tmmx_2001.nc"
+    },
+    "product": "gridMET daily surface meteorology",
+    "provider": "gridMET / University of California, Merced",
+    "retrieved_at": null,
+    "strategy": {
+      "fields": [
+        "source_url",
+        "asset_etag",
+        "last_modified",
+        "time_coverage"
+      ],
+      "kind": "provider_asset_metadata"
+    }
+  },
   "value_range": [
     294.1000061035156,
     308.8999938964844

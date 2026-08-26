@@ -33,3 +33,17 @@ jobs:
           PYTEST_ADDOPTS: ""
         run: |
           pytest -m "integration or online" --maxfail=1 -q
+
+      - name: Write live source certification evidence
+        if: always()
+        env:
+          EARTHDATA_TOKEN: ${{ secrets.EARTHDATA_TOKEN }}
+        run: |
+          python scripts/run_live_source_certification.py
+
+      - name: Upload live source certification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-source-certification
+          path: artifacts/source_qa/live/

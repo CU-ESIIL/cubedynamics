@@ -10,6 +10,7 @@ import xarray as xr
 
 from cubedynamics.data.gridmet import load_gridmet_cube
 from cubedynamics.streaming.gridmet import stream_gridmet_to_cube
+from cubedynamics.streaming import gridmet as gridmet_streaming
 
 
 def test_load_gridmet_cube_streaming_path_preserves_lazy_data(monkeypatch, recwarn) -> None:
@@ -149,3 +150,39 @@ def test_stream_gridmet_to_cube_reads_each_year_once(monkeypatch) -> None:
     assert cube.chunks is not None
     assert cube.sizes["lat"] == 2
     assert cube.sizes["lon"] == 2
+
+
+def test_gridmet_prefers_bounded_opendap_reads_when_engine_is_available(monkeypatch) -> None:
+    opened = {}
+    times = pd.date_range("2001-01-01", periods=3)
+    dataset = xr.Dataset(
+        {
+            "tmmx": (
+                ("day", "lat", "lon"),
+                da.ones((3, 4, 4), chunks=(1, 2, 2)),
+            )
+        },
+        coords={
+            "day": times,
+            "lat": [40.2, 40.1, 40.0, 39.9],
+            "lon": [-105.5, -105.4, -105.3, -105.2],
+        },
+    )
+
+    def fake_open(url, **kwargs):
+        opened.update(url=url, kwargs=kwargs)
+        return dataset
+
+    monkeypatch.setattr(gridmet_streaming, "_select_opendap_engine", lambda: "netcdf4")
+    monkeypatch.setattr(gridmet_streaming.xr, "open_dataset", fake_open)
+    result = gridmet_streaming._open_gridmet_year_bounded(
+        "tmmx",
+        2001,
+        {"south": 40.0, "north": 40.1, "west": -105.4, "east": -105.3},
+        chunks={"time": 2},
+    )
+
+    assert "/MET/tmmx/tmmx_2001.nc" in opened["url"]
+    assert result.attrs["bounded_access_backend"] == "OPeNDAP"
+    assert result.sizes["lat"] == 2
+    assert result.sizes["lon"] == 2

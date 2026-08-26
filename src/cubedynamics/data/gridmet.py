@@ -347,8 +347,14 @@ def _open_gridmet_streaming(
     ds = xr.merge(arrays, compat="override")
     ds.attrs.update(
         {
-            "streaming_protocol": "annual NetCDF over HTTPS",
+            "streaming_protocol": (
+                "OPeNDAP AOI reads with annual HTTPS fallback"
+            ),
             "source_provider": "gridMET / University of California, Merced",
+            "source_url": ds.attrs.get(
+                "source_url",
+                "https://www.northwestknowledge.net/metdata/data/",
+            ),
             "is_synthetic": False,
         }
     )
