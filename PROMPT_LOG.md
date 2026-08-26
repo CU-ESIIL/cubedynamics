@@ -2514,3 +2514,16 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Source QA and Decision Lab QA passed. All nine supported notebooks executed
   offline with required plots, and `mkdocs build --strict` passed after a full
   notebook cache refresh.
+
+### Clean-clone follow-up
+
+- GitHub Actions revealed that the repository-wide `*.nc` ignore rule still
+  excluded the four relocated payloads while allowing their JSON provenance
+  records to be committed. Replaced obsolete exceptions for the former data
+  paths with the narrow `!tests/fixtures/real_data/*.nc` exception. All four
+  NetCDF files are now visible to Git and remain allowed by the independent
+  repository-size policy.
+- `python scripts/run_validation.py --run-vignettes` passed all five
+  publication validation modules. The exact offline suite again passed with
+  383 tests, 5 skipped, and 9 deselected; tracked-size policy, prospective
+  four-file fixture policy, and `git diff --check` also passed.
