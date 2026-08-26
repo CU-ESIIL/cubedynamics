@@ -101,6 +101,10 @@ def _state_from_threshold(
     attrs: dict[str, object] = {
         "analysis": "state_cube",
         "state_name": name or "state",
+        "semantic_name": name or f"{source_variable}_{direction}_state",
+        "semantic_kind": "condition",
+        "semantic_category": "state",
+        "semantic_units": "boolean",
         "threshold_method": method,
         "direction": direction,
         "source_variable": source_variable,
@@ -209,6 +213,10 @@ def binary_state(
         {
             "analysis": "state_cube",
             "state_name": name or "state",
+            "semantic_name": name or f"{source}_binary_state",
+            "semantic_kind": "condition",
+            "semantic_category": "state",
+            "semantic_units": "boolean",
             "threshold_method": "binary",
             "source_variable": source,
         }

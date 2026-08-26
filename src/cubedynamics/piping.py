@@ -172,7 +172,7 @@ class Pipe(Generic[T]):
         """Apply ``func`` to the wrapped value and return a new :class:`Pipe`."""
 
         name, parameters = inspect_stage(func)
-        preflight(name, self._semantic_state)
+        preflight(name, self._semantic_state, func=func)
         new_value = func(self.value)
         if getattr(func, "_cd_passthrough_on_pipe", False):
             viewer = new_value

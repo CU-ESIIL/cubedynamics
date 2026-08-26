@@ -29,6 +29,7 @@ nav:
   - Core Grammar:
       - Overview: grammar/index.md
       - Core vs. project verbs: concepts/core_and_projects.md
+      - Semantic grammar and coaching: concepts/semantic_grammar.md
       - Pipe: api/pipe.md
       - Verbs: api/verbs.md
       - Lazy Evaluation: grammar/lazy_evaluation.md

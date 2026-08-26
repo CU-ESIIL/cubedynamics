@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import numpy as np
 import pytest
 import xarray as xr
 
@@ -38,6 +39,9 @@ def test_load_s2_cube_smoke() -> None:
         assert dim in s2.dims
     assert s2.sizes["y"] > 0 and s2.sizes["x"] > 0
     assert s2.sizes["time"] >= 1
+    times = s2["time"].values.astype("datetime64[ns]")
+    assert np.unique(times).size == times.size
+    assert np.all(np.diff(times) > np.timedelta64(0, "ns"))
 
 
 @pytest.mark.online

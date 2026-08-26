@@ -114,6 +114,10 @@ def test_climate_nouns_hide_provider_variables_and_preserve_laziness(
     assert result.name == expected_name
     assert isinstance(result.data, da.Array)
     assert result.attrs["scientific_noun"] == expected_name
+    assert result.attrs["semantic_name"] == expected_name
+    assert result.attrs["semantic_kind"] == "continuous_field"
+    assert result.attrs["semantic_category"] == "climate"
+    assert json.loads(result.attrs["semantic_dimensions"]) == ["time", "y", "x"]
     assert result.attrs["source_flavor"] == source
     assert result.attrs["is_synthetic"] is False
     assert json.loads(result.attrs["source_variables"]) == [expected_variable]
@@ -231,4 +235,3 @@ def test_vegetation_index_is_explicitly_derived(monkeypatch) -> None:
     assert result.attrs["data_state"] == "derived"
     assert "NDVI" in result.attrs["normalization"]
     assert json.loads(result.attrs["source_variables"]) == ["B08", "B04"]
-

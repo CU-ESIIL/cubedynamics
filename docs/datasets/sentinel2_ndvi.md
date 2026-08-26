@@ -18,27 +18,31 @@ cube = cd.ndvi(
     end="2023-07-01",
 )
 
-pipe(cube) | v.mean(dim="time") | v.plot()
+pipe(cube) | v.mean(over="time") | v.plot()
 ```
 
 ### Preview plot
 
-![Sentinel-2 NDVI preview](../assets/datasets/sentinel2_ndvi-preview.png)
+![Reviewed Sentinel-2 red, near-infrared, and NDVI source QA](../assets/source_qa/sentinel2_reflectance.png)
 
-!!! note
-    Image placeholder — after running the code below locally, save a screenshot to `docs/assets/datasets/sentinel2_ndvi-preview.png`.
+This reviewed observational extract shows the B04 red band, B08
+near-infrared band, and the NDVI derived from them over a 640 m South Dakota
+window. The panels make orientation, spatial detail, value scale, and the
+index transformation inspectable.
 
 ### Regenerate this plot
 
-1. Execute the Quickstart snippet to stream a month of NDVI over the example location.
-2. Capture the CubePlot from the pipeline:
+1. Rebuild the small observational fixtures when source review is required:
 
     ```python
-    viewer = (pipe(cube) | v.mean(dim="time") | v.plot()).unwrap()
-    viewer.save("docs/assets/datasets/sentinel2_ndvi-preview.html")
+    python scripts/build_phase1_qa_fixtures.py
     ```
 
-3. Open `docs/assets/datasets/sentinel2_ndvi-preview.html` in a browser and save a 1200×700 px PNG screenshot to `docs/assets/datasets/sentinel2_ndvi-preview.png`.
+2. Run `python scripts/run_source_qa.py`. The offline workflow checks the
+   checksum, source, CRS, bands, unique ordered acquisitions, 10 m grid,
+   coordinate orientation, missingness, reflectance scale, and NDVI bounds.
+
+See the complete [Phase 1 source QA report](../data/phase1_qa.md).
 
 ### Who collects it and why
 The European Space Agency (ESA) and the European Commission operate Sentinel-2 to deliver routine optical imagery for land monitoring, vegetation status, and disaster response. The atmospherically corrected Level-2A product is widely used for vegetation phenology and ecosystem monitoring, making it an authoritative source for NDVI analyses.

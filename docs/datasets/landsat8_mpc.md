@@ -21,24 +21,14 @@ ndvi = (cube.sel(band="nir") - cube.sel(band="red")) / (cube.sel(band="nir") + c
 pipe(ndvi) | v.plot(time_dim="time")
 ```
 
-### Preview plot
+### Publication QA status
 
-![Landsat 8 MPC preview](../assets/datasets/landsat8_mpc-preview.png)
-
-!!! note
-    Image placeholder — after running the code below locally, save a screenshot to `docs/assets/datasets/landsat8_mpc-preview.png`.
-
-### Regenerate this plot
-
-1. Run the Quickstart snippet to stream a small Landsat 8 stack and compute NDVI.
-2. Capture the viewer returned by the plotting verb:
-
-    ```python
-    viewer = (pipe(ndvi) | v.plot(time_dim="time")).unwrap()
-    viewer.save("docs/assets/datasets/landsat8_mpc-preview.html")
-    ```
-
-3. Open `docs/assets/datasets/landsat8_mpc-preview.html` in a browser and save a 1200×700 px PNG screenshot to `docs/assets/datasets/landsat8_mpc-preview.png`.
+!!! warning "Reviewed Landsat preview not yet published"
+    This page no longer embeds a text placeholder disguised as an image.
+    Landsat is outside the current Phase 1 source baseline, so a figure will be
+    published only with a checksum-controlled real extract, machine-readable
+    checks, and an explicit cloud/missing-data review. The Quickstart queries
+    the real Planetary Computer product and has no synthetic fallback.
 
 ## Required arguments
 - `bbox` – `[min_lon, min_lat, max_lon, max_lat]` geographic bounding box.

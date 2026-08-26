@@ -1,0 +1,42 @@
+{
+  "aoi": "[-102.50, 43.60, -101.90, 44.20]",
+  "checks": {
+    "all_finite": true,
+    "bounds_overlap_requested_aoi": true,
+    "checksum_matches": true,
+    "coordinate_orientation_known": true,
+    "crs_explicit": true,
+    "grid_resolution_expected": true,
+    "kelvin_range_plausible": true,
+    "observational_source": true,
+    "time_strictly_increasing": true
+  },
+  "crs": "EPSG:4326",
+  "figure": "gridmet_temperature.png",
+  "fixture_sha256": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721",
+  "known_limitations": [
+    "This reviewed extract validates gridMET maximum temperature, not every gridMET variable.",
+    "The current production adapter opens an annual file before selecting the AOI."
+  ],
+  "missing_fraction": 0.0,
+  "noun": "temperature",
+  "pixel_observations": 2100,
+  "provider": "University of Idaho",
+  "qa_result": "pass",
+  "shape": {
+    "time": 10,
+    "x": 14,
+    "y": 15
+  },
+  "source_flavor": "gridmet",
+  "source_product": "gridMET daily maximum temperature",
+  "streaming_mechanism": "annual provider NetCDF followed by client-side AOI selection",
+  "time_range": [
+    "2001-07-01",
+    "2001-07-10"
+  ],
+  "value_range": [
+    294.1000061035156,
+    308.8999938964844
+  ]
+}

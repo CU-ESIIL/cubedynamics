@@ -77,9 +77,13 @@ cube = data.temperature(
 
 result = (
     pipe(cube)
-    | v.anomaly(dim="time")
-    | v.variance(dim="time", keep_dim=False)
-).unwrap()
+    | v.anomaly(over="time")
+    | v.variance(over="time", keep_dim=False)
+)
+
+print(result.explain())
+validated = result.validate()
+summary = result.unwrap()
 ```
 
 Loading names the scientific noun and source flavor. The pipe stays focused on
@@ -111,6 +115,7 @@ clipped = (pipe(cube) | clip_values(0, 1)).unwrap()
 Key entry points:
 
 - [Core grammar versus project verbs](https://cu-esiil.github.io/cubedynamics/concepts/core_and_projects/)
+- [Semantic grammar and analysis coaching](https://cu-esiil.github.io/cubedynamics/concepts/semantic_grammar/)
 - [Narrative, executable vignettes](https://cu-esiil.github.io/cubedynamics/vignettes/)
 - [Write a custom verb project](https://cu-esiil.github.io/cubedynamics/extending/custom_verbs/)
 - [Public API and stability](https://cu-esiil.github.io/cubedynamics/project/public_api/)

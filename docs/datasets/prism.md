@@ -19,7 +19,7 @@ cube = cd.load_prism_cube(
     freq="D",
 )
 
-pipe(cube) | v.mean(dim="time") | v.plot()
+pipe(cube) | v.mean(over="time") | v.plot()
 ```
 
 ### Customizing the view
@@ -28,24 +28,26 @@ pipe(cube) | v.mean(dim="time") | v.plot()
 pipe(cube) | v.plot(camera={"eye": {"x": 2.2, "y": 1.6, "z": 1.3}})
 ```
 
-### Preview plot
+### Reviewed source-QA plot
 
-![PRISM preview](../assets/datasets/prism-preview.png)
+![PRISM minimum-temperature source QA with a spatial map and temporal summary](../assets/source_qa/prism_temperature.png)
 
-!!! note
-    Image placeholder — after running the code below locally, save a screenshot to `docs/assets/datasets/prism-preview.png`.
+This is a checked-in rendering of a real, checksum-controlled PRISM extract,
+not synthetic example data. The accompanying QA checks provenance, CRS, time
+ordering, finite coverage, physical temperature bounds, minimum/maximum
+consistency, and overlap with the requested area of interest.
 
-### Regenerate this plot
+### Reproduce the validation
 
-1. Execute the Quickstart snippet locally to build the precipitation cube.
-2. Capture the CubePlot viewer for export:
+Run the publication QA workflow from the repository root:
 
-    ```python
-    viewer = (pipe(cube) | v.mean(dim="time") | v.plot()).unwrap()
-    viewer.save("docs/assets/datasets/prism-preview.html")
-    ```
+```bash
+python scripts/run_source_qa.py
+```
 
-3. Open `docs/assets/datasets/prism-preview.html` in a browser and save a 1200×700 px PNG screenshot to `docs/assets/datasets/prism-preview.png`.
+The command writes the figure and a machine-readable result to
+`artifacts/source_qa/`. See the [Phase 1 source-QA report](../data/phase1_qa.md)
+for the exact checks, evidence, and current limitations.
 
 ### Who collects it and why
 The PRISM Climate Group at Oregon State University produces the dataset to deliver high-quality, terrain-aware climate normals and time series. It is widely used for hydrology, ecology, and agricultural studies where spatial detail and long-term consistency are critical.

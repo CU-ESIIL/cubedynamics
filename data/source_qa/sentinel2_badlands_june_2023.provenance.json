@@ -1,0 +1,29 @@
+{
+  "catalog": "Microsoft Planetary Computer STAC",
+  "fixture_sha256": "eb7c02b01bc741483d28714f7081e08639282685705d5d7a15ff44bf7e97672a",
+  "product": "Sentinel-2 Level-2A surface reflectance",
+  "provider": "European Union Copernicus Programme / ESA",
+  "query": {
+    "bands": [
+      "B04",
+      "B08"
+    ],
+    "cloud_lt": 80,
+    "edge_size": 64,
+    "end": "2023-06-10",
+    "lat": 43.89,
+    "lon": -102.18,
+    "resolution": 10,
+    "start": "2023-06-01"
+  },
+  "retrieved_at": "2026-08-26T12:55:51.112347+00:00",
+  "scene_cloud_cover_percent": [
+    72.819281,
+    13.389252
+  ],
+  "scene_ids": [
+    "S2B_MSIL2A_20230602T173909_R098_T13TGJ_20240911T145543",
+    "S2A_MSIL2A_20230607T173911_R098_T13TGJ_20240927T100945"
+  ],
+  "transformation": "selected B04/B08, cropped to 640 m square, converted to float32; values unchanged"
+}

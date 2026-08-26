@@ -21,14 +21,25 @@ def test_source_qa_writes_real_data_evidence(tmp_path: Path) -> None:
     )
 
     manifest = json.loads((tmp_path / "manifest.json").read_text(encoding="utf-8"))
-    result = json.loads((tmp_path / "prism_temperature.json").read_text(encoding="utf-8"))
-
-    assert result["qa_result"] == "pass"
-    assert all(result["checks"].values())
-    assert result["fixture_sha256"]
-    assert (tmp_path / result["figure"]).stat().st_size > 10_000
+    result_files = [
+        "prism_temperature.json",
+        "gridmet_temperature.json",
+        "sentinel2_surface_reflectance.json",
+    ]
+    results = [json.loads((tmp_path / name).read_text(encoding="utf-8")) for name in result_files]
+    for result in results:
+        assert result["qa_result"] == "pass"
+        assert all(result["checks"].values())
+        assert result["fixture_sha256"]
+        assert (tmp_path / result["figure"]).stat().st_size > 10_000
     assert "temperature" in manifest["implemented_nouns"]
-    assert manifest["status"].startswith("partial")
-    assert all(item["real_visual_qa"] != "pass" or (
-        item["noun"] == "temperature" and item["source_flavor"] == "prism"
-    ) for item in manifest["source_status"])
+    assert manifest["status"].startswith("Phase 1 source-adapter baseline complete")
+    assert {result["source_flavor"] for result in manifest["reviewed_real_data_results"]} == {
+        "gridmet",
+        "prism",
+        "sentinel2",
+    }
+    assert all(
+        item["real_visual_qa"] == "representative source pass"
+        for item in manifest["source_status"]
+    )

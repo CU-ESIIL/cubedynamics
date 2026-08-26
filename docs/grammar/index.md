@@ -18,8 +18,8 @@ from cubedynamics import pipe, verbs as v
 
 result = (
     pipe(cube)
-    | v.anomaly(dim="time")
-    | v.mean(dim=("y", "x"), keep_dim=False)
+    | v.anomaly(over="time")
+    | v.mean(over=("y", "x"), keep_dim=False)
 )
 ```
 
@@ -30,6 +30,7 @@ result = (
 - [Lazy evaluation](lazy_evaluation.md)
 - [Workflow composition](workflow_composition.md)
 - [Core grammar versus project verbs](../concepts/core_and_projects.md)
+- [Semantic grammar and analysis coaching](../concepts/semantic_grammar.md)
 - [Runnable vignettes](../vignettes/index.md)
 
 ## Why Grammar Matters

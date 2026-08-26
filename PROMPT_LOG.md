@@ -2333,3 +2333,149 @@ secrets, credentials, private tokens, or unrelated transcript text.
   scientifically declared cross-grid alignment. Each must satisfy source,
   CRS, boundary, units, temporal-support, missingness, and QA contracts before
   a dependency design is promoted to executable.
+
+## 2026-08-26 - Lightweight semantic grammar and analysis coach
+
+### User goal
+
+- Make the existing `pipe(noun) | verb() | verb()` grammar semantically
+  inspectable and helpful to scientists and future agents without adding a DSL,
+  rewriting user order, or requiring new user-facing object classes.
+- Add noun and verb metadata, state tracking, deterministic explanations and
+  suggestions, metadata-only validation, order knowledge, useful scientific
+  errors, diagrams, tests, and readable grammatical keywords.
+
+### Design and implementation
+
+- Audited the pipe, 62 callable names visible in `cubedynamics.verbs`, 38
+  explicit `verbs.__all__` exports, documented state/event/project verbs,
+  loaders, output metadata, dimensions, provenance, and information-changing
+  operations. Recorded the baseline in `docs/project/grammar_inventory.md`.
+- Added `cubedynamics.grammar`, a lightweight registry and inference layer with
+  nine semantic states: observation, continuous field, categorical field,
+  condition, event, feature, relationship, summary, and network. Verb contracts
+  declare human descriptions, accepted/returned states, requirements,
+  preservation/removal effects, ownership categories, and examples.
+- Registered every callable in `verbs.__all__` plus documented state, event,
+  synchrony, and biology verbs. Conceptual future verbs are present only in
+  order-rule metadata with `implemented=False`; they are never offered as
+  runnable suggestions.
+- Extended `Pipe` with immutable `semantic_state` and `semantic_trace`, plus
+  deterministic `explain()`, `suggest()`, and `validate()` methods. Pipe still
+  calls each stage exactly once in written left-to-right order. Plain,
+  unregistered Python callables remain valid and need no subclass or registry
+  step.
+- Added semantic preflight errors for incompatible kinds, missing temporal or
+  spatial support, removed time variation, unordered time, and obvious CRS or
+  dimension conflicts for aligned-state overlap. Underlying execution errors
+  remain unchanged outside known semantic incompatibilities.
+- Added the four requested order categories and the complete starter response
+  set, including both directions for near/density, intersect/density,
+  intersect/summarize, clip/summarize, filter/change, subtract/divide,
+  normalize/threshold, and upstream/intersect. Rules are neutral,
+  deterministic, and do not mutate pipelines.
+- Added semantic metadata to scientific nouns, state/event/overlap outputs, and
+  spatial block summary/comparison outputs so metadata survives unwrap and
+  re-pipe workflows. Added backward-compatible `over=` to `mean`, `variance`,
+  `anomaly`, and `zscore`; `dim=` remains supported and conflicts are explicit.
+
+### Documentation and validation
+
+- Added `docs/concepts/semantic_grammar.md` with state and architecture
+  diagrams, explain/suggest/validate examples, order categories, and a
+  near→density versus density→near interpretation table. Updated Pipe, grammar,
+  public API, README, and MkDocs navigation pages.
+- Added `tests/test_grammar_semantics.py` for exact order/no rewriting, state
+  transitions, explanations, suggestions, reports, semantic errors, lost
+  information, all order rules, public verb registry coverage, CRS conflicts,
+  metadata propagation, and keyword compatibility. Expanded noun metadata
+  assertions and retained focused regression coverage for VirtualCube,
+  synchrony, spatial-block, plotting, and public APIs.
+- Final focused affected-area run: 84 passed. An additional post-stall group
+  covering plotting, shape/statistical verbs, vignettes, and VirtualCube paths
+  passed 21 tests. `mkdocs build --strict`, Python compilation, and
+  `git diff --check` passed.
+- The required offline suite reached 349 passed, 3 skipped, and 9 deselected
+  with no failures, then encountered the repository's pre-existing Matplotlib
+  backend stall and was interrupted after about 97 seconds. The six semantic
+  compatibility regressions found on the first broad run were corrected; their
+  complete affected suites subsequently passed.
+
+### Known limitations and next work
+
+- Runtime inference is strongest for xarray, VirtualCube, EventResult, and
+  metadata-bearing project outputs. Custom non-xarray objects fall back to an
+  observation state unless their project adds semantic attrs or registry
+  metadata.
+- Some broad project/integration contracts are intentionally conservative and
+  should be refined alongside their owning workflows. Unit compatibility is
+  reported and preserved, but cross-object unit conversion/reconciliation
+  awaits verbs that actually combine numeric quantities.
+- High-value next work is to let external verb packages contribute registry
+  entries through a documented registration hook, then implement vetted
+  feature/network nouns and verbs such as near, density, intersect, summarize,
+  and upstream against explicit CRS, boundary, unit, and provenance contracts.
+
+## 2026-08-26 - Interrupted-work audit and Phase 1 source-QA completion
+
+### User goal
+
+- Re-read the interrupted publication, Decision Lab, and semantic-grammar
+  briefs and complete work left unfinished when earlier tasks hit usage limits.
+- Keep examples observational, reproducible, validated, and suitable for the
+  publication website.
+
+### Audit and decisions
+
+- Re-audited the three pasted briefs and the resulting repository changes. The
+  semantic grammar is implemented and tested. The Decision Lab intentionally
+  contains one executable real-data vignette and four clearly labeled
+  dependency designs because the required feature/network nouns and verbs do
+  not yet exist; no speculative APIs or fake data were promoted as runnable.
+- Identified the remaining Phase 1 publication gap: gridMET and Sentinel-2 had
+  no reviewed numerical/visual baseline, and their dataset pages referenced
+  text files masquerading as PNG previews. PRISM also retained an obsolete
+  placeholder despite already having reviewed QA evidence.
+
+### Implementation
+
+- Added small real-data gridMET and Sentinel-2 fixtures with checksums, source
+  requests, and provenance under `data/source_qa/`, plus a reproducibility
+  README and `scripts/build_phase1_qa_fixtures.py`.
+- Expanded `scripts/run_source_qa.py` to validate PRISM, gridMET maximum
+  temperature, and Sentinel-2 B04/B08 plus derived NDVI. Checks cover checksum,
+  source, CRS, dates, finite data, coordinate order and resolution, bounds,
+  broad physical/scale limits, and source-specific invariants. It writes JSON,
+  figures, and a consolidated manifest.
+- Replaced gridMET, Sentinel-2, and PRISM placeholder previews with reviewed
+  real-data QA figures and documented exact evidence and limitations.
+- Removed older FIRED, Landsat, and fire-workflow text files masquerading as
+  PNGs. Their pages now state the missing QA evidence explicitly instead of
+  displaying or soliciting an unvalidated screenshot; the asset policy now
+  prohibits synthetic or text image placeholders.
+- Found duplicate Sentinel-2 catalog records for identical acquisitions. The
+  loader now keeps the newest `s2:generation_time` record using STAC metadata
+  only, preserving lazy imagery, and records the selection in output attrs.
+- Corrected the Sentinel-2 citation from a stale MODIS reference to the
+  Copernicus/ESA Level-2A product.
+
+### Validation
+
+- A bounded live Sentinel-2 request to the Planetary Computer passed and
+  confirmed unique, strictly ordered acquisition times after deduplication.
+- Offline source QA passed for all three source adapters, and the gridMET and
+  Sentinel-2 figures were visually inspected for readable, plausible output.
+- The combined affected-area suite passed 84 tests. A final focused
+  deduplication/live request passed 2 tests; its only warning is an upstream
+  Planetary Computer Pydantic deprecation.
+- `scripts/run_decision_qa.py` passed. `scripts/run_vignettes.py` executed all
+  nine supported notebooks offline and confirmed their static plot outputs.
+- `mkdocs build --strict`, Python compilation, and `git diff --check` passed.
+
+### Limitations
+
+- The baselines validate the named variables, places, and time windows, not
+  every product permutation. gridMET maximum temperature is representative of
+  the adapter; Sentinel-2 pixel-level cloud masking is not yet implemented.
+- gridMET still downloads annual files before local AOI selection. Live tests
+  remain separate from deterministic offline fixture checks.

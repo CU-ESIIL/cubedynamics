@@ -1,0 +1,53 @@
+{
+  "aoi": "[726190.0, 4863210.0, 726820.0, 4863840.0]",
+  "checks": {
+    "all_finite": true,
+    "checksum_matches": true,
+    "coordinate_orientation_known": true,
+    "crs_explicit": true,
+    "duplicate_acquisition_times_absent": true,
+    "ndvi_range_valid": true,
+    "observational_source": true,
+    "reflectance_scale_plausible": true,
+    "required_bands_present": true,
+    "ten_meter_grid": true,
+    "time_strictly_increasing": true
+  },
+  "crs": "EPSG:32613",
+  "figure": "sentinel2_reflectance.png",
+  "fixture_sha256": "eb7c02b01bc741483d28714f7081e08639282685705d5d7a15ff44bf7e97672a",
+  "known_limitations": [
+    "This extract covers one 640 m South Dakota window and two acquisition dates.",
+    "Cloud metadata are retained, but this baseline does not implement pixel-level cloud masking."
+  ],
+  "missing_fraction": 0.0,
+  "ndvi_range": [
+    -0.10454418510198593,
+    0.505251944065094
+  ],
+  "noun": "surface_reflectance and vegetation_index",
+  "pixel_observations": 16384,
+  "provider": "European Union Copernicus Programme / ESA",
+  "qa_result": "pass",
+  "scene_ids": [
+    "S2B_MSIL2A_20230602T173909_R098_T13TGJ_20240911T145543",
+    "S2A_MSIL2A_20230607T173911_R098_T13TGJ_20240927T100945"
+  ],
+  "shape": {
+    "band": 2,
+    "time": 2,
+    "x": 64,
+    "y": 64
+  },
+  "source_flavor": "sentinel2",
+  "source_product": "Sentinel-2 Level-2A surface reflectance",
+  "streaming_mechanism": "Planetary Computer STAC plus cloud-optimized asset windows through cubo",
+  "time_range": [
+    "2023-06-02",
+    "2023-06-07"
+  ],
+  "value_range": [
+    1458.0,
+    5808.0
+  ]
+}

@@ -108,6 +108,9 @@ def aoi_signature(
     signature.attrs.update(
         {
             "analysis": "aoi_signature",
+            "semantic_name": "aoi_signature",
+            "semantic_kind": "summary",
+            "semantic_category": "spatial_summary",
             "unit_id": unit_id,
             "time_dim": resolved_time,
             "spatial_dims": resolved_spatial,
@@ -149,6 +152,9 @@ def block_signature(
     signature.attrs.update(
         {
             "analysis": "block_signature",
+            "semantic_name": "block_signature",
+            "semantic_kind": "summary",
+            "semantic_category": "spatial_summary",
             "block_id": block_id,
             "block_dim": block_dim,
         }
@@ -246,6 +252,9 @@ def compare_aoi_signatures(
         },
         attrs={
             "analysis": "pairwise_aoi_signature_compare",
+            "semantic_name": "aoi_signature_comparison",
+            "semantic_kind": "relationship",
+            "semantic_category": "spatial_comparison",
             "left_unit": left_unit,
             "right_unit": right_unit,
             "time_dim": resolved_time,
@@ -288,6 +297,9 @@ def collect_blocks(
     collection.attrs.update(
         {
             "analysis": "block_collection",
+            "semantic_name": "block_collection",
+            "semantic_kind": "summary",
+            "semantic_category": "spatial_summary",
             "block_dim": block_dim,
             "n_blocks": len(block_ids),
         }
@@ -352,6 +364,9 @@ def compare_blocks(
     result.attrs.update(
         {
             "analysis": "block_pairwise_compare",
+            "semantic_name": "block_comparison",
+            "semantic_kind": "relationship",
+            "semantic_category": "spatial_comparison",
             "block_dim": block_dim,
             "n_blocks": len(block_ids),
             "n_pairs": len(pair_labels),

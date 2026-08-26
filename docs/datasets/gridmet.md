@@ -19,27 +19,30 @@ cube = cd.gridmet(
     variable="tmmx",
 )
 
-pipe(cube) | v.mean(dim="time") | v.plot()
+pipe(cube) | v.mean(over="time") | v.plot()
 ```
 
 ### Preview plot
 
-![gridMET preview](../assets/datasets/gridmet-preview.png)
+![Reviewed gridMET source QA with a temperature map and AOI-mean time series](../assets/source_qa/gridmet_temperature.png)
 
-!!! note
-    Image placeholder — after running the code below locally, save a screenshot to `docs/assets/datasets/gridmet-preview.png`.
+This is a checksum-controlled observational gridMET extract over southwestern
+South Dakota. It shows one daily maximum-temperature map and the ten-day
+AOI-mean series; it is validation evidence rather than a decorative thumbnail.
 
 ### Regenerate this plot
 
-1. Run the Quickstart code block in a local Python session or notebook.
-2. Capture the viewer returned by the pipe:
+1. Rebuild the small observational fixtures when source review is required:
 
     ```python
-    viewer = (pipe(cube) | v.mean(dim="time") | v.plot()).unwrap()
-    viewer.save("docs/assets/datasets/gridmet-preview.html")
+    python scripts/build_phase1_qa_fixtures.py
     ```
 
-3. Open `docs/assets/datasets/gridmet-preview.html` in a browser and take a 1200×700 px PNG screenshot saved to `docs/assets/datasets/gridmet-preview.png`.
+2. Run `python scripts/run_source_qa.py`. The offline workflow checks the
+   fixture checksum, source and CRS, dates, bounds, coordinate orientation,
+   grid resolution, missingness, and broad physical temperature range.
+
+See the complete [Phase 1 source QA report](../data/phase1_qa.md).
 
 ### Who collects it and why
 The dataset is produced by John Abatzoglou and collaborators at the University of Idaho to support ecological, hydrological, and fire-weather applications across CONUS. It blends PRISM climatology with NLDAS reanalysis to provide spatially consistent daily meteorology widely used in ecological forecasting and climate impact studies.

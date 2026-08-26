@@ -6,6 +6,8 @@ from typing import Hashable
 
 import xarray as xr
 
+from ..grammar import infer_semantic_state
+
 
 def overlap(
     other: xr.DataArray | xr.Dataset,
@@ -58,6 +60,10 @@ def overlap(
         result = (aligned_left.astype(bool) & aligned_right.astype(bool)).rename(name)
         result.attrs = {
             "analysis": "aligned_boolean_overlap",
+            "semantic_name": name,
+            "semantic_kind": "condition",
+            "semantic_category": "state",
+            "semantic_units": "boolean",
             "long_name": name.replace("_", " "),
             "left_variable": str(left.name or left_variable or "value"),
             "right_variable": str(right.name or right_variable or "value"),
@@ -65,6 +71,7 @@ def overlap(
         }
         return result
 
+    _op._cd_semantic_context = {"other": infer_semantic_state(other)}
     return _op
 
 

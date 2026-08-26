@@ -23,26 +23,14 @@ clim = cd.gridmet(
 pipe(clim) | v.extract(fired_event=fired_evt) | v.fire_plot(fired_event=fired_evt)
 ```
 
-### Preview plot
+### Publication QA status
 
-![FIRED preview](../assets/datasets/fired-preview.png)
-
-!!! note
-    Image placeholder — after running the code below locally, save a screenshot to `docs/assets/datasets/fired-preview.png`.
-
-### Regenerate this plot
-
-1. Execute the Quickstart code to load the FIRED event and matching gridMET slice.
-2. Collect the viewer returned from the pipe for export:
-
-    ```python
-    viewer = (
-        pipe(clim) | v.extract(fired_event=fired_evt) | v.fire_plot(fired_event=fired_evt)
-    ).unwrap()
-    viewer.save("docs/assets/datasets/fired-preview.html")
-    ```
-
-3. Open `docs/assets/datasets/fired-preview.html` in a browser and save a 1200×700 px PNG screenshot to `docs/assets/datasets/fired-preview.png`.
+!!! warning "Reviewed FIRED preview not yet published"
+    This page no longer embeds a text placeholder disguised as an image. A
+    preview will be restored only after the exact FIRED event, matched climate
+    request, provenance, numerical checks, and exported figure are reviewed
+    together. The Quickstart remains a real-data workflow and does not enable
+    synthetic fallback.
 
 ### Who collects it and why
 FIRED was assembled by Balch, Iglesias, and collaborators to provide a consistent, research-grade record of wildland fire events for studying drivers, impacts, and fire–climate interactions. Its coverage and methodological transparency make it a common reference for fire science in North America.

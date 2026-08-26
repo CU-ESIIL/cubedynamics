@@ -136,6 +136,9 @@ def detect_events(
     ds.attrs.update(
         {
             "analysis": "detected_events",
+            "semantic_name": "detected_events",
+            "semantic_kind": "event",
+            "semantic_category": "event",
             "state_var": state_var,
             "magnitude_var": magnitude_var,
             "min_duration": min_duration,

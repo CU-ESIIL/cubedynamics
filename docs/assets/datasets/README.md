@@ -1,8 +1,9 @@
 # Dataset preview assets
 
-Each dataset page in `docs/datasets/` references a static PNG preview at
-`docs/assets/datasets/<dataset-slug>-preview.png`.
+Dataset pages may reference reviewed static figures stored here or in
+`docs/assets/source_qa/`. Every image must be a genuine render from the named
+real dataset and accompanied by reproducible source/provenance and QA details.
 
-Codex does not add image binaries. After running the regeneration steps on a
-dataset page, save a 1200×700 px screenshot to the corresponding path so the
-placeholder link renders on the documentation site.
+Do not add text placeholders with image extensions. If reviewed visual
+evidence is not available, the dataset page should say so explicitly and omit
+the image until the source-specific QA is complete.

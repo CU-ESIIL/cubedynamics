@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from typing import Mapping, Sequence
 
 import cubo
+import numpy as np
+import pandas as pd
 import xarray as xr
 
 from ..config import BAND_DIM, DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
@@ -20,6 +22,45 @@ def _to_dataarray(cube: xr.Dataset | xr.DataArray) -> xr.DataArray:
     if len(cube.data_vars) == 1:
         return cube[list(cube.data_vars)[0]]
     raise ValueError("Unable to determine data variable containing Sentinel-2 bands.")
+
+
+def _deduplicate_acquisition_times(data: xr.DataArray) -> xr.DataArray:
+    """Keep the newest processing record for each Sentinel acquisition time.
+
+    Planetary Computer can expose both an original and a later reprocessed L2A
+    item for the same satellite acquisition. Treating them as separate dates
+    biases temporal analyses. Reading these coordinate arrays touches STAC
+    metadata only; imagery remains lazy.
+    """
+
+    if TIME_DIM not in data.dims or data.sizes[TIME_DIM] < 2:
+        return data
+    times = np.asarray(data[TIME_DIM].values)
+    unique_times = np.unique(times)
+    if unique_times.size == times.size:
+        return data
+
+    generation_coord = data.coords.get("s2:generation_time")
+    generations = (
+        pd.to_datetime(
+            np.asarray(generation_coord.values), errors="coerce", utc=True
+        ).asi8
+        if generation_coord is not None
+        else np.arange(times.size)
+    )
+    selected: list[int] = []
+    for acquisition in unique_times:
+        candidates = np.flatnonzero(times == acquisition)
+        selected.append(int(candidates[np.argmax(generations[candidates])]))
+    result = data.isel({TIME_DIM: selected})
+    result.attrs.update(data.attrs)
+    result.attrs.update(
+        {
+            "duplicate_acquisitions_removed": int(times.size - unique_times.size),
+            "duplicate_selection": "latest s2:generation_time per acquisition",
+        }
+    )
+    return result
 
 
 def load_s2_cube(
@@ -49,6 +90,7 @@ def load_s2_cube(
     )
 
     data = _to_dataarray(cube)
+    data = _deduplicate_acquisition_times(data)
     desired_order = tuple(
         dim for dim in (TIME_DIM, BAND_DIM, Y_DIM, X_DIM) if dim in data.dims
     )

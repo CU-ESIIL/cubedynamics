@@ -18,7 +18,9 @@ from cubedynamics import pipe, verbs as v
 The supported center of the package is:
 
 - `pipe(value)` and `Pipe`, which compose callables with `|` and expose
-  `unwrap()` at the workflow boundary;
+  `unwrap()` at the workflow boundary. A pipe also exposes metadata-only
+  `semantic_state`, `semantic_trace`, `explain()`, `suggest()`, and
+  `validate()` coaching without rewriting the workflow;
 - `verbs`, conventionally imported as `v`;
 - the verb-factory protocol: a configured outer function returns a callable
   that accepts the current value and returns the next one;
@@ -29,6 +31,10 @@ The supported center of the package is:
 
 Plain callables are valid pipe stages. Projects do not need to register or
 subclass anything to extend the grammar.
+
+The public `cubedynamics.grammar` module contains the small semantic-state
+vocabulary, verb contracts, order-rule metadata, and structured report types.
+See [Semantic grammar and analysis coaching](../concepts/semantic_grammar.md).
 
 ## Maintained integrations: dataset loaders
 

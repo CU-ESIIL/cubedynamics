@@ -80,7 +80,7 @@ class VerbSpec:
     """Machine-readable semantic contract for one public verb."""
 
     name: str
-    description: str
+    human_description: str
     accepts: tuple[str, ...]
     returns: str
     requires: tuple[str, ...] = ()
@@ -90,10 +90,16 @@ class VerbSpec:
     examples: tuple[str, ...] = ()
     side_effect: bool = False
 
+    @property
+    def description(self) -> str:
+        """Concise compatibility alias used by the explanation renderer."""
+
+        return self.human_description
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
-            "description": self.description,
+            "human_description": self.human_description,
             "accepts": list(self.accepts),
             "returns": self.returns,
             "requires": list(self.requires),
@@ -282,12 +288,12 @@ _VERB_SPECS: dict[str, VerbSpec] = {
         "relationship", category="semantic", examples=("v.duration_synchrony()",),
     ),
     "severity_synchrony": _spec(
-        "severity_synchrony", "compare the severity of detected events", ("event",),
+        "severity_synchrony", "compare condition magnitude where states co-occur", ("condition",),
         "relationship", category="semantic", examples=("v.severity_synchrony()",),
     ),
     "plot": _spec(
         "plot", "render an interactive cube view", _ANY_KINDS, "observation",
-        requires=("spatial",), category="integration", side_effect=True,
+        requires=("spatial",), category="integration",
         examples=("v.plot()",),
     ),
     "plot_mean": _spec(
@@ -302,9 +308,151 @@ _VERB_SPECS: dict[str, VerbSpec] = {
     ),
     "apply": _spec(
         "apply", "apply a user-supplied function without changing pipe syntax", _ANY_KINDS,
-        "observation", category="integration", examples=("v.apply(function)",),
+        "inferred", category="integration", examples=("v.apply(function)",),
     ),
 }
+
+# Public project and integration verbs share the same registry shape. Their
+# contracts are intentionally broad where the implementation accepts several
+# scientific objects; project packages can refine them without changing Pipe.
+_VERB_SPECS.update(
+    {
+        "rolling_median_split_synchrony": _spec(
+            "rolling_median_split_synchrony", "measure rolling median-split synchrony",
+            _FIELD_KINDS, "relationship", requires=("time", "time_variation"), category="semantic",
+            examples=("v.rolling_median_split_synchrony(window=30)",),
+        ),
+        "rolling_tail_dep_vs_center": _spec(
+            "rolling_tail_dep_vs_center", "compare rolling tail behavior with the center",
+            _FIELD_KINDS, "relationship", requires=("time", "time_variation"), category="semantic",
+            examples=("v.rolling_tail_dep_vs_center(window=30)",),
+        ),
+        "correlation_cube": _spec(
+            "correlation_cube", "calculate a correlation field", _FIELD_KINDS,
+            "relationship", requires=("time",), category="semantic",
+            examples=("v.correlation_cube()",),
+        ),
+        "sync_with": _spec(
+            "sync_with", "compare an input cube with another aligned temporal cube", _FIELD_KINDS + ("condition",),
+            "relationship", requires=("time", "spatial"), category="semantic",
+            examples=("v.sync_with(other)",),
+        ),
+        "block_signature": _spec(
+            "block_signature", "summarize a cube as a named spatial-block signature", _FIELD_KINDS,
+            "summary", requires=("time", "spatial"), category="semantic",
+            examples=("v.block_signature(name='study area')",),
+        ),
+        "aoi_signature": _spec(
+            "aoi_signature", "compatibility alias for block_signature", _FIELD_KINDS,
+            "summary", requires=("time", "spatial"), category="semantic",
+            examples=("v.aoi_signature(name='study area')",),
+        ),
+        "collect_blocks": _spec(
+            "collect_blocks", "collect compatible block signatures", ("summary",),
+            "summary", category="semantic", examples=("v.collect_blocks(other_block)",),
+        ),
+        "compare_blocks": _spec(
+            "compare_blocks", "compare collected spatial-block signatures", ("summary",),
+            "relationship", category="semantic", examples=("v.compare_blocks()",),
+        ),
+        "compare_aoi_signature": _spec(
+            "compare_aoi_signature", "compatibility alias for comparing block signatures", ("summary",),
+            "relationship", category="semantic", examples=("v.compare_aoi_signature()",),
+        ),
+        "flatten_space": _spec(
+            "flatten_space", "stack spatial dimensions into a pixel dimension", _FIELD_KINDS,
+            "continuous_field", requires=("spatial",), removes=("separate x and y dimensions",),
+            examples=("v.flatten_space()",),
+        ),
+        "flatten_cube": _spec(
+            "flatten_cube", "stack non-time dimensions into a sample dimension", _FIELD_KINDS,
+            "continuous_field", requires=("time",), removes=("separate non-time dimensions",),
+            examples=("v.flatten_cube()",),
+        ),
+        "fit_model": _spec(
+            "fit_model", "fit a configured statistical model", _FIELD_KINDS + ("summary",),
+            "summary", category="semantic", examples=("v.fit_model(model)",),
+        ),
+        "ndvi_from_s2": _spec(
+            "ndvi_from_s2", "derive NDVI from Sentinel-2 red and near-infrared bands", _FIELD_KINDS,
+            "continuous_field", category="integration", examples=("v.ndvi_from_s2()",),
+        ),
+        "rasterize_observations": _spec(
+            "rasterize_observations", "place feature observations onto a reference cube grid", ("feature",),
+            "continuous_field", requires=("spatial",), category="integration",
+            examples=("v.rasterize_observations(reference=reference_cube)",),
+        ),
+        "align_cube": _spec(
+            "align_cube", "align a field to a reference cube", _FIELD_KINDS,
+            "continuous_field", requires=("spatial",), category="integration",
+            examples=("v.align_cube(reference_cube)",),
+        ),
+        "diagnostic_panel": _spec(
+            "diagnostic_panel", "render a diagnostic panel", _ANY_KINDS, "same",
+            category="integration", side_effect=True, examples=("v.diagnostic_panel()",),
+        ),
+        "climate_hist": _spec(
+            "climate_hist", "render a climate distribution", _FIELD_KINDS, "same",
+            category="integration", side_effect=True, examples=("v.climate_hist()",),
+        ),
+        "to_netcdf": _spec(
+            "to_netcdf", "write an explicit NetCDF output", _ANY_KINDS, "same",
+            category="integration", side_effect=True, examples=("v.to_netcdf(path)",),
+        ),
+        "landsat8_mpc": _spec(
+            "landsat8_mpc", "load Landsat observations through the MPC integration", _ANY_KINDS,
+            "continuous_field", category="integration", examples=("v.landsat8_mpc(...) ",),
+        ),
+        "landsat_vis_ndvi": _spec(
+            "landsat_vis_ndvi", "prepare a visualization-friendly Landsat NDVI cube", _FIELD_KINDS,
+            "continuous_field", category="integration", examples=("v.landsat_vis_ndvi(...) ",),
+        ),
+        "landsat_ndvi_plot": _spec(
+            "landsat_ndvi_plot", "render a Landsat NDVI view", _FIELD_KINDS, "same",
+            category="integration", side_effect=True, examples=("v.landsat_ndvi_plot(...) ",),
+        ),
+        "extract": _spec(
+            "extract", "attach fire-hull climate summaries to a cube", _FIELD_KINDS,
+            "same", requires=("time", "spatial"), category="semantic", examples=("v.extract(fired_event=event)",),
+        ),
+        "vase": _spec(
+            "vase", "construct a configured fire VASE representation", _FIELD_KINDS,
+            "feature", requires=("time", "spatial"), category="semantic", examples=("v.vase(...) ",),
+        ),
+        "vase_extract": _spec(
+            "vase_extract", "extract cube values for a VASE geometry", _FIELD_KINDS,
+            "summary", requires=("time", "spatial"), category="semantic", examples=("v.vase_extract(...) ",),
+        ),
+        "vase_mask": _spec(
+            "vase_mask", "mask a cube with a VASE geometry", _FIELD_KINDS,
+            "continuous_field", requires=("time", "spatial"), category="semantic", examples=("v.vase_mask(...) ",),
+        ),
+        "vase_demo": _spec(
+            "vase_demo", "build a demonstration VASE object", _ANY_KINDS,
+            "feature", category="integration", examples=("v.vase_demo()",),
+        ),
+        "fire_plot": _spec(
+            "fire_plot", "render one fire event and its climate context", _ANY_KINDS, "same",
+            category="integration", side_effect=True, examples=("v.fire_plot(...) ",),
+        ),
+        "fire_panel": _spec(
+            "fire_panel", "render a compact fire-event diagnostic panel", _ANY_KINDS, "same",
+            category="integration", side_effect=True, examples=("v.fire_panel(...) ",),
+        ),
+        "fire_vase_panel": _spec(
+            "fire_vase_panel", "render a multi-event VASE panel", _ANY_KINDS, "same",
+            category="integration", side_effect=True, examples=("v.fire_vase_panel(...) ",),
+        ),
+        "fire_derivative": _spec(
+            "fire_derivative", "derive a configured fire-event product", _ANY_KINDS,
+            "summary", category="semantic", examples=("v.fire_derivative(...) ",),
+        ),
+        "tubes": _spec(
+            "tubes", "construct a tube representation from a spatiotemporal cube", _FIELD_KINDS,
+            "feature", requires=("time", "spatial"), category="semantic", examples=("v.tubes(...) ",),
+        ),
+    }
+)
 
 
 _ORDER_RULES: tuple[OrderRule, ...] = (
@@ -328,28 +476,55 @@ _ORDER_RULES: tuple[OrderRule, ...] = (
     OrderRule("filter", "change", ORDER_CHANGES_MEANING,
               "Filtering before change measures change only within the retained observations; changing first filters the derived changes.",
               "Choose the order that matches the scientific question.", implemented=False),
+    OrderRule("change", "filter", ORDER_CHANGES_MEANING,
+              "Calculating change before filtering retains change across the full sequence and then selects derived changes.",
+              "Filter first when change should be calculated only within the retained observations.", implemented=False),
     OrderRule("transition", "summarize", REQUIRED_ORDER,
               "A transition summary requires transitions to be identified first.", implemented=False),
     OrderRule("summarize", "change", ORDER_REMOVES_REQUIRED_INFORMATION,
               "Some summaries remove the sequence needed to estimate change.", implemented=False),
     OrderRule("subtract", "divide", ORDER_CHANGES_MEANING,
               "Subtracting then dividing is a relative contrast; dividing then subtracting is a difference of ratios.", implemented=False),
+    OrderRule("divide", "subtract", ORDER_CHANGES_MEANING,
+              "Dividing before subtraction compares ratios, which is different from scaling a difference.",
+              "Subtract first when the intended quantity is a difference expressed relative to a denominator.", implemented=False),
     OrderRule("normalize", "threshold", ORDER_CHANGES_MEANING,
               "A threshold after normalization is expressed in standardized units, not source units.", implemented=False),
+    OrderRule("threshold", "normalize", ORDER_CHANGES_MEANING,
+              "Normalizing a thresholded result describes the distribution of the condition, not standardized source measurements.",
+              "Normalize first when the threshold should be expressed in standardized units.", implemented=False),
     OrderRule("near", "density", ORDER_CHANGES_MEANING,
               "Density near a target and proximity to dense areas answer different spatial questions.", implemented=False),
+    OrderRule("density", "near", ORDER_CHANGES_MEANING,
+              "Calculating density first creates a field everywhere, then near selects or annotates values relative to the target.",
+              "Use near before density to calculate density only from nearby features.", implemented=False),
     OrderRule("intersect", "density", ORDER_CHANGES_MEANING,
               "Density within an intersection differs from intersecting a density surface.", implemented=False),
+    OrderRule("density", "intersect", ORDER_CHANGES_MEANING,
+              "Intersecting after density clips or samples an already calculated density field.",
+              "Intersect first to calculate density using only features in the intersection.", implemented=False),
     OrderRule("intersect", "summarize", ORDER_CHANGES_MEANING,
               "Summarizing an intersection differs from intersecting already summarized objects.", implemented=False),
+    OrderRule("summarize", "intersect", ORDER_REMOVES_REQUIRED_INFORMATION,
+              "A summary may remove geometry needed for a later intersection.",
+              "Intersect before summarizing when the summary should describe the shared area.", implemented=False),
     OrderRule("clip", "summarize", ORDER_CHANGES_MEANING,
               "Clipping first summarizes only the study area; summarizing first may include values outside it.", implemented=False),
+    OrderRule("summarize", "clip", ORDER_REMOVES_REQUIRED_INFORMATION,
+              "A summary may remove the spatial support needed for clipping.",
+              "Clip before summarizing when the summary should describe only the clipped area.", implemented=False),
     OrderRule("exposure", "summarize", REQUIRED_ORDER,
               "An exposure summary requires exposure to be computed first.", implemented=False),
     OrderRule("near", "summarize", ORDER_CHANGES_MEANING,
               "Summarizing nearby observations differs from measuring proximity to a summary.", implemented=False),
     OrderRule("upstream", "intersect", ORDER_CHANGES_MEANING,
               "Intersecting an upstream network differs from asking what is upstream of an intersection.", implemented=False),
+    OrderRule("intersect", "upstream", ORDER_CHANGES_MEANING,
+              "Finding upstream elements after intersection follows connectivity only from the intersected network.",
+              "Find upstream elements first when the intersection should be applied to the full upstream network.", implemented=False),
+    OrderRule("intersect", "intersect", ORDER_EQUIVALENT_OR_NEAR_EQUIVALENT,
+              "Repeated set intersections are order-equivalent when geometry and coordinate alignment are unchanged.",
+              "Confirm that each input uses the same spatial reference and boundary convention.", implemented=False),
 )
 
 
@@ -419,11 +594,13 @@ def infer_semantic_state(value: Any) -> SemanticState:
     elif not kind:
         kind = "observation"
 
-    temporal = "time" in dimensions
+    time_dim = next((dim for dim in dimensions if dim == "time" or "time" in dim.lower()), None)
+    temporal = time_dim is not None
     spatial = ({"x", "y"}.issubset(dimensions) or {"lon", "lat"}.issubset(dimensions))
-    time_ordered = _time_is_ordered(value) if temporal else None
-    time_size = int(sizes.get("time", 0)) if temporal else 0
-    has_time_variation = time_size > 1 if temporal else None
+    time_ordered = _time_is_ordered(value, time_dim) if time_dim else None
+    has_time_variation = (
+        int(sizes[time_dim]) > 1 if time_dim is not None and time_dim in sizes else None
+    )
     units = attrs.get("semantic_units") or attrs.get("units")
     if units is None and kind == "condition":
         units = "boolean"
@@ -457,7 +634,9 @@ def inspect_stage(func: Callable[..., Any]) -> tuple[str, dict[str, Any]]:
     target = getattr(func, "func", func)
     explicit = getattr(func, "_cd_semantic_name", None) or getattr(target, "_cd_semantic_name", None)
     qualname = getattr(target, "__qualname__", "")
-    name = str(explicit or _factory_name(qualname) or getattr(target, "__name__", type(target).__name__))
+    callable_name = getattr(target, "__name__", type(target).__name__)
+    factory_name = _factory_name(qualname) if callable_name.startswith("_") else None
+    name = str(explicit or factory_name or callable_name)
     parameters: dict[str, Any] = {}
     try:
         bound = inspect.getclosurevars(target).nonlocals
@@ -472,7 +651,12 @@ def inspect_stage(func: Callable[..., Any]) -> tuple[str, dict[str, Any]]:
     return name, parameters
 
 
-def preflight(name: str, state: SemanticState) -> None:
+def preflight(
+    name: str,
+    state: SemanticState,
+    *,
+    func: Callable[..., Any] | None = None,
+) -> None:
     """Raise a semantic error before a known invalid stage is technically executed."""
 
     spec = get_verb_spec(name)
@@ -480,6 +664,12 @@ def preflight(name: str, state: SemanticState) -> None:
         return
     if state.semantic_kind not in spec.accepts:
         if name == "detect_events":
+            if state.has_time_variation is False:
+                raise SemanticGrammarError(
+                    "detect_events() needs a condition that still varies through time. "
+                    "An earlier reduction removed that variation, so event runs can no longer be identified. "
+                    "Detect events before reducing over time."
+                )
             raise SemanticGrammarError(
                 "detect_events() groups consecutive true periods into events. "
                 f"The current object is a {state.semantic_kind.replace('_', ' ')} named "
@@ -509,6 +699,24 @@ def preflight(name: str, state: SemanticState) -> None:
         raise SemanticGrammarError(
             f"{name}() needs spatial dimensions; the current dimensions are {state.dimensions or '(none)'}."
         )
+    target = getattr(func, "func", func)
+    context = getattr(func, "_cd_semantic_context", None) or getattr(
+        target, "_cd_semantic_context", {}
+    )
+    other = context.get("other") if isinstance(context, Mapping) else None
+    if name == "overlap" and isinstance(other, SemanticState):
+        if state.crs and other.crs and state.crs != other.crs:
+            raise SemanticGrammarError(
+                "overlap() requires both conditions to use the same CRS. "
+                f"The current condition uses {state.crs}, while the other uses {other.crs}. "
+                "Reproject one input explicitly before combining them."
+            )
+        if state.dimensions and other.dimensions and state.dimensions != other.dimensions:
+            raise SemanticGrammarError(
+                "overlap() requires identical dimension order. "
+                f"The current condition uses {state.dimensions}, while the other uses {other.dimensions}. "
+                "Align the inputs explicitly before combining them."
+            )
 
 
 def transition_state(
@@ -652,9 +860,9 @@ def _looks_boolean(value: Any) -> bool:
         return False
 
 
-def _time_is_ordered(value: Any) -> bool | None:
+def _time_is_ordered(value: Any, time_dim: str) -> bool | None:
     try:
-        index = value.indexes.get("time")
+        index = value.indexes.get(time_dim)
     except Exception:
         index = None
     if index is None:

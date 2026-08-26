@@ -141,11 +141,13 @@ results = v.fire_plot(..., freq="D", ...)
 - **`show_hist`**: enable when you want to visually compare inside vs. outside pixel distributions for QA.
 - **`save_prefix`**: if set, Plotly static export attempts to write `{save_prefix}.png` using Kaleido; leave `None` to skip file output.
 
-## Preview
-![Fire vase hull preview](../assets/workflows/fire_event_vase_hull.png)
+## Publication QA status
 
-!!! note
-    Image placeholder — after running locally, save a screenshot to `docs/assets/workflows/fire_event_vase_hull.png`.
+!!! warning "Reviewed workflow preview not yet published"
+    The former preview was a text placeholder, not scientific evidence, and
+    has been removed. A replacement should be generated from a named real
+    FIRED event and matched real climate record, then reviewed with the
+    provenance and numerical QA described below.
 
 ## Data provenance
 Every cube returned by `fire_plot` carries provenance in `cube.da.attrs`:

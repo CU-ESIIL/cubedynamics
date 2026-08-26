@@ -1,0 +1,20 @@
+{
+  "created_at": "2026-08-26T12:55:49.518657+00:00",
+  "fixture_sha256": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721",
+  "product": "gridMET daily maximum temperature",
+  "provider": "University of Idaho",
+  "query": {
+    "bbox": [
+      -102.5,
+      43.6,
+      -101.9,
+      44.2
+    ],
+    "end": "2001-07-10",
+    "start": "2001-07-01",
+    "variable": "tmmx"
+  },
+  "source_file_sha256": "a0e07daeb1aa8b58b66f01dcc99e776ab71a163aa80dbef448c972b74fed313a",
+  "source_url": "https://www.northwestknowledge.net/metdata/data/tmmx_2001.nc",
+  "transformation": "cropped and renamed dimensions/variable; values unchanged"
+}
