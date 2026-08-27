@@ -1,41 +1,91 @@
-# GRIDMET variance / z-score cube
+# Daily temperature variability with gridMET
 
-This recipe demonstrates how to load GRIDMET temperature data, compute
-temporal anomalies, and aggregate the results spatially for QA plots.
+Live-data recipe · requires provider access. No new live result is certified by
+this documentation refactor.
+
+## Question
+
+How variable was daily maximum temperature across a Boulder-area grid during
+June 2024? This is within-month variability, not a long-term climate trend.
+
+## Data used
+
+The [temperature noun](../library/nouns/temperature.md) with
+[source `gridmet`](../library/sources/gridmet.md) supplies daily maximum
+temperature in kelvin. The query below selects a small CONUS bounding box and
+one month. Keep the returned source/revision attributes with the result.
+
+## Analysis
+
+Run the blocks in order after the [installation steps](../quickstart.md).
+The loader is lazy; plotting is an explicit request to retrieve the values.
 
 ```python
-import cubedynamics as cd
-from cubedynamics import pipe, verbs as v
-from cubedynamics.stats.anomalies import temporal_anomaly
-from cubedynamics.stats.spatial import spatial_coarsen_mean
-from cubedynamics.viz.qa_plots import plot_median_over_space
+from cubedynamics import data, pipe, verbs as v
+import matplotlib.pyplot as plt
 
-tmax = cd.load_gridmet_cube(
-    lat=40.05,
-    lon=-105.275,
-    variable="tmmx",
-    start="2000-01-01",
-    end="2020-12-31",
-    freq="MS",
-    chunks={"time": 120},
+tmax = data.temperature(
+    source="gridmet", statistic="maximum",
+    bbox=[-105.55, 39.85, -105.05, 40.15],
+    start="2024-06-01", end="2024-06-30",
 )
-tmax_anom = temporal_anomaly(tmax, dim="time")
-tmax_z = pipe(tmax_anom) | v.zscore(dim="time")
-
-tmax_z_coarse = spatial_coarsen_mean(tmax_z, factor_y=2, factor_x=2)
-
-ax = plot_median_over_space(
-    tmax_z_coarse,
-    ylabel="Median tmax z-score",
-    title="GRIDMET tmax anomalies (median over space)",
-)
+assert tmax.dims == ("time", "y", "x")
+assert tmax.attrs["units"] == "K"
+print(tmax.sizes, tmax.attrs)
 ```
 
-See also:
+## Grammar / pipeline
 
-- [PRISM precipitation anomaly / z-score cube](prism_variance_cube.md) for
-  high-resolution precipitation summaries.
-- [Sentinel-2 NDVI anomaly (z-score) cube](s2_ndvi_zcube.md) for vegetation
-  dynamics that can be compared against the GRIDMET cube with `xr.corr` or the
-  rolling helpers in `cubedynamics.stats`. (`v.correlation_cube` will return once
-  the streaming implementation is ready.)
+```python
+variability = (
+    pipe(tmax)
+    | v.month_filter([6, 7, 8])
+    | v.variance(dim="time", keep_dim=False)
+).unwrap()
+```
+
+## Plain-language interpretation
+
+Keep summer observations, then compute temporal variance independently at each
+grid cell. Here the request contains only June, so the month filter does not add
+July or August. Extend the acquisition dates to examine a whole summer.
+
+## Result
+
+```python
+variability.plot(cbar_kwargs={"label": "Daily maximum temperature variance (K²)"})
+plt.title("Within-June temperature variability · gridMET · 2024")
+plt.show()
+```
+
+This map describes variability over the requested dates. It is not a map of
+temperature itself, forecast uncertainty, or long-term warming. Missing values
+and the number of observations per cell matter.
+
+To ask a different question—when temperatures were high relative to each cell's
+own June distribution—standardize first, then summarize space:
+
+```python
+standardized = (pipe(tmax) | v.zscore(dim="time")).unwrap()
+standardized.mean(("y", "x")).plot()
+plt.ylabel("Mean within-June z-score (dimensionless)")
+plt.show()
+```
+
+The spatial mean is unweighted. Standardization removes each cell's absolute
+temperature level; it is not a second variance estimate.
+
+## Reproduce
+
+Use `python -m pip install -e '.[vignettes]'` from a cloned repository and run the
+blocks in Jupyter. Requires working gridMET access; this page is not an executed
+offline notebook. Inspect source identity, date counts, units and finite values,
+and save query/revision metadata alongside any published output. For an
+offline-tested equivalent of the operations, see the notebook below.
+
+## See also
+
+- [Observed PRISM verb gallery](../vignettes/verbs_gallery.ipynb)
+- [variance](../reference/verbs/variance.md) and [zscore](../reference/verbs/zscore.md)
+- [PRISM precipitation anomalies](prism_variance_cube.md)
+- [Source methods and QA](../datasets/gridmet.md)

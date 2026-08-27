@@ -1,37 +1,19 @@
-# Synchrony Verbs
+# Synchrony reference
 
-Synchrony verbs live in `cubedynamics.verbs` and are pipe-friendly.
+Canonical signatures, arguments and examples are generated from the runtime API.
 
-## State constructors
+- [threshold_state](verbs/threshold_state.md)
+- [quantile_state](verbs/quantile_state.md)
+- [binary_state](verbs/binary_state.md)
+- [change_state](verbs/change_state.md)
+- [exceedance](verbs/exceedance.md)
+- [detect_events](verbs/detect_events.md)
+- [occurrence_synchrony](verbs/occurrence_synchrony.md)
+- [severity_synchrony](verbs/severity_synchrony.md)
+- [timing_synchrony](verbs/timing_synchrony.md)
+- [duration_synchrony](verbs/duration_synchrony.md)
+- [align_cube](verbs/align_cube.md)
+- [rasterize_observations](verbs/rasterize_observations.md)
+- [sync_with](verbs/sync_with.md)
 
-- `v.threshold_state(threshold, direction, variable=None, name=None)`
-- `v.quantile_state(quantile, direction, rolling_window=None, climatology=None, variable=None, name=None)`
-- `v.binary_state(variable=None, name=None)`
-- `v.change_state(change, threshold, lag, variable=None, name=None)`
-- `v.exceedance(...)`, alias for `v.threshold_state(...)`
-
-Each constructor returns a Dataset with `state`, `magnitude`, and `threshold`.
-
-## Events
-
-- `v.detect_events(state_var="state", magnitude_var="magnitude", min_duration=1, max_gap=0)`
-
-Returns an `EventResult` with `.dataset` and `.catalog`.
-
-## Synchrony primitives
-
-- `v.occurrence_synchrony(...)`: Jaccard, joint probability, or phi occurrence synchrony.
-- `v.severity_synchrony(...)`: magnitude co-variation during jointly active states.
-- `v.timing_synchrony(...)`: one-to-one event timing synchrony.
-- `v.duration_synchrony(...)`: one-to-one event duration synchrony.
-
-Spatial modes include `reference`, `neighbors`, `all_pairs`, `regional`, and
-`blocks`. Use `reference="center"` for center-pixel compatibility.
-
-## Biology and coupling
-
-- `v.rasterize_observations(observations, template, ...)`
-- `v.align_cube(like, spatial_method="nearest", temporal_method="nearest", tolerance=None)`
-- `v.sync_with(other, synchrony="occurrence", spatial_relation="same_pixel", lags=("0D",))`
-
-`v.sync_with` currently supports same-pixel lagged occurrence coupling.
+[All verbs](verbs/index.md) · [Analysis stories](../vignettes/index.md)

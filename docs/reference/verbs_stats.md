@@ -1,136 +1,18 @@
-# Stats verbs
+# Stats reference
 
-Statistic verbs summarize cubes along dimensions or compare axes. They live in `cubedynamics.verbs` and accept whatever `xarray` object flows through the pipe.
+Canonical signatures, arguments and examples are generated from the runtime API.
 
-### `v.mean(dim="time", keep_dim=True)`
+- [mean](verbs/mean.md)
+- [variance](verbs/variance.md)
+- [zscore](verbs/zscore.md)
+- [anomaly](verbs/anomaly.md)
+- [rolling_tail_dep_vs_center](verbs/rolling_tail_dep_vs_center.md)
+- [rolling_median_split_synchrony](verbs/rolling_median_split_synchrony.md)
+- [block_signature](verbs/block_signature.md)
+- [collect_blocks](verbs/collect_blocks.md)
+- [compare_blocks](verbs/compare_blocks.md)
+- [aoi_signature](verbs/aoi_signature.md)
+- [compare_aoi_signature](verbs/compare_aoi_signature.md)
+- [correlation_cube](verbs/correlation_cube.md)
 
-Compute the mean along a dimension.
-
-```python
-from cubedynamics import pipe, verbs as v
-
-mean_cube = pipe(cube) | v.mean(dim="time", keep_dim=True)
-```
-
-- **Parameters**: `dim` – dimension to summarize; `keep_dim` – retain the dimension as length 1 so the result stays `(time, y, x)` and Lexcube-ready.
-- **Notes**: When `keep_dim=False`, the reduced dimension is removed entirely.
-
-### `v.variance(dim="time", keep_dim=True)`
-
-Compute the variance along a dimension.
-
-```python
-from cubedynamics import pipe, verbs as v
-
-var_cube = pipe(cube) | v.variance(dim="time", keep_dim=True)
-```
-
-- **Parameters**: `dim` – dimension to collapse; `keep_dim` – retain the reduced axis (length 1) or drop it.
-- **Returns**: variance cube matching the input layout when `keep_dim=True`.
-
-### `v.zscore(dim="time", std_eps=1e-4)`
-
-Standardizes each pixel/voxel along a dimension by subtracting the mean and dividing by the standard deviation. The verb always returns the same shape as the input cube so downstream visualization works without extra reshaping.
-
-```python
-z = pipe(cube) | v.zscore(dim="time")
-```
-
-- **Parameters**: `dim`, `std_eps` – same semantics as `xarray` reductions. `std_eps` prevents division by near-zero spread.
-- **Notes**: Keeps the original cube shape regardless of `keep_dim`.
-
-### `v.correlation_cube(other, dim="time")` (planned)
-
-`v.correlation_cube` currently raises `NotImplementedError` and is reserved for a future streaming implementation. Use `xr.corr` or the rolling helpers under `cubedynamics.stats` today:
-
-```python
-import xarray as xr
-
-corr = xr.corr(ndvi_z, climate_anom, dim="time")
-```
-
-The Pearson helper `cubedynamics.rolling_corr_vs_center` remains outside the verbs namespace. Median-split synchrony is available as `v.rolling_median_split_synchrony`. For the general synchrony grammar, use the state/event verbs and the four synchrony primitives documented in [Synchrony Verbs](verbs_synchrony.md).
-
-Use these stats alongside transform verbs to build climate–vegetation synchrony analyses.
-
-### `v.rolling_median_split_synchrony(...)`
-
-Compute rolling Spearman synchrony below and above per-series quantiles. This is
-a convenience recipe for center-reference climate tail synchrony, not the
-general definition of synchrony. A
-single `DataArray` supplies both sets. For a climate `Dataset`, select distinct
-variables for the lower and upper sets:
-
-```python
-sync = (
-    pipe(prism_temperature)
-    | v.rolling_median_split_synchrony(
-        lower_var="tmin",
-        upper_var="tmax",
-        window_days=90,
-        min_t=10,
-        split_quantile=0.5,
-    )
-).unwrap()
-```
-
-The returned `Dataset` contains `bottom_synchrony`, `top_synchrony`, and
-`bottom_minus_top`. With `split_quantile=0.5`, each pixel and its center-pixel
-reference are split at their respective rolling medians. Dask-backed inputs
-remain lazy and are parallelized over spatial chunks.
-
-### `v.block_signature(block_id, ...)`
-
-Summarize a local cube into a named block time signature. This is useful after
-building a synchrony cube: each block becomes one time series per metric, with a
-length-one `block` dimension.
-
-```python
-block = (
-    pipe(sync_cube)
-    | v.block_signature(block_id="boulder", reducer="median")
-).unwrap()
-```
-
-### `v.collect_blocks(*others, ...)`
-
-Collect block signatures into one block collection.
-
-```python
-blocks = (pipe(block_a) | v.collect_blocks(block_b, block_c)).unwrap()
-```
-
-### `v.compare_blocks(...)`
-
-Compare all unique pairs in a block collection over their shared time axis. The
-result contains `pearson_r`, `mean_difference`, `rmse`, and `n` for each
-`(pair, variable)`.
-
-```python
-pairs = (pipe(blocks) | v.compare_blocks()).unwrap()
-```
-
-`v.aoi_signature(...)` and `v.compare_aoi_signature(...)` remain available for
-older notebooks, but new spatial-arena workflows should prefer block language.
-See the [spatial synchrony blocks](../recipes/spatial_synchrony_units.md)
-recipe for the group workflow.
-
-### `v.rolling_tail_dep_vs_center(window, dim="time", min_periods=5, tail_quantile=0.8)`
-
-Compute a rolling contrast between variability in the upper tail and variability across the full window. The result preserves the input cube shape (e.g., `(time, y, x)`).
-
-```python
-from cubedynamics import pipe, verbs as v
-
-td = (
-    pipe(ndvi_z)
-    | v.rolling_tail_dep_vs_center(
-        window=90,
-        dim="time",
-        min_periods=5,
-        tail_quantile=0.8,
-    )
-)
-```
-
-This verb rolls along ``dim`` and, for each window, compares the variance of values above ``tail_quantile`` to the variance of the entire window. Higher values indicate stronger variability in the tails relative to the center.
+[All verbs](verbs/index.md) · [Analysis stories](../vignettes/index.md)

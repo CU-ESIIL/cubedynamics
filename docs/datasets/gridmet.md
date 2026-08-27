@@ -1,7 +1,8 @@
-# gridMET
+# gridmet · methods and QA examples
 
-### What this dataset is
-gridMET is a gridded surface meteorology product for the contiguous United States at ~4 km (1/24°) resolution with daily observations back to 1979. Variables include precipitation, maximum/minimum temperature, humidity, vapor pressure deficit, and wind, arranged on a regular latitude–longitude grid.
+Provider, product, coverage, units and source status have one canonical home:
+[gridmet source reference](../library/sources/gridmet.md).
+This page preserves the operational example, reviewed figure and source citations.
 
 ## Quickstart
 
@@ -47,29 +48,6 @@ now prefers AOI-bounded reads through the provider's documented OPeNDAP catalog
 when an OPeNDAP-capable xarray engine is installed, retaining annual HTTPS as a
 compatibility fallback.
 
-### Who collects it and why
-The dataset is produced by John Abatzoglou and collaborators at the University of Idaho to support ecological, hydrological, and fire-weather applications across CONUS. It blends PRISM climatology with NLDAS reanalysis to provide spatially consistent daily meteorology widely used in ecological forecasting and climate impact studies.
-
-### How CubeDynamics accesses it
-`load_gridmet_cube` reads authoritative annual NetCDF assets and exposes the
-requested area and time window as a Dask-backed `(time, y, x)` object. It does
-not silently create a cached or generated substitute. The current annual-file
-retrieval is a documented Phase 1 efficiency limitation; the noun-first API is
-`data.temperature(source="gridmet", ...)` and related climate nouns.
-
-!!! important "Temporal frequency and safety"
-    - Daily (`freq="D"`) is recommended for fire/event windows. Monthly start (`"MS"`) requests over short ranges can produce an empty time axis; the loader now raises with guidance instead of silently returning NaNs.
-    - Set `allow_synthetic=False` (default) to require real data. When `True`, the loader fabricates data and records provenance (`source`, `is_synthetic`, `backend_error`, `freq`, `requested_start`, `requested_end`).
-
-### Important variables and dimensions
-| Field | Meaning | Units |
-|-----|--------|------|
-| time | Daily observation timestamp | ISO date |
-| y / x (lat / lon) | Grid cell centers in geographic coordinates | degrees |
-| pr | Precipitation | mm day⁻¹ |
-| tmmx / tmmn | Daily maximum / minimum temperature | K |
-| vpd | Vapor pressure deficit | kPa |
-| vs / erc | Wind speed / energy release component | m s⁻¹ / index |
 
 ### Citation
 Abatzoglou, J. T. (2013). Development of gridded surface meteorological data for ecological applications. *International Journal of Climatology*, 33(1), 121–131. https://doi.org/10.1002/joc.3413

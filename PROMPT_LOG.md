@@ -2653,3 +2653,47 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - PRISM/gridMET streaming regression set: 12 tests passed.
 - Exact offline suite: 418 tests passed, 5 skipped, and 9 deselected.
 - `git diff --check` passed.
+
+## 2026-08-27 - Documentation refactor from the supplied PDF
+
+### User goal
+
+- Execute the supplied documentation-refactor prompt: audit the site, simplify
+  navigation, distinguish teaching from reference and analysis stories, and
+  derive reference facts from existing Python/catalog sources without changing
+  scientific behavior.
+
+### Implementation
+
+- Added a pre-refactor inventory and migration/ownership report under
+  `docs/project/documentation_*`; simplified top-level navigation to Home,
+  Learn, Library, Documents and Vignettes.
+- Added deterministic reference generation for eight nouns, three sources,
+  51 public verbs/helpers and indexes (65 pages), plus generated API object,
+  pipe, data-lifecycle and visualization documentation.
+- Added seven progressive Learn lessons and 31 reference examples using the
+  checked PRISM fixture. Reserved APIs, optional workflows and missing source
+  descriptions are disclosed instead of filled with invented examples.
+- Preserved all nine notebook analysis code sequences; added a shared data,
+  reproduction and cross-reference shell through their existing builders.
+- Consolidated duplicate provider/verb/example directories, replaced empty
+  how-to stubs, standardized maintained live recipes, and removed unsupported
+  correlation-module/result claims. Historical routes and scientific reports
+  remain available.
+- Added common reference styling, active-tab contrast, notebook-link
+  translation, generated-reference freshness tests and built-site link checks.
+  Both documentation CI and Pages check freshness and links before publication.
+
+### Validation and boundaries
+
+- Offline suite: 467 passed, 5 skipped, 9 deselected.
+- All nine supported notebooks executed with their required static plots;
+  strict MkDocs build and built-site internal target/anchor checks passed.
+- Generated reference freshness, tracked repository-size policy and
+  `git diff --check` passed. No runtime `src/` or legacy `code/` changes.
+- Browser review checked Library/verb reference presentation, a notebook figure
+  and working noun link, deferred homepage loading and a 390-pixel viewport.
+- No live provider recertification or viewer-backend repair was claimed.
+  Sparse API docstrings, optional example coverage, advanced legacy recipe
+  normalization and cube camera/axis presentation remain explicit follow-ups
+  in the report. No commit, push or deployment was performed.

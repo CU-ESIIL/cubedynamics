@@ -1,50 +1,44 @@
-# Sentinel-2 NDVI z-score cube + Lexcube
+# Sentinel-2 NDVI departures
 
-This recipe walks through an end-to-end workflow to produce NDVI z-score cubes
-from Sentinel-2 Level-2A data and visualize the results with the Lexcube
-widget. It is the vegetation counterpart to the [PRISM](prism_variance_cube.md)
-and [gridMET](gridmet_variance_cube.md) variance examples so that every cube can
-be correlated at the pixel level.
+Live-data recipe · optional satellite dependencies and provider access required.
+No new satellite result is certified by this documentation refactor.
 
-1. **Load Sentinel-2** – `load_sentinel2_cube` (legacy alias `load_s2_cube`) requests a chip centered on your
-   latitude/longitude, with configurable time range, edge length, spatial
-   resolution, and maximum cloud fraction.
-2. **Compute NDVI + z-scores via the verbs namespace** – chain
-   `v.ndvi_from_s2()` and `v.zscore(dim="time")` inside a pipe for clear,
-   reusable code.
-3. **Optional coarsening/striding** – `coarsen_and_stride` reduces spatial and
-   temporal resolution to make exploratory visualization faster.
-4. **Lexcube visualization** – `show_cube_lexcube` renders the cube in an
-   interactive widget, and `plot_median_over_space` creates a QA time series of
-   the spatial median.
+## Question
 
-Prefer to stream through [`cubo`](https://github.com/carbonplan/cubo) instead of
-`cd.load_sentinel2_cube`? Drop the snippet below at the top of the notebook and pipe
-the resulting `s2` cube through the same verbs:
+How does each pixel's NDVI vary relative to its own observed summer distribution?
+This describes the selected acquisitions, not a long-term vegetation-health
+baseline or a causal response to climate.
+
+## Data used
+
+[Sentinel-2 Level-2A](../library/sources/sentinel2.md) red (B04) and near-infrared
+(B08) bands near 43.89°N, 102.18°W, June–September 2023. The
+[surface-reflectance noun](../library/nouns/surface_reflectance.md) keeps the
+source choice visible. Cloud filtering is not complete pixel-level quality
+screening.
+
+## Analysis
+
+Follow [installation](../quickstart.md) and the
+[satellite setup notes](../datasets/sentinel2_ndvi.md). Check acquisition dates,
+cloud/missing-data patterns, scaling and source provenance.
 
 ```python
-from __future__ import annotations
+from cubedynamics import data, pipe, verbs as v
+import matplotlib.pyplot as plt
 
-import warnings
+s2 = data.surface_reflectance(
+    source="sentinel2", variables=["B04", "B08"],
+    lat=43.89, lon=-102.18,
+    start="2023-06-01", end="2023-09-30",
+    edge_size=128, resolution=10, cloud_lt=40,
+)
+print(s2.sizes, s2.attrs)
+```
 
-import cubo
+## Grammar / pipeline
 
-from cubedynamics import pipe, verbs as v
-
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    s2 = cubo.create(
-        lat=43.89,
-        lon=-102.18,
-        collection="sentinel-2-l2a",
-        bands=["B04", "B08"],
-        start_date="2023-06-01",
-        end_date="2024-09-30",
-        edge_size=512,
-        resolution=10,
-        query={"eo:cloud_cover": {"lt": 40}},
-    )
-
+```python
 ndvi_z = (
     pipe(s2)
     | v.ndvi_from_s2(nir_band="B08", red_band="B04")
@@ -52,60 +46,41 @@ ndvi_z = (
 ).unwrap()
 ```
 
+## Plain-language interpretation
+
+Derive NDVI from matched red/NIR bands, then standardize each pixel across
+available acquisitions. Setup stays outside the analytical sentence. Inspect
+calibration/offset handling in the source notes before treating the ratio as
+scientifically comparable across products.
+
+## Result
+
 ```python
-import cubedynamics as cd
-from cubedynamics import pipe, verbs as v
-from cubedynamics.utils.chunking import coarsen_and_stride
-from cubedynamics.viz.qa_plots import plot_median_over_space
+ndvi_z.median(("y", "x")).plot()
+plt.ylabel("Spatial median NDVI z-score (dimensionless)")
+plt.title("Selected Sentinel-2 acquisitions · summer 2023")
+plt.show()
 
-# 1. Load Sentinel-2 cube
-s2 = cd.load_sentinel2_cube(
-    lat=43.89,
-    lon=-102.18,
-    start="2023-06-01",
-    end="2023-09-30",
-    edge_size=512,
-    resolution=10,
-    cloud_lt=40,
-)
-
-# 2. Pipe: reflectance -> NDVI -> z-score
-ndvi_z = (
-    pipe(s2)
-    | v.ndvi_from_s2()
-    | v.zscore(dim="time")
-)
-
-# 3. Optional: coarsen spatially and subsample in time
-ndvi_z_ds = coarsen_and_stride(
-    ndvi_z,
-    coarsen_factor=4,
-    time_stride=2,
-)
-
-# 4. Lexcube visualization (pipe verb + helper)
-ndvi_z_clip = ndvi_z_ds.clip(-3, 3)
-pipe(ndvi_z_clip) | v.show_cube_lexcube(
-    title="Sentinel-2 NDVI z-scores (coarsened)",
-    cmap="RdBu_r",
-    vmin=-3,
-    vmax=3,
-)
-
-# Outside of a pipe you can call the helper directly
-cd.show_cube_lexcube(ndvi_z_clip)
-
-# 5. QA plot of median z-score over space
-ax = plot_median_over_space(
-    ndvi_z_ds,
-    ylabel="Median NDVI z-score",
-    title="Median NDVI z-score over time",
-)
-# In a notebook: display(ax.figure)
+# The canonical HTML viewer attaches to the pipe; display it in Jupyter.
+from IPython.display import display
+display(pipe(ndvi_z) | v.plot(title="Sentinel-2 NDVI departures"))
 ```
 
-The same pattern works for other sensors as long as you can derive the target
-index cube and feed it into the anomaly functions. Correlate NDVI anomalies with
-PRISM or gridMET cubes via `xr.corr` or the rolling helpers in
-`cubedynamics.stats` while the dedicated `v.correlation_cube` factory remains a
-placeholder.
+Cloud contamination, unequal sampling and constant pixels can dominate the
+pattern. A low z-score is not by itself evidence of drought. The optional
+[`show_cube_lexcube` helper and verb](../api/viz.md) use a separate optional
+widget integration; this example uses the canonical HTML viewer.
+
+## Reproduce
+
+Install the repository and required satellite dependencies, then execute the
+blocks in Jupyter with working STAC/asset access. Record item identities,
+source/serving revision, query, valid acquisitions and QA decisions. This
+live-data recipe is not an offline-tested notebook.
+
+## See also
+
+- [NDVI as a noun](../library/nouns/vegetation_index.md)
+- [ndvi_from_s2](../reference/verbs/ndvi_from_s2.md) and [zscore](../reference/verbs/zscore.md)
+- [Climate/NDVI alignment requirements](../examples/climate_ndvi_correlation.md)
+- [Landsat example](../examples/landsat8_mpc.md)

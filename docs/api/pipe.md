@@ -1,66 +1,48 @@
 # Pipe API
-> **See also:**  \
-> - [API Reference](reference.md)  \
-> - [Inventory (User)](../function_inventory.md)  \
-> - [Inventory (Full / Dev)](inventory_full.md)
 
-Pipe wraps values so cube operations can be chained with the ``|`` operator. The
-helpers below are the public entry points; internal helpers stay out of the user
-surface.
+A pipe applies the written operations in order. It does not rearrange the
+analysis or implicitly turn a plot into data.
 
-## Pipe mental model
-
-1. Wrap a value with :func:`cubedynamics.pipe` to opt into piping.
-2. Apply verbs or callables with ``|``; each stage receives the previous value.
-3. Optionally inspect the semantic trace with ``explain()``, ``suggest()``, or
-   ``validate()``.
-4. Finish with :meth:`Pipe.unwrap` (or rely on rich reprs in notebooks).
+## Usage
 
 ```python
-import cubedynamics as cd
-from cubedynamics import pipe, verbs as v
+from cubedynamics import data, pipe, verbs as v
 
-cube = cd.gridmet(lat=40.0, lon=-105.2, start="2020-06-01", end="2020-07-01", variable="tmmx")
-analysis = pipe(cube) | v.anomaly(over="time") | v.mean(over=("y", "x"))
+# Live data request; use the Learn shared setup for an offline fixture.
+cube = data.temperature(
+    source="prism", bbox=[-105.55, 39.85, -105.05, 40.15],
+    start="2024-06-01", end="2024-06-03",
+)
+analysis = pipe(cube) | v.anomaly(dim="time") | v.mean(dim=("y", "x"), keep_dim=False)
 print(analysis.explain())
 result = analysis.unwrap()
 ```
 
-Rich repr example that keeps the viewer attached:
+Inspection methods report semantic state, trace and checks; they do not execute
+new analytical stages. Display a plotting pipe in Jupyter to use its attached
+viewer; unwrapping returns the data rather than the viewer.
 
-```python
-from cubedynamics import pipe, verbs as v
+## pipe
 
-cube = cd.variables.ndvi(lat=40.0, lon=-105.2, start="2020-07-01", end="2020-07-10")
-pipe(cube) | v.plot(title="NDVI cube")  # Jupyter renders the HTML viewer
-```
+::: cubedynamics.piping.pipe
+    options:
+      show_docstring_examples: false
 
-## API surface
+## Pipe methods and properties
 
-### ``cubedynamics.pipe(value) -> Pipe``
-Wrap ``value`` so downstream operations can be composed with ``|``. Returns a
-:class:`Pipe` instance that keeps the original object accessible via
-:meth:`Pipe.unwrap` or :pyattr:`Pipe.v`.
+The [object reference](objects.md#pipe) renders the Pipe methods from source.
+See the [short pipes lesson](../learn/pipes.md) for a tested, real-data example.
 
-### ``cubedynamics.piping.Pipe``
-Container holding the wrapped value. Key methods:
+## Verb wrapper
 
-* ``__or__(func)`` – apply ``func`` to the wrapped value and return a new Pipe; respects passthrough verbs that attach viewers without replacing the object.
-* ``unwrap()`` – return the wrapped value.
-* ``v`` – property alias for the wrapped value.
-* ``semantic_state`` – metadata-only description of the current result.
-* ``semantic_trace`` – immutable record of executed pipe stages.
-* ``explain()`` – deterministic plain-language read-back of the analysis.
-* ``suggest()`` – a short list of compatible, implemented next verbs.
-* ``validate()`` – structured metadata, dimension, provenance, and order checks.
+Most users call factories in the [verbs namespace](../reference/verbs/index.md)
+rather than constructing this wrapper directly.
 
-These inspection methods never reorder or execute pipeline stages. The result
-of each verb remains the object on which the next written verb acts. See
-[Semantic grammar and analysis coaching](../concepts/semantic_grammar.md).
+::: cubedynamics.piping.Verb
+    options:
+      show_docstring_examples: false
 
-### ``cubedynamics.piping.Verb``
-Lightweight wrapper for callables used in pipe chains. A verb can flag itself as
-passthrough (viewer side effects) via ``_cd_passthrough_on_call`` or
-``_cd_passthrough_on_pipe``. Users generally construct verbs via helpers in the
-``cubedynamics.verbs`` namespace instead of instantiating :class:`Verb`
-directly.
+## See also
+
+[Semantic grammar](../concepts/semantic_grammar.md) ·
+[Custom verbs](../extending/custom_verbs.md) · [API stability](../project/public_api.md)

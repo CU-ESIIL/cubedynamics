@@ -1,34 +1,49 @@
-# Recipe structure upgrade
+# Write an analysis vignette
 
-Use this template as the starting point for new recipes and how-to guides. It emphasizes reproducibility, clarity, and links to the cube grammar.
+Use this shell for a real-data story, not an API reference. Keep the analytical
+pipe short; put acquisition, checks and plotting around it. See the
+[collection contract](../vignettes/structure.md) for notebook heading equivalents.
 
-![Recipe workflow](../assets/diagrams/recipe_workflow.png)
+## Question
 
-## Title
-A concise name that highlights the objective (e.g., "Compute NDVI anomalies for fire events").
+Ask one question that the available observations can address. State whether this
+is an executable notebook, a live-data recipe, or a dependency design.
 
-## Objective
-- What question does the recipe answer?
-- What cube(s) or datasets are required?
-- What time span and spatial extent are expected?
+## Grammar / pipeline
 
-## Prerequisites
-- Environment setup (e.g., `pip install cubedynamics`)
-- Data access assumptions (local files, cloud endpoints, authentication)
-- References to [Datasets](../datasets/index.md) and [Capabilities](../capabilities.md)
+Show the short pipe, with links to the canonical [nouns](../library/index.md) and
+[verbs](../reference/verbs/index.md). Do not duplicate their parameter tables.
 
-## Steps
-1. **Load or define the cube**: include dimension names and resolution checks.
-2. **Construct the pipeline**: list verbs with short rationales and parameter choices.
-3. **Inspect intermediate results**: plots, summaries, or assertions that validate semantics.
-4. **Summarize outputs**: describe expected products (arrays, figures, derived cubes).
+## Plain-language interpretation
 
-## Interpretation and caveats
-- Notes on uncertainty, resolution mismatch, or assumptions
-- Links to [Methods & Citation](../methods_and_citation.md) for reporting
-- Suggestions for extending the recipe with additional verbs
+Read the pipe left to right. Explain what each step means for this question.
 
-## Reproducibility notes
-- Record software versions and verb parameters
-- Mention any external data lineage requirements
-- Provide links back to the [Concepts](../concepts/index.md) page for terminology
+## Analysis
+
+Supply complete setup, acquisition and analysis code. Declare optional
+dependencies and network requirements. Check units, dimensions, CRS, missing
+values and temporal coverage before combining data. Never invent observations.
+
+## Result
+
+Plot the computed result, label units and axes, and explain the pattern.
+Distinguish a descriptive statistic from causal inference or a decision rule.
+If execution is blocked, say so instead of presenting an expected plot as output.
+
+## Data used
+
+Record provider/product, variable, location, dates, resolution, processing,
+source revision or snapshot checksum, and limitations. Link to canonical source
+facts and [citation guidance](../methods_and_citation.md).
+
+## Reproduce
+
+Give exact setup and run commands, expected outputs and verification steps.
+Declare what was actually executed, including whether live access was checked.
+For supported notebooks, run `python scripts/run_vignettes.py` and
+`mkdocs build --strict`.
+
+## See also
+
+Link the relevant noun, source, verb and next analysis story. Keep extension
+ideas separate from the result that was actually produced.

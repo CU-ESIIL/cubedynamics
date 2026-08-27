@@ -7,6 +7,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from vignette_shell import with_shell
+
 
 ROOT = Path(__file__).resolve().parents[1]
 VIGNETTE_DIR = ROOT / "docs" / "vignettes"
@@ -772,6 +774,7 @@ def main() -> None:
     VIGNETTE_DIR.mkdir(parents=True, exist_ok=True)
     for name, content in NOTEBOOKS.items():
         path = VIGNETTE_DIR / name
+        content = with_shell(content, f"docs/vignettes/{name}")
         path.write_text(json.dumps(content, indent=1) + "\n", encoding="utf-8")
         print(f"wrote {path.relative_to(ROOT)}")
 

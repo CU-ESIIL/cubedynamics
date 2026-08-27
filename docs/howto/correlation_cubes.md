@@ -1,58 +1,18 @@
-# Correlation & synchrony cubes
+# Correlation and synchrony
 
-Correlation cubes capture how each pixel in a climate cube co-varies with a
-reference pixel or a driver variable. CubeDynamics ships rolling statistics and
-lexcube builders tuned for NDVI synchrony, drought detection, and anomaly
-tracking.
+These are distinct analyses: correlation describes covariation of continuous
+values; synchrony can compare occurrence, severity, timing or duration of states
+and events. Choose the quantity before choosing the operation.
 
-## Rolling correlation vs anchor pixels
+| Task | Implemented reference or workflow |
+| --- | --- |
+| Compare state occurrence, severity, timing and duration | [Four synchrony primitives](../synchrony/primitives.md) |
+| Follow a complete observed state/event analysis | [States and events notebook](../vignettes/states_and_events.ipynb) |
+| Compare rolling upper/lower behavior | [Median-split synchrony](../reference/verbs/rolling_median_split_synchrony.md) |
+| Compare a cube with its center | [Rolling tail dependence](../reference/verbs/rolling_tail_dep_vs_center.md) |
+| Compare two aligned continuous fields | [Climate and NDVI alignment requirements](../examples/climate_ndvi_correlation.md) |
 
-```python
-from cubedynamics.stats.correlation import rolling_corr_vs_center
-
-corr_cube = rolling_corr_vs_center(
-    ndvi_z_cube,
-    window_days=90,
-    min_t=5,
-)
-```
-
-The output is a cube aligned to the center of each rolling window and stores the
-Pearson correlation for every pixel relative to the anchor pixel (by default the
-center of the spatial chip). Swap in a custom anchor by passing coordinates or a
-mask.
-
-## Tail dependence lexcubes
-
-```python
-from cubedynamics.stats.tails import rolling_tail_dep_vs_center
-
-bottom_tail, top_tail, diff_tail = rolling_tail_dep_vs_center(
-    ndvi_z_cube,
-    window_days=90,
-    min_t=5,
-    b=0.5,
-)
-```
-
-Tail dependence cubes highlight asymmetric stress events. Use them to detect
-areas that co-experience low NDVI (drought, disturbance) even when overall
-correlation remains modest.
-
-## Cross-dataset correlation
-
-Lexcubes can also correlate separate datasets, such as NDVI vs PRISM
-precipitation anomalies:
-
-```python
-from cubedynamics.lexcubes.correlations import correlation_cube
-
-lexcube = correlation_cube(
-    driver_cube=prism_anom,
-    response_cube=ndvi_z_cube,
-    window="30D",
-)
-```
-
-The resulting dataset contains the rolling correlation, lag, and metadata so you
-can immediately export to NetCDF, GeoTIFF, or dashboards.
+`v.correlation_cube` is a [reserved, unimplemented API](../reference/verbs/correlation_cube.md).
+It does not return a correlation cube. For explicit xarray calculations, align
+CRS, spatial support, timestamps and missing-data semantics first. Matching
+dimension names alone does not establish comparability.

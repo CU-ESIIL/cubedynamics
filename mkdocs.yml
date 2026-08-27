@@ -7,6 +7,7 @@ site_url: "https://cu-esiil.github.io/cubedynamics/"
 # publishing them as educational examples. Public learning routes use vetted
 # observational data; exact generated truth cases belong in tests/validation.
 exclude_docs: |
+  overrides/
   recipes/fire_vase_synthetic.md
   recipes/climate_tail_dep_center.md
   recipes/ghosh_tail_association.md
@@ -21,101 +22,46 @@ exclude_docs: |
 
 nav:
   - Home: index.md
-  - Get Started:
+  - Learn:
+      - Learning path and setup: learn/index.md
       - Quickstart: quickstart.md
       - Installation: getting_started/install.md
-      - Why CubeDynamics?: why_cubedynamics.md
+      - 1. Nouns: learn/nouns.md
+      - 2. Verbs: learn/verbs.md
+      - 3. Pipes: learn/pipes.md
+      - 4. Order and meaning: learn/order.md
+      - 5. Compose a question: learn/compose.md
+      - 6. Inspect the result: learn/inspect.md
+      - 7. Provenance: learn/provenance.md
       - What is a cube?: concepts/cubes.md
-  - Vignettes:
-      - Learning gallery: vignettes/index.md
-      - Core lessons:
-          - "01 · From an array to a scientific cube": vignettes/cube_from_arrays.ipynb
-          - "02 · From observations to a comparable signal": vignettes/cube_from_tidy_table.ipynb
-          - "03 · Two variables, two questions": vignettes/cube_from_dataset.ipynb
-          - "04 · Write the analysis as a sentence": vignettes/grammar_basics.ipynb
-          - "05 · Ask several questions of one cube": vignettes/verbs_gallery.ipynb
-          - "06 · Follow cold from value to event": vignettes/states_and_events.ipynb
-          - "07 · Give a project its own verb": vignettes/custom_verb_project.ipynb
-          - "08 · Scale the analysis lazily": vignettes/lazy_composition.ipynb
-      - South Dakota Decision Lab:
-          - Decision challenges: decision_vignettes/index.md
-          - "A · Black Hills: Growth, Fire & Extraction": decision_vignettes/black_hills.md
-          - "B · Missouri & Watersheds: Water Change": decision_vignettes/missouri_water.md
-          - "C · Working Lands: Hot-and-Dry Weather": decision_vignettes/working_lands.ipynb
-          - "D · Habitat Squeeze": decision_vignettes/habitat_squeeze.md
-          - "E · Communities: Who Is Exposed?": decision_vignettes/communities.md
-          - "Wildcard · What Should South Dakota Know?": decision_vignettes/wildcard.md
-          - Collection validation: decision_vignettes/validation.md
-      - Research stories:
-          - Projects built with the grammar: projects/index.md
-          - Workflow gallery: workflows/index.md
-          - Climate analysis: workflows/climate_analysis.md
-          - Vegetation analysis: workflows/vegetation_analysis.md
-          - Remote sensing analysis: workflows/remote_sensing_analysis.md
-          - Synchrony overview: synchrony/index.md
-          - State cubes and events: synchrony/state_events.md
-          - Four synchrony primitives: synchrony/primitives.md
-          - Biological coupling: synchrony/biology_coupling.md
-          - Synchrony theory map: synchrony/theory.md
-          - Synchrony roadmap: synchrony/roadmap.md
-          - Fire VASE capability: capabilities/fire-vase.md
-          - Fire analysis: workflows/fire_analysis.md
-          - Fire developmental morphology: workflows/fire_vase_developmental_morphology.md
-      - Recipes:
-          - Recipe gallery: recipes/index.md
-          - Cube math primitives: recipes/cube_math_primitives.md
-          - gridMET variance: recipes/gridmet_variance_cube.md
-          - PRISM variance: recipes/prism_variance_cube.md
-          - Sentinel-2 NDVI z-score: recipes/s2_ndvi_zcube.md
-          - Fire event and climate: recipes/fire_event_vase_hull.md
-          - Spatial synchrony blocks: recipes/spatial_synchrony_units.md
-      - Additional examples and how-tos:
-          - Example gallery: examples_gallery.md
-          - Climate–NDVI correlation: examples/climate_ndvi_correlation.md
-          - gridMET AOI variance: examples/gridmet_aoi_variance.md
-          - Landsat 8 streaming: examples/landsat8_mpc.md
-          - NDVI cube viewer: examples/ndvi_cube_viewer.md
-          - PRISM JJA variance: examples/prism_jja_variance.md
-          - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md
-          - How-to index: howto/index.md
-          - Biological cubes and coupling: howto/biological_cubes_and_coupling.md
-          - Build state cubes: howto/build_state_cubes.md
-          - Climate variance: howto/climate_variance.md
-          - Correlation cubes: howto/correlation_cubes.md
-          - Four types of synchrony: howto/four_types_of_synchrony.md
-          - NDVI anomalies: howto/ndvi_anomalies.md
+      - Core and project vocabulary: concepts/core_and_projects.md
   - Library:
-      - Nouns, verbs, and extensions: library/index.md
-      - Nouns:
-          - Scientific vocabulary: data/index.md
-          - Climate & weather: data/climate_weather.md
-          - Surface observations: data/surface_observation.md
-          - Phase 1 source QA: data/phase1_qa.md
-          - Dataset guide: datasets/index.md
-          - Which dataset?: datasets/which_dataset.md
-          - Compatibility matrix: datasets/compatibility.md
-          - gridMET: datasets/gridmet.md
-          - PRISM: datasets/prism.md
-          - Daymet candidate: datasets/daymet.md
-          - Sentinel-2 NDVI: datasets/sentinel2_ndvi.md
-          - Landsat 8 (MPC): datasets/landsat8_mpc.md
-          - FIRED: datasets/fired.md
-      - Verbs:
-          - Verb catalog: api/verbs.md
-          - Grammar overview: grammar/index.md
-          - Core vs. project verbs: concepts/core_and_projects.md
-          - Semantic grammar: concepts/semantic_grammar.md
-          - User inventory: function_inventory.md
-      - Make your own:
-          - Custom nouns: extending/custom_nouns.md
-          - Custom verb projects: extending/custom_verbs.md
-          - Recipe authoring template: recipes/recipe_template.md
-          - Contributor guide: dev/contributing.md
-  - Documentation:
-      - Documentation map: documentation/index.md
+      - All nouns: library/index.md
+      - Climate and weather:
+          - temperature: library/nouns/temperature.md
+          - precipitation: library/nouns/precipitation.md
+          - vpd: library/nouns/vpd.md
+          - wind: library/nouns/wind.md
+          - humidity: library/nouns/humidity.md
+          - radiation: library/nouns/radiation.md
+      - Surface observations:
+          - surface_reflectance: library/nouns/surface_reflectance.md
+          - vegetation_index: library/nouns/vegetation_index.md
+      - Browse sources:
+          - All sources: library/sources/index.md
+          - PRISM: library/sources/prism.md
+          - gridMET: library/sources/gridmet.md
+          - Sentinel-2: library/sources/sentinel2.md
+      - Source QA evidence: data/phase1_qa.md
+  - Documents:
+      - Reference directory: documentation/index.md
+      - Verbs and callable helpers: reference/verbs/index.md
+      - Objects: api/objects.md
+      - Custom nouns: extending/custom_nouns.md
+      - Custom verbs: extending/custom_verbs.md
+      - Documentation structure: project/documentation_refactor.md
       - Core grammar:
           - Pipe: api/pipe.md
-          - Verbs: api/verbs.md
           - Lazy evaluation: grammar/lazy_evaluation.md
           - Workflow composition: grammar/workflow_composition.md
           - Glossary: concepts/glossary.md
@@ -174,13 +120,65 @@ nav:
           - Synchrony roadmap: project/synchrony_roadmap.md
           - Deprecation inventory: project/deprecation_inventory.md
           - Changelog: changelog.md
-      - Extended verb reference:
-          - I/O verbs: reference/verbs_io.md
-          - Model verbs: reference/verbs_models.md
-          - Statistical verbs: reference/verbs_stats.md
-          - Synchrony verbs: reference/verbs_synchrony.md
-          - Transform verbs: reference/verbs_transforms.md
-          - Visualization verbs: reference/verbs_viz.md
+
+  - Vignettes:
+      - Learning gallery: vignettes/index.md
+      - Core lessons:
+          - "01 · From an array to a scientific cube": vignettes/cube_from_arrays.ipynb
+          - "02 · From observations to a comparable signal": vignettes/cube_from_tidy_table.ipynb
+          - "03 · Two variables, two questions": vignettes/cube_from_dataset.ipynb
+          - "04 · Write the analysis as a sentence": vignettes/grammar_basics.ipynb
+          - "05 · Ask several questions of one cube": vignettes/verbs_gallery.ipynb
+          - "06 · Follow cold from value to event": vignettes/states_and_events.ipynb
+          - "07 · Give a project its own verb": vignettes/custom_verb_project.ipynb
+          - "08 · Scale the analysis lazily": vignettes/lazy_composition.ipynb
+      - South Dakota Decision Lab:
+          - Decision challenges: decision_vignettes/index.md
+          - "A · Black Hills: Growth, Fire & Extraction": decision_vignettes/black_hills.md
+          - "B · Missouri & Watersheds: Water Change": decision_vignettes/missouri_water.md
+          - "C · Working Lands: Hot-and-Dry Weather": decision_vignettes/working_lands.ipynb
+          - "D · Habitat Squeeze": decision_vignettes/habitat_squeeze.md
+          - "E · Communities: Who Is Exposed?": decision_vignettes/communities.md
+          - "Wildcard · What Should South Dakota Know?": decision_vignettes/wildcard.md
+          - Collection validation: decision_vignettes/validation.md
+      - Research stories:
+          - Projects built with the grammar: projects/index.md
+          - Workflow gallery: workflows/index.md
+          - Climate analysis: workflows/climate_analysis.md
+          - Vegetation analysis: workflows/vegetation_analysis.md
+          - Remote sensing analysis: workflows/remote_sensing_analysis.md
+          - Synchrony overview: synchrony/index.md
+          - State cubes and events: synchrony/state_events.md
+          - Four synchrony primitives: synchrony/primitives.md
+          - Biological coupling: synchrony/biology_coupling.md
+          - Synchrony theory map: synchrony/theory.md
+          - Synchrony roadmap: synchrony/roadmap.md
+          - Fire VASE capability: capabilities/fire-vase.md
+          - Fire analysis: workflows/fire_analysis.md
+          - Fire developmental morphology: workflows/fire_vase_developmental_morphology.md
+      - Recipes:
+          - Recipe gallery: recipes/index.md
+          - Cube math primitives: recipes/cube_math_primitives.md
+          - gridMET variance: recipes/gridmet_variance_cube.md
+          - PRISM variance: recipes/prism_variance_cube.md
+          - Sentinel-2 NDVI z-score: recipes/s2_ndvi_zcube.md
+          - Fire event and climate: recipes/fire_event_vase_hull.md
+          - Spatial synchrony blocks: recipes/spatial_synchrony_units.md
+      - Additional examples and how-tos:
+          - Example gallery: examples_gallery.md
+          - Climate–NDVI correlation: examples/climate_ndvi_correlation.md
+          - gridMET AOI variance: examples/gridmet_aoi_variance.md
+          - Landsat 8 streaming: examples/landsat8_mpc.md
+          - NDVI cube viewer: examples/ndvi_cube_viewer.md
+          - PRISM JJA variance: examples/prism_jja_variance.md
+          - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md
+          - How-to index: howto/index.md
+          - Biological cubes and coupling: howto/biological_cubes_and_coupling.md
+          - Build state cubes: howto/build_state_cubes.md
+          - Climate variance: howto/climate_variance.md
+          - Correlation cubes: howto/correlation_cubes.md
+          - Four types of synchrony: howto/four_types_of_synchrony.md
+          - NDVI anomalies: howto/ndvi_anomalies.md
 
 repo_url: https://github.com/CU-ESIIL/cubedynamics
 edit_uri: edit/main/docs/
@@ -226,10 +224,14 @@ extra_css:
   - stylesheets/editorial.css
   - stylesheets/vignettes.css
   - stylesheets/hubs.css
+  - stylesheets/manual.css
 
 extra_javascript:
   - javascripts/deferred-embeds.js
   - javascripts/site-motion.js
+
+hooks:
+  - scripts/docs_hooks.py
 
 plugins:
   - search

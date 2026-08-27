@@ -1,35 +1,20 @@
-# Examples Gallery
+# Examples gallery
 
-A quick tour of cube visualizations built with the grammar and streaming renderer.
+Start with the [runnable vignettes](vignettes/index.md) for checked, frozen
+real-data inputs and figures. The live recipes below require provider access;
+they are not offline-certified notebooks.
 
-## Basic cube viewer
+| Question or task | Example |
+| --- | --- |
+| Construct a cube from observed arrays, tables or datasets | [Cube construction](vignettes/index.md#executable-real-data-notebooks) |
+| Learn a short pipe and write a custom operation | [Grammar and custom verbs](vignettes/index.md) |
+| Compare daily temperature variability | [gridMET recipe](recipes/gridmet_variance_cube.md) |
+| Inspect precipitation anomalies | [PRISM recipe](recipes/prism_variance_cube.md) |
+| Standardize observed vegetation index | [Sentinel-2 recipe](recipes/s2_ndvi_zcube.md) |
+| Explore satellite bands and NDVI | [Landsat 8](examples/landsat8_mpc.md) |
+| Inspect an interactive HTML cube | [NDVI viewer](examples/ndvi_cube_viewer.md) |
+| Attribute climate to fire geometry | [FIRED / VASE workflow](recipes/fire_event_vase_hull.md) |
+| Compare spatial groups | [Synchrony blocks](recipes/spatial_synchrony_units.md) |
 
-```python
-pipe(cube) | v.plot(title="Cube preview")
-```
-
-## Grammar tutorial snapshot
-
-```python
-p = (CubePlot(cube)
-     .aes(fill="ndvi")
-     .stat_time_anomaly(time_dim="time")
-     .geom_cube()
-     .scale_fill_continuous(center=0, palette="diverging")
-     .coord_cube(elev=30, azim=45)
-     .theme_cube_studio())
-```
-
-## Faceted scenarios
-
-```python
-(CubePlot(cube)
- .facet_grid(row="scenario", col="model")
- .geom_cube()
- .scale_fill_continuous(center=0, palette="diverging")
- .theme_cube_studio())
-```
-
-## Streaming huge NDVI stacks
-
-Use a `VirtualCube` or dask-backed cube with `thin_time_factor=6` to preview decades quickly while the progress bar streams updates in notebooks.
+[All recipes](recipes/index.md) · [Notebook reproducibility](vignettes/structure.md) ·
+[Write a vignette](recipes/recipe_template.md)

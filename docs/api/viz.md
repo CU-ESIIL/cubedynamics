@@ -1,52 +1,41 @@
-# Visualization
-> **See also:**  \
-> - [API Reference](reference.md)  \
-> - [Inventory (User)](../function_inventory.md)  \
-> - [Inventory (Full / Dev)](inventory_full.md)
+# Visualization API
 
-Interactive cube rendering uses :class:`cubedynamics.plotting.cube_plot.CubePlot`
-and viewer helpers. Plotting verbs call these under the hood.
+The [plot verb](../reference/verbs/plot.md) uses the custom HTML cube viewer.
+Fire plotting still uses a Plotly hull backend; Lexcube is a separate optional
+widget integration. This reference does not switch or unify those renderers.
 
 ## CubePlot
 
-### ``CubePlot(data, aes=None, fill_scale=None, coord=None, ...)``
-Grammar-of-graphics inspired core for cube figures. Accepts a cube-like
-DataArray, optional aesthetics (:class:`CubeAes`), facets, theme, annotations,
-and vase overlays. Key methods:
+::: cubedynamics.plotting.cube_plot.CubePlot
+    options:
+      members: [to_html, save]
+      show_docstring_examples: false
 
-* ``to_html()`` – return the full standalone viewer HTML.
-* ``save(path, format="html")`` – write the HTML to disk; PNG export is stubbed
-  with a clear error.
-* ``_repr_html_()`` – Jupyter-friendly iframe renderer that writes a temporary
-  HTML file and returns an IFrame via :func:`show_cube_viewer`.
+## Themes and aesthetics
 
-### Themes and scales
+::: cubedynamics.plotting.cube_plot.CubeTheme
 
-* :class:`CubeTheme` – colors, fonts, padding. :func:`theme_cube_studio()`
-  returns the default configuration.
-* :class:`ScaleFillContinuous` / :class:`ScaleAlphaContinuous` – legend and fill
-  scaling; ``infer_limits`` defensively handles remote I/O failures via
-  ``drop_bad_assets``.
+::: cubedynamics.plotting.cube_plot.theme_cube_studio
 
-### Layers and geoms
+::: cubedynamics.plotting.cube_plot.CubeAes
 
-* :class:`CubeLayer` plus helpers ``geom_cube``, ``geom_slice``, ``geom_outline``,
-  and ``geom_path3d`` define how data map to viewer glyphs.
-* :class:`CubeFacet` supports small multiples by ``row``/``col``/``wrap`` fields.
+::: cubedynamics.plotting.cube_plot.CoordCube
 
-## Viewer helpers
+## HTML display helper
 
-### ``cubedynamics.plotting.viewer.show_cube_viewer(html, width=850, height=850, prefix=None)``
-Write a standalone HTML file and return an :class:`IPython.display.IFrame`
-pointing at it. Used by :meth:`CubePlot._repr_html_` and notebook workflows.
+::: cubedynamics.plotting.viewer.show_cube_viewer
 
-### ``cubedynamics.plotting.viewer._write_cube_html(html, prefix="cube_viewer")``
-Low-level helper that materializes the HTML to disk; primarily used internally.
+## Optional Lexcube helper
 
-## Performance and streaming notes
+::: cubedynamics.viz.lexcube_viz.show_cube_lexcube
 
-* ``CubePlot`` will materialize stats lazily; when working with VirtualCube
-  inputs, ensure upstream verbs have produced a concrete DataArray before
-  plotting.
-* ``ScaleFillContinuous.infer_limits`` drops failed assets before computing
-  limits, improving robustness for remote Sentinel/stackstac sources.
+The [show_cube_lexcube verb](../reference/verbs/show_cube_lexcube.md) wraps this
+helper as a pass-through pipe stage. Lexcube installation and a compatible
+Jupyter frontend are required.
+
+## See also
+
+[Cube viewer guide](../viz/cube_viewer.md) ·
+[Viewer invariants](../dev/cube_viewer_invariants.md) ·
+[Fire rendering architecture](../dev/fire_plot_architecture.md) ·
+[Observed-data notebooks](../vignettes/index.md)

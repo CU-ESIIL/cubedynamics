@@ -7,6 +7,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from vignette_shell import with_shell
+
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "docs" / "decision_vignettes" / "working_lands.ipynb"
@@ -323,7 +325,8 @@ cropland and vegetation-response nouns, plus longer climate baselines.
 
 def main() -> int:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(json.dumps(NOTEBOOK, indent=1) + "\n", encoding="utf-8")
+    content = with_shell(NOTEBOOK, "docs/decision_vignettes/working_lands.ipynb")
+    OUTPUT.write_text(json.dumps(content, indent=1) + "\n", encoding="utf-8")
     print(f"wrote {OUTPUT.relative_to(ROOT)}")
     return 0
 

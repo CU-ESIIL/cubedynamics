@@ -1,0 +1,13 @@
+/* Shared reference/lesson rhythm; the homepage and narratives retain identity. */
+.md-typeset table:not([class]) { font-size: .74rem; line-height: 1.55; }
+.md-typeset table:not([class]) th { white-space: normal; }
+.md-typeset .doc-contents { font-size: .82rem; }
+.md-typeset .doc-heading { overflow-wrap: anywhere; }
+.md-typeset h2 { scroll-margin-top: 6rem; }
+.md-typeset pre > code { line-height: 1.6; }
+.md-typeset .cd-page-type { color: var(--md-default-fg-color--light); font-size: .7rem; letter-spacing: .04em; }
+.md-typeset .cd-manual h1 { font-size: 2.3rem; max-width: none; }
+.md-typeset .cd-manual h2 { font-size: 1.5rem; margin-top: 1.8rem; }
+.md-typeset .cd-manual h3 { font-size: 1.1rem; }
+.md-tabs, .md-header .md-source { color: #f8f7f3; }
+.md-tabs .md-tabs__item--active .md-tabs__link { color: #c7dcda; opacity: 1; border-bottom: 2px solid currentColor; }

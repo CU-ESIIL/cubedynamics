@@ -1,61 +1,64 @@
-# Climate–NDVI correlation cube
+# Relating climate and NDVI
 
-Correlation cubes capture how vegetation anomalies co-vary with climate drivers. This example merges the earlier correlation notes with the new pipe-first grammar.
+Method guide · this is not an executed cross-source correlation result.
 
-## Load climate and NDVI cubes
+## Question
 
-```python
-import cubedynamics as cd
-from cubedynamics import pipe, verbs as v
+Do vegetation departures covary with a climate variable over a chosen study
+period? This question requires comparable spatial support and temporal sampling;
+loading two cubes is not enough.
 
-prism_cube = cd.load_prism_cube(
-    lat=40.0,
-    lon=-105.25,
-    start="2000-01-01",
-    end="2020-12-31",
-    variable="ppt",
-)
+## Data used
 
-ndvi = cd.load_sentinel2_ndvi_cube(
-    lat=40.0,
-    lon=-105.25,
-    start="2018-01-01",
-    end="2020-12-31",
-)
-ndvi_z = pipe(ndvi) | v.zscore(dim="time")
-```
+Choose a climate noun such as [temperature](../library/nouns/temperature.md) or
+[precipitation](../library/nouns/precipitation.md), and the
+[vegetation-index noun](../library/nouns/vegetation_index.md). Record each source,
+CRS, units, acquisition dates, pixel support and quality decisions.
 
-## Prepare anomalies
+## Grammar / pipeline
 
-```python
-climate_anom = (
-    pipe(prism_cube)
-    | v.anomaly(dim="time")
-).unwrap()["ppt"]
-```
+Prepare each field separately, then compare them only after explicitly aligning
+their observational support. There is no implemented `v.correlation_cube`
+verb; see its [availability note](../reference/verbs/correlation_cube.md).
 
-## Compute per-pixel correlations
+## Plain-language interpretation
 
-```python
-import xarray as xr
+A climate grid cell and a satellite pixel do not represent the same area.
+Likewise, a daily climate total and an irregular cloud-filtered acquisition do
+not represent the same time interval. Standardizing values does not resolve
+either mismatch.
 
-corr = xr.corr(ndvi_z, climate_anom, dim="time")
-```
+## Analysis
 
-The output stores Pearson coefficients per pixel along the shared `(y, x)` grid. Use it to spot areas where vegetation responds strongly to precipitation anomalies. The `v.correlation_cube` factory is reserved for a future streaming implementation and currently raises `NotImplementedError`.
+1. Choose a target CRS and grid. Reproject/resample explicitly with a method
+   appropriate to the quantity; [align_cube](../reference/verbs/align_cube.md)
+   is not a general-purpose reprojection engine.
+2. Define the temporal support (for example, an antecedent precipitation window
+   for each valid satellite acquisition). Avoid inventing observations across
+   cloud gaps.
+3. Apply quality masks, require enough paired observations and record valid
+   counts. Check dimensions, coordinates and CRS before comparison.
+4. On already harmonized xarray inputs, `xr.align(left, right, join="exact")`
+   can reject mismatched indexes; `xr.corr(left, right, dim="time")` computes
+   Pearson correlation. Neither establishes scientific comparability for you.
+5. Plot correlation alongside paired counts, and assess sensitivity to window,
+   aggregation, seasonality and autocorrelation.
 
-## Rolling correlation vs anchor pixels
+## Result
 
-`cubedynamics.rolling_corr_vs_center` and `cubedynamics.rolling_tail_dep_vs_center` extend the idea to within-cube synchrony (e.g., NDVI vs center pixel). They operate on any `(time, y, x)` cube:
+No cross-source result is presented on this page. Correlation is descriptive,
+not evidence of a causal vegetation response. A reproducible analysis must
+supply the alignment, quality control and paired-count diagnostics above.
 
-```python
-from cubedynamics import rolling_corr_vs_center
+## Reproduce
 
-rolling = rolling_corr_vs_center(ndvi_z, window_days=90, min_t=5)
-```
+Begin with the [PRISM recipe](../recipes/prism_variance_cube.md) and
+[Sentinel-2 recipe](../recipes/s2_ndvi_zcube.md). Both require live access.
+This method guide is not a turnkey notebook and is not certified by the offline
+vignette runner.
 
-## Related documentation
+## See also
 
-- [Correlation & synchrony cubes](../howto/correlation_cubes.md)
-- [Sentinel-2 NDVI z-score cube](s2_ndvi_zscore.md)
-- [Verbs – Stats](../reference/verbs_stats.md)
+- [State and event synchrony notebook](../vignettes/states_and_events.ipynb)
+- [Source compatibility](../datasets/compatibility.md)
+- [Spatial data contract](../design/spatial_dataset_contract.md)

@@ -1,9 +1,7 @@
-# Models (coming soon)
+# Models reference
 
-Model verbs will wrap machine learning and statistical estimators that accept cubes as inputs and emit new cubes or summaries. Planned functionality includes:
+Canonical signatures, arguments and examples are generated from the runtime API.
 
-- Bias-corrected regression models linking climate drivers to vegetation outcomes.
-- Spatiotemporal clustering for anomaly detection.
-- Cube-aware storage/adapters (Zarr catalogs, parquet metadata) so trained models can rehydrate their inputs.
+- [fit_model](verbs/fit_model.md)
 
-Follow the [Roadmap](../dev/roadmap.md) for updates and contribute ideas via issues or pull requests.
+[All verbs](verbs/index.md) · [Analysis stories](../vignettes/index.md)

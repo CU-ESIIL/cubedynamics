@@ -1,36 +1,17 @@
-# Provider-specific dataset adapters
+# Provider adapters and methods
 
-This legacy-oriented section documents individual provider products. For new
-work, begin with the [scientific noun vocabulary](../data/index.md), choose a
-source flavor, and keep provider mechanics below the analytical grammar.
+Choose environmental information in the [Library](../library/index.md).
+The [source directory](../library/sources/index.md) owns catalog coverage,
+resolution, revision and availability facts. This section preserves operational
+notes, QA figures, citation guidance and legacy adapter routes.
 
-In this section you'll find:
-- Loader entry points for climate, vegetation, and fire datasets.
-- Notes on spatial and temporal semantics that affect alignment.
-- Links to compatibility, selection guidance, and citation details.
+| Adapter / product | Methods and examples |
+| --- | --- |
+| PRISM | [Acquisition and QA](prism.md) |
+| gridMET | [Acquisition and QA](gridmet.md) |
+| Sentinel-2 | [NDVI acquisition and QA](sentinel2_ndvi.md) |
+| Landsat 8 (legacy helper, not a catalog noun) | [Microsoft Planetary Computer adapter](landsat8_mpc.md) |
+| FIRED (event geometry) | [Fire-event data](fired.md) |
 
-Key links:
-- [Which dataset should I use?](which_dataset.md)
-- [Compatibility matrix](compatibility.md)
-- [Dataset citations](citations.md)
-- [gridMET](gridmet.md)
-- [PRISM](prism.md)
-- [Sentinel-2 NDVI](sentinel2_ndvi.md)
-- [Landsat 8 (MPC)](landsat8_mpc.md)
-- [FIRED](fired.md)
-
-## Supported datasets at a glance
-- [gridMET](gridmet.md): Daily CONUS meteorology for climate summaries and anomalies.
-- [PRISM](prism.md): Terrain-aware precipitation and temperature with long-term consistency.
-- [Sentinel-2 NDVI](sentinel2_ndvi.md): 10 m vegetation condition with 5-day revisit.
-- [Landsat 8 (MPC)](landsat8_mpc.md): 30 m surface reflectance streamed from Microsoft Planetary Computer.
-- [FIRED](fired.md): Event-level and daily fire perimeters for fire-aware analyses.
-
-Supporting guides: [Which dataset should I use?](which_dataset.md), [Compatibility matrix](compatibility.md), and [Dataset citations](citations.md).
-
-## Read next
-- [Getting Started](../quickstart.md)
-- [Verbs & Examples](../capabilities/textbook_verbs.md)
-- [Datasets Overview](index.md)
-- [Recipes Overview](../recipes/index.md)
-- [Visualization Overview](../viz/index.md)
+[Selection guidance](which_dataset.md) · [Compatibility](compatibility.md) ·
+[Dataset citations](citations.md) · [Live recipes](../recipes/index.md)
