@@ -36,24 +36,78 @@ Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
 
 ## Minimal example
 
-Run from the repository root after `python -m pip install -e '.[vignettes]'`. Uses the checked observational PRISM fixture; no network is required.
+REAL DATA · Reviewed local PRISM observations; no live request.
+
+<details class="cd-example-setup" markdown="1">
+<summary>Reproduce: imports, checked data and setup</summary>
+
+Run in a clone after `python -m pip install -e '.[vignettes]'`.
 
 ```python
 from pathlib import Path
+import hashlib
+import json
+import numpy as np
+import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
+from IPython.display import display
 from cubedynamics import pipe, verbs as v
 
-# Frozen, reviewed PRISM observations; run from the repository root.
-path = Path("tests/fixtures/real_data/prism_boulder_january_2024.nc")
-with xr.open_dataset(path, engine="scipy") as observed:
-    cube = observed["tmax"].load()
+# Run in the cloned repository or beside a downloaded notebook in the repo.
+repo = next(p for p in (Path.cwd(), *Path.cwd().parents)
+            if (p / "tests/fixtures/real_data").is_dir())
+
+def observed_cube(stem, variable):
+    path = repo / "tests/fixtures/real_data" / (stem + ".nc")
+    record = json.loads(path.with_suffix(".provenance.json").read_text())
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == record["fixture_sha256"]
+    with xr.open_dataset(path, engine="scipy") as dataset:
+        assert not dataset.attrs["is_synthetic"]
+        result = dataset[variable].load()  # Only this small, reviewed local extract.
+        result.attrs = {**dataset.attrs, **result.attrs}
+    assert result.dims == ("time", "y", "x")
+    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)
+    assert bool(np.isfinite(result).all())
+    return result
+
+cube = observed_cube("prism_boulder_january_2024", "tmax").rename("temperature")
 assert cube.attrs["units"] == "degC"
 
-result = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()
-result.state.mean("time").plot()
+plt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})
+```
+
+</details>
+
+<section class="cd-analysis-step" data-example="threshold" markdown="1">
+
+### From continuous values to a state
+
+On which days did a grid cell remain at or below freezing even at its daily maximum?
+
+```python
+cold = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()
+site = cube.isel(y=12, x=12)
+state = cold.state.isel(y=12, x=12)
+np.testing.assert_array_equal(state, site <= 0)
+
+fig, axes = plt.subplots(2, 1, figsize=(5.4, 5.4), sharex=True, layout="constrained")
+site.plot(ax=axes[0], color="#246b70", marker="o")
+axes[0].axhline(0, color="0.4", linestyle="--", label="Threshold: 0°C")
+axes[0].set(title="Before · PRISM daily maximum", ylabel="Temperature (°C)", xlabel="")
+axes[0].legend(frameon=False)
+axes[1].step(state.time, state.astype(int), where="mid", color="#246b70")
+axes[1].set(title="After threshold_state() · at or below 0°C", xlabel="Date", ylabel="State", yticks=[0, 1], ylim=(-0.1, 1.1))
 plt.show()
 ```
+
+<figure class="cd-generated-result"><img src="../../../assets/generated/visual/threshold.png" alt="One Boulder PRISM grid cell in January 2024: daily maximum temperature becomes a boolean state. direction=&#x27;below&#x27; includes equality (≤ 0°C), verified against the original values." width="756" height="756" loading="lazy" decoding="async"><figcaption>One Boulder PRISM grid cell in January 2024: daily maximum temperature becomes a boolean state. direction=&#x27;below&#x27; includes equality (≤ 0°C), verified against the original values.</figcaption></figure>
+
+<p class="cd-interpretation"><strong>What changed?</strong> A true state describes a criterion, not an event duration or an ecological impact. This complete fixture has no missing values; missing-data policy must be checked for other inputs.</p>
+
+[Generating code](https://github.com/CU-ESIIL/cubedynamics/blob/main/scripts/visual_examples.py) · [Figure/input provenance](../../assets/generated/visual/manifest.json)
+
+</section>
 
 ## Works with
 

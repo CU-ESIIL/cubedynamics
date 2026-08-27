@@ -186,6 +186,11 @@ old URLs. Do not add tabs or redesign navigation as a side effect of API work.
   from compatibility/deprecated names and reserved placeholders; retain A–Z.
 - `scripts/docs_examples.py` supplies reviewed examples and explicit limitations.
   Do not duplicate full argument or scientific source metadata by hand.
+- `scripts/visual_examples.py` owns shared executable visual examples, captions,
+  and prerequisites. `scripts/build_visual_docs.py` generates/checks the small
+  real-data figure cache in `docs/assets/generated/visual/`; regenerate it after
+  runtime/example changes, then regenerate references. See
+  `docs/dev/visual_documentation.md` for the six-page first-pass boundary.
 - `scripts/docs_hooks.py` derives reference navigation and rewrites notebook
   links. Library categories follow generated entries; multi-source noun pages
   explain differences without asserting scientific equivalence.

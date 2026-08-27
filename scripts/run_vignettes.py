@@ -4,11 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import base64
+from io import BytesIO
+import json
 import os
 from pathlib import Path
 import tempfile
 
 import nbformat
+from PIL import Image
 from nbclient import NotebookClient
 from nbclient.exceptions import CellExecutionError
 
@@ -32,10 +36,11 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument("--timeout", type=int, default=120, help="Seconds per cell")
+    parser.add_argument("--output-dir", type=Path, help="Optionally retain executed notebooks and a run manifest")
     return parser.parse_args()
 
 
-def execute(path: Path, *, timeout: int, runtime_dir: Path) -> None:
+def execute(path: Path, *, timeout: int, runtime_dir: Path, output_dir: Path | None = None) -> dict:
     notebook = nbformat.read(path, as_version=4)
     metadata = notebook.metadata.get("cubedynamics", {})
     if not metadata.get("supported_vignette", False):
@@ -62,9 +67,37 @@ def execute(path: Path, *, timeout: int, runtime_dir: Path) -> None:
             f"{minimum_plots}: {path.relative_to(ROOT)}"
         )
 
-    executed = runtime_dir / path.name
+    validate_visual_cells(notebook)
+    destination = output_dir or runtime_dir
+    destination.mkdir(parents=True, exist_ok=True)
+    executed = destination / path.name
     nbformat.write(notebook, executed)
-    print(f"PASS {path.relative_to(ROOT)}")
+    result = {"notebook": str(path.relative_to(ROOT)), "plots": plot_count,
+        "visual_steps": sum(bool(c.metadata.get("visual_example")) for c in notebook.cells)}
+    print(f"PASS {path.relative_to(ROOT)} ({plot_count} plots)")
+    return result
+
+
+def validate_visual_cells(notebook) -> None:
+    """Each opted-in analytical cell must publish its own nonempty result."""
+    for cell in notebook.cells:
+        contract = cell.metadata.get("visual_example")
+        if not contract:
+            continue
+        payloads = [o.get("data", {}) for o in cell.get("outputs", [])]
+        if contract["kind"] == "figure":
+            images = [p["image/png"] for p in payloads if "image/png" in p]
+            if not images:
+                raise RuntimeError(f"Missing inline figure: {contract['key']}")
+            for encoded in images:
+                raw = base64.b64decode(encoded, validate=False)
+                with Image.open(BytesIO(raw)) as image:
+                    image.verify()
+                with Image.open(BytesIO(raw)) as image:
+                    if min(image.size) < 100 or all(low == high for low, high in image.convert("RGB").getextrema()):
+                        raise RuntimeError(f"Empty inline figure: {contract['key']}")
+        elif not any("<table" in p.get("text/html", "") for p in payloads):
+            raise RuntimeError(f"Missing result table: {contract['key']}")
 
 
 def _has_plot_output(notebook) -> bool:
@@ -108,9 +141,12 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix="cubedynamics-vignettes-") as temp:
         runtime_dir = Path(temp)
         _configure_execution_environment(runtime_dir)
+        results = []
         for raw_path in paths:
             path = raw_path if raw_path.is_absolute() else ROOT / raw_path
-            execute(path.resolve(), timeout=args.timeout, runtime_dir=runtime_dir)
+            results.append(execute(path.resolve(), timeout=args.timeout, runtime_dir=runtime_dir, output_dir=args.output_dir))
+        if args.output_dir:
+            (args.output_dir / "execution.json").write_text(json.dumps(results, indent=2) + "\n")
 
     print(f"Executed {len(paths)} supported vignette(s) offline.")
     return 0

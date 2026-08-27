@@ -1,0 +1,24 @@
+{
+  "columns": [
+    "Check",
+    "Before",
+    "After reopening"
+  ],
+  "rows": [
+    [
+      "Dimensions",
+      "('time',)",
+      "('time',)"
+    ],
+    [
+      "Observations",
+      "11",
+      "11"
+    ],
+    [
+      "Values and metadata",
+      "Reference result",
+      "Identical (asserted)"
+    ]
+  ]
+}

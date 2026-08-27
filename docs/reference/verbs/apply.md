@@ -59,6 +59,7 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 
 ## See also
 
+- [04 · Read the analysis from left to right](../../vignettes/grammar_basics.ipynb)
 - [05 · One cube, six analytical views](../../vignettes/verbs_gallery.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)

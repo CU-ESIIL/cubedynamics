@@ -8,6 +8,7 @@ import json
 from pathlib import Path
 
 from vignette_shell import with_shell
+from visual_examples import EXAMPLES as VISUAL_EXAMPLES, LESSON, setup_code
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -91,6 +92,61 @@ assert prism.attrs["is_synthetic"] == 0
 assert prism.sizes == {"time": 30, "y": 24, "x": 24}
 assert prism["tmax"].attrs["units"] == "degC"
 """
+
+
+def progressive_grammar_notebook():
+    """Reuse exactly the code shown in Learn, with native notebook outputs."""
+    cells = [markdown(f"""
+# 04 · Read the analysis from left to right
+
+## Context
+
+CubeDynamics makes the order of operations visible: a cube flows through small
+verbs instead of disappearing inside a long function call.
+
+## Question
+
+Does the pipe grammar change the calculation, or only make the method easier
+to read and extend?
+
+## Analysis story
+
+Follow observed temperature through selection, a local anomaly, a regional
+summary, and explicit output. Compare direct and piped standardization exactly.
+Each analytical cell displays its own result before the story continues.
+
+{DATA_NOTE}
+"""), markdown("## Prepare · Load checked real observations\n\nREAL DATA · PRISM Boulder, January 2024. The shared setup verifies the fixture checksum before reading values."),
+        code(setup_code(LESSON))]
+    for key in LESSON:
+        example = VISUAL_EXAMPLES[key]
+        cells.append(markdown(f'## Pipe · {example.title}\n\n<p class="cd-notebook-question" data-example="{key}">{example.question}</p>'))
+        cell = code(example.code)
+        cell["metadata"]["visual_example"] = {"key": key, "kind": example.kind}
+        cells.append(cell)
+        cells.append(markdown(f'<p class="cd-result-caption" data-example="{key}">{example.caption}</p>\n\n**What changed?**\n\n{example.interpretation}'))
+    cells.append(markdown("""
+## Figure sequence · Keep the method visible
+
+Each result above comes from the code directly preceding it. The shared
+definitions in `scripts/visual_examples.py` also generate Learn and reference
+examples; the notebook is executed by the existing vignette runner.
+
+## What the figure tells us
+
+The z-score assertion proves that the pipe is a composition language, not a
+new statistical definition. Selection defines the baseline, anomaly preserves
+space and time, and the spatial mean removes space. The export table verifies
+that saving the final series did not change its values or metadata.
+
+## Try the next variation
+
+Change the selected dates and explain why the anomaly map changes even when
+the displayed day's absolute temperature does not.
+"""))
+    result = notebook(*cells)
+    result["metadata"]["cubedynamics"]["minimum_plot_outputs"] = 5
+    return result
 
 
 NOTEBOOKS = {
@@ -387,80 +443,7 @@ day-to-night range followed a separate trajectory.
 Pipe `tmin` through the same anomaly verb and compare its spatial pattern.
 """),
     ),
-    "grammar_basics.ipynb": notebook(
-        markdown(f"""
-# 04 · Read the analysis from left to right
-
-## Context
-
-CubeDynamics makes the order of operations visible: a cube flows through small
-verbs instead of disappearing inside a long function call.
-
-## Question
-
-Does the pipe grammar change the calculation, or only make the method easier
-to read and extend?
-
-## Analysis story
-
-We compare direct and piped standardization exactly, then compose a regional
-anomaly in one compact expression.
-
-{DATA_NOTE}
-"""),
-        markdown("## Prepare · Select an observed temperature cube"),
-        code(LOAD_PRISM + """
-# Keep the labeled PRISM DataArray intact as it enters the grammar.
-cube = prism["tmax"]
-cube
-"""),
-        markdown("## Pipe · Verify equivalence, then compose"),
-        code("""
-import numpy as np
-from cubedynamics import pipe, verbs as v
-
-# The grammar must preserve the mathematical definition of a z-score.
-direct = (cube - cube.mean("time")) / cube.std("time")
-through_grammar = (pipe(cube) | v.zscore(dim="time")).unwrap()
-np.testing.assert_allclose(through_grammar, direct, rtol=1e-6, atol=1e-6)
-
-# The method reads left to right: anomaly first, then spatial mean.
-regional_anomaly = (
-    pipe(cube)
-    | v.anomaly(dim="time")
-    | v.mean(dim=("y", "x"))
-).unwrap()
-"""),
-        markdown("## Figure · See the effect of each method"),
-        code("""
-import matplotlib.pyplot as plt
-
-site = cube.isel(y=12, x=12)
-fig, axes = plt.subplots(3, 1, figsize=(9, 7), sharex=True, constrained_layout=True)
-site.plot(ax=axes[0], marker="o", color="#8f513b")
-axes[0].set_title("Observed PRISM maximum temperature")
-axes[0].set_ylabel("°C")
-through_grammar.isel(y=12, x=12).plot(ax=axes[1], marker="o", color="#3b6d74")
-axes[1].axhline(0, color="0.4", linewidth=0.8)
-axes[1].set_title("pipe(cube) | v.zscore(dim='time')")
-axes[1].set_ylabel("Standard deviations")
-regional_anomaly.plot(ax=axes[2], marker="o", color="#5b6848")
-axes[2].axhline(0, color="0.4", linewidth=0.8)
-axes[2].set_title("pipe(cube) | v.anomaly(...) | v.mean(dim=('y', 'x'))")
-axes[2].set_ylabel("Regional anomaly (°C)")
-plt.show()
-"""),
-        markdown("""
-## What the figure tells us
-
-The exact comparison proves that the pipe is a composition language, not a new
-statistical definition. Its advantage is a method that remains visible.
-
-## Try the next variation
-
-Replace the final mean with a variance and explain how the question changes.
-"""),
-    ),
+    "grammar_basics.ipynb": progressive_grammar_notebook(),
     "verbs_gallery.ipynb": notebook(
         markdown(f"""
 # 05 · One cube, six analytical views

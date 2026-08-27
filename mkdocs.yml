@@ -90,6 +90,7 @@ nav:
               - Contributing: dev/contributing.md
               - CI and testing: dev/ci_testing.md
               - Source lifecycle and certification: dev/source_lifecycle.md
+              - Reproducible visual examples: dev/visual_documentation.md
               - Site analytics and SEO: project/site_analytics_seo.md
               - Changelog: changelog.md
           - Architecture and contracts:
@@ -263,5 +264,6 @@ plugins:
       ignore_h1_titles: true
 
 markdown_extensions:
+  - md_in_html
   - toc:
       toc_depth: 2

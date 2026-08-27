@@ -1,0 +1,777 @@
+{
+  "generation_context": {
+    "git_sha": "41e11aa975edfb53a343f98f55b01cdb89080241",
+    "matplotlib": "3.11.0",
+    "python": "3.11.11"
+  },
+  "input_provenance": {
+    "gridmet_badlands_july_2001": {
+      "created_at": "2026-08-26T12:55:49.518657+00:00",
+      "fixture_sha256": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721",
+      "product": "gridMET daily maximum temperature",
+      "provider": "University of Idaho",
+      "query": {
+        "bbox": [
+          -102.5,
+          43.6,
+          -101.9,
+          44.2
+        ],
+        "end": "2001-07-10",
+        "start": "2001-07-01",
+        "variable": "tmmx"
+      },
+      "source_file_sha256": "a0e07daeb1aa8b58b66f01dcc99e776ab71a163aa80dbef448c972b74fed313a",
+      "source_url": "https://www.northwestknowledge.net/metdata/data/tmmx_2001.nc",
+      "transformation": "cropped and renamed dimensions/variable; values unchanged"
+    },
+    "prism_boulder_january_2024": {
+      "bbox": [
+        -105.75,
+        39.5,
+        -104.75,
+        40.5
+      ],
+      "dataset_documentation": "https://www.prism.oregonstate.edu/documents/PRISM_datasets.pdf",
+      "dimensions": {
+        "time": 30,
+        "x": 24,
+        "y": 24
+      },
+      "fixture": "prism_boulder_january_2024.nc",
+      "fixture_bytes": 209916,
+      "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7",
+      "is_synthetic": false,
+      "processing": "windowed extraction from checksum-verified official daily GeoTIFF archives",
+      "schema_version": 1,
+      "source": "PRISM Group, Oregon State University",
+      "source_accessed": "2026-08-25",
+      "source_archives": [
+        {
+          "bytes": 2622919,
+          "date": "2024-01-01",
+          "sha256": "37b33250dcd7190da039dfe0efbf98e430078d361008e3ae0c23a549547a9a6b",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240101.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2704374,
+          "date": "2024-01-01",
+          "sha256": "0ea0ac30dfdf129649e430c39d005fab917998b4ebd14819dcd2fb7d35364a29",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240101.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2670804,
+          "date": "2024-01-02",
+          "sha256": "c1a679432f4f4f8966afadb41d0bda838892f3d5a791ace87fefad949d51e493",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240102.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2679273,
+          "date": "2024-01-02",
+          "sha256": "c99f3612c349dfa254c5710b6b5dee9db42d6963150d5700c27a14bfd422f5cc",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240102.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2647322,
+          "date": "2024-01-03",
+          "sha256": "408d28d1bbf847ba0533d05381a4024b313c1c563c6172f5fad5b70fe50fcda2",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240103.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2655628,
+          "date": "2024-01-03",
+          "sha256": "38e4f4cccf005926a451194b0de8a06397d497ac6fb829e12abddc3d94273e0d",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240103.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2668290,
+          "date": "2024-01-04",
+          "sha256": "bba29ba5c3fcf0a8da2e643afadd81f22cfcf8d7f34932b3de27de33bac88b75",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240104.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2670972,
+          "date": "2024-01-04",
+          "sha256": "f0f44d062d1b9acab9d4d67450c8a43247ec969d4161fa336fff14110e682105",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240104.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2700898,
+          "date": "2024-01-05",
+          "sha256": "42d48953d713812427f0392b664b52fc818531f825fca75b85ea44c1e0ab0685",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240105.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2659923,
+          "date": "2024-01-05",
+          "sha256": "505c16c825fd911732c4c82d22c1f9cd81c57495537904b6ddf13ea0e0aa3e92",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240105.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2688485,
+          "date": "2024-01-06",
+          "sha256": "578e56aa9453c0ba87f93f4d3dfb68d9ace41e4cfe2c10a6878b529be543ac6e",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240106.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2684611,
+          "date": "2024-01-06",
+          "sha256": "45a4660e0ab9a3fba4f8b19fdd95f602752d530018edade8a80edbb376866821",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240106.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2697729,
+          "date": "2024-01-07",
+          "sha256": "763cd23f962ff2f912de146ed4333989574a56e438fbc46b1acc6bc6a9ec83e0",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240107.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2712009,
+          "date": "2024-01-07",
+          "sha256": "d1ba8cb7bc98fee306796bc7fb5b3ba9a9761c0b204f539ddce1f876cfcb2893",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240107.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2682824,
+          "date": "2024-01-08",
+          "sha256": "a32eeb2b7b70299e1b844cc31004cb14d630ae91f66112f1eb649f972dba8fc0",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240108.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2697824,
+          "date": "2024-01-08",
+          "sha256": "d98fb9379efe8d6ad0151560c97e3dec43cafd189548d5eea53cbe9e61233117",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240108.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2698372,
+          "date": "2024-01-09",
+          "sha256": "d75ffdcc6a27244135deb2edf06477f469536b51982c552b424f05879c087bc4",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240109.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2709147,
+          "date": "2024-01-09",
+          "sha256": "87c60525ced55f921767e888095a075039dd1c75140ff97f99de663c231c7809",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240109.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2709359,
+          "date": "2024-01-10",
+          "sha256": "cdc7942defb56e454b49fbbf94ba68f2d4e3661128c2bcf323d1287b5046b396",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240110.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2734430,
+          "date": "2024-01-10",
+          "sha256": "1e84e54605cdebd2e3c02d18dc33770a0d3e280209217580e70875ac1373ad1a",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240110.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2678474,
+          "date": "2024-01-11",
+          "sha256": "56e4d1e4cd4586497840ac478b61382a56aa415ade23aafccf5a5ef22bdad3d3",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240111.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2711208,
+          "date": "2024-01-11",
+          "sha256": "5ff978bfd7e688408ed7969fad66ba2ad18399831c757127958b958478825bc0",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240111.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2678446,
+          "date": "2024-01-12",
+          "sha256": "2e6fb81fa88dc9ef3fcb5fadd20268a5687f46bf67c8b142c7d6f65243f0be16",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240112.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2703522,
+          "date": "2024-01-12",
+          "sha256": "4ec038ef587ede8ffdebec29c23468fb2955eaf3f0dd606ba4249ec0c46e4a95",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240112.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2688369,
+          "date": "2024-01-13",
+          "sha256": "76b615a92ecedabceb988e51270dcf72be810aae082ac71d561c432d63bd928c",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240113.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2689845,
+          "date": "2024-01-13",
+          "sha256": "b8e3d4e4b61782645c91c4a854322cf7105265b5723a1dc27a2d4795833e85df",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240113.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2656618,
+          "date": "2024-01-14",
+          "sha256": "88a949247884b9f0eb12c8b8cdac98d46634395f6c37aee48c91c8e2303d2408",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240114.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2683167,
+          "date": "2024-01-14",
+          "sha256": "de99050822dc240da66d579931416fa2e81302e9d57494df7e7fc606fa49f6ae",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240114.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2669714,
+          "date": "2024-01-15",
+          "sha256": "884ea3ede2379e161afee9955f5edbd0b8faa287f0f96921b776252840491c60",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240115.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2662923,
+          "date": "2024-01-15",
+          "sha256": "34937c6411e073bbe82d770020e588763df0b296446ff9cc11f55161e8fa6baa",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240115.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2650956,
+          "date": "2024-01-16",
+          "sha256": "03c81e7475f08289074f240804884c92dedac435d2398154c227d6b61650c72f",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240116.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2638040,
+          "date": "2024-01-16",
+          "sha256": "c5c9f8b9ad90fb01835c42a68f6e71c7260f9eb483470e83a2ba0ac6a77ce5b6",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240116.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2676048,
+          "date": "2024-01-17",
+          "sha256": "fc826637e1f79f0eccaacdb6175cf5d7bb8c4118766eedc9da9e20082a696d45",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240117.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2597509,
+          "date": "2024-01-17",
+          "sha256": "4c6b6a9acede910bbd182b2eb28258c8d5debf92a8a8168d4a6340ac72a7e256",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240117.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2667616,
+          "date": "2024-01-18",
+          "sha256": "73f791b3e66d7818392c931529c7713a737dd5c1bbb83fea493f87cd6cc20395",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240118.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2636402,
+          "date": "2024-01-18",
+          "sha256": "b96c07a88ba8add047e0f03315a25ef93f10cfb9bb135d4c842c11dbf7c57656",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240118.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2646805,
+          "date": "2024-01-19",
+          "sha256": "2bcac7d4e479a6f4b03fc4b9b7b1bdaf20f71c4ad4b3757dfd314526db99e018",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240119.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2672639,
+          "date": "2024-01-19",
+          "sha256": "6f0b366274a9c14b0833feaad9651a952a80a1184a8ae35f13b35d2ddb54a0ca",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240119.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2662949,
+          "date": "2024-01-20",
+          "sha256": "9415024e46d9e98b3f1e66d88910bd4b91390cfc0a00633961c198dab1906665",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240120.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2657175,
+          "date": "2024-01-20",
+          "sha256": "08214e001ac745de485aae547694c770ea99ffcde18d4aa74f25f90025495c1d",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240120.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2657509,
+          "date": "2024-01-21",
+          "sha256": "0e6cdbaf256325c9f0ef3e8f4ed92382df6dd257b9e3478ed33dc352aefb0b96",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240121.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2662828,
+          "date": "2024-01-21",
+          "sha256": "43842ad183b95800d9f03a513164affc57bd84c147864d69107dbe0756374339",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240121.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2671513,
+          "date": "2024-01-22",
+          "sha256": "2c3a5066cb2b5f054224e69d719b73e9c983defde2d6a6fe76c568186e53b881",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240122.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2691948,
+          "date": "2024-01-22",
+          "sha256": "c0f898675ed7670b0d63c37c104475dd736eedb3717d1bfe41c7fcdce125b6da",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240122.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2647899,
+          "date": "2024-01-23",
+          "sha256": "a35f866c366988424f5f20cdb03318e336f3b333adaa7e0b2e5363c7a02ecc30",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240123.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2715616,
+          "date": "2024-01-23",
+          "sha256": "7b671f9427823af47dc9cc16e2e2efc073f4ec57bbf13408ce854d104ba33a8f",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240123.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2647895,
+          "date": "2024-01-24",
+          "sha256": "de0c873e783568241395273c7ed24213a7c363f79c79b1f48b29b34007c32a0a",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240124.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2727800,
+          "date": "2024-01-24",
+          "sha256": "3f2f779703b6b024754ae6ba766ec832477f550c96a5c029853e3aeb8a9e6b16",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240124.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2636067,
+          "date": "2024-01-25",
+          "sha256": "b2779c0fa3c53e93632b1d4b29a8b00cc17569a3ecba601ca156d51565b6edd9",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240125.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2730458,
+          "date": "2024-01-25",
+          "sha256": "37542f01ddbbcc682ddf0e6ced32dcdc9479d0f50fe2cca25cb5e7690528e307",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240125.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2641878,
+          "date": "2024-01-26",
+          "sha256": "98b0c1d2f32600feb6b7815e5e3ccca9993ab47a63e7c8eb9905b7539604675a",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240126.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2724743,
+          "date": "2024-01-26",
+          "sha256": "392e1690d4d225972ebec161dd6dc69fe6c3408ed309e64051b814a0516a6e38",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240126.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2647386,
+          "date": "2024-01-27",
+          "sha256": "9343681da12242905b96fbb37e4a538635e7eaa2980c2f51e83f53cc5990a8cf",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240127.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2716133,
+          "date": "2024-01-27",
+          "sha256": "1d31b2827842853d2f4592c7419b35a29f9e584ecf8a3ca9528825b193f06ad6",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240127.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2620047,
+          "date": "2024-01-28",
+          "sha256": "16e493c46cfb242f841aeebe3b8ebf63a864c6b8ba0ac8d3a922534909426839",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240128.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2740533,
+          "date": "2024-01-28",
+          "sha256": "108e01572f9ccb9b42b193449281f6e73b7d333c160be845e13d015171a0e714",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240128.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2609933,
+          "date": "2024-01-29",
+          "sha256": "3488dd7b72df45b07df1df6ddb8ace46c08fd6352fed75275dee0e437df39e43",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240129.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2750448,
+          "date": "2024-01-29",
+          "sha256": "114b91f4cb1fc875b2cb4794277efd9d207fa15190c0e4bb558eb0dd208b0f20",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240129.zip",
+          "variable": "tmin"
+        },
+        {
+          "bytes": 2598390,
+          "date": "2024-01-30",
+          "sha256": "a8bab70c0e7ceef60ee1c8f63cff2d52487526c305888f194390f66468d60977",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmax/daily/2024/prism_tmax_us_25m_20240130.zip",
+          "variable": "tmax"
+        },
+        {
+          "bytes": 2755342,
+          "date": "2024-01-30",
+          "sha256": "8caf053679afabae652cfae676a8acb6da6373b42fd4d99496ca48e49d5bb814",
+          "url": "https://data.prism.oregonstate.edu/time_series/us/an/4km/tmin/daily/2024/prism_tmin_us_25m_20240130.zip",
+          "variable": "tmin"
+        }
+      ],
+      "source_product": "AN91d daily 4 km time series",
+      "source_url": "https://prism.oregonstate.edu",
+      "terms_url": "https://prism.oregonstate.edu/terms/",
+      "time_coverage": [
+        "2024-01-01",
+        "2024-01-30"
+      ],
+      "variables": {
+        "diurnal_range": {
+          "finite_cells": 17280,
+          "maximum": 29.726999282836914,
+          "minimum": 1.1260004043579102,
+          "units": "degC"
+        },
+        "tmax": {
+          "finite_cells": 17280,
+          "maximum": 17.586000442504883,
+          "minimum": -20.63800048828125,
+          "units": "degC"
+        },
+        "tmin": {
+          "finite_cells": 17280,
+          "maximum": 3.0920000076293945,
+          "minimum": -31.73200035095215,
+          "units": "degC"
+        }
+      }
+    }
+  },
+  "inputs": {
+    "scripts/build_visual_docs.py": "7463ddaeba9868be35e37cf23a0c0f51b6dfa0d1c9d3488f3cf17a8b00467ee5",
+    "scripts/visual_examples.py": "5ecd6934bb7ee882a83267fb64a21937bba1d86955c5e126a2436361a2c32f68",
+    "src/cubedynamics/__init__.py": "acd6873f6f1062cf5bea93bb32564abd6e4dcfc889e4e6e0ec4d31d0060fd529",
+    "src/cubedynamics/biology/__init__.py": "de30ff467368cc0ec536f91bccd791c2551263b6916064aed6e9dc9c70189b87",
+    "src/cubedynamics/biology/align.py": "2f941e0b87ee0bb18efa33c7c672475f9e101da3c52ae3417853b27bc7ed03ab",
+    "src/cubedynamics/biology/rasterize.py": "430a7ce9f49831c8bcb184b944063365b7d208b0a19827313849ed567bc041e8",
+    "src/cubedynamics/config.py": "8c9c4a012ec2932565a56ed05cb77eb35d3dc61f0cb3412e366bed7e95424a6e",
+    "src/cubedynamics/correlation_cubes.py": "d5a920f75c1335a91da6d98ef2bf8399278f95d35246466cf1867befd166df47",
+    "src/cubedynamics/data/__init__.py": "05b7a0f9a26ef701cfb82744496e62ef8cf3062e0d54c1f7125f4f443e7c739c",
+    "src/cubedynamics/data/catalog.py": "c573c9dc95419a9ea76bb7a168ee514ed9b89b8e0539047ef28860b255712ee9",
+    "src/cubedynamics/data/certification.py": "41e481eaa414b844e5df94917008eb8c8674f55cde3827fc027f4cd06d909f33",
+    "src/cubedynamics/data/daymet.py": "6885044dea0426539a4fe760d4b3eb248148a95ba0fe21a59466cbb2dda4ec5a",
+    "src/cubedynamics/data/gridmet.py": "8734dd184843acad5c7dc6a6f7118e2cc2e852e12f10f23f60d1b43c9464b2f0",
+    "src/cubedynamics/data/lifecycle.py": "1d3b6f5aad008c9ba5832627e13632b6fd27481c674dd00a9f6c47f2dbd9a974",
+    "src/cubedynamics/data/nouns.py": "69941f328041a47a54700a969173ace04a00b219b4505c24bb28700ecb99a510",
+    "src/cubedynamics/data/prism.py": "a3b3ebc352e726bad7ebf39a76c9223bb11ef605751577d3f9e295f9fdac00fe",
+    "src/cubedynamics/data/qa.py": "721c911c6a6489cc3999aa327a8697a2e8fbcfc029bd62a4f594fb4ac2b84eb3",
+    "src/cubedynamics/data/revisions.py": "c554df77b0be58fe07a705fc8bd4bf53f165b6c6204c47349fda13556753603c",
+    "src/cubedynamics/data/schema.py": "974433cbe117be5cd9a9cf9c01b21233a83387bdd23924e8bb2e26156908da3e",
+    "src/cubedynamics/data/sentinel2.py": "18f3148b9ef4a4bf344dae53e32e56459e62364c13f1b5d8518d8590af716b90",
+    "src/cubedynamics/demo.py": "fc89868940cf325272c22f48fcd8210d50d55dab07b9ddd84bd57e1757163098",
+    "src/cubedynamics/demo_vase.py": "8abe54a5b9db507b8a47f9bcaf24b1281c9c0c35355fbe7ce2ac10929d221fb8",
+    "src/cubedynamics/deprecations.py": "bfdaa6a22ccf9f2cf3273ec5a769e83946cc4aa65340b90a95a018498e2f6661",
+    "src/cubedynamics/events/__init__.py": "2be9cd12410defbc5e8e8039004447f1ed6e59d8758aa377879a998848ff8839",
+    "src/cubedynamics/events/detection.py": "a95f1da0dba348e05638d2709135c6ff752a592ec054522f0b204530a1103b14",
+    "src/cubedynamics/events/matching.py": "cf9e68fde6d3569e5bc3ccfeee9b91052bada9b8964234be44d3965e7c3d5283",
+    "src/cubedynamics/events/schemas.py": "e4f6469e8aa413ea2fa0922845f438e8e8a6822a842be3f76a86e7e3d2d36384",
+    "src/cubedynamics/fire_time_hull.py": "3f659b904e8a05e1ebe2e047b6287f8e6ee49466c7bd3cb04c6604fb6eb010c5",
+    "src/cubedynamics/fire_vase_lakehouse/__init__.py": "9bc0b757c5f36cee749812ad161ee6336be6aeaa3f92433cf01ec45d9e200b85",
+    "src/cubedynamics/fire_vase_lakehouse/cache.py": "d8260f1950fb502da2d92e41890355f0b71b69ce3e1ba250fc7c59d2c7f9d46a",
+    "src/cubedynamics/fire_vase_lakehouse/manifest.py": "1110f9c18046e7de5b384251a36f51fee6c2debada724005761a8308b46dc6c0",
+    "src/cubedynamics/fire_vase_lakehouse/partitioning.py": "3db936bee9d74f5dcfa2f03c11a38c4d41cf4953b233f11fd83779a435ff79d4",
+    "src/cubedynamics/fire_vase_lakehouse/qc.py": "f681ae13c452297d3328ca190aa7578610dd4aaf1f826d0ef92e2749931d89a5",
+    "src/cubedynamics/fire_vase_lakehouse/query.py": "a8ae636928a85b5786bf463568b82f9dd1b3186e4ab9365d4ae9ee3019cbc765",
+    "src/cubedynamics/fire_vase_lakehouse/schemas.py": "cf3357787fef499def39f765f0de0e6c161d194f5bfe58a0ec31ad689a993369",
+    "src/cubedynamics/grammar.py": "42772fcdd9f27077dd9fd05beedeac82785f0e6d48637ffb27f997e17009d893",
+    "src/cubedynamics/hulls.py": "236bbf4519340a089c4edb226128b9f3129f29eba37d139393701532708aea99",
+    "src/cubedynamics/indices/__init__.py": "cd42fe773ca03ecc0ee920d4893d21f4bf34db70f760b3f307658ba3c2604ade",
+    "src/cubedynamics/indices/vegetation.py": "5335c5fb7915561ef05b3e6ded72e35a15cfc0cb64a8d6d4c8efc758e147ec63",
+    "src/cubedynamics/ops/__init__.py": "1cff8ea4567d149a26f104bf8cc7045876905fab0e139f983c528d164bba37db",
+    "src/cubedynamics/ops/io.py": "bc24816c6c35fe3ae6d1838081b03f93a74e6c76e25e733423f2ddb6f0bdcc4a",
+    "src/cubedynamics/ops/ndvi.py": "2553c818cdd7986b169442bfb8dba03781b047fbaf9eb18c5b553d2031284f41",
+    "src/cubedynamics/ops/stats.py": "27668be374a1ff2186c45a96a7d6ec9af390ad76158a4b43fcdc08b485b2be0e",
+    "src/cubedynamics/ops/transforms.py": "1eada8fd5247f1d17db1e4af84549b4b86ab235547b3ad2e66ab7f00a26ae216",
+    "src/cubedynamics/ops/viz.py": "f4798af3c0f145dd9e91b0c38220e4e1d9bb5072fc91194f5727f531f2345f64",
+    "src/cubedynamics/ops_fire/__init__.py": "40d6b243a5dfe774c089a926c2c9c2ccfbc25d10dc78f7c1bfb39a2fecb1422b",
+    "src/cubedynamics/ops_fire/climate_hull_extract.py": "6485ec061324898f9eca8fefe0cabc8d9091d544201b7cd3ba8fc1201a37757c",
+    "src/cubedynamics/ops_fire/fired_api.py": "a5541685a40e69c29b480ae637c1d88fbf89be17ed32d4fc987f51de71e9fd30",
+    "src/cubedynamics/ops_fire/fired_io.py": "4d27bd43b5cd93445e9ad34edb134e32c57d581451467f9a80a0ee01f9989f9a",
+    "src/cubedynamics/ops_fire/time_hull.py": "e42ec1f5f9f34efb6d4682f739b71a5627391d3710975cc9d9f6422adf0f50bf",
+    "src/cubedynamics/ops_io/__init__.py": "fd4b68dfa262da14d0417d1fd036ad9d6f198cf72c22d1adf5e3eff6e856aee1",
+    "src/cubedynamics/ops_io/gridmet_api.py": "228bdfdb41036d4cf668f261d4d2a4f94b220ea81846374de03b96906e0121a6",
+    "src/cubedynamics/ops_io/gridmet_loader.py": "8338533cabc1c334d752f2f48a6d33686579090876660ccc6a226684a6edaff9",
+    "src/cubedynamics/piping.py": "ba2e438a0ad95fcd5e74af461e5e660660ebaa50d85f7218ab02d62645b62b87",
+    "src/cubedynamics/plotting/__init__.py": "0bf7483cd9f1ab116e48ccb2d02721b9f350f7e77a46056fb91827f5e54ae59f",
+    "src/cubedynamics/plotting/axis_rig.py": "03207a4c3e9f069929635597ebc33c0fecbdbcec69d852cead49c81ab21fdea3",
+    "src/cubedynamics/plotting/cube_plot.py": "6aa7e51b91cda82b74288257f1cec63bf25ca00918887d3efac089151935d4aa",
+    "src/cubedynamics/plotting/cube_viewer.py": "ac13f1f737ba42419546b221e5ae689fc20e05e0a4616020f87ffca2d03107e6",
+    "src/cubedynamics/plotting/geom.py": "4ec4fb1c527551c846bcdc3d3e3fd44b344089a7e0a3557e5440b567995c296b",
+    "src/cubedynamics/plotting/progress.py": "27f6d7d4ae598abe3f479ffa98f26ade83d7725e0748b5a58086909ae2c8d3c2",
+    "src/cubedynamics/plotting/stats.py": "83f8708e116da6b04577dbf646699ccc4d78f464229b0c2f8405ac33c9042a5c",
+    "src/cubedynamics/plotting/tail_association.py": "65facf0c6f1f206317e612495131f37b891bf70ca695cf7314bd70f3e136cd9e",
+    "src/cubedynamics/plotting/viewer.py": "b1ab3d6867be02ba30d75c5089f62a7520a856c5f27eaa86a3777286facbd87b",
+    "src/cubedynamics/prism_streaming.py": "4613f1a6084d2ff1d235958eeb61fae9498e462519707dc30a90e69162ceab1c",
+    "src/cubedynamics/progress.py": "611ec88cdc5c219f775536fd23b1d8d29632995c943de3b2c1d57fe0fe09701d",
+    "src/cubedynamics/sentinel.py": "e0d890ae49f9dbc30fa67314fe353cab565266123b62fb22138d4fb1d031a7a3",
+    "src/cubedynamics/stats/__init__.py": "cd42fe773ca03ecc0ee920d4893d21f4bf34db70f760b3f307658ba3c2604ade",
+    "src/cubedynamics/stats/anomalies.py": "f586a28a826db9a60af5dbe92d1dbe7e5914eb1025f4461f8cfa2dcfed979442",
+    "src/cubedynamics/stats/correlation.py": "968adb9da3afd73c5ba4584435b639c5981d3941052470534b8d506bfb8e981d",
+    "src/cubedynamics/stats/rolling.py": "4ce88c43c417d7bb00cb234fe368f1334078563735606449068099d0e00dfe0a",
+    "src/cubedynamics/stats/spatial.py": "29e12dc866a331edf74e86fbbed4609e6dc3904e4e754e535ce37678a912c51c",
+    "src/cubedynamics/stats/spatial_units.py": "5a6b7bf82e7e67c00ded0d90fa55d8034965e46f4e6759200bd4bea830a331c4",
+    "src/cubedynamics/stats/tails.py": "2c5e7c0e3eb1fd7280b663ecc98f321adf1b10f24a24ef76b8eb539633708047",
+    "src/cubedynamics/streaming/__init__.py": "6258819d8698f2dfd7273a9b886ec2d276c76d5ca7652f8caec94e0d5e6fbe4a",
+    "src/cubedynamics/streaming/global_climate.py": "f2cb2e056d34e7082424bca8146c45c2bbdba3733fb84c9dd86f22d06f545852",
+    "src/cubedynamics/streaming/gridmet.py": "f5122cc9d263dd9fe0e44ba06f60a015671f34ad030019ad5b9ea01852d8d804",
+    "src/cubedynamics/streaming/virtual.py": "956fe1a14c913de3fd6b8950806511407e5ce6e463e424aa4773e43c7b80d408",
+    "src/cubedynamics/synchrony/__init__.py": "51eb8954378544d8baa17523f6a5cbefb2ff27349f0067d1b1834fbc1b1dbb64",
+    "src/cubedynamics/synchrony/coupling.py": "83441d37552e92442237d7de01c38c6b9c266de392bee9c5d961cac41ee09f06",
+    "src/cubedynamics/synchrony/occurrence.py": "721e5b2a27d6327a82503d60220ba29a397012ddb6a6ed4cd9115f744fbeccb4",
+    "src/cubedynamics/synchrony/severity.py": "a3396ffa5d368cb7815872cf257201aed6493323b22b2d3fb26a5d6246e126a3",
+    "src/cubedynamics/synchrony/spatial.py": "763c8a0e0bfc3463b0c52c118af160c34108f30201f85887eac50e473b2f7150",
+    "src/cubedynamics/synchrony/states.py": "39c892ceb9ea91ba793a4a8ea5160a9d05167d834e3d34769e643c54d59c858e",
+    "src/cubedynamics/synchrony/timing.py": "4251c5349e43915a53dea656c00662324b4878a59a8f0ee03db2cd47ccad4057",
+    "src/cubedynamics/tests/__init__.py": "de7357ae8bf46b85a389f500ca549335f423aab5f59122a653a4bf88574901bb",
+    "src/cubedynamics/tests/test_docstrings_present.py": "6abcf6801de7f87a1f90a49da8e43dd24da31090ad1ecc72ed69ab120eaf7c1d",
+    "src/cubedynamics/tests/test_gridmet_streaming.py": "8d9b0c1b2d5216562ce32399107dab7e92396ded515c8a70650ec24d5d203f82",
+    "src/cubedynamics/tests/test_import_and_pipe.py": "8237ae414315ea81695b17b375438cf9ac9551bdd289e659b5eab9325ebc3278",
+    "src/cubedynamics/tests/test_imports.py": "1ee01aecb6eb5eb3b1b957f8992b8a3695623a3f4d35a57610ce2f40600f512c",
+    "src/cubedynamics/tests/test_piping_ops.py": "d6d77fc9574751beb9961f8d6e3b2f8e6e690b571c39ecc07f01af2263b9c87d",
+    "src/cubedynamics/tests/test_progress.py": "de1825b3468c34613edd382d7055f4f7dc000467123986f0ec755627b4b08cd2",
+    "src/cubedynamics/tests/test_sentinel_bbox.py": "ebc5d1ecbf9e77e37c22f019e2c289faea7311a10b6bce410f7cdfdac97a2ae2",
+    "src/cubedynamics/tests/test_streaming_contracts.py": "c17b5064826db5f6aecac247582b6bb74358cf2f1a3625a74f1f8e2b84ef96f7",
+    "src/cubedynamics/tubes.py": "7df8a8d645b3e9a58a436379adc824d2fa0ee919112656ba9e46cf7701c90789",
+    "src/cubedynamics/utils/__init__.py": "55cd2adf897e039d1c8ece1504b168e12532d146c1f4a9043cb6eb3d3241fadb",
+    "src/cubedynamics/utils/chunking.py": "d1d46f25418c1954464de3b21332249e03fbdbc95c17ed26484201f0b91f2306",
+    "src/cubedynamics/utils/cube_css.py": "146f58c2060e44f0c529cc6a3ed79094580d8afeb82ea21e995a0f0f8912d129",
+    "src/cubedynamics/utils/dims.py": "fbcc90cf19e98041a1677fba5df999e392e23c4672926772d7d4066291ed0475",
+    "src/cubedynamics/utils/drift_centering.py": "60259a549939c773aabd3cb35dce77d1cbca7fb19141e4bca2431c80153ab10c",
+    "src/cubedynamics/utils/drop_bad_assets.py": "bb1f29774862c6d73c4935a3cd184d60132c281da9e0dbd0c7d8fb2fa8c4f452",
+    "src/cubedynamics/utils/provenance.py": "b8228b8712320eda4291401d2277f5fdd1ed7c2203023e644490ecb3b4cada27",
+    "src/cubedynamics/utils/reference.py": "152b15d8c29f8f0431d8f02d9638370d92fd9467efe1fb3b46c17dd8373d7508",
+    "src/cubedynamics/variables.py": "c439c85eca32c8642c7f6d0737482c469654f52049e506b0f5d58f5ca7a70c23",
+    "src/cubedynamics/vase.py": "aaf5586602aa43673767253428b2768ccc2f0cfcdca2f89fb3bf327749e21a19",
+    "src/cubedynamics/vase_viz.py": "57fc4d7a0f160fbb7bc99bbf0eda90b91c70717136bfcbef80b6f13a92ce2e99",
+    "src/cubedynamics/verbs/__init__.py": "36cff36b1f7457e7010bf4bc8870077d88bd5f17dfd0c06778d2af2aea6a10db",
+    "src/cubedynamics/verbs/biology.py": "42ea84cc706f7c059dfa71a01de38f103f5332c50d8587b8871a4bbeaa40e109",
+    "src/cubedynamics/verbs/combine.py": "c05747b9305a9fb03361e799dd752388919233e0ed4b3188e20a49455b8f3351",
+    "src/cubedynamics/verbs/custom.py": "63633b70eef925fe3e970e686605bb6b59c633ea2cb234846b6848f14d99629e",
+    "src/cubedynamics/verbs/diagnostics.py": "ac443170252fa856c0e9a960ad2dcf6ed9d5273c742063afffccf3eb3227499f",
+    "src/cubedynamics/verbs/events.py": "fdb698fcce64cdfe77541be6c59cc361e3080cc5fd324fde866afafb800a5daa",
+    "src/cubedynamics/verbs/fire.py": "34fc19d999002b519badd68e2edf19c3ac83f489d023bf659e6876b04089ea1e",
+    "src/cubedynamics/verbs/flatten.py": "9d2b60deed812b1ce892364b94fe4a56c91b4d186ce0e4d125461f8f362bcda4",
+    "src/cubedynamics/verbs/landsat_mpc.py": "5d7a1fb6fd22711f7e76d6ff7399fe72dd4fe73516949cebbd9559ae75f43446",
+    "src/cubedynamics/verbs/models.py": "1b7308169df32ba6357019a15dab46b6d2dc636b8ad0e08a4ba92e0dbe1644f9",
+    "src/cubedynamics/verbs/plot.py": "a72f0f982ea91b3a71a65ed2b38db6667415839c0a3feac359633b245b706cce",
+    "src/cubedynamics/verbs/plot_mean.py": "551bed3b922028207d6bfad6f5f31cef6036222c3469dbae029724f1cd6ee50e",
+    "src/cubedynamics/verbs/states.py": "47b06f52f096147a8bc21eaf641872ee35270994c0dff38a1a20d5c17993f40a",
+    "src/cubedynamics/verbs/stats.py": "e3c4190b9113886477c11dbefea14af6b3c76a2c77e637c3b583b7fee5b23153",
+    "src/cubedynamics/verbs/synchrony.py": "66df50f622cbc6968ca156d2a1b08d93bb82103148e53bc22bdcb1d5f3839bd6",
+    "src/cubedynamics/verbs/tubes.py": "148c26bf82aa8a8e71f65586bae2f417f83314cef0cb3c07f0ac9436f6282fa4",
+    "src/cubedynamics/verbs/vase.py": "b9b7a1580b6774dec533daa7438f4dc54ecf8707f4f265f7809b4bba6d2d11cf",
+    "src/cubedynamics/version.py": "29018f3f042e771da6374de4f1eedf30fc246889123fe83dfacf61bc3c77b2b6",
+    "src/cubedynamics/viewers/__init__.py": "5a53d090c36d3c8b4303204da667226b996c3bc23bbb2342732e7486d68deadd",
+    "src/cubedynamics/viewers/cube_viewer.py": "8505d96f14e8c0fc196776d0cce9d8859179404ff10e2e805074c118526f1306",
+    "src/cubedynamics/viewers/simple_plot.py": "7dc6c90d34cba1b600c31f4c122ac85da2f46844d6b016b881aa1b93426e1ab9",
+    "src/cubedynamics/viz/__init__.py": "b957afd6ca1c8c7e72d72d16c4af6d996efa8602e17e7d0edba33149405534e3",
+    "src/cubedynamics/viz/lexcube_viz.py": "16f42bf21ec4be34632a2fb70ba3e1e4aea35501edc2615dfd59cb1669ff88a4",
+    "src/cubedynamics/viz/qa_plots.py": "cb9d8f00e446f7cda6e84b7a39b08ba66f95348a2bde29a6317b90697a9d378c",
+    "tests/fixtures/real_data/gridmet_badlands_july_2001.nc": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721",
+    "tests/fixtures/real_data/gridmet_badlands_july_2001.provenance.json": "fa13beaad547747eeaf7764b1b08bb481ca08bc3fc97761fa153bd90c6370888",
+    "tests/fixtures/real_data/prism_boulder_january_2024.nc": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7",
+    "tests/fixtures/real_data/prism_boulder_january_2024.provenance.json": "a06bf922f0b5524ab7e53d740c1f869d7e8d9c95be934cde62b1ae7143691127"
+  },
+  "policy": "Generated real-data teaching results; fixture QA is not live-source certification.",
+  "results": {
+    "anomaly": {
+      "caption": "PRISM, Boulder, 16 January 2024: absolute maximum temperature above and anomaly below. anomaly() subtracts each pixel\u2019s 10\u201320 January mean; the diverging scale is centered on zero.",
+      "example_key": "anomaly",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\nwindow = (pipe(cube)\n          | v.apply(lambda c: c.sel(time=slice(\"2024-01-10\", \"2024-01-20\")))).unwrap()\nassert window.sizes[\"time\"] == 11\ndepartures = (pipe(window) | v.anomaly(dim=\"time\")).unwrap()\n\nfig, axes = plt.subplots(2, 1, figsize=(5.4, 6.5), layout=\"constrained\")\nwindow.sel(time=\"2024-01-16\").plot(ax=axes[0], cmap=\"magma\", cbar_kwargs={\"label\": \"\u00b0C\"})\ndepartures.sel(time=\"2024-01-16\").plot(ax=axes[1], cmap=\"RdBu_r\", center=0,\n                                    cbar_kwargs={\"label\": \"Departure (\u00b0C)\"})\nfor ax, title in zip(axes, [\"Before \u00b7 absolute temperature\", \"After anomaly() \u00b7 local departure\"]):\n    ax.set(title=title, xlabel=\"Longitude (\u00b0E)\", ylabel=\"Latitude (\u00b0N)\")\nplt.show()",
+      "fixtures": [
+        "prism_boulder_january_2024"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "Negative departures mean colder than that pixel\u2019s baseline. The coldest absolute location need not have the largest departure. A short event-window baseline is not a long-term climate normal.",
+      "kind": "figure",
+      "output": "anomaly.png",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [
+        "subset"
+      ],
+      "sha256": "a186c4eae3c848c477a2fc8cdb2e0ad6c989e2c1446a7d833b57615b7bf81100",
+      "source_code": "scripts/visual_examples.py"
+    },
+    "export": {
+      "caption": "The PRISM regional-anomaly result is written with to_netcdf() and reopened. An identity assertion checks values, coordinates, names and attributes; the temporary example file is then removed.",
+      "example_key": "export",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\nwindow = (pipe(cube)\n          | v.apply(lambda c: c.sel(time=slice(\"2024-01-10\", \"2024-01-20\")))).unwrap()\nassert window.sizes[\"time\"] == 11\ndepartures = (pipe(window) | v.anomaly(dim=\"time\")).unwrap()\nregional_anomaly = (pipe(departures)\n                    | v.mean(dim=(\"y\", \"x\"), keep_dim=False)).unwrap()\nassert regional_anomaly.dims == (\"time\",)\nfrom tempfile import TemporaryDirectory\nwith TemporaryDirectory() as directory:\n    target = Path(directory) / \"regional_anomaly.nc\"\n    saved = (pipe(regional_anomaly) | v.to_netcdf(str(target), engine=\"scipy\")).unwrap()\n    with xr.open_dataarray(target, engine=\"scipy\") as reopened:\n        restored = reopened.load()\n    xr.testing.assert_identical(saved, restored)\noutput_table = pd.DataFrame({\n    \"Check\": [\"Dimensions\", \"Observations\", \"Values and metadata\"],\n    \"Before\": [str(saved.dims), str(saved.size), \"Reference result\"],\n    \"After reopening\": [str(restored.dims), str(restored.size), \"Identical (asserted)\"],\n})\n\ndisplay(output_table)",
+      "fixtures": [
+        "prism_boulder_january_2024"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "Export is an explicit side effect. The compact table is more useful here than another identical curve: it reports the tested round trip.",
+      "kind": "table",
+      "output": "export.json",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [
+        "summary"
+      ],
+      "sha256": "b4387cc2e3adf9ff4cc99c8e812758ccb981a2479b17b0b925f43f26b7b882bc",
+      "source_code": "scripts/visual_examples.py"
+    },
+    "observed": {
+      "caption": "Real PRISM daily maximum temperature, Boulder region, 16 January 2024. Selecting a date exposes one spatial face of the cube; north is up.",
+      "example_key": "observed",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\n\nfield = cube.sel(time=\"2024-01-16\")\n\nfig, ax = plt.subplots(figsize=(5.4, 3.8), layout=\"constrained\")\nfield.plot(ax=ax, cmap=\"magma\", cbar_kwargs={\"label\": \"Daily maximum (\u00b0C)\"})\nax.set(title=\"PRISM \u00b7 Boulder \u00b7 16 January 2024\",\n       xlabel=\"Longitude (\u00b0E)\", ylabel=\"Latitude (\u00b0N)\")\nplt.show()",
+      "fixtures": [
+        "prism_boulder_january_2024"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "Each cell is a gridded estimate, not a station reading. This map shows absolute temperature; it does not yet say how unusual the day was.",
+      "kind": "figure",
+      "output": "observed.png",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [],
+      "sha256": "49e818bdf78b08422788de4465d670f7105411b7085b299fda87422f1e8ac90f",
+      "source_code": "scripts/visual_examples.py"
+    },
+    "sources": {
+      "caption": "Two real, source-QA fixtures in their native temperature units and geographic grids. Their places and dates differ; each panel has its own color scale. This is a support check, not evidence of source bias or agreement.",
+      "example_key": "sources",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\n\ngridmet = observed_cube(\"gridmet_badlands_july_2001\", \"temperature\")\nassert gridmet.attrs[\"units\"] == \"K\"\n# No conversion, resampling, or date alignment is hidden here.\nassert not np.intersect1d(cube.time.values, gridmet.time.values).size\n\nfig, axes = plt.subplots(2, 1, figsize=(5.4, 6.5), layout=\"constrained\")\ncube.isel(time=0).plot(ax=axes[0], cmap=\"magma\", cbar_kwargs={\"label\": \"PRISM (\u00b0C)\"})\ngridmet.isel(time=0).plot(ax=axes[1], cmap=\"magma\", cbar_kwargs={\"label\": \"gridMET (K)\"})\nfor ax, title in zip(axes, [\"PRISM \u00b7 Boulder \u00b7 1 January 2024\", \"gridMET \u00b7 Badlands \u00b7 1 July 2001\"]):\n    ax.set(title=title, xlabel=\"Longitude (\u00b0E)\", ylabel=\"Latitude (\u00b0N)\")\nplt.show()",
+      "fixtures": [
+        "prism_boulder_january_2024",
+        "gridmet_badlands_july_2001"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "These samples cannot support a paired temperature comparison. Obtain overlapping AOIs and dates, explicitly convert K to \u00b0C, and choose a spatial alignment method before comparing products. Native grid cells are approximately 4 km, not identical spatial support.",
+      "kind": "figure",
+      "output": "sources.png",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [],
+      "sha256": "ab6545414f553e8cb6966052abc85183ce266829d5ad88af939be2adc8fef8dc",
+      "source_code": "scripts/visual_examples.py"
+    },
+    "standardize": {
+      "caption": "All PRISM grid-cell days in the selected window, before and after per-pixel zscore(). Histograms show distributions on different, explicitly labeled scales; the code asserts equivalence to the direct formula.",
+      "example_key": "standardize",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\nwindow = (pipe(cube)\n          | v.apply(lambda c: c.sel(time=slice(\"2024-01-10\", \"2024-01-20\")))).unwrap()\nassert window.sizes[\"time\"] == 11\nstandardized = (pipe(window) | v.zscore(dim=\"time\")).unwrap()\ndirect = (window - window.mean(\"time\")) / window.std(\"time\")\nnp.testing.assert_allclose(standardized, direct, rtol=1e-6, atol=1e-6)\n# Standardization is dimensionless; replace the inherited temperature label.\nstandardized.attrs[\"units\"] = \"1\"\n\nfig, axes = plt.subplots(2, 1, figsize=(5.4, 5.8), layout=\"constrained\")\naxes[0].hist(window.values.ravel(), bins=24, color=\"#246b70\")\naxes[1].hist(standardized.values.ravel(), bins=24, color=\"#246b70\")\naxes[0].set(title=\"Before \u00b7 selected PRISM values\", xlabel=\"Daily maximum (\u00b0C)\", ylabel=\"Cell-days\")\naxes[1].set(title=\"After zscore() \u00b7 per-pixel scaling\", xlabel=\"Standard deviations (unitless)\", ylabel=\"Cell-days\")\nplt.show()",
+      "fixtures": [
+        "prism_boulder_january_2024"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "Each pixel is centered and scaled by its own temporal variability. The pooled histogram is not fitted to a normal distribution, and its cell-days are not independent samples.",
+      "kind": "figure",
+      "output": "standardize.png",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [
+        "subset"
+      ],
+      "sha256": "71ee5d6c7ccfe7a3808ddbdac9d0a770bd5d9853e7f2db30cbd93b27d8466645",
+      "source_code": "scripts/visual_examples.py"
+    },
+    "subset": {
+      "caption": "PRISM maximum temperature at one Boulder grid cell. The apply/sel stage retains 10\u201320 January 2024 (colored markers) without changing their values.",
+      "example_key": "subset",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\n\nwindow = (pipe(cube)\n          | v.apply(lambda c: c.sel(time=slice(\"2024-01-10\", \"2024-01-20\")))).unwrap()\nassert window.sizes[\"time\"] == 11\n\nfig, ax = plt.subplots(figsize=(5.4, 3.4), layout=\"constrained\")\ncube.isel(y=12, x=12).plot(ax=ax, color=\"0.65\", label=\"Full fixture\")\nwindow.isel(y=12, x=12).plot(ax=ax, marker=\"o\", color=\"#246b70\", label=\"Selected days\")\nax.set(title=\"One grid cell \u00b7 select 10\u201320 January\", xlabel=\"Date\", ylabel=\"Daily maximum (\u00b0C)\")\nax.legend(frameon=False)\nplt.show()",
+      "fixtures": [
+        "prism_boulder_january_2024"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "The grey observations remain in cube but not window. Subsequent anomalies use these eleven selected days, not the entire month or a climatology.",
+      "kind": "figure",
+      "output": "subset.png",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [],
+      "sha256": "74f28f6d86a422a0f510f284c46f010f31b9628b6df391230ec318287ba14975",
+      "source_code": "scripts/visual_examples.py"
+    },
+    "summary": {
+      "caption": "The mean verb reduces PRISM y and x to a daily series for 10\u201320 January. The plotted quantity is the unweighted mean of grid-cell anomalies, in \u00b0C.",
+      "example_key": "summary",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\nwindow = (pipe(cube)\n          | v.apply(lambda c: c.sel(time=slice(\"2024-01-10\", \"2024-01-20\")))).unwrap()\nassert window.sizes[\"time\"] == 11\ndepartures = (pipe(window) | v.anomaly(dim=\"time\")).unwrap()\nregional_anomaly = (pipe(departures)\n                    | v.mean(dim=(\"y\", \"x\"), keep_dim=False)).unwrap()\nassert regional_anomaly.dims == (\"time\",)\n\nfig, ax = plt.subplots(figsize=(5.4, 3.4), layout=\"constrained\")\nregional_anomaly.plot(ax=ax, marker=\"o\", color=\"#246b70\")\nax.axhline(0, color=\"0.5\", linewidth=0.8)\nax.set(title=\"After mean() \u00b7 grid-cell average anomaly\", xlabel=\"Date\", ylabel=\"Departure (\u00b0C)\")\nplt.show()",
+      "fixtures": [
+        "prism_boulder_january_2024"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "Space has disappeared from the result, but time remains. This is an equal-cell average on a latitude/longitude grid, not an area-weighted regional estimate.",
+      "kind": "figure",
+      "output": "summary.png",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [
+        "anomaly"
+      ],
+      "sha256": "97390e1e92e164c7cbd5e8ce57d846dc1586b041b9c058f629d2262fa2ae5e34",
+      "source_code": "scripts/visual_examples.py"
+    },
+    "threshold": {
+      "caption": "One Boulder PRISM grid cell in January 2024: daily maximum temperature becomes a boolean state. direction='below' includes equality (\u2264 0\u00b0C), verified against the original values.",
+      "example_key": "threshold",
+      "execution_code": "from pathlib import Path\nimport hashlib\nimport json\nimport numpy as np\nimport pandas as pd\nimport xarray as xr\nimport matplotlib.pyplot as plt\nfrom IPython.display import display\nfrom cubedynamics import pipe, verbs as v\n\n# Run in the cloned repository or beside a downloaded notebook in the repo.\nrepo = next(p for p in (Path.cwd(), *Path.cwd().parents)\n            if (p / \"tests/fixtures/real_data\").is_dir())\n\ndef observed_cube(stem, variable):\n    path = repo / \"tests/fixtures/real_data\" / (stem + \".nc\")\n    record = json.loads(path.with_suffix(\".provenance.json\").read_text())\n    assert hashlib.sha256(path.read_bytes()).hexdigest() == record[\"fixture_sha256\"]\n    with xr.open_dataset(path, engine=\"scipy\") as dataset:\n        assert not dataset.attrs[\"is_synthetic\"]\n        result = dataset[variable].load()  # Only this small, reviewed local extract.\n        result.attrs = {**dataset.attrs, **result.attrs}\n    assert result.dims == (\"time\", \"y\", \"x\")\n    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)\n    assert bool(np.isfinite(result).all())\n    return result\n\ncube = observed_cube(\"prism_boulder_january_2024\", \"tmax\").rename(\"temperature\")\nassert cube.attrs[\"units\"] == \"degC\"\n\nplt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})\n\ncold = (pipe(cube) | v.threshold_state(threshold=0, direction=\"below\")).unwrap()\nsite = cube.isel(y=12, x=12)\nstate = cold.state.isel(y=12, x=12)\nnp.testing.assert_array_equal(state, site <= 0)\n\nfig, axes = plt.subplots(2, 1, figsize=(5.4, 5.4), sharex=True, layout=\"constrained\")\nsite.plot(ax=axes[0], color=\"#246b70\", marker=\"o\")\naxes[0].axhline(0, color=\"0.4\", linestyle=\"--\", label=\"Threshold: 0\u00b0C\")\naxes[0].set(title=\"Before \u00b7 PRISM daily maximum\", ylabel=\"Temperature (\u00b0C)\", xlabel=\"\")\naxes[0].legend(frameon=False)\naxes[1].step(state.time, state.astype(int), where=\"mid\", color=\"#246b70\")\naxes[1].set(title=\"After threshold_state() \u00b7 at or below 0\u00b0C\", xlabel=\"Date\", ylabel=\"State\", yticks=[0, 1], ylim=(-0.1, 1.1))\nplt.show()",
+      "fixtures": [
+        "prism_boulder_january_2024"
+      ],
+      "input_type": "REAL DATA",
+      "interpretation": "A true state describes a criterion, not an event duration or an ecological impact. This complete fixture has no missing values; missing-data policy must be checked for other inputs.",
+      "kind": "figure",
+      "output": "threshold.png",
+      "producer": "scripts/build_visual_docs.py",
+      "requires": [],
+      "sha256": "3d28bfec885d2419d6732d5687fdc73574aa562413133ce2780c7ff5c8baf5e3",
+      "source_code": "scripts/visual_examples.py"
+    }
+  },
+  "schema_version": 1,
+  "scientific_qa": "python scripts/run_source_qa.py (same reviewed PRISM/gridMET inputs)"
+}

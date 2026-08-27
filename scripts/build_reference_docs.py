@@ -155,6 +155,7 @@ plt.show()'''
 
 def generate():
     from docs_examples import EXAMPLES, FIXTURE_SETUP, NOTES
+    from visual_examples import render_examples
     pages = {}
     catalog = data.list_sources()
     index = "# Library\n\nFind environmental information by scientific noun. "
@@ -173,6 +174,8 @@ def generate():
         page = f"library/nouns/{noun}.md"
         entries = [data.describe(noun, s) for s in sources]
         text = f"# {noun}\n\n{NOUN_DEFINITIONS.get(noun, summary(getattr(data, noun)))}\n"
+        if noun == "temperature":
+            text += section("See the field", "A frozen PRISM extract shows what this implemented noun represents. The live noun loader is documented below; this illustration does not make a live request.\n" + render_examples(("observed",), page))
         text += section("Quick facts", table(["Fact", "Value"], [
             ("Semantic type", "Derived vegetation index" if noun == "vegetation_index" else "Gridded environmental observations"),
             ("Units by source", "; ".join(f"{e['source']}: {cell(e['units'])}" for e in entries)),
@@ -196,6 +199,8 @@ def generate():
                 "\nCheck units and statistic choice before comparing values; explicitly align spatial and temporal support. "
                 "Record the serving revision and retrieval metadata from each result. "
                 "[Learn: provenance and source choice](../../learn/provenance.md).")
+            if noun == "temperature":
+                text += "\n[See the real-fixture support comparison](../../datasets/which_dataset.md#inspect-the-support-of-a-source-comparison): inspect native grids and units, and why non-overlapping samples cannot establish source agreement.\n"
         dims = "`time, band, y, x`" if noun == "surface_reflectance" else "`time, y, x`"
         output_name = "ndvi" if noun == "vegetation_index" else noun
         text += section("Returned data", f"An `xarray.DataArray` named `{output_name}`, normally with {dims} dimensions. `time` stores acquisition/observation times; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.\n\nUnits are source-specific (above), not silently harmonized. Attributes include `scientific_noun`, `source_flavor`, `source_variables`, `source_provider`, `source_product`, `spatial_query`, `temporal_query`, `crs`, `retrieved_at`, `data_state`, and serving/schema provenance. See [provenance helpers](../../api/data.md).")
@@ -267,7 +272,9 @@ def generate():
         text += section("Accepts", note.get("accepts", contract or "Consult the input parameters and implementation notes below. This namespace also includes direct helpers, not only pipe factories."))
         text += section("Returns", note.get("returns", parts.get("Returns", contract or "The public docstring does not specify a return contract. Do not assume a pipe-ready return; consult the linked implementation.")))
         text += section("Order / grammar behavior", note.get("order", contract or "A pipe passes the preceding result to the next callable. Confirm that the previous step's dimensions and semantic state satisfy the input contract. Reductions can remove dimensions; plotting may produce side effects."))
-        if name in EXAMPLES:
+        if name in {"anomaly", "threshold_state"}:
+            example = render_examples(("anomaly" if name == "anomaly" else "threshold",), page)
+        elif name in EXAMPLES:
             example = "Run from the repository root after `python -m pip install -e '.[vignettes]'`. Uses the checked observational PRISM fixture; no network is required.\n\n```python\n" + FIXTURE_SETUP + "\n\n" + EXAMPLES[name] + "\n```"
         else:
             example = note.get("example", "A standalone, reviewed real-data example is not yet available for this helper. See the linked workflow and implementation notes; this reference does not substitute generated observations or invent an executable example.")

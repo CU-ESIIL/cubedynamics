@@ -43,6 +43,9 @@ jobs:
         env:
           CUBEDYNAMICS_GA_MEASUREMENT_ID: ${{ vars.CUBEDYNAMICS_GA_MEASUREMENT_ID }}
         run: |
+          python scripts/build_visual_docs.py --check
+          python scripts/build_visual_docs.py
+          python scripts/build_visual_docs.py --check
           python scripts/build_reference_docs.py --check
           mkdocs build --strict --clean --site-dir dist
           python scripts/check_site_links.py dist

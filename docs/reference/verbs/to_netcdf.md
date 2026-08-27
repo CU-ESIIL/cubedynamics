@@ -65,6 +65,7 @@ Use only the input types documented by this callable; not every helper accepts e
 
 ## See also
 
+- [04 · Read the analysis from left to right](../../vignettes/grammar_basics.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
 - [Verbs by purpose](index.md)

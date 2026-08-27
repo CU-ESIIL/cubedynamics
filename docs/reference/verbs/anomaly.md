@@ -35,24 +35,77 @@ Apply before reductions that remove a required dimension. Choose the reduction d
 
 ## Minimal example
 
-Run from the repository root after `python -m pip install -e '.[vignettes]'`. Uses the checked observational PRISM fixture; no network is required.
+REAL DATA · Reviewed local PRISM observations; no live request.
+
+<details class="cd-example-setup" markdown="1">
+<summary>Reproduce: imports, checked data and setup</summary>
+
+Run in a clone after `python -m pip install -e '.[vignettes]'`.
 
 ```python
 from pathlib import Path
+import hashlib
+import json
+import numpy as np
+import pandas as pd
 import xarray as xr
 import matplotlib.pyplot as plt
+from IPython.display import display
 from cubedynamics import pipe, verbs as v
 
-# Frozen, reviewed PRISM observations; run from the repository root.
-path = Path("tests/fixtures/real_data/prism_boulder_january_2024.nc")
-with xr.open_dataset(path, engine="scipy") as observed:
-    cube = observed["tmax"].load()
+# Run in the cloned repository or beside a downloaded notebook in the repo.
+repo = next(p for p in (Path.cwd(), *Path.cwd().parents)
+            if (p / "tests/fixtures/real_data").is_dir())
+
+def observed_cube(stem, variable):
+    path = repo / "tests/fixtures/real_data" / (stem + ".nc")
+    record = json.loads(path.with_suffix(".provenance.json").read_text())
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == record["fixture_sha256"]
+    with xr.open_dataset(path, engine="scipy") as dataset:
+        assert not dataset.attrs["is_synthetic"]
+        result = dataset[variable].load()  # Only this small, reviewed local extract.
+        result.attrs = {**dataset.attrs, **result.attrs}
+    assert result.dims == ("time", "y", "x")
+    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)
+    assert bool(np.isfinite(result).all())
+    return result
+
+cube = observed_cube("prism_boulder_january_2024", "tmax").rename("temperature")
 assert cube.attrs["units"] == "degC"
 
-result = (pipe(cube) | v.anomaly(dim="time")).unwrap()
-result.isel(time=0).plot()
+plt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})
+window = (pipe(cube)
+          | v.apply(lambda c: c.sel(time=slice("2024-01-10", "2024-01-20")))).unwrap()
+assert window.sizes["time"] == 11
+```
+
+</details>
+
+<section class="cd-analysis-step" data-example="anomaly" markdown="1">
+
+### Remove the local baseline
+
+Where was 16 January colder than each pixel’s own selected-period mean?
+
+```python
+departures = (pipe(window) | v.anomaly(dim="time")).unwrap()
+
+fig, axes = plt.subplots(2, 1, figsize=(5.4, 6.5), layout="constrained")
+window.sel(time="2024-01-16").plot(ax=axes[0], cmap="magma", cbar_kwargs={"label": "°C"})
+departures.sel(time="2024-01-16").plot(ax=axes[1], cmap="RdBu_r", center=0,
+                                    cbar_kwargs={"label": "Departure (°C)"})
+for ax, title in zip(axes, ["Before · absolute temperature", "After anomaly() · local departure"]):
+    ax.set(title=title, xlabel="Longitude (°E)", ylabel="Latitude (°N)")
 plt.show()
 ```
+
+<figure class="cd-generated-result"><img src="../../../assets/generated/visual/anomaly.png" alt="PRISM, Boulder, 16 January 2024: absolute maximum temperature above and anomaly below. anomaly() subtracts each pixel’s 10–20 January mean; the diverging scale is centered on zero." width="756" height="910" loading="lazy" decoding="async"><figcaption>PRISM, Boulder, 16 January 2024: absolute maximum temperature above and anomaly below. anomaly() subtracts each pixel’s 10–20 January mean; the diverging scale is centered on zero.</figcaption></figure>
+
+<p class="cd-interpretation"><strong>What changed?</strong> Negative departures mean colder than that pixel’s baseline. The coldest absolute location need not have the largest departure. A short event-window baseline is not a long-term climate normal.</p>
+
+[Generating code](https://github.com/CU-ESIIL/cubedynamics/blob/main/scripts/visual_examples.py) · [Figure/input provenance](../../assets/generated/visual/manifest.json)
+
+</section>
 
 ## Works with
 

@@ -4,6 +4,77 @@
 
 Gridded air temperature, with an explicit daily statistic.
 
+## See the field
+
+A frozen PRISM extract shows what this implemented noun represents. The live noun loader is documented below; this illustration does not make a live request.
+
+REAL DATA · Reviewed local PRISM observations; no live request.
+
+<details class="cd-example-setup" markdown="1">
+<summary>Reproduce: imports, checked data and setup</summary>
+
+Run in a clone after `python -m pip install -e '.[vignettes]'`.
+
+```python
+from pathlib import Path
+import hashlib
+import json
+import numpy as np
+import pandas as pd
+import xarray as xr
+import matplotlib.pyplot as plt
+from IPython.display import display
+from cubedynamics import pipe, verbs as v
+
+# Run in the cloned repository or beside a downloaded notebook in the repo.
+repo = next(p for p in (Path.cwd(), *Path.cwd().parents)
+            if (p / "tests/fixtures/real_data").is_dir())
+
+def observed_cube(stem, variable):
+    path = repo / "tests/fixtures/real_data" / (stem + ".nc")
+    record = json.loads(path.with_suffix(".provenance.json").read_text())
+    assert hashlib.sha256(path.read_bytes()).hexdigest() == record["fixture_sha256"]
+    with xr.open_dataset(path, engine="scipy") as dataset:
+        assert not dataset.attrs["is_synthetic"]
+        result = dataset[variable].load()  # Only this small, reviewed local extract.
+        result.attrs = {**dataset.attrs, **result.attrs}
+    assert result.dims == ("time", "y", "x")
+    assert np.all(np.diff(result.x) > 0) and np.all(np.diff(result.y) < 0)
+    assert bool(np.isfinite(result).all())
+    return result
+
+cube = observed_cube("prism_boulder_january_2024", "tmax").rename("temperature")
+assert cube.attrs["units"] == "degC"
+
+plt.rcParams.update({'font.family': 'DejaVu Sans', 'font.size': 12, 'axes.titlesize': 13, 'axes.labelsize': 12, 'figure.facecolor': 'white', 'axes.facecolor': 'white', 'savefig.facecolor': 'white', 'figure.dpi': 140})
+```
+
+</details>
+
+<section class="cd-analysis-step" data-example="observed" markdown="1">
+
+### Start with a temperature field
+
+Where was the cold outbreak visible on 16 January?
+
+```python
+field = cube.sel(time="2024-01-16")
+
+fig, ax = plt.subplots(figsize=(5.4, 3.8), layout="constrained")
+field.plot(ax=ax, cmap="magma", cbar_kwargs={"label": "Daily maximum (°C)"})
+ax.set(title="PRISM · Boulder · 16 January 2024",
+       xlabel="Longitude (°E)", ylabel="Latitude (°N)")
+plt.show()
+```
+
+<figure class="cd-generated-result"><img src="../../../assets/generated/visual/observed.png" alt="Real PRISM daily maximum temperature, Boulder region, 16 January 2024. Selecting a date exposes one spatial face of the cube; north is up." width="756" height="532" loading="lazy" decoding="async"><figcaption>Real PRISM daily maximum temperature, Boulder region, 16 January 2024. Selecting a date exposes one spatial face of the cube; north is up.</figcaption></figure>
+
+<p class="cd-interpretation"><strong>What changed?</strong> Each cell is a gridded estimate, not a station reading. This map shows absolute temperature; it does not yet say how unusual the day was.</p>
+
+[Generating code](https://github.com/CU-ESIIL/cubedynamics/blob/main/scripts/visual_examples.py) · [Figure/input provenance](../../assets/generated/visual/manifest.json)
+
+</section>
+
 ## Quick facts
 
 | Fact | Value |
@@ -46,6 +117,8 @@ The same noun does not make these products numerically interchangeable. CubeDyna
 | Interpretation constraints | No native daily mean temperature variable; choose maximum or minimum. | Recent grids are revised as station data and quality control mature. |
 
 Check units and statistic choice before comparing values; explicitly align spatial and temporal support. Record the serving revision and retrieval metadata from each result. [Learn: provenance and source choice](../../learn/provenance.md).
+
+[See the real-fixture support comparison](../../datasets/which_dataset.md#inspect-the-support-of-a-source-comparison): inspect native grids and units, and why non-overlapping samples cannot establish source agreement.
 
 ## Returned data
 

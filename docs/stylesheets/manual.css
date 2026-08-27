@@ -11,3 +11,23 @@
 .md-typeset .cd-manual h3 { font-size: 1.1rem; }
 .md-tabs, .md-header .md-source { color: #f8f7f3; }
 .md-tabs .md-tabs__item--active .md-tabs__link { color: #c7dcda; opacity: 1; border-bottom: 2px solid currentColor; }
+
+/* Executable scientific examples: quiet code/result/interpretation grouping. */
+.cd-analysis-step { margin: 1.8rem 0 2.6rem; min-width: 0; }
+.md-typeset .cd-generated-result { margin: .8rem 0; max-width: 100%; }
+.md-typeset .cd-generated-result img { display: block; width: 100%; max-width: 756px; height: auto; background: white; }
+.md-typeset .cd-generated-result figcaption,
+.md-typeset .cd-result-caption { text-align: left; font-size: .82rem; line-height: 1.6; color: var(--md-default-fg-color); margin: .7rem 0; max-width: 48rem; }
+.cd-example-setup { margin: 1rem 0; }
+.cd-example-setup summary { cursor: pointer; font-weight: 600; }
+.cd-interpretation { max-width: 48rem; }
+.cd-result-table { overflow-x: auto; }
+@media (max-width: 600px) {
+  .md-typeset .cd-generated-result figcaption,
+  .md-typeset .cd-result-caption { font-size: .8rem; }
+  .cd-analysis-step { margin-bottom: 2rem; }
+  /* Execution counts are useful on desktop; mobile needs the figure width. */
+  .md-typeset .jupyter-wrapper .jp-InputPrompt,
+  .md-typeset .jupyter-wrapper .jp-OutputPrompt { display: none; }
+  .md-typeset .jupyter-wrapper .jp-Cell { padding-left: 0; padding-right: 0; }
+}

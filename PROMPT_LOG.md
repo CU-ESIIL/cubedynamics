@@ -2877,3 +2877,128 @@ secrets, credentials, private tokens, or unrelated transcript text.
   content changed. Existing notebook render caches were reused by MkDocs;
   browser and live-provider suites were not rerun for this root-guide-only edit.
   No release, commit, push, or deployment was performed.
+
+## 2026-08-27 — Source-lifecycle baseline and month_filter; Daymet blocked
+
+- Request: preserve the baseline, repair month_filter, extend the existing
+  lifecycle, and certify Daymet through a bounded NCSS request before expanding
+  to any further source. Read AGENTS and the full pasted request. The named
+  `CubeDynamics_Data_Source_Upgrade_Plan_repository_informed_v3(1).pdf` was not
+  available; inspected the previously supplied `v3.pdf` and requested confirmation.
+- Captured `artifacts/source_lifecycle/baseline.json` before runtime changes at
+  SHA `b4321518cb5bbef393d9e82e7b702cb6d6c4578d`: package 0.1.0, 8 nouns,
+  3 sources, 10 noun/source pairs, 51 public verb-namespace callables. Baseline
+  offline suite: 508 passed, 5 skipped, 245 deselected; streaming: 32 passed;
+  three source QA results passed; 68 generated references fresh; strict build
+  passed. Commands, logs, source QA records and JUnit counts are retained.
+- Moved the supported month_filter factory into `verbs/stats.py` and pointed
+  `v.month_filter` directly at it. The old ops/top-level shortcuts still warn
+  and forward. Preserved calendar selection, iterable capture, historical int
+  coercion, empty-selection behavior and lazy arrays. Added 11 focused tests;
+  updated generated reference classification, browser expectations, README,
+  AGENTS and the deprecation inventory. No replacement public name was added.
+- Added `scripts/source_lifecycle_evidence.py` and three tests. Baseline capture
+  refuses to overwrite historical evidence. Release manifests compute catalog,
+  callable/status, Python, notebook and reference inventories; link supplied
+  JUnit/QA evidence; include serving history and working-tree fingerprints.
+  Output: `artifacts/release_manifest.json`; overlapping suites are separate,
+  not summed into an inflated total. The supported-notebook metadata key was
+  corrected during baseline capture, before runtime edits.
+- Daymet access check: the legacy 1840 NCSS request for tmax, bbox
+  [-105.35,39.95,-105.20,40.10], 2020-07-01 through 2020-07-03 redirects to
+  Earthdata/Hyrax and then login, returning HTTP 401 anonymously. The 2129
+  THREDDS catalog redirects to Hyrax and returns HTTP 400. No EARTHDATA_TOKEN
+  is configured. ORNL's March 2026 guidance in Earthdata Forum topic 7585
+  points to indexed OPeNDAP access. This does not prove that an authenticated
+  legacy NCSS request can work; no backend substitution was implemented.
+- Evidence: `artifacts/source_qa/daymet/access_probe.json` records exact request,
+  redirects, HTTP results, and separate retrieval BLOCKED / interpretation
+  NOT_TESTED / certification BLOCKED. The diagnostic script is retained under
+  `artifacts/source_lifecycle/probe_daymet.py`. The existing live runner also
+  returned BLOCKED; its exit code 0 is not a scientific PASS. No scientific
+  Daymet values, identity, fingerprint, or plots were invented.
+- Final checks for completed work: offline 521 passed, 5 skipped, 245
+  deselected; focused month_filter/evidence/Daymet-candidate 16 passed;
+  streaming 32 passed; all three existing source QA results passed; reference
+  freshness 68 pages; strict build and internal links passed; browser 316
+  passed (292 pages, no recorded page errors). Browser launch initially failed
+  inside the sandbox; the authorized rerun passed. Wheel/sdist build and twine
+  both passed; clean wheel install with declared dependencies passed an isolated
+  import and warning-free lazy month_filter smoke test. Existing setuptools
+  license deprecation warnings remain. Size policy passed for 1007 tracked
+  files and whitespace checks passed.
+- The checkout advanced externally during work to `41e11aa975edfb53a343f98f55b01cdb89080241`,
+  containing the implementation edits; this agent did not commit or push.
+  Baseline SHA remains unchanged. No source data, catalog registration, serving
+  history, source QA profiles, or scientific certification status was changed.
+- Remaining: resolve authorized current Daymet backend and Earthdata access;
+  confirm the SOP copy; then complete lifecycle fields, normalization, live
+  numerical/visual certification and the generated dashboard. Do not promote
+  Daymet or start 3DEP until that work is complete. Task is partial, not done.
+
+## 2026-08-27 — Reproducible visual documentation, bounded first pass
+
+- Request: make actual code/results/interpretation visible together, preserving
+  the grammar, five tabs and existing notebook/browser architecture. Read AGENTS,
+  the full supplied prompt, current generators, fixture/source QA, notebook
+  execution, browser checks and recent work log. This task does not resume the
+  separately blocked Daymet work above.
+- Added shared executable editorial examples in `scripts/visual_examples.py`
+  and offline production/freshness checks in `scripts/build_visual_docs.py`.
+  The same code is displayed on static pages and copied into native cells by
+  the existing notebook builder. Captions explain quantities, operations,
+  baseline/units, interpretation and limitations. Export uses an asserted
+  round-trip table rather than another redundant plot.
+- Upgraded exactly these six teaching/reference surfaces: `learn/verbs.md`,
+  `vignettes/grammar_basics.ipynb`, `library/nouns/temperature.md`,
+  `datasets/which_dataset.md`, `reference/verbs/anomaly.md`, and
+  `reference/verbs/threshold_state.md` (under docs). Existing generated apply
+  and to_netcdf references gained links to the newly relevant vignette only.
+  No runtime APIs, fixture bytes, catalog, source lifecycle or top-level tabs
+  were changed.
+- Seven unique scientific PNGs and one export table live under
+  `docs/assets/generated/visual/`. All use the reviewed, checksum-verified real
+  PRISM Boulder January 2024 fixture; the source-support figure additionally
+  uses the reviewed gridMET Badlands July 2001 fixture. Different locations,
+  periods and native C/K units are explicit: this is not a paired comparison,
+  bias estimate or source-equivalence claim. No synthetic publication figures
+  or manually pasted screenshots were introduced.
+- The manifest records code, input/provenance/runtime hashes, captions,
+  interpretations, output hashes and generation context. Existing source QA
+  remains authoritative for these bounded fixtures, not live certification.
+  Added per-cell output validation and optional retained executed notebooks to
+  `run_vignettes.py`; no second notebook execution framework. CI/Pages check
+  freshness and regenerate before building. Maintainer inventory/regeneration
+  guidance is in `docs/dev/visual_documentation.md` and linked from AGENTS.
+- Added 14 offline regressions for numerical equivalence, exact displayed code,
+  provenance/freshness, offline generation and deliberate missing/corrupt/blank
+  output/execution failures; added 12 browser cases for code-result ordering,
+  decoded static/native notebook figures, captions and desktop/390px layout.
+  Browser testing caught and fixed raw-HTML relative image URL depth under
+  MkDocs directory URLs. Manual mobile review also caught wasted Jupyter gutter
+  space; wider mobile figures now have a stricter >310px assertion. Static
+  figures are lazy-loaded with intrinsic dimensions to reserve their space.
+
+- Final validation: all 9 supported notebooks executed offline (14 static plot
+  outputs total; grammar has 5 plots plus a verified table). Figure generation
+  and freshness passed for all 8 results; repeated local generation produced
+  identical hashes. All 68 reference pages are current. Full offline suite:
+  535 passed, 5 skipped, 257 deselected (28.19s); focused visual/guide suite:
+  21 passed. Strict MkDocs build passed (10.18s final cached build; the new
+  notebook also executed successfully on its uncached build); internal file
+  and anchor checks passed. Final Chromium suite: 329 passed (120.67s), 293
+  crawled pages, zero page errors, 615 images and 46 backgrounds. PRISM,
+  gridMET and Sentinel-2 existing source QA passed. Policy passed for 1007
+  tracked and 14 new files; `git diff --check` passed.
+- Evidence is under `artifacts/visual_docs/`: executed notebooks/run manifest,
+  final built site, offline/browser JUnit, crawl report, desktop/mobile review
+  screenshots and an independent regenerated output set. Local generation took
+  2.38s after imports, with no provider requests. The 7 PNGs total 361,757 bytes;
+  all figure/provenance assets total 423,847 bytes. Notebook HTML retains inline
+  outputs (~1.03 MB); it does not fetch live environmental data. Sandbox socket
+  restrictions required authorized Jupyter/browser reruns; these passed.
+- Stop at this reviewed first pass. Next candidates: remaining Learn analytical
+  lessons, states/events vignette, remaining implemented noun visualizations,
+  mean/zscore references and a separately acquired/reviewed matched source
+  comparison. Legacy figures elsewhere are not certified by this new manifest.
+  No commit, push, release or deployment was performed.
