@@ -2839,3 +2839,41 @@ secrets, credentials, private tokens, or unrelated transcript text.
   tracked files and the new, untracked manuscript files. Strict MkDocs build,
   built-site internal file/anchor check, and `git diff --check` passed.
 - No runtime changes, website navigation changes, commit, push, or deployment.
+
+## 2026-08-27 - README and agent guide synchronized with the package
+
+- User requested updating `README.md` and `AGENTS.md` to match current package
+  content. Audited runtime exports, pipe/semantic behavior, source catalog and
+  access paths, lifecycle/QA APIs, fixture/notebook ownership, packaging,
+  Makefile, citation metadata, and CI workflows before editing.
+- README now identifies the checkout's 0.1.0 alpha metadata without implying
+  that a packaged release contains all main-branch work. Added the five site
+  destinations, current extras and Python targets, an offline real-PRISM
+  quickstart with a plot, a missingness-aware project verb with a plot, the
+  eight-noun source table, and the nine-notebook publication collection.
+  Kept live loading separate from the offline example and preserved the
+  manuscript index link.
+- Both guides distinguish core grammar from integrations/project vocabularies,
+  pipe factories from direct helpers, reserved APIs from implementations, and
+  compatibility from deprecation. Clarified metadata-only pipe validation,
+  immediate stage calls versus lazy arrays, gridMET OPeNDAP/annual-HTTPS access,
+  PRISM daily NcSS, the global adapter's no-download boundary, source-specific
+  units, and revision validity versus endpoint health.
+- AGENTS now maps catalog/lifecycle/schema/QA ownership, generated reference and
+  notebook builders, classification and link hooks, developer documentation,
+  fixture exceptions, browser QA, and explicit release boundaries. Preserved
+  spatial/CRS, viewer time-axis/attachment, FireHull/FireEventDaily, renderer
+  separation, backward-compatibility, and real-data safeguards.
+- Added seven regressions in `tests/test_repository_guides.py` for version and
+  extras, catalog coverage, notebook count, guide links/paths, checksum-verified
+  offline example execution/plots, direct-versus-piped custom use and missingness,
+  and static live-request signature/catalog validation (no live fetch).
+- Validation: **7 guide tests passed**; **83 focused documentation tests passed**;
+  full offline suite **508 passed, 5 skipped, 245 deselected**. All **68** generated
+  references remain current. Strict MkDocs build and built-site internal
+  file/anchor checks passed. Repository policy passed for **1003 tracked files**
+  and the new regression file; `git diff --check` passed.
+- No runtime, generated reference, notebook, website navigation, or manuscript
+  content changed. Existing notebook render caches were reused by MkDocs;
+  browser and live-provider suites were not rerun for this root-guide-only edit.
+  No release, commit, push, or deployment was performed.
