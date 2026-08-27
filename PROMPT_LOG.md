@@ -2629,3 +2629,27 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - The next narrow task is a Daymet candidate using
   `climate_continuous_daily`; it should not enter discovery until its bounded
   real-data evidence and promotion decision pass review.
+
+## 2026-08-26 - Deterministic gridMET yearly-loader regression fix
+
+### User goal
+
+- Repair CI failures in gridMET streaming tests after bounded OPeNDAP access
+  was introduced.
+
+### Implementation
+
+- Consolidated bounded OPeNDAP and annual HTTPS access behind the existing
+  `_open_gridmet_year` seam. The runtime still prefers provider-side bounded
+  reads when a compatible engine is installed and falls back to HTTPS when it
+  is not.
+- Preserved compatibility with offline tests and internal adapters that
+  replace the original three-argument yearly loader. Optional xarray engines
+  installed on one CI image can no longer bypass that replacement and trigger
+  environment-dependent behavior or live network access.
+
+### Validation
+
+- PRISM/gridMET streaming regression set: 12 tests passed.
+- Exact offline suite: 418 tests passed, 5 skipped, and 9 deselected.
+- `git diff --check` passed.

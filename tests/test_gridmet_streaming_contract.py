@@ -120,6 +120,10 @@ def test_stream_gridmet_to_cube_reads_each_year_once(monkeypatch) -> None:
         )
 
     monkeypatch.setattr("cubedynamics.streaming.gridmet._open_gridmet_year", fake_year)
+    monkeypatch.setattr(
+        "cubedynamics.streaming.gridmet._select_opendap_engine",
+        lambda: "netcdf4",
+    )
 
     aoi = {
         "type": "Feature",

@@ -12,6 +12,7 @@ Canonical API:
 from __future__ import annotations
 
 import io
+import inspect
 from typing import Any, Dict, Optional, Sequence
 
 import numpy as np
@@ -133,7 +134,7 @@ def _bbox_from_geojson(aoi_geojson: Dict) -> Dict[str, float]:
     }
 
 
-def _open_gridmet_year(
+def _open_gridmet_year_https(
     variable: str,
     year: int,
     chunks: Optional[Dict[str, int]] = None,
@@ -187,17 +188,17 @@ def _open_gridmet_year(
     return ds
 
 
-def _open_gridmet_year_bounded(
+def _open_gridmet_year_opendap(
     variable: str,
     year: int,
     bbox: Dict[str, float],
     chunks: Optional[Dict[str, int]] = None,
 ) -> xr.Dataset:
-    """Prefer provider OPeNDAP so only the requested AOI/time cells are read."""
+    """Open only the requested AOI through the provider's OPeNDAP service."""
 
     engine = _select_opendap_engine()
     if engine is None:
-        return _open_gridmet_year(variable, year, chunks=chunks)
+        raise RuntimeError("gridMET OPeNDAP access requires netCDF4 or pydap")
     url = GRIDMET_OPENDAP_URL.format(variable=variable, year=year)
     dataset = xr.open_dataset(url, engine=engine, chunks=chunks, decode_times=True)
     if "day" in dataset.dims or "day" in dataset.coords:
@@ -220,6 +221,52 @@ def _open_gridmet_year_bounded(
         }
     )
     return subset
+
+
+def _open_gridmet_year(
+    variable: str,
+    year: int,
+    chunks: Optional[Dict[str, int]] = None,
+    *,
+    bbox: Optional[Dict[str, float]] = None,
+) -> xr.Dataset:
+    """Open one gridMET year through one stable, overridable access seam.
+
+    A bounding box opts into provider-side OPeNDAP subsetting when a compatible
+    xarray engine is installed. Otherwise this falls back to the reviewed HTTPS
+    annual-file path. Keeping both backends behind this function is important:
+    callers and offline tests can replace one yearly loader without behavior
+    changing according to which optional engines happen to be installed.
+    """
+
+    if bbox is not None and _select_opendap_engine() is not None:
+        return _open_gridmet_year_opendap(variable, year, bbox, chunks=chunks)
+    return _open_gridmet_year_https(variable, year, chunks=chunks)
+
+
+def _open_gridmet_year_bounded(
+    variable: str,
+    year: int,
+    bbox: Dict[str, float],
+    chunks: Optional[Dict[str, int]] = None,
+) -> xr.Dataset:
+    """Compatibility wrapper for the bounded yearly-loader path."""
+
+    return _open_gridmet_year(variable, year, chunks=chunks, bbox=bbox)
+
+
+def _call_gridmet_year_loader(
+    variable: str,
+    year: int,
+    bbox: Dict[str, float],
+    chunks: Optional[Dict[str, int]],
+) -> xr.Dataset:
+    """Call the yearly access seam while supporting legacy test/adaptor hooks."""
+
+    parameters = inspect.signature(_open_gridmet_year).parameters
+    if "bbox" in parameters:
+        return _open_gridmet_year(variable, year, chunks=chunks, bbox=bbox)
+    return _open_gridmet_year(variable, year, chunks=chunks)
 
 
 def stream_gridmet_to_cube(
@@ -290,7 +337,7 @@ def stream_gridmet_to_cube(
     total_years = end_year - start_year + 1
     with progress_bar(total=total_years if show_progress else None, description="gridMET years") as advance:
         for year in range(start_year, end_year + 1):
-            ds_y = _open_gridmet_year_bounded(variable, year, bbox, chunks=year_chunks)
+            ds_y = _call_gridmet_year_loader(variable, year, bbox, year_chunks)
             ds_list.append(ds_y)
             if show_progress:
                 advance(1)
