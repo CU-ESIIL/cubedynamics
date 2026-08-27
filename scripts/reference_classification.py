@@ -19,7 +19,6 @@ CATEGORIES = {
 }
 PLACEHOLDERS = {"correlation_cube", "fit_model"}
 COMPATIBILITY = {
-    "month_filter": "Deprecated implementation: the public export currently resolves to the warning-emitting ops.transforms shim. Its warning points back to the same public name; no distinct replacement is claimed here.",
     "aoi_signature": "Compatibility name: prefer block_signature for new workflows; its block_id/block dimension differs from unit_id/unit.",
     "compare_aoi_signature": "Compatibility workflow: new code can collect_blocks then compare_blocks. This is not a drop-in signature replacement.",
     "exceedance": "Alias for threshold_state; no deprecation warning is implied.",

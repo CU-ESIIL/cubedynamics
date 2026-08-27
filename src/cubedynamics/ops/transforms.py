@@ -4,9 +4,8 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-import xarray as xr
-
 from ..verbs.stats import anomaly as _anomaly
+from ..verbs.stats import month_filter as _month_filter
 from ..deprecations import warn_deprecated
 
 
@@ -45,20 +44,7 @@ def month_filter(months: Iterable[int]):
         removal="0.3.0",
     )
 
-    months = tuple(int(m) for m in months)
-
-    def _inner(da: xr.DataArray | xr.Dataset):
-        if "time" not in da.coords:
-            raise ValueError("month_filter requires a 'time' coordinate.")
-        time = da["time"]
-        try:
-            month_vals = time.dt.month
-        except Exception as exc:  # pragma: no cover - dt errors raised as ValueError below
-            raise ValueError("month_filter: 'time' coordinate must be datetime-like.") from exc
-        mask = month_vals.isin(months)
-        return da.where(mask, drop=True)
-
-    return _inner
+    return _month_filter(months)
 
 
 __all__ = ["anomaly", "month_filter"]

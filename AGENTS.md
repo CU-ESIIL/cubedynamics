@@ -69,9 +69,10 @@ The verb namespace includes different calling conventions:
   Other correlation helpers have separate contracts; do not conflate them.
 - `aoi_signature`, `compare_aoi_signature`, `exceedance`, and `vase_demo` have
   compatibility guidance. An alias is not necessarily deprecated.
-- The current `v.month_filter` export resolves to a deprecated shim whose
-  warning recommends the same public name. Its reference labels this issue;
-  do not claim a distinct replacement or silently fix it during a docs task.
+- `v.month_filter` is supported and implemented in `verbs/stats.py`. Legacy
+  `ops.transforms.month_filter` (also re-exported through `ops` and the old
+  top-level shortcut) warns and forwards to it; do not wire the public verb
+  back through the deprecated shim.
 
 Inspect implementations and `scripts/reference_classification.py`; consult the
 generated conceptual browser and secondary A–Z inventory under

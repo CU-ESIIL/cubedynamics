@@ -61,10 +61,11 @@ def test_compatibility_is_distinct_from_implemented_and_reserved(name):
     assert "Compatibility / legacy" in pages[f"reference/verbs/{name}.md"] or "**Deprecated:**" in pages[f"reference/verbs/{name}.md"]
 
 
-def test_warning_emitting_public_export_is_labeled_deprecated():
-    assert classify("month_filter", reference.v.month_filter)["status"] == "deprecated"
-    with pytest.warns(DeprecationWarning):
-        assert callable(reference.v.month_filter([1]))
+def test_month_filter_is_a_supported_stage():
+    info = classify("month_filter", reference.v.month_filter)
+    assert info["status"] == "implemented"
+    assert info["kind"] == "stage"
+    assert reference.v.month_filter.__module__ == "cubedynamics.verbs.stats"
 
 
 def test_newly_deprecated_callable_needs_no_second_inventory_entry(monkeypatch):

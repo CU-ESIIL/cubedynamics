@@ -8,6 +8,16 @@ Legend:
 - **C** Legacy (retained for compatibility/old language)
 - **D** Dead (safe to remove)
 
+## Supported month filtering
+
+`cubedynamics.verbs.month_filter` is the canonical, warning-free factory.
+The former public export accidentally pointed at its own deprecated ops shim.
+The implementation now lives in `verbs/stats.py`; the historical
+`cubedynamics.ops.transforms.month_filter`, `cubedynamics.ops.month_filter`,
+and top-level `cubedynamics.month_filter` shortcuts retain their warning and
+forward to the supported factory. Calendar selection and Dask laziness are
+unchanged. No additional public replacement name was introduced.
+
 ## Code modules
 
 | Path | Class | Evidence | Proposed action |

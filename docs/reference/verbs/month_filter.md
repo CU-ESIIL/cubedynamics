@@ -2,11 +2,9 @@
 
 # month_filter
 
-Deprecated. Use :func:`cubedynamics.verbs.month_filter` instead.
+Keep the requested calendar months on a datetime-like time coordinate.
 
-**Callable type:** Grammar verb / pipe stage · [Browse: deprecated](compatibility.md)
-
-> **Deprecated:** Deprecated implementation: the public export currently resolves to the warning-emitting ops.transforms shim. Its warning points back to the same public name; no distinct replacement is claimed here.
+**Callable type:** Grammar verb / pipe stage · [Browse: Transform](index.md#transform)
 
 ## Usage
 
@@ -19,7 +17,7 @@ v.month_filter(months)
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| months | Sequence of integers (1-12) to keep. | required |
+| months | Calendar months to retain (1-12). Empty selections return an empty time axis. The iterable is captured once so the stage is reusable. | required |
 
 ## Accepts
 
@@ -67,6 +65,7 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 
 ## Implementation notes
 
-No additional implementation notes in the current docstring.
+Preserves the historical integer coercion and selection behavior. This
+is the supported implementation; the old ops import forwards here.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/ops/transforms.py#L29). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L73). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

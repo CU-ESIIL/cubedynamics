@@ -70,6 +70,46 @@ def _broadcast_like(
     return stat.broadcast_like(obj)
 
 
+def month_filter(months: Iterable[int]):
+    """Keep the requested calendar months on a datetime-like time coordinate.
+
+    Parameters
+    ----------
+    months : iterable of int
+        Calendar months to retain (1-12). Empty selections return an empty
+        time axis. The iterable is captured once so the stage is reusable.
+
+    Returns
+    -------
+    callable
+        Stage accepting an xarray Dataset or DataArray. Values remain lazy
+        for Dask-backed inputs; coordinates determine the selected rows.
+
+    Raises
+    ------
+    ValueError
+        If the input lacks a datetime-like ``time`` coordinate.
+
+    Notes
+    -----
+    Preserves the historical integer coercion and selection behavior. This
+    is the supported implementation; the old ops import forwards here.
+    """
+
+    months = tuple(int(month) for month in months)
+
+    def _op(cube: xr.DataArray | xr.Dataset):
+        if "time" not in cube.coords:
+            raise ValueError("month_filter requires a 'time' coordinate.")
+        try:
+            month_values = cube["time"].dt.month
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise ValueError("month_filter: 'time' coordinate must be datetime-like.") from exc
+        return cube.where(month_values.isin(months), drop=True)
+
+    return _op
+
+
 def mean(
     dim: str = "time",
     *,
@@ -746,6 +786,7 @@ __all__ = [
     "compare_blocks",
     "compare_aoi_signature",
     "mean",
+    "month_filter",
     "rolling_median_split_synchrony",
     "rolling_tail_dep_vs_center",
     "variance",

@@ -17,6 +17,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | [flatten_cube](flatten_cube.md) | Grammar verb / pipe stage | stack non-time dimensions into a sample dimension |
 | [flatten_space](flatten_space.md) | Grammar verb / pipe stage | stack spatial dimensions into a pixel dimension |
 | [mean](mean.md) | Grammar verb / pipe stage | average values over a named dimension |
+| [month_filter](month_filter.md) | Grammar verb / pipe stage | retain observations from selected calendar months |
 | [ndvi_from_s2](ndvi_from_s2.md) | Grammar verb / pipe stage | derive NDVI from Sentinel-2 red and near-infrared bands |
 | [variance](variance.md) | Grammar verb / pipe stage | measure variation over a named dimension |
 | [zscore](zscore.md) | Grammar verb / pipe stage | standardize values relative to their mean and spread |

@@ -208,8 +208,8 @@ or use the [full A–Z inventory](https://cu-esiil.github.io/cubedynamics/refere
 Not every callable in `v` is a pipe-stage factory: `v.fire_plot`, for example,
 is a direct visualization helper. `v.correlation_cube` and `v.fit_model` are
 reserved placeholders, not implemented analysis operations. Compatibility
-aliases and the currently deprecated `v.month_filter` export are labeled
-separately in the reference.
+aliases are labeled separately in the reference. `v.month_filter` is a
+supported stage; only its legacy `cubedynamics.ops` import warns.
 
 `v.plot()` uses the custom HTML/CSS/JavaScript cube viewer. Fire plotting still
 has a Plotly renderer; it has not been fully migrated to that viewer.

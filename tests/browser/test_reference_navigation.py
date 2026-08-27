@@ -45,8 +45,9 @@ def test_reference_navigation_journeys(page, site_base, pytestconfig, width):
     checkpoint("documentation/", "Documents", "documents")
     article.get_by_role("link", name="Browse verbs by purpose", exact=True).click()
     checkpoint("reference/verbs/", "Verbs by purpose", "categories")
-    for name in ("fit_model", "correlation_cube", "month_filter", "vase_demo"):
+    for name in ("fit_model", "correlation_cube", "vase_demo"):
         expect(article.get_by_role("link", name=name, exact=True)).to_have_count(0)
+    expect(article.get_by_role("link", name="month_filter", exact=True)).to_have_count(1)
     article.get_by_role("link", name="Transform", exact=True).click()
     article.get_by_role("link", name="mean", exact=True).click()
     checkpoint("reference/verbs/mean/", "mean", "verb")

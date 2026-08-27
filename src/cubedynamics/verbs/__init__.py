@@ -47,7 +47,6 @@ from ..ops_fire.climate_hull_extract import (
 from ..ops.io import to_netcdf
 from ..ops.ndvi import ndvi_from_s2
 from ..ops.stats import correlation_cube
-from ..ops.transforms import month_filter
 from ..piping import Verb
 from ..streaming import VirtualCube
 from ..vase import VaseDefinition
@@ -61,6 +60,7 @@ from .plot_mean import plot_mean
 from .tubes import tubes
 from .vase import vase as _vase_base, vase_demo, vase_extract, vase_mask
 from .stats import (
+    month_filter,
     anomaly,
     aoi_signature,
     block_signature,

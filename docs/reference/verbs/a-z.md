@@ -34,7 +34,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [landsat_ndvi_plot](landsat_ndvi_plot.md) | Visualization helper (direct call) | implemented | render a Landsat NDVI view |
 | [landsat_vis_ndvi](landsat_vis_ndvi.md) | Direct helper function | implemented | prepare a visualization-friendly Landsat NDVI cube |
 | [mean](mean.md) | Grammar verb / pipe stage | implemented | average values over a named dimension |
-| [month_filter](month_filter.md) | Grammar verb / pipe stage | deprecated | Deprecated. Use :func:cubedynamics.verbs.month_filter instead. |
+| [month_filter](month_filter.md) | Grammar verb / pipe stage | implemented | retain observations from selected calendar months |
 | [ndvi_from_s2](ndvi_from_s2.md) | Grammar verb / pipe stage | implemented | derive NDVI from Sentinel-2 red and near-infrared bands |
 | [occurrence_synchrony](occurrence_synchrony.md) | Grammar verb / pipe stage | implemented | compare co-occurrence among state cubes |
 | [overlap](overlap.md) | Grammar verb / pipe stage | implemented | identify coincident truth in two exactly aligned conditions |

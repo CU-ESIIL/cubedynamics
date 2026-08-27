@@ -76,4 +76,4 @@ Streaming VirtualCube inputs are processed tile-by-tile without forcing a
 full load. Dask-backed arrays remain lazy. When ``keep_dim`` is False the
 reduced dimension is dropped.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L73). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L113). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
