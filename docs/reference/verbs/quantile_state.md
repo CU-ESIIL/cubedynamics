@@ -4,6 +4,8 @@
 
 Convert raw values to a state cube using quantile thresholds.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: State and events](index.md#state-and-events)
+
 ## Usage
 
 ```python
@@ -64,7 +66,8 @@ Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
 - [Working Lands · Read hot-and-dry weather as two nouns](../../decision_vignettes/working_lands.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

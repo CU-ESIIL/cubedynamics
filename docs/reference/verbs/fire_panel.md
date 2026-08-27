@@ -4,6 +4,10 @@
 
 Return the fire analysis bundle plus figure objects for custom layouts.
 
+**Callable type:** Visualization helper (direct call) · [Browse: Visualization](index.md#visualization)
+
+Call this helper directly with the documented data arguments; it does not return a configured pipe stage. Use `v.apply(...)` or an explicit callable if composition is needed.
+
 ## Usage
 
 ```python
@@ -54,7 +58,8 @@ FireEventDaily / FireHull or VaseDefinition geometry and/or an observed climate 
 - [Related workflow](../../capabilities/fire-vase.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

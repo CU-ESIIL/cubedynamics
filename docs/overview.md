@@ -2,7 +2,9 @@
 
 This page maps the documentation layout so you know where to look first. It explains the purpose of each section and suggests a reading order based on whether you need concepts, operations, data, or workflows.
 
-![Docs map](assets/diagrams/docs_map.png)
+Use [Learn](learn/index.md) for guided lessons, [Library](library/index.md) for
+nouns and verbs, [Documents](documentation/index.md) for technical detail, and
+[Vignettes](vignettes/index.md) for runnable analysis stories.
 
 ## How the sections fit together
 - **Home**: primary landing page with quick links to major sections.

@@ -9,16 +9,36 @@ from mkdocs.utils import get_relative_url
 
 
 def on_config(config):
-    # Reference pages inherit their Documents tab and a useful alphabetical
-    # sidebar without hand-maintaining 51 names in mkdocs.yml.
+    # Put individual callables behind A-Z, not ahead of conceptual browsing.
     verb_pages = sorted((Path(config["docs_dir"]) / "reference/verbs").glob("*.md"))
     for group in config["nav"]:
         for entry in group.get("Documents", []):
-            if "Verbs and callable helpers" in entry:
-                entry["Verbs and callable helpers"] = [
-                    {"Index": "reference/verbs/index.md"},
-                    *[{path.stem: f"reference/verbs/{path.name}"} for path in verb_pages if path.stem != "index"],
-                ]
+            for item in entry.get("Verbs", []):
+                if "All public callables" in item:
+                    item["All public callables"] = [
+                        {"A–Z inventory": "reference/verbs/a-z.md"},
+                        *[{p.stem: f"reference/verbs/{p.name}"} for p in verb_pages
+                          if p.stem not in {"index", "a-z", "compatibility", "planned"}],
+                    ]
+        if "Library" in group:
+            # Read the catalog-generated directory so new nouns automatically
+            # join their scientific category without another manual nav edit.
+            entries = [{"All nouns": "library/index.md"}]
+            current = None
+            for line in (Path(config["docs_dir"]) / "library/index.md").read_text().splitlines():
+                if line.startswith("## "):
+                    current, title = [], line[3:]
+                match = re.search(r"\[([^]]+)\]\((nouns/[^)]+\.md)\)", line)
+                if match and current is not None:
+                    if not current:
+                        entries.append({title: current})
+                    current.append({match[1]: "library/" + match[2]})
+            entries.extend(e for e in group["Library"] if "Browse sources" in e or "Source QA evidence" in e)
+            for entry in entries:
+                if "Browse sources" in entry:
+                    entry["Browse sources"] = [{"All sources": "library/sources/index.md"},
+                        *[{p.stem: f"library/sources/{p.name}"} for p in sorted((Path(config["docs_dir"]) / "library/sources").glob("*.md")) if p.stem != "index"]]
+            group["Library"] = entries
     return config
 
 
@@ -65,6 +85,8 @@ def on_page_content(html_content, page, config, files):
               ("reference/", "Documents · Verb reference"),
               ("api/", "Documents · API reference"),
               ("documentation/", "Documents · Reference directory"),
+              ("developer/", "Documents · Developer documentation"),
+              ("dev/", "Documents · Developer documentation"),
               ("learn/", "Learn · Tutorial"))
     for prefix, label in labels:
         if source.startswith(prefix):

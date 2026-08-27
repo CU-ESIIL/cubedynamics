@@ -4,6 +4,8 @@
 
 Return a rolling "tail dependence vs center" contrast along ``dim``.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
+
 ## Usage
 
 ```python
@@ -61,7 +63,8 @@ Use only the input types documented by this callable; not every helper accepts e
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

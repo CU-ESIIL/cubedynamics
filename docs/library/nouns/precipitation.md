@@ -29,6 +29,24 @@ Import with `from cubedynamics import data`. Keyword-only parameters and default
 | [gridmet](../sources/gridmet.md) | Contiguous United States | 4,638.3 m | 1979-present; daily total | Recent gridMET assets can be provisional and later replaced. |
 | [prism](../sources/prism.md) | Contiguous United States | approximately 4 km | 1981-present; daily total | Recent grids are revised as station data and quality control mature. |
 
+## Differences among source flavors
+
+The same noun does not make these products numerically interchangeable. CubeDynamics does not silently harmonize units, grids, statistics, or revisions.
+
+| Property | gridmet | prism |
+| --- | --- | --- |
+| Units | default: mm | default: mm |
+| Variables / statistics | default: pr | default: ppt |
+| Spatial resolution | 4,638.3 m | approximately 4 km |
+| Temporal resolution | daily total | daily total |
+| Coverage | Contiguous United States | Contiguous United States |
+| Time span | 1979-present | 1981-present |
+| Revision behavior | provider-managed daily observations in annual assets | daily observations with provider historical revisions |
+| Source mode | rolling | rolling |
+| Interpretation constraints | Recent gridMET assets can be provisional and later replaced. | Recent grids are revised as station data and quality control mature. |
+
+Check units and statistic choice before comparing values; explicitly align spatial and temporal support. Record the serving revision and retrieval metadata from each result. [Learn: provenance and source choice](../../learn/provenance.md).
+
 ## Returned data
 
 An `xarray.DataArray` named `precipitation`, normally with `time, y, x` dimensions. `time` stores acquisition/observation times; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.
@@ -62,6 +80,15 @@ Revision validity is not a claim that the live endpoint is available today. [Cer
 
 ## See also
 
+- [Working Lands · Read hot-and-dry weather as two nouns](../../decision_vignettes/working_lands.ipynb)
+- [01 · From an array to a scientific cube](../../vignettes/cube_from_arrays.ipynb)
+- [03 · Two variables, two questions](../../vignettes/cube_from_dataset.ipynb)
+- [02 · From observations to a comparable signal](../../vignettes/cube_from_tidy_table.ipynb)
+- [07 · Build a project-owned verb](../../vignettes/custom_verb_project.ipynb)
+- [04 · Read the analysis from left to right](../../vignettes/grammar_basics.ipynb)
+- [08 · Stay lazy until the answer is requested](../../vignettes/lazy_composition.ipynb)
+- [06 · From cold observations to event evidence](../../vignettes/states_and_events.ipynb)
+- [05 · One cube, six analytical views](../../vignettes/verbs_gallery.ipynb)
 - [mean](../../reference/verbs/mean.md)
 - [anomaly](../../reference/verbs/anomaly.md)
 - [Learn: nouns](../../learn/nouns.md)

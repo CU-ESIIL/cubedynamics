@@ -4,6 +4,8 @@
 
 Factory for a pipeable ``.to_netcdf`` side-effect operation.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Output and side effects](index.md#output-and-side-effects)
+
 ## Usage
 
 ```python
@@ -65,7 +67,8 @@ Use only the input types documented by this callable; not every helper accepts e
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

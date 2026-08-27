@@ -4,6 +4,8 @@
 
 Measure whether one-to-one matched events happen at similar times.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
+
 ## Usage
 
 ```python
@@ -67,7 +69,8 @@ EventResult -> synchrony Dataset with lag and unmatched-event diagnostics.
 - [Related workflow](../../vignettes/states_and_events.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

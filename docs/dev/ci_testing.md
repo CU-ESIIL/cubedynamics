@@ -90,8 +90,72 @@ Markers are declared in `pytest.ini` and gate which suites run where:
 - **`integration`** – hits external services (e.g., PRISM/gridMET downloads, FIRED fetches) or large cached datasets. Excluded from the default CI job.
 - **`online`** – requires cubo or other network access. Use when tests must reach live endpoints. Also excluded from the default CI job.
 - **`streaming`** – exercises streaming-first code paths and expectations (lazy Dask/xarray behavior). Included in the unit runs unless combined with other markers.
+- **`browser`** – opt-in Playwright checks against a built website. Also marked
+  `integration`, so the default offline suite needs neither a browser nor a site build.
 
 If you see "`PytestUnknownMarkWarning`" locally, ensure you are running from the repo root so `pytest.ini` is discovered.
+
+## Website browser QA
+
+The website has a Playwright suite in `tests/browser/`. It visits **every HTML
+file in the build**, including standalone cube viewers and pages outside the
+navigation. The temporary server uses `/cubedynamics/`, matching GitHub Pages.
+
+Run locally with Python **3.10 or newer** (CI uses 3.11):
+
+```bash
+python -m pip install -e ".[docs,browser]"
+python -m playwright install chromium
+mkdocs build --strict
+python scripts/check_site_links.py site
+pytest tests/browser -m browser --site-dir site --browser chromium \
+  --tracing retain-on-failure --screenshot only-on-failure \
+  --output artifacts/browser/playwright \
+  --junitxml artifacts/browser/junit.xml -q
+```
+
+On Linux, use `python -m playwright install --with-deps chromium` to install
+browser system dependencies too. The optional extra pins Playwright and its
+pytest plugin; it does not change the package's Python 3.9 support.
+
+The checks cover:
+
+- Rendered internal links, HTTP responses, and same-page/cross-page anchors.
+- Actual image decoding, including lazy images, inline notebook figures,
+  selected `srcset` images, CSS backgrounds, and images inside frames.
+- Deferred viewer loading, nonempty frames, failed resources, JavaScript
+  exceptions, and browser console errors.
+- The five main destinations at desktop and phone widths, plus actual mouse
+  drag and wheel zoom on the homepage cube.
+- Deliberately broken DOM fixtures that prove the detectors reject failures
+  instead of merely passing an apparently healthy site.
+
+`artifacts/browser/crawl.json` records each page, its errors, image counts, and
+outbound links. Failed pages have screenshots, per-page JSON, and Playwright
+traces. Open a trace with `python -m playwright show-trace <trace.zip>`.
+CI uploads this evidence even on failure. Browser checks gate both the PR docs
+job and publication in `pages.yml`; a failed crawl blocks deployment.
+
+Outbound links have a separate, bounded availability check:
+
+```bash
+python scripts/check_external_links.py site \
+  --crawl-report artifacts/browser/crawl.json
+```
+
+This deduplicates URLs and uses HEAD requests (or a streamed GET without reading
+the product body when HEAD is unsupported). It writes
+`artifacts/browser/external-links.json`. Non-success responses, timeouts,
+authentication, and rate limits are reported; they are **not** counted as valid.
+This command exits nonzero for unresolved links but is advisory in CI because
+external services can temporarily refuse automated checks. External anchors
+are not validated. Analytics requests alone are suppressed during browser tests
+so CI does not inflate site usage; other page resources must load successfully.
+
+This is browser/availability QA, not scientific validation or pixel-perfect
+visual approval. It tests Chromium by default, not every browser or every
+possible responsive image candidate. Keep the real-data publication validation
+above, and review figure semantics separately.
 
 ## How GitHub Actions runs tests
 
@@ -106,9 +170,10 @@ If you see "`PytestUnknownMarkWarning`" locally, ensure you are running from the
   multiplying those checks across the full Python matrix.
 - Optional integration pass: `pytest -m "integration"` (only when `RUN_INTEGRATION=1` is present in the environment, and only on Python 3.11).
 - Packaging pass: `python -m build`, `python -m twine check dist/*`, then install the built wheel in a clean virtualenv and smoke-import `cubedynamics`.
-- Docs build: `mkdocs build --strict` (separate job in the same workflow, installed from `.[docs]`).
-- Timeouts: unit matrix jobs have a 30-minute timeout; streaming, package, and
-  docs jobs have 20-minute timeouts.
+- Docs build: `mkdocs build --strict` (separate job, installed from
+  `.[docs,browser]`), followed by publication validation and browser QA.
+- Timeouts: unit matrix and docs jobs have a 30-minute timeout; streaming and
+  package jobs have 20-minute timeouts.
 
 ### online-tests.yml (scheduled / manual)
 - Triggers: manual **workflow_dispatch** and a weekly cron (**`0 6 * * 1`** / Mondays at 06:00 UTC).

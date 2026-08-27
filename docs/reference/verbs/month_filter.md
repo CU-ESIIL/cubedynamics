@@ -4,6 +4,10 @@
 
 Deprecated. Use :func:`cubedynamics.verbs.month_filter` instead.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: deprecated](compatibility.md)
+
+> **Deprecated:** Deprecated implementation: the public export currently resolves to the warning-emitting ops.transforms shim. Its warning points back to the same public name; no distinct replacement is claimed here.
+
 ## Usage
 
 ```python
@@ -58,7 +62,8 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

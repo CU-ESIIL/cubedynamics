@@ -4,6 +4,8 @@
 
 Normalize an existing boolean mask into a state cube.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: State and events](index.md#state-and-events)
+
 ## Usage
 
 ```python
@@ -59,7 +61,8 @@ Boolean cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

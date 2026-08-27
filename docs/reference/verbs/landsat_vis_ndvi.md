@@ -4,6 +4,10 @@
 
 Lazy import wrapper for a visualization-friendly Landsat NDVI cube.
 
+**Callable type:** Direct helper function · [Browse: Other helpers](index.md#other-helpers)
+
+Call this helper directly with the documented data arguments; it does not return a configured pipe stage. Use `v.apply(...)` or an explicit callable if composition is needed.
+
 ## Usage
 
 ```python
@@ -43,7 +47,8 @@ Location, dates and Landsat-specific options forwarded to the source helper.
 - [Related workflow](../../examples/landsat8_mpc.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

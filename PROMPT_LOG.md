@@ -2697,3 +2697,61 @@ secrets, credentials, private tokens, or unrelated transcript text.
   Sparse API docstrings, optional example coverage, advanced legacy recipe
   normalization and cube camera/axis presentation remain explicit follow-ups
   in the report. No commit, push or deployment was performed.
+
+## 2026-08-27 - Browser QA suite checkpoint (paused at user request)
+
+- Added optional pinned Playwright/pytest-playwright dependencies (Python
+  3.10+), updated `uv.lock`, and marked browser tests as opt-in integration.
+- Added `scripts/site_browser_checks.py`, `tests/browser/`, and offline helper
+  regressions. Coverage includes every built HTML page (including standalone
+  viewers), internal HTTP targets/anchors, decoded images/CSS backgrounds,
+  deferred iframes, JavaScript/network errors, five hubs at desktop/mobile
+  widths, and real mouse drag/wheel changes on the homepage cube.
+- Added bounded external-link availability reporting in
+  `scripts/check_external_links.py`. External link probes are advisory;
+  browser failures gate publication. Both existing workflows now install
+  Chromium, run the suite, and retain evidence under `artifacts/browser/`.
+- Verified so far: four offline helper tests and 20 focused browser tests
+  passed (negative controls, responsive hubs, cube drag/zoom).
+- Full crawl against `/private/tmp/cubedynamics-docs-refactor-site` was
+  interrupted for the user's connection pause. It had already reported
+  failures; inspect per-page JSON/screenshots and traces in `artifacts/browser/`
+  before resuming. Do not claim the full crawl passes yet.
+- Resume: investigate crawl failures, finish/refine regressions and external
+  probing, document coverage in `docs/dev/ci_testing.md`, rebuild current docs,
+  then rerun the complete browser and offline suites. No commit/push/deployment.
+
+## 2026-08-27 - Browser QA completed after connection pause
+
+- Resumed the requested website link/image test-suite work. The first full
+  Chromium crawl found seven pages displaying invalid PNG placeholders.
+  Replaced those references with dimension/grammar explanations and working
+  documentation links. Removed nine empty/text image stubs (seven displayed,
+  two unused); no real-data figures were removed. Git retains the old stubs.
+- Added `docs/overrides/partials/source.html` to retain the repository link
+  without Material's optional GitHub metadata requests, which generated
+  `releases/latest` 404s. Added a rendered regression for this behavior.
+- Corrected the Lexcube repository URL and made Google Help language explicit.
+  External probing now confirms HEAD 403/404/405/501 with a streamed GET without
+  consuming the product body: Google Help returned HEAD 404 but GET 200.
+  Negative tests still reject genuine GET 404s. External requests remain
+  advisory in CI; internal links, images, resources and viewer errors gate
+  both PR documentation checks and Pages publication.
+- Hardened the local test server's Pages-prefix directory redirects and SVG
+  link reading; added a redirect regression. Documented installation, coverage,
+  evidence, exclusions, and local commands in `docs/dev/ci_testing.md`.
+- Final strict build: `/private/tmp/cubedynamics-browser-qa-site`.
+  All **310 Chromium tests passed** (288 built pages, 592 image occurrences,
+  46 CSS background occurrences, deferred frames, mouse drag/zoom, desktop/
+  mobile hubs, and detector controls). All **47 distinct outbound URLs**,
+  including a Plotly link discovered at runtime, passed availability checks.
+- Final offline suite: **478 passed, 5 skipped, 243 deselected**. Existing
+  dependency warnings remain. Eleven offline browser-helper checks passed.
+  Strict MkDocs build, static internal file/anchor checks, 65 generated-reference
+  freshness checks, tracked repository-size policy, workflow YAML parsing,
+  and `git diff --check` passed.
+- Final machine-readable evidence is in `artifacts/browser/final/`; earlier
+  failed-crawl evidence is retained separately. This verifies Chromium
+  rendering/resources and interaction, not every browser, external anchors,
+  or scientific figure semantics. Runtime scientific code was unchanged.
+  No commit, push, or deployment was performed.

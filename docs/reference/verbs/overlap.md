@@ -4,6 +4,8 @@
 
 Return a verb that finds coincident truth in two aligned state cubes.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
+
 ## Usage
 
 ```python
@@ -65,7 +67,8 @@ Use only the input types documented by this callable; not every helper accepts e
 - [Working Lands · Read hot-and-dry weather as two nouns](../../decision_vignettes/working_lands.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

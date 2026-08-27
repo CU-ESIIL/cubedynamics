@@ -8,7 +8,9 @@ CubeDynamics is grounded in a grammar that makes analytical steps explicit. Each
 - Verbs expose parameters and defaults that are versioned and testable
 - Visualization verbs produce provenance-aware plots for quality control
 
-![Methods reference diagram](assets/diagrams/methods_reference.png)
+Pair the pipeline with its data provenance and the checks in
+[Validation](validation/index.md), so a reader can inspect both the method and
+the evidence supporting its results.
 
 ## Citing this project
 When publishing results derived from CubeDynamics:

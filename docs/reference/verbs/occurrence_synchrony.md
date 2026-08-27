@@ -4,6 +4,8 @@
 
 Measure whether states occur at the same times across locations.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
+
 ## Usage
 
 ```python
@@ -72,7 +74,8 @@ all-pairs returns edge data; regional returns time-series summaries.
 - [06 · From cold observations to event evidence](../../vignettes/states_and_events.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

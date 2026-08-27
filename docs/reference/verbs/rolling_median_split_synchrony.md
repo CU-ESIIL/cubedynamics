@@ -4,6 +4,8 @@
 
 Compute rolling synchrony in lower and upper per-series sets.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
+
 ## Usage
 
 ```python
@@ -105,7 +107,8 @@ explicit rolling window end timestamps.
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

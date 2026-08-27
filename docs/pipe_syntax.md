@@ -117,7 +117,7 @@ cube = cd.load_gridmet_cube(
 pipe(cube) | v.month_filter([6, 7, 8]) | v.show_cube_lexcube(cmap="RdBu_r")
 ```
 
-`show_cube_lexcube` integrates [Lexcube](https://github.com/carbonplan/lexcube) for interactive `(time, y, x)` exploration. The verb displays the widget as a side-effect and returns the original cube so the pipeline can keep flowing. The helper also exists as `cubedynamics.show_cube_lexcube(cube, **kwargs)` for non-pipe contexts.
+`show_cube_lexcube` integrates [Lexcube](https://github.com/msoechting/lexcube) for interactive `(time, y, x)` exploration. The verb displays the widget as a side-effect and returns the original cube so the pipeline can keep flowing. The helper also exists as `cubedynamics.show_cube_lexcube(cube, **kwargs)` for non-pipe contexts.
 
 ## Example: chaining a streamed cube
 

@@ -4,6 +4,8 @@
 
 Compare durations of one-to-one matched events.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
+
 ## Usage
 
 ```python
@@ -69,7 +71,8 @@ EventResult -> synchrony Dataset with duration and match diagnostics.
 - [Related workflow](../../vignettes/states_and_events.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

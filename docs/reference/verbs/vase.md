@@ -4,6 +4,8 @@
 
 Plot either a generic VaseDefinition or a fire TimeHull-derived vase.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Visualization](index.md#visualization)
+
 ## Usage
 
 ```python
@@ -46,7 +48,8 @@ FireEventDaily / FireHull or VaseDefinition geometry and/or an observed climate 
 - [Related workflow](../../capabilities/fire-vase.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

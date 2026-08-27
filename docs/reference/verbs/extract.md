@@ -4,6 +4,8 @@
 
 Attach canonical fire hull and climate summaries to a cube.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Spatial and alignment](index.md#spatial-and-alignment)
+
 ## Usage
 
 ```python
@@ -47,7 +49,8 @@ FireEventDaily / FireHull or VaseDefinition geometry and/or an observed climate 
 - [Related workflow](../../capabilities/fire-vase.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

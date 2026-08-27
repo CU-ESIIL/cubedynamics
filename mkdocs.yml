@@ -55,71 +55,84 @@ nav:
       - Source QA evidence: data/phase1_qa.md
   - Documents:
       - Reference directory: documentation/index.md
-      - Verbs and callable helpers: reference/verbs/index.md
-      - Objects: api/objects.md
-      - Custom nouns: extending/custom_nouns.md
-      - Custom verbs: extending/custom_verbs.md
-      - Documentation structure: project/documentation_refactor.md
-      - Core grammar:
+      - Verbs:
+          - Browse by purpose: reference/verbs/index.md
+          - All public callables: reference/verbs/a-z.md
+          - Compatibility and deprecated helpers: reference/verbs/compatibility.md
+          - Reserved / planned API: reference/verbs/planned.md
+      - Data:
+          - Nouns and source configuration: api/data.md
+          - Source QA evidence: data/phase1_qa.md
+          - Custom nouns: extending/custom_nouns.md
+      - Pipe and grammar:
           - Pipe: api/pipe.md
+          - Grammar reference: grammar/index.md
+          - Semantic grammar: concepts/semantic_grammar.md
           - Lazy evaluation: grammar/lazy_evaluation.md
           - Workflow composition: grammar/workflow_composition.md
           - Glossary: concepts/glossary.md
+          - Custom verbs: extending/custom_verbs.md
           - Why not xarray?: why_not_xarray.md
-      - Concepts and methods:
-          - Concept map: concepts/index.md
-          - Backends: concepts/backends.md
-          - Climate cubes: concepts/climate_cubes.md
-          - Cube math: concepts/cube_math.md
-          - Faceting: concepts/faceting.md
-          - Pipe and verbs: concepts/pipe_and_verbs.md
-          - Rolling statistics: concepts/rolling_stats.md
-          - Methods and citation: methods_and_citation.md
-          - Related work: related/related_work.md
-      - API reference:
-          - Overview: api/index.md
-          - Data: api/data.md
-          - Visualization: api/viz.md
-          - Full inventory: api/inventory_full.md
-          - Reference: api/reference.md
-          - Public API and stability: project/public_api.md
-      - Streaming and rendering:
-          - Streaming overview: streaming/index.md
-          - What is streaming?: streaming/what_is_streaming.md
-          - Virtual cubes: concepts/virtual_cubes.md
-          - Local sources: streaming/local_sources.md
-          - Cloud sources: streaming/cloud_sources.md
-          - STAC sources: streaming/stac_sources.md
+      - Visualization:
+          - Visualization API: api/viz.md
           - Visualization overview: viz/index.md
           - Cube viewer: viz/cube_viewer.md
           - Maps: viz/maps.md
           - Suitability tubes: viz/suitability_tubes.md
-      - Validation:
-          - Overview: validation/index.md
-          - Real data: validation/data.md
-          - Cube / HTML: validation/cube.md
-          - Expected-failure controls: validation/contrast.md
-          - Methods and CI: validation/methods.md
-      - Design and development:
-          - Publication audit and plan: project/publication_plan.md
-          - Scientific vocabulary plan: project/data_vocabulary_plan.md
-          - Source lifecycle and certification: dev/source_lifecycle.md
-          - Grammar inventory: project/grammar_inventory.md
-          - Site analytics and SEO: project/site_analytics_seo.md
-          - Project scope: project/scope.md
-          - Spatial and CRS contract: design/spatial_dataset_contract.md
-          - Contributing: dev/contributing.md
-          - CI and testing: dev/ci_testing.md
-          - Cube viewer invariants: dev/cube_viewer_invariants.md
-          - Fire / VASE status audit: developer/fire_vase_status.md
-          - Fire VASE lakehouse: dev/fire_vase_lakehouse.md
-          - Fire plot architecture: dev/fire_plot_architecture.md
-          - Figure backend: dev/figure_backend.md
-          - Viewer backend: dev/viewer_backend.md
-          - Legacy reference: dev/legacy_reference.md
-          - Synchrony roadmap: project/synchrony_roadmap.md
-          - Deprecation inventory: project/deprecation_inventory.md
-          - Changelog: changelog.md
+      - API:
+          - Full public API: api/index.md
+          - Objects: api/objects.md
+          - Public API and stability: project/public_api.md
+          - Methods and citation: methods_and_citation.md
+      - Developer documentation:
+          - Developer directory: developer/index.md
+          - Contribute and test:
+              - Contributing: dev/contributing.md
+              - CI and testing: dev/ci_testing.md
+              - Source lifecycle and certification: dev/source_lifecycle.md
+              - Site analytics and SEO: project/site_analytics_seo.md
+              - Changelog: changelog.md
+          - Architecture and contracts:
+              - Spatial and CRS contract: design/spatial_dataset_contract.md
+              - Cube viewer invariants: dev/cube_viewer_invariants.md
+              - Figure backend: dev/figure_backend.md
+              - Viewer backend: dev/viewer_backend.md
+              - Fire plot architecture: dev/fire_plot_architecture.md
+              - Fire VASE lakehouse: dev/fire_vase_lakehouse.md
+              - Streaming and execution:
+                  - Streaming overview: streaming/index.md
+                  - What is streaming?: streaming/what_is_streaming.md
+                  - Virtual cubes: concepts/virtual_cubes.md
+                  - Local sources: streaming/local_sources.md
+                  - Cloud sources: streaming/cloud_sources.md
+                  - STAC sources: streaming/stac_sources.md
+          - Plans and audits:
+              - Documentation structure: project/documentation_refactor.md
+              - Publication audit and plan: project/publication_plan.md
+              - Scientific vocabulary plan: project/data_vocabulary_plan.md
+              - Grammar inventory: project/grammar_inventory.md
+              - Project scope: project/scope.md
+              - Fire / VASE status audit: developer/fire_vase_status.md
+              - Synchrony roadmap: project/synchrony_roadmap.md
+              - Validation:
+                  - Overview: validation/index.md
+                  - Real data: validation/data.md
+                  - Cube / HTML: validation/cube.md
+                  - Expected-failure controls: validation/contrast.md
+                  - Methods and CI: validation/methods.md
+          - Technical background and legacy:
+              - Concept map: concepts/index.md
+              - Backends: concepts/backends.md
+              - Climate cubes: concepts/climate_cubes.md
+              - Cube math: concepts/cube_math.md
+              - Faceting: concepts/faceting.md
+              - Pipe and verbs: concepts/pipe_and_verbs.md
+              - Rolling statistics: concepts/rolling_stats.md
+              - Related work: related/related_work.md
+              - Full developer symbol inventory: api/inventory_full.md
+              - Deprecated shims: api/reference.md
+              - Deprecation inventory: project/deprecation_inventory.md
+              - Legacy reference: dev/legacy_reference.md
 
   - Vignettes:
       - Learning gallery: vignettes/index.md
@@ -195,7 +208,6 @@ theme:
     - navigation.instant
     - navigation.instant.progress
     - navigation.prune
-    - navigation.sections
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.top

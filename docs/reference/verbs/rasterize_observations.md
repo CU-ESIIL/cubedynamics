@@ -4,6 +4,10 @@
 
 Rasterize observation rows into a biological cube.
 
+**Callable type:** Direct helper function · [Browse: Spatial and alignment](index.md#spatial-and-alignment)
+
+Call this helper directly with the documented data arguments; it does not return a configured pipe stage. Use `v.apply(...)` or an explicit callable if composition is needed.
+
 ## Usage
 
 ```python
@@ -68,7 +72,8 @@ Use only the input types documented by this callable; not every helper accepts e
 - [Related workflow](../../howto/biological_cubes_and_coupling.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

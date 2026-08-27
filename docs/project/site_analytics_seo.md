@@ -51,7 +51,7 @@ advertising features without a separate privacy review.
 
 ## Relevant Google documentation
 
-- [Set up Analytics for a website](https://support.google.com/analytics/answer/9304153)
+- [Set up Analytics for a website](https://support.google.com/analytics/answer/9304153?hl=en)
 - [Build and submit a sitemap](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
 - [Consolidate duplicate URLs with canonical URLs](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls)
-- [Verify ownership in Search Console](https://support.google.com/webmasters/answer/9008080)
+- [Verify ownership in Search Console](https://support.google.com/webmasters/answer/9008080?hl=en)

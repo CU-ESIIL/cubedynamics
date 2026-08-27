@@ -102,7 +102,7 @@ jobs:
 
   docs:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -116,7 +116,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[docs]"
+          pip install -e ".[docs,browser]"
+
+      - name: Install browser for website QA
+        run: python -m playwright install --with-deps chromium
 
       - name: Build docs
         env:
@@ -133,6 +136,20 @@ jobs:
           python scripts/run_source_qa.py
           python scripts/run_decision_qa.py
 
+      - name: Browser crawl, images, embeds and cube interaction
+        id: browser
+        run: |
+          pytest tests/browser -m browser --site-dir site --browser chromium \
+            --tracing retain-on-failure --screenshot only-on-failure \
+            --output artifacts/browser/playwright \
+            --junitxml artifacts/browser/junit.xml -q
+
+      - name: External link availability (advisory, not a deployment gate)
+        if: always() && steps.browser.outcome != 'skipped'
+        continue-on-error: true
+        timeout-minutes: 10
+        run: python scripts/check_external_links.py site --crawl-report artifacts/browser/crawl.json
+
       - name: Upload validation evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -142,3 +159,4 @@ jobs:
             artifacts/validation/
             artifacts/source_qa/
             artifacts/decision_qa/
+            artifacts/browser/

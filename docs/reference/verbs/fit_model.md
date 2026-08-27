@@ -4,8 +4,9 @@
 
 Placeholder for upcoming modeling verbs.
 
-!!! warning "Availability"
-    Not implemented. Calling this exported placeholder raises NotImplementedError.
+**Callable type:** Reserved / planned API · [Browse: placeholder](planned.md)
+
+> **Availability:** Not implemented. Calling this exported placeholder raises NotImplementedError.
 
 ## Usage
 
@@ -45,7 +46,8 @@ Use only the input types documented by this callable; not every helper accepts e
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

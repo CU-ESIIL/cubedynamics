@@ -2,7 +2,17 @@
 
 A **cube** is an `xarray.DataArray` or `xarray.Dataset` whose values are organized along shared space-time axes such as `(time, y, x)` for single-band cubes or `(time, y, x, band)` for multispectral collections. Every pixel stores the value of an environmental variable (e.g., NDVI, temperature, precipitation) measured at `(y, x)` and instant `time`.
 
-![Cube axes diagram](../assets/img/cube_axes.png){ .cube-image }
+The axes describe the data, not a camera angle:
+
+| Dimension | What it identifies | Example coordinate |
+| --- | --- | --- |
+| `time` | Observation or aggregation time | A daily timestamp |
+| `y` | North–south position | Latitude or projected northing |
+| `x` | East–west position | Longitude or projected easting |
+| `band` (optional) | Spectral channel | A Sentinel-2 band name |
+
+Coordinate units and the CRS determine how spatial positions are interpreted;
+dimension names alone do not establish a geographic CRS.
 
 ## Loading a PRISM cube
 

@@ -22,7 +22,12 @@ CubeDynamics expresses analysis as a sequence of verbs connected by pipes, opera
 
 Scientists and AI agents can both reason about the same pipeline because the abstraction is intentionally small and explicit.
 
-![Cube grammar pipeline](../assets/diagrams/cube_grammar_pipeline.png)
+| Stage | Role |
+| --- | --- |
+| `cube` | Labeled input data and its coordinates |
+| `pipe(cube)` | Wrap the input for composition |
+| `\| verb(...)` | Apply one operation to the previous result |
+| `.unwrap()` | Retrieve the result; this does not itself compute lazy data |
 
 ## Dimensions stay explicit
 At its core, CubeDynamics works with xarray-backed DataArrays but applies strong semantics:

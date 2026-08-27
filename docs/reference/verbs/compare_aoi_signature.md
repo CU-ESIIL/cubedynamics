@@ -4,6 +4,10 @@
 
 Compare one AOI signature with another over shared time.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: compatibility](compatibility.md)
+
+> **Compatibility / legacy:** Compatibility workflow: new code can collect_blocks then compare_blocks. This is not a drop-in signature replacement.
+
 ## Usage
 
 ```python
@@ -45,7 +49,8 @@ Use only the input types documented by this callable; not every helper accepts e
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

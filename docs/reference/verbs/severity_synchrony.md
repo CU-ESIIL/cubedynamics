@@ -4,6 +4,8 @@
 
 Measure magnitude co-variation during jointly active states.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
+
 ## Usage
 
 ```python
@@ -70,7 +72,8 @@ State cube -> synchrony Dataset with joint-observation diagnostics.
 - [Related workflow](../../vignettes/states_and_events.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

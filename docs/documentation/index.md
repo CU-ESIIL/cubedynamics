@@ -1,42 +1,37 @@
 # Documents
 
-Use reference pages when you need exact arguments, input types, return values,
-or execution behavior. For teaching, start with [Learn](../learn/index.md);
-for data definitions, use [Library](../library/index.md).
+Look up an operation, its inputs, or its return value. Start with
+[Learn](../learn/index.md) for a guided introduction.
 
-## Reference directory
+## Verbs
 
-| Reference | Contents |
-| --- | --- |
-| [Verbs and callable helpers](../reference/verbs/index.md) | Every public verb, signature, arguments, examples and limitations |
-| [Pipe](../api/pipe.md) | Composition and unwrapping |
-| [Objects](../api/objects.md) | Pipe, VirtualCube, fire/event objects and semantic states |
-| [Data and source configuration](../api/data.md) | Loader, discovery, revision, schema and QA APIs |
-| [Visualization API](../api/viz.md) | Viewer and figure interfaces |
-| [Public API policy](../project/public_api.md) | Stable, internal and compatibility boundaries |
+[Browse verbs by purpose](../reference/verbs/index.md) or find a name in
+[All public callables (A–Z)](../reference/verbs/a-z.md).
 
-## Grammar and execution
+## Data
 
-- [Grammar](../grammar/index.md), [semantic states](../concepts/semantic_grammar.md), [glossary](../concepts/glossary.md)
-- [Lazy evaluation](../grammar/lazy_evaluation.md), [workflow composition](../grammar/workflow_composition.md)
-- [Streaming](../streaming/index.md), [VirtualCube](../concepts/virtual_cubes.md)
-- [Spatial and CRS contract](../design/spatial_dataset_contract.md)
-- [Viewer systems](../viz/index.md) and [HTML cube viewer](../viz/cube_viewer.md)
+[Load nouns](../library/index.md), [choose source flavors](../library/sources/index.md),
+look up [data and source configuration](../api/data.md), or inspect
+[provenance and revisions](../learn/provenance.md).
 
-## Validation and provenance
+## Pipe and grammar
 
-- [Validation report](../validation/index.md) and [real-data checks](../validation/data.md)
-- [Source QA](../data/phase1_qa.md)
-- [Source lifecycle and certification](../dev/source_lifecycle.md)
-- [Methods and citation](../methods_and_citation.md)
+[Pipe reference](../api/pipe.md) · [Grammar reference](../grammar/index.md) ·
+[Order and meaning](../learn/order.md) · [Custom verbs](../extending/custom_verbs.md)
 
-## Extend and maintain
+## Visualization
 
-- [Custom nouns](../extending/custom_nouns.md) and [custom verb projects](../extending/custom_verbs.md)
-- [Contributing](../dev/contributing.md) and [CI/testing](../dev/ci_testing.md)
-- [Documentation migration and page contracts](../project/documentation_refactor.md)
-- [Project scope](../project/scope.md), [publication plan](../project/publication_plan.md), [changelog](../changelog.md)
-- [Developer symbol inventory](../api/inventory_full.md) and [legacy shims](../api/reference.md)
+[Visualization reference](../api/viz.md) · [Cube viewer](../viz/cube_viewer.md) ·
+[Maps](../viz/maps.md) · [Fire and VASE](../capabilities/fire-vase.md)
 
-The sidebar contains the remaining design, rendering and development notes.
-The developer inventory includes internal symbols; it is not the public API.
+## Full API
+
+[Public Python API](../api/index.md) · [Objects](../api/objects.md) ·
+[Public API and stability](../project/public_api.md)
+
+---
+
+## Developer documentation
+
+[Developer documentation →](../developer/index.md) — implementation, testing,
+architecture, contribution guidance, audits, and historical notes.

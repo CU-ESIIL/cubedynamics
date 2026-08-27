@@ -4,6 +4,8 @@
 
 Lazy import wrapper for the Landsat MPC helper.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Other helpers](index.md#other-helpers)
+
 ## Usage
 
 ```python
@@ -43,7 +45,8 @@ Location, dates and Landsat-specific options forwarded to the source helper.
 - [Related workflow](../../examples/landsat8_mpc.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

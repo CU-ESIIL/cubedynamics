@@ -4,6 +4,8 @@
 
 Detect contiguous state runs as events.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: State and events](index.md#state-and-events)
+
 ## Usage
 
 ```python
@@ -64,7 +66,8 @@ State Dataset -> EventResult containing event cube variables and a catalog.
 - [06 · From cold observations to event evidence](../../vignettes/states_and_events.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

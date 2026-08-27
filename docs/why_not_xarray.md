@@ -26,6 +26,8 @@ CubeDynamics is built on top of the xarray and dask ecosystem. Many workflows ca
 CubeDynamics does not replace xarray. It adds an analysis grammar so that large-scale, spatiotemporal workflows stay coherent, testable, and readable.
 
 ## The cube grammar at a glance
-![Cube grammar overview](assets/diagrams/grammar_overview.png)
+
+`pipe(cube) | verb(...) | verb(...)` keeps each analytical step visible. Calling
+`.unwrap()` retrieves the resulting object without forcing lazy data to compute.
 
 See the [Concepts](concepts/index.md) page for the full grammar description and terminology.

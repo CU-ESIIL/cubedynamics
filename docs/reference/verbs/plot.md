@@ -4,6 +4,8 @@
 
 Plot a cube using the CubePlot grammar and keep the cube flowing.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Visualization](index.md#visualization)
+
 ## Usage
 
 ```python
@@ -85,7 +87,8 @@ returns a pipe-ready :class:`~cubedynamics.piping.Verb` so you can write
 - [01 · From an array to a scientific cube](../../vignettes/cube_from_arrays.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

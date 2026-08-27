@@ -2,8 +2,6 @@
 
 Choose a path that matches your role and time budget.
 
-![Recommended reading paths](assets/diagrams/reading_paths.png)
-
 ## Scientist (analysis-first)
 - Skim [Concepts](concepts/index.md) to align on cube semantics.
 - Run [Getting Started](quickstart.md) and a sample [Recipe](recipes/index.md) for a quick win.

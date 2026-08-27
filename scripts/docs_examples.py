@@ -40,7 +40,7 @@ EXAMPLES = {
 
 NOTES = {
     "fit_model": {"status": "Not implemented. Calling this exported placeholder raises NotImplementedError.", "example": "No scientific example is available: this is a reserved API, not an implemented model-fitting verb."},
-    "correlation_cube": {"status": "Not implemented. Calling this exported placeholder raises NotImplementedError.", "example": "For an explicit xarray calculation on aligned observed cubes, use `xr.corr(left, right, dim='time')`. This is not an implementation of `v.correlation_cube`."},
+    "correlation_cube": {"status": "Not implemented. Configuration may raise NotImplementedError; applying a returned stage always does.", "example": "For an explicit xarray calculation on aligned observed cubes, use `xr.corr(left, right, dim='time')`. This is not an implementation of `v.correlation_cube`."},
     "vase_demo": {"status": "Synthetic geometry demonstration only; retained for compatibility, not a real-data analysis.", "example": "Not promoted as an educational scientific example. Use the real FIRED workflow below.", "workflow": "capabilities/fire-vase.md"},
 }
 

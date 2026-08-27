@@ -4,6 +4,8 @@
 
 Flatten all non-time dimensions into a single ``sample`` dimension.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: Transform](index.md#transform)
+
 ## Usage
 
 ```python
@@ -61,7 +63,8 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 - [05 · One cube, six analytical views](../../vignettes/verbs_gallery.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

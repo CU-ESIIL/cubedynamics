@@ -4,8 +4,11 @@
 
 Convenience verb: build a demo stacked-polygon vase and plot it.
 
-!!! warning "Availability"
-    Synthetic geometry demonstration only; retained for compatibility, not a real-data analysis.
+**Callable type:** Grammar verb / pipe stage · [Browse: compatibility](compatibility.md)
+
+> **Compatibility / legacy:** Legacy demonstration using synthetic geometry, not a real-data analysis verb.
+
+> **Availability:** Synthetic geometry demonstration only; retained for compatibility, not a real-data analysis.
 
 ## Usage
 
@@ -50,7 +53,8 @@ Use only the input types documented by this callable; not every helper accepts e
 - [Related workflow](../../capabilities/fire-vase.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

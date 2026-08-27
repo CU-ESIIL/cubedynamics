@@ -468,11 +468,10 @@ cd.show_cube_lexcube(cube, cmap="RdBu_r")
 
 ## Notebook-only behavior
 
-Lexcube widgets run only in live Python environments (JupyterLab, VS Code, Colab, Binder). They will not render on the static documentation site, so screenshots and Binder links are provided for reference.
-
-![Stylized Lexcube example](../assets/img/lexcube_hero.png)
-
-*The SVG is a stylized capture so the documentation can ship a "screenshot" without introducing binary assets.*
+Lexcube widgets run in live Python environments (JupyterLab, VS Code, Colab,
+Binder), not on the static documentation site. Run the notebook below for the
+widget. The [homepage](../index.md) separately demonstrates CubeDynamics' custom
+HTML cube viewer with real PRISM data; it is not a Lexcube widget.
 
 [🔗 Launch this example on Binder](https://mybinder.org/v2/gh/CU-ESIIL/cubedynamics/HEAD?labpath=notebooks/lexcube_example.ipynb)
 
@@ -932,7 +931,7 @@ cube = cd.load_gridmet_cube(
 pipe(cube) | v.month_filter([6, 7, 8]) | v.show_cube_lexcube(cmap="RdBu_r")
 ```
 
-`show_cube_lexcube` integrates [Lexcube](https://github.com/carbonplan/lexcube) for interactive `(time, y, x)` exploration. The verb displays the widget as a side-effect and returns the original cube so the pipeline can keep flowing. The helper also exists as `cubedynamics.show_cube_lexcube(cube, **kwargs)` for non-pipe contexts.
+`show_cube_lexcube` integrates [Lexcube](https://github.com/msoechting/lexcube) for interactive `(time, y, x)` exploration. The verb displays the widget as a side-effect and returns the original cube so the pipeline can keep flowing. The helper also exists as `cubedynamics.show_cube_lexcube(cube, **kwargs)` for non-pipe contexts.
 
 ## Example: chaining a streamed cube
 

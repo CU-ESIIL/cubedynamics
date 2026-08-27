@@ -4,6 +4,10 @@
 
 Summarize an AOI cube into a named spatial-unit time signature.
 
+**Callable type:** Grammar verb / pipe stage · [Browse: compatibility](compatibility.md)
+
+> **Compatibility / legacy:** Compatibility name: prefer block_signature for new workflows; its block_id/block dimension differs from unit_id/unit.
+
 ## Usage
 
 ```python
@@ -68,7 +72,8 @@ is the first step toward pairwise and many-unit spatial meta-analysis.
 
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
-- [All verbs](index.md)
+- [Verbs by purpose](index.md)
+- [All public callables (A–Z)](a-z.md)
 
 ## Implementation notes
 

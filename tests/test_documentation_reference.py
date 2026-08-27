@@ -52,7 +52,7 @@ def test_every_catalog_noun_source_and_public_verb_has_reference():
             for heading in reference.SOURCE_SECTIONS:
                 assert f"## {heading}\n" in pages[f"library/sources/{source}.md"]
     for name in reference.public_verbs():
-        assert f"]({name}.md)" in pages["reference/verbs/index.md"]
+        assert f"]({name}.md)" in pages["reference/verbs/a-z.md"]
         for heading in reference.VERB_SECTIONS:
             assert f"## {heading}\n" in pages[f"reference/verbs/{name}.md"]
 
