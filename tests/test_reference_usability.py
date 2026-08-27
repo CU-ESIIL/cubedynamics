@@ -40,6 +40,8 @@ def test_real_callables_are_categorized_and_full_az_is_reachable():
             assert target in pages["reference/verbs/index.md"]
         else:
             assert target not in pages["reference/verbs/index.md"]
+            if info["status"] in {"compatibility", "deprecated"}:
+                assert target in pages["reference/verbs/compatibility.md"]
 
 
 @pytest.mark.parametrize("name", sorted(PLACEHOLDERS))
@@ -63,6 +65,20 @@ def test_warning_emitting_public_export_is_labeled_deprecated():
     assert classify("month_filter", reference.v.month_filter)["status"] == "deprecated"
     with pytest.warns(DeprecationWarning):
         assert callable(reference.v.month_filter([1]))
+
+
+def test_newly_deprecated_callable_needs_no_second_inventory_entry(monkeypatch):
+    def classify_with_deprecation(name, func):
+        info = classify(name, func)
+        if name == "mean":
+            info["status"] = "deprecated"
+        return info
+
+    monkeypatch.setattr(reference, "classify", classify_with_deprecation)
+    pages = reference.generate()
+    assert "](mean.md)" not in pages["reference/verbs/index.md"]
+    assert "](mean.md)" in pages["reference/verbs/compatibility.md"]
+    assert "**Deprecated:**" in pages["reference/verbs/mean.md"]
 
 
 @pytest.mark.parametrize(("name", "kind"), [

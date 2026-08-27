@@ -246,7 +246,7 @@ def generate():
     pages["reference/verbs/planned.md"] = "# Reserved / planned API\n\nThese names are reserved in the current public namespace but do not yet implement the advertised operation. " + "They may raise `NotImplementedError` at configuration or when the returned stage is applied.\n\n" + table(
         ["Name", "Callable type", "Current declaration"], callable_rows(n for n, c in classification.items() if c['status'] == 'placeholder')) + "\n[Browse implemented operations](index.md) · [All public callables (A–Z)](a-z.md)\n"
     pages["reference/verbs/compatibility.md"] = "# Compatibility and deprecated helpers\n\nThese public names remain available. Compatibility is not synonymous with deprecation: the notes distinguish aliases and legacy demonstrations without inventing a removal date.\n\n" + table(
-        ["Name", "Callable type", "Guidance"], [(f"[{n}]({n}.md)", KIND_LABELS[classification[n]['kind']], note) for n, note in COMPATIBILITY.items() if n in verbs]) + "\nDeprecated module-level shims outside this namespace are listed in the [legacy API reference](../../api/reference.md).\n\n[Browse implemented operations](index.md) · [All public callables (A–Z)](a-z.md)\n"
+        ["Name", "Callable type", "Guidance"], [(f"[{n}]({n}.md)", KIND_LABELS[c['kind']], COMPATIBILITY.get(n, summary(verbs[n]))) for n, c in classification.items() if c['status'] in {'compatibility', 'deprecated'}]) + "\nDeprecated module-level shims outside this namespace are listed in the [legacy API reference](../../api/reference.md).\n\n[Browse implemented operations](index.md) · [All public callables (A–Z)](a-z.md)\n"
     for name, func in verbs.items():
         page = f"reference/verbs/{name}.md"
         parts = doc_sections(func)

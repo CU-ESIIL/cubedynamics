@@ -6,10 +6,10 @@ These public names remain available. Compatibility is not synonymous with deprec
 
 | Name | Callable type | Guidance |
 | --- | --- | --- |
-| [month_filter](month_filter.md) | Grammar verb / pipe stage | Deprecated implementation: the public export currently resolves to the warning-emitting ops.transforms shim. Its warning points back to the same public name; no distinct replacement is claimed here. |
 | [aoi_signature](aoi_signature.md) | Grammar verb / pipe stage | Compatibility name: prefer block_signature for new workflows; its block_id/block dimension differs from unit_id/unit. |
 | [compare_aoi_signature](compare_aoi_signature.md) | Grammar verb / pipe stage | Compatibility workflow: new code can collect_blocks then compare_blocks. This is not a drop-in signature replacement. |
 | [exceedance](exceedance.md) | Grammar verb / pipe stage | Alias for threshold_state; no deprecation warning is implied. |
+| [month_filter](month_filter.md) | Grammar verb / pipe stage | Deprecated implementation: the public export currently resolves to the warning-emitting ops.transforms shim. Its warning points back to the same public name; no distinct replacement is claimed here. |
 | [vase_demo](vase_demo.md) | Grammar verb / pipe stage | Legacy demonstration using synthetic geometry, not a real-data analysis verb. |
 
 Deprecated module-level shims outside this namespace are listed in the [legacy API reference](../../api/reference.md).

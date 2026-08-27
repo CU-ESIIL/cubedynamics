@@ -160,3 +160,42 @@ for uncommitted pages; these are not scientific certification results.
 For a future audit, `python scripts/audit_documentation.py` prints the current
 inventory. Use `--output <new-path>` to create a new snapshot; existing snapshots
 are never overwritten. Do not regenerate the pre-refactor evidence in place.
+
+## Reference usability follow-up · 27 August 2026
+
+The five top-level areas remain unchanged. Documents now opens with Verbs,
+Data, Pipe and grammar, Visualization, and Full API. A separate
+[Developer documentation](../developer/index.md) directory holds contribution,
+CI, source lifecycle, architecture/contracts, audits/plans, and legacy/internal
+reference. Existing technical URLs remain reachable; sidebar groups start
+collapsed rather than exposing the full engineering tree.
+
+The primary verb browser groups implemented operations into Transform,
+State and events, Synchrony and comparison, Spatial and alignment,
+Visualization, Output and side effects, and Other helpers. The complete A–Z
+inventory remains secondary and includes compatibility and reserved names.
+`scripts/reference_classification.py` supplies the small editorial grouping
+and exception map. Callable kinds are inferred by inspecting the implementation
+without executing it; descriptions use the grammar registry when applicable.
+New public callables remain visible under Other helpers until classified.
+Deprecation declarations and known compatibility names are separated from
+implemented operations; `fit_model` and `correlation_cube` are reserved APIs.
+
+Generation now owns 68 pages: eight nouns, three sources, 51 public callable
+pages, and their directories. Library navigation follows its generated noun
+categories, not a second hard-coded noun list. Multi-source nouns gain
+"Differences among source flavors" from the existing catalog: units,
+variables/statistics, resolution, coverage, time span, revision behavior, and
+interpretation constraints. This does not harmonize products or recertify live
+data. Notebook reference links are also used to derive noun backlinks.
+
+One runtime issue is documented, not changed: the public `month_filter` export
+resolves to a deprecated shim whose warning recommends the same public name.
+Its reference is labeled deprecated without claiming a distinct replacement.
+Correcting that warning/export requires a separate runtime change.
+
+The supported notebook code and Learn structure are unchanged. Browser
+navigation regression tests cover the seven user journeys at desktop and
+narrow widths alongside the full link, image, and interaction crawl. See
+[CI and browser testing](../dev/ci_testing.md) for execution commands and
+`PROMPT_LOG.md` in the repository for the final validation record.

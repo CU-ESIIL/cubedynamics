@@ -2755,3 +2755,67 @@ secrets, credentials, private tokens, or unrelated transcript text.
   rendering/resources and interaction, not every browser, external anchors,
   or scientific figure semantics. Runtime scientific code was unchanged.
   No commit, push, or deployment was performed.
+
+## 2026-08-27 - Reference usability follow-up completed
+
+- User requested a small follow-up, preserving Home / Learn / Library /
+  Documents / Vignettes and all runtime/scientific behavior. Work resumed
+  after a pause; the earlier changes were already saved in `3393f0f`.
+- Documents now presents a short user-reference directory: Verbs, Data,
+  Pipe and grammar, Visualization, Full API, then a separate Developer
+  documentation link. Internal contribution/CI, source lifecycle,
+  architecture/contracts, publication and vocabulary plans, validation,
+  deprecation inventories, and legacy material are regrouped under Developer
+  documentation. All 60 former Documents routes remain in navigation.
+- The generated primary verb browser has six scientific-purpose groups and
+  an Other helpers fallback. The secondary A–Z inventory retains all 51
+  public callables: 44 implemented, four compatibility names, one deprecated
+  export, and two placeholders. Callable types derive from implementation
+  inspection plus a small editorial exception map; grammar metadata supplies
+  descriptions. Compatibility/deprecated inventories follow classification
+  automatically, including newly deprecated names outside the exception map.
+- `fit_model` and `correlation_cube` are reserved, not implemented operations.
+  `aoi_signature`, `compare_aoi_signature`, `exceedance`, and `vase_demo` have
+  explicit compatibility guidance. `month_filter` is labeled deprecated:
+  its current export emits a warning recommending the same public symbol.
+  Fixing that export/warning is a concrete runtime follow-up, not done here.
+- Library remains catalog-driven: eight nouns and three sources. Navigation
+  follows generated noun categories. Multi-source temperature/precipitation
+  pages compare declared units, statistics, grids, time/coverage, revisions,
+  and constraints; no data harmonization or live certification is implied.
+  Noun-to-vignette links also derive from notebook reference links.
+- Added `tests/test_reference_usability.py` and
+  `tests/browser/test_reference_navigation.py`; maintained the full browser
+  suite and CI gates. Added ownership/classification conventions to
+  `docs/project/documentation_refactor.md`. Generated files were rebuilt
+  through `scripts/build_reference_docs.py`, not hand-edited.
+- Manual browser review and automated journeys checked desktop (1280 px)
+  and phone (390 px): Home → Library → temperature; noun → PRISM source;
+  Home → Documents → verbs; Transform → mean; mean → grammar vignette;
+  vignette → temperature; Documents → Developer documentation. The full A–Z
+  route, callable labels, notebook figure, and page overflow were checked.
+  No page-level horizontal overflow was found on these paths. The preview
+  initially retained an earlier page in browser cache; a fresh URL confirmed
+  the final deprecated-name exclusion, and fresh Chromium journeys passed.
+- Final validation:
+  - Reference freshness: all **68 generated pages** current.
+  - Strict MkDocs build: passed at
+    `/private/tmp/cubedynamics-reference-usability-site`; all nine notebook
+    pages rendered. Existing notebook render caches were reused; execution
+    was separately repeated from scratch by the vignette runner.
+  - Built-site internal files and anchors: passed, no unresolved targets.
+  - Vignette runner: **9/9** supported real-data notebooks executed offline,
+    with required static plot outputs. Local Jupyter transport warnings remain.
+  - Focused documentation/reference/link tests: **76 passed**.
+  - Full offline suite: **501 passed, 5 skipped, 245 deselected**.
+  - Chromium suite: **316 passed**; **292 built pages**, **600 image
+    occurrences**, **46 CSS backgrounds**, **zero failed pages**. Includes
+    desktop/mobile journeys, deferred frames, cube drag/zoom, and detector
+    negative controls. Reports and 18 journey screenshots are under
+    `artifacts/browser/reference-usability/`.
+  - Repository-size policy: passed for **1000 tracked files**.
+  - Whitespace checks passed. Comparison with `9a6c768` confirms no changes
+    to runtime `src/`, legacy `code/`, Home, Learn, or vignette sources.
+- Existing sparse helper docstrings and live-provider availability were not
+  repaired or recertified. No further site refactor, commit, push, or deployment
+  was performed in this continuation.
