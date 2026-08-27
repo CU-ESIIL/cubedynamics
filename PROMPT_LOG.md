@@ -2819,3 +2819,23 @@ secrets, credentials, private tokens, or unrelated transcript text.
 - Existing sparse helper docstrings and live-provider availability were not
   repaired or recertified. No further site refactor, commit, push, or deployment
   was performed in this continuation.
+
+## 2026-08-27 - Supplied manuscript citation-map draft added
+
+- User requested adding the supplied manuscript PDF to the repository.
+  Read the five pages and visually inspected the rendered original using
+  the PDF workflow. Editorial citation markers were treated as draft content,
+  not as instructions to perform a reference audit or change the software.
+- Preserved the original 36,614-byte PDF at
+  `paper/drafts/CubeDynamics_manuscript_citation_markers.pdf`. Added
+  `paper/README.md` with title, draft status, receipt date, source checksum,
+  and links to existing manuscript material; linked it from the root README.
+  Existing `paper/paper.md` and `paper/paper.bib` remain unchanged.
+- The index discloses unresolved citations and the original page-2 code
+  block's literal newline escapes. No claims, citations, or PDF formatting
+  were revised; no completed review or publication status is implied.
+- Validation: byte comparison and SHA-256 match the supplied original;
+  all manuscript-index links resolve; repository-size policy passes for
+  tracked files and the new, untracked manuscript files. Strict MkDocs build,
+  built-site internal file/anchor check, and `git diff --check` passed.
+- No runtime changes, website navigation changes, commit, push, or deployment.

@@ -120,6 +120,8 @@ Key entry points:
 - [Write a custom verb project](https://cu-esiil.github.io/cubedynamics/extending/custom_verbs/)
 - [Public API and stability](https://cu-esiil.github.io/cubedynamics/project/public_api/)
 - [Publication audit and plan](https://cu-esiil.github.io/cubedynamics/project/publication_plan/)
+- [Manuscript working drafts](paper/README.md) - supplied drafts and editorial
+  citation notes, separate from validated software reference.
 
 ---
 
