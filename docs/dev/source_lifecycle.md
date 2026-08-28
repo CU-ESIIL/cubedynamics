@@ -85,6 +85,12 @@ checks use reviewed, checksum-controlled observational extracts and are stable
 in CI. Live checks detect endpoint and upstream drift, but service outages do
 not retroactively invalidate the reviewed offline baseline.
 
+Pre-registration source proofs may use `serving_revision=None` in a
+`CertificationRecord`. That means **no serving revision has been assigned**,
+not a new version or a promotion. Registered serving records still require a
+valid immutable identifier and the existing promotion gates. See the three
+[contained source projects](../data/source_projects/index.md).
+
 ## Reusable QA profiles
 
 The first profile library is available through `data.list_qa_profiles()` and
@@ -108,6 +114,7 @@ Upstream observations are classified before maintenance work:
 | Change | Default response |
 | --- | --- |
 | `CONTENT_EXTENSION` | Keep a rolling revision if interpretation is unchanged; snapshots require a candidate revision |
+| `OBSERVATION_UPDATE` | Routine provisional/value/status refresh: retain and compare retrievals; keep a rolling interpretation unchanged. A snapshot change still requires a candidate. |
 | `NEW_SNAPSHOT_RELEASE` | Create and certify a candidate revision |
 | `SCHEMA_CHANGE` | Create a candidate and review the adapter |
 | `SEMANTIC_CHANGE` | Create a candidate with scientific and adapter review |

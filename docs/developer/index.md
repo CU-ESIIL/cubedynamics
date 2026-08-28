@@ -7,6 +7,7 @@ selection, return to [Documents](../documentation/index.md).
 
 - [Contributing](../dev/contributing.md) and [CI and browser testing](../dev/ci_testing.md)
 - [Source lifecycle and certification](../dev/source_lifecycle.md)
+- [Source engineering and retained evidence](../data/source_projects/index.md) and [operational readiness](../data/source_projects/production.md)
 - [Validation evidence](../validation/index.md) and [methods](../validation/methods.md)
 - [Site analytics](../project/site_analytics_seo.md) and [changelog](../changelog.md)
 

@@ -1,0 +1,42 @@
+{
+  "inputs": {
+    "scripts/build_source_vignettes.py": "90b6710a2215519da71ad4af65f823b72481d4c7b0139028ca2d91463725fecf",
+    "scripts/build_streamflow_vignette.py": "51a3c0143f467a0a8a99fa4638e2cf48ae2c712ed4561c841ff011739095fb46",
+    "scripts/source_lesson_content.py": "9bbb0c437c8f498dac01916526c52c355c25226d653d16bae7475a0476c5c7f5",
+    "scripts/vignette_shell.py": "d36e7c404bc1536b226fbb81bdd149b29265a619b5bb2ea6c717cfb41f1630e5",
+    "tests/fixtures/real_data/source_lessons/elevation.nc": "708b1e76b8baeb58f416d44009c517bb6a4b078faae4bb39e0495c72baf16ea8",
+    "tests/fixtures/real_data/source_lessons/elevation.provenance.json": "2ee200447b437a474620dc037d6e96e8c3318ce39ea7058201742dc403b15777",
+    "tests/fixtures/real_data/source_lessons/roads.provenance.json": "bda382fc1b463a1e5d5cad46f43542834e9862aa0a9de8c438a7f78843a24439",
+    "tests/fixtures/real_data/source_lessons/roads_osm.geojson": "06c4a55dfc4ca3b93ee64fb39893fb35637abcd0c66b75c9360de4ba25546b1a",
+    "tests/fixtures/real_data/source_lessons/roads_overture.geojson": "26c9df2dab18235536c30de25d89ea544ba20dce816d03595f5d3d4e17e253aa",
+    "tests/fixtures/real_data/usgs_streamflow/boulder/bodies/b74e9316584af7070e623a02cfcc8487eb6b91f67c73f6b8d45984a2adcbe3b4.bin": "b74e9316584af7070e623a02cfcc8487eb6b91f67c73f6b8d45984a2adcbe3b4",
+    "tests/fixtures/real_data/usgs_streamflow/boulder/bodies/ef7cbc3ea06c763e2d22fa5f71859072c4c462b1f5349f06bf0f0d671f78a795.bin": "ef7cbc3ea06c763e2d22fa5f71859072c4c462b1f5349f06bf0f0d671f78a795",
+    "tests/fixtures/real_data/usgs_streamflow/boulder/bodies/f05667422bebff20dba95234495b1a0031c079bb6a5349882482f00ce021c46b.bin": "f05667422bebff20dba95234495b1a0031c079bb6a5349882482f00ce021c46b",
+    "tests/fixtures/real_data/usgs_streamflow/boulder/requests/69e5496615d4fbb6f90ca95e0afc90c305053dd97b2a6df2cb9b771e62d9d443.json": "669edf1a3a923ce44a0331101dfd4f5d987671838185d7d3b0673cafacb24264",
+    "tests/fixtures/real_data/usgs_streamflow/boulder/requests/75de24bf182bc30d8f63f805af96f75863f2093a6ad2316a5948c8dc361f1236.json": "880f07a3374c2601df922df79c66beb4bea8bfa37c1e5ace58753532b9a98a6a",
+    "tests/fixtures/real_data/usgs_streamflow/boulder/requests/bf51ac94e728eb56e05a725099e47ceb72c398bfd39f521722983280006cc25c.json": "ae53dc72fd8da5b291b1a0e17c93196044327c345b311c1494d888c1ea9822d0",
+    "tests/fixtures/real_data/usgs_streamflow/lees_ferry/bodies/6340b13bde27e1e7e29e01c11e788f2591eafa993369465303d3822acc6689a5.bin": "6340b13bde27e1e7e29e01c11e788f2591eafa993369465303d3822acc6689a5",
+    "tests/fixtures/real_data/usgs_streamflow/lees_ferry/bodies/8d3a69baf8c2512d8feec2925cc50466d0f331afaeaa51138ac3b7efc85b6716.bin": "8d3a69baf8c2512d8feec2925cc50466d0f331afaeaa51138ac3b7efc85b6716",
+    "tests/fixtures/real_data/usgs_streamflow/lees_ferry/bodies/dfd3fa14ae1016e59de98a12e311cf9658c7e3bdab1b39043b71a0b4357f85a1.bin": "dfd3fa14ae1016e59de98a12e311cf9658c7e3bdab1b39043b71a0b4357f85a1",
+    "tests/fixtures/real_data/usgs_streamflow/lees_ferry/requests/66d2d097be495f7dedb9ad81ae7c32849a331e8cad197744867783b286828516.json": "e02f333f9badc9f26ed8a2e50d9e9639834cb0b45a64b04a7756be091f6cb3a4",
+    "tests/fixtures/real_data/usgs_streamflow/lees_ferry/requests/97d15f14b26bc5c542ff9478c7b2084ca5565d485fb4b1ab31548f721babec7b.json": "91eebb5cfbe6a9af019ca25fdeaca1e037e481822d2e514470710205d785b6e9",
+    "tests/fixtures/real_data/usgs_streamflow/lees_ferry/requests/fc5bf7971b43428b4d463564742bb053fe7e8bcb0555c083c36e37882ca1bd69.json": "c6460ac9ea948c1831047142a75a2b1080a1726265522156c5129d9225106c1e",
+    "tests/fixtures/real_data/usgs_streamflow/potomac/bodies/252094dd79c6527e3ea14cde454a82cf27d9d78f7426f2e74570348f9a95b034.bin": "252094dd79c6527e3ea14cde454a82cf27d9d78f7426f2e74570348f9a95b034",
+    "tests/fixtures/real_data/usgs_streamflow/potomac/bodies/73d20b421911f09cbfbb7066d09fcf0cb1906edf0dd15f062c672492afde8ba1.bin": "73d20b421911f09cbfbb7066d09fcf0cb1906edf0dd15f062c672492afde8ba1",
+    "tests/fixtures/real_data/usgs_streamflow/potomac/bodies/955b83a324f43d54ae14a73ae38f6b20fab546df311edd103c62350406a7a8ee.bin": "955b83a324f43d54ae14a73ae38f6b20fab546df311edd103c62350406a7a8ee",
+    "tests/fixtures/real_data/usgs_streamflow/potomac/requests/01fcf2cddbd4b70741288d47d1cf66a4d9f19d1de77b965c84c0f8a79fd27f25.json": "7b727e562c7d31d0f2575c3568e128e3e0061e27968d0b03b4a8c35e7ac7bbee",
+    "tests/fixtures/real_data/usgs_streamflow/potomac/requests/056023e6366fe404704534990235319ac0852b420bdb7cd4add5626da4eac17f.json": "4f24351cf3a6852db5075413a9fce115623f948214036979dd4adc64ad99b9b5",
+    "tests/fixtures/real_data/usgs_streamflow/potomac/requests/c14c3e6dc44721b00dded357410975b8c6771909529732eea3a0cdd799d1869f.json": "aef9e9e7723aa4f17c2457318385cbd0c72778298373cd5b6cf42d2acd62e397",
+    "tests/fixtures/real_data/usgs_streamflow/provenance.json": "a14c47841207514eede09c7ec2f75cc2fca16692f6f0b2b36e95adf4e0b0b36e"
+  },
+  "outputs": {
+    "elevation-1.png": "9f1877fa120cd745f52bc0176647ac424659fc9a11007d5dcd96cf4ed2200713",
+    "elevation-2.png": "669e40a06126f5e6b63818ee029ccac2a4a4d282a2daac039fcfab223986feb6",
+    "elevation-3.png": "c6a54112fab7ab7fd1c6c8af5ee18a87e49a4cf7491179a2fdecaece968e3982",
+    "roads-1.png": "e472a3e32d0f547e0dff7b65d5963b246bb0a5102371ab44f6caf4e041f6f1dc",
+    "roads-2.png": "e9381ded50057d41e1392f156d2d8d049124a404b6cecc2f30af0fc767f3ca95",
+    "roads-3.png": "e0878a9e03a501c7c31e079a6dc8cfc2bf7ddc61c29a904ffaa2b5bfd86bb484",
+    "streamflow-1.png": "3c11708d958d9b6e226b7f192745faa4d70a2e3a121a7e1a30094947f55b2ca0"
+  },
+  "scope": "Real frozen loader outputs; exact code shared by notebooks. Not production certification."
+}

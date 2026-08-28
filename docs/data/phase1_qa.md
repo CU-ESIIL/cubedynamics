@@ -10,6 +10,11 @@ also records deterministic schema fingerprints and applies a reusable QA
 profile before the source-specific scientific checks. See the
 [source lifecycle and certification contract](../dev/source_lifecycle.md).
 
+Separate from these production catalog baselines, the
+[3DEP, roads and USGS streamflow projects](source_projects/index.md) test three
+new source shapes. Their generated evidence is experimental; it does not add
+serving revisions to this table or automatically register new public nouns.
+
 ## Current evidence status
 
 | Source flavor | Serving revision | Reusable profile | Offline certification | Scheduled live endpoint test |

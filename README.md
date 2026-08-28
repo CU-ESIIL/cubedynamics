@@ -63,6 +63,7 @@ Optional extras in [pyproject.toml](pyproject.toml):
 | `viz` | Optional Lexcube widget support; not required for the custom HTML cube viewer |
 | `dev` | Test, docs, vignette, and Lexcube tooling |
 | `browser` | Playwright and its pytest plugin, Python 3.10+; install Chromium separately |
+| `roads` | Optional PyArrow reader for the bounded Overture roads candidate |
 
 The former `climate_cube_math` namespace remains a deprecated compatibility
 path. Use `cubedynamics` for new code.
@@ -218,7 +219,8 @@ has a Plotly renderer; it has not been fully migrated to that viewer.
 
 ## Reproduce and validate
 
-There are **nine supported offline notebooks**: eight core lessons under
+There are **twelve supported offline notebooks**: eight core lessons and three
+real-data noun lessons (elevation, roads, streamflow) under
 `docs/vignettes/` and the Working Lands analysis under `docs/decision_vignettes/`.
 They cover arrays, tidy tables, Datasets, composition, transformations,
 states/events, custom verbs, lazy computation, and a two-noun decision story.
@@ -261,6 +263,14 @@ publication on browser failures; external-link availability is advisory.
 See [CI and testing](docs/dev/ci_testing.md) for evidence and platform setup.
 
 ## Repository and contribution guide
+
+The main noun library includes [elevation](docs/library/nouns/elevation.md),
+[roads](docs/library/nouns/roads.md), and [streamflow](docs/library/nouns/streamflow.md),
+with source-specific installed imports, complete references, and offline
+real-data lessons. Their bounded QA status is documented separately from their
+place in the grammar; `data.list_sources()` and production serving histories
+are unchanged. Historical acquisition reports live in
+[developer source engineering](docs/data/source_projects/index.md).
 
 - `src/cubedynamics/` is the installed package; `code/cubedynamics/` is a legacy mirror.
 - `docs/` holds the website, generated references, and supported notebooks.

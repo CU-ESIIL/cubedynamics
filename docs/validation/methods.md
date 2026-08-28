@@ -20,9 +20,10 @@ data mismatch, grammar mismatch, or rendering mismatch blocks publication.
 
 ## Vignette contract
 
-The eight source-controlled notebooks must:
+All supported core and source notebooks must:
 
-- declare the reviewed NetCDF fixture and provenance JSON in notebook metadata;
+- declare an explicitly supported real input and its provenance JSON in notebook metadata;
+- pass SHA-256 checks for the NetCDF input or every retained USGS response/request record;
 - run offline without credentials or private paths;
 - contain no random data generation;
 - use the public `pipe` and verb API; and
@@ -31,6 +32,14 @@ The eight source-controlled notebooks must:
 The first lesson additionally embeds the repository-native interactive viewer.
 Website figures and locally executed notebooks therefore come from the same
 source cells and same real observations.
+
+The eight core lessons retain the PRISM input. Streamflow uses three real USGS
+response snapshots; elevation and roads use serialized native 3DEP and
+Overture/OSM extracts with hashes. Unknown input/provenance combinations are
+rejected, not accepted because a notebook claims to use real data. The runner
+also executes the supported Decision Lab notebook, for twelve offline notebooks
+in total; [Decision Lab QA](../decision_vignettes/validation.md) checks its inputs.
+Notebook output is retained in `artifacts/validation/notebook-execution.log`.
 
 The gate also scans the primary vignette, synchrony, Fire VASE, workflow, and
 recipe entry pages so they do not promote generated cubes, generated fires, or

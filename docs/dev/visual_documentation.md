@@ -19,7 +19,13 @@ The six first-pass pages are [Learn: verbs](../learn/verbs.md),
 [dataset comparison](../datasets/which_dataset.md),
 [anomaly](../reference/verbs/anomaly.md), and
 [threshold_state](../reference/verbs/threshold_state.md).
-No other lesson or reference page is claimed to have this new coverage.
+This remains the first-pass climate set. The main
+[elevation](../library/nouns/elevation.md), [roads](../library/nouns/roads.md), and
+[streamflow](../library/nouns/streamflow.md) entries also have executable
+real-data lessons and generated first-result figures. Their code lives in
+`scripts/source_lesson_content.py` and `scripts/build_streamflow_vignette.py`;
+`scripts/build_source_vignettes.py` regenerates/checks seven figures under
+`docs/assets/generated/nouns/`. The same code executes in the notebooks.
 
 The vignette builder copies the same code into native notebook cells. It uses
 the existing `run_vignettes.py` / nbclient execution and MkDocs-Jupyter rendering,

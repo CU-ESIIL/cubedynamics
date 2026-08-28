@@ -2,9 +2,7 @@
 
 # Library
 
-Find environmental information by scientific noun. This index contains only implemented catalog entries. [Browse by source](sources/index.md), or look up an operation in [Documents](../reference/verbs/index.md).
-
-Looking for soil moisture, roads, streamflow, or other unlisted nouns? They are not implemented in this catalog. [Candidate integrations](../project/data_vocabulary_plan.md) are not available source flavors.
+Find environmental information by scientific noun. Choose a noun, inspect its returned object and source contract, then follow a real-data lesson. [Browse by source](sources/index.md), or look up an operation in [Documents](../reference/verbs/index.md).
 
 ## Climate & weather
 
@@ -29,6 +27,26 @@ Looking for soil moisture, roads, streamflow, or other unlisted nouns? They are 
 | --- | --- | --- | --- |
 | [vegetation_index](nouns/vegetation_index.md) | A derived vegetation index; currently NDVI. | sentinel2 | sentinel2: Global land surfaces, 10 m, scene acquisition; nominal five-day constellation revisit (2015-present) |
 
+## Terrain
+
+| Noun | Meaning | Source flavors | Coverage / resolution / time |
+| --- | --- | --- | --- |
+| [elevation](nouns/elevation.md) | Surface elevation on a native raster grid. | usgs_3dep | CONUS; one fully covering native tile; 1/3 arc-second; native cells; Static tile version, not a time series |
+
+## Networks & infrastructure
+
+| Noun | Meaning | Source flavors | Coverage / resolution / time |
+| --- | --- | --- | --- |
+| [roads](nouns/roads.md) | Mapped road features with provider-native geometry, identifiers, and classes. | overture, osm | Release-covered areas; bounded small-area queries; Native vector segments; Explicit release, e.g. 2026-08-19.0; Small query areas through Overpass; Native OSM way geometry; Rolling snapshot at retrieval; timestamp retained |
+
+## Water & hydrology
+
+| Noun | Meaning | Source flavors | Coverage / resolution / time |
+| --- | --- | --- | --- |
+| [streamflow](nouns/streamflow.md) | Observed discharge at an identified streamgage through time. | usgs | One supported USGS station per request; Point station; native observation intervals; Provider-available observations; <=31-day requests |
+
 ## Use and extend
 
 [Learn about source choice](../learn/provenance.md) · [Custom nouns](../extending/custom_nouns.md) · [Source QA](../data/phase1_qa.md)
+
+Source-specific imports and tested limits are shown on each noun page. Inclusion in this library is not a claim that all sources share the same certification or serving history.

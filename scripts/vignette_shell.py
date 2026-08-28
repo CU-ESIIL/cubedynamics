@@ -14,7 +14,12 @@ def with_shell(notebook, relative_path):
     provenance = json.loads((ROOT / metadata["provenance"]).read_text())
     source = provenance["source"]
     provider = source["provider"] if isinstance(source, dict) else source
-    product = source["product"] if isinstance(source, dict) else provenance["source_product"]
+    product = source["product"] if isinstance(source, dict) else provenance.get("source_product", source)
+    time_coverage = provenance.get("time_coverage") or [provenance["start"], provenance["end"]]
+    source_reference = metadata.get("source_reference", "../library/sources/prism.md")
+    source_label = metadata.get("source_label", "PRISM source reference")
+    source_support_label = metadata.get("source_support_label", "catalog support")
+    related_nouns = metadata.get("related_nouns", "[temperature](../library/nouns/temperature.md) · [precipitation](../library/nouns/precipitation.md)")
     code = "\n".join("".join(c["source"]) for c in notebook["cells"] if c["cell_type"] == "code")
     verbs = sorted(set(re.findall(r"\bv\.(\w+)\(", code)))
     links = [f"[{name}](../reference/verbs/{name}.md)" for name in verbs]
@@ -31,12 +36,12 @@ def with_shell(notebook, relative_path):
 | --- | --- |
 | Provider | {provider} |
 | Product | {product} |
-| Dates | {" to ".join(provenance["time_coverage"])} |
+| Dates | {" to ".join(time_coverage)} |
 | Fixture | `{metadata["data_fixture"]}` |
 | Provenance record | `{metadata["provenance"]}` |
 
-The [PRISM source reference](../library/sources/prism.md) describes current
-catalog support; the fixture record above identifies the observations used
+The [{source_label}]({source_reference}) describes current
+{source_support_label}; the fixture record above identifies the observations used
 here. [Data validation](../validation/data.md) documents checksums and acceptance
 checks. The analytical baseline and thresholds belong to this story, not the provider.
 
@@ -56,7 +61,7 @@ and the [vignette contract](../vignettes/structure.md) explain the workflow.
 
 ## See also
 
-[temperature](../library/nouns/temperature.md) · [precipitation](../library/nouns/precipitation.md) ·
+{related_nouns} ·
 {" · ".join(links)}
 
 [Learn the grammar](../learn/index.md) · [All vignettes](../vignettes/index.md)

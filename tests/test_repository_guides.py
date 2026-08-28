@@ -54,8 +54,8 @@ def test_readme_supported_notebook_count():
                 assert meta.get("network") is False
                 supported.append(path)
     # Deliberate summary count: a new supported lesson should update the guide.
-    assert len(supported) == 9
-    assert "nine supported offline notebooks" in README.read_text(encoding="utf-8")
+    assert len(supported) == 12
+    assert "twelve supported offline notebooks" in README.read_text(encoding="utf-8")
 
 
 @pytest.mark.parametrize("filename", ["README.md", "AGENTS.md"])

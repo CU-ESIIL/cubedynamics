@@ -1,0 +1,35 @@
+{
+  "source": "USGS modern OGC continuous",
+  "source_url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections",
+  "start": "2026-08-26T00:00:00Z",
+  "end": "2026-08-26T23:59:59Z",
+  "sites": {
+    "boulder": "USGS-06730200",
+    "potomac": "USGS-01646500",
+    "lees_ferry": "USGS-09380000"
+  },
+  "files": {
+    "boulder/requests/69e5496615d4fbb6f90ca95e0afc90c305053dd97b2a6df2cb9b771e62d9d443.json": "669edf1a3a923ce44a0331101dfd4f5d987671838185d7d3b0673cafacb24264",
+    "boulder/requests/75de24bf182bc30d8f63f805af96f75863f2093a6ad2316a5948c8dc361f1236.json": "880f07a3374c2601df922df79c66beb4bea8bfa37c1e5ace58753532b9a98a6a",
+    "boulder/requests/bf51ac94e728eb56e05a725099e47ceb72c398bfd39f521722983280006cc25c.json": "ae53dc72fd8da5b291b1a0e17c93196044327c345b311c1494d888c1ea9822d0",
+    "boulder/bodies/b74e9316584af7070e623a02cfcc8487eb6b91f67c73f6b8d45984a2adcbe3b4.bin": "b74e9316584af7070e623a02cfcc8487eb6b91f67c73f6b8d45984a2adcbe3b4",
+    "boulder/bodies/ef7cbc3ea06c763e2d22fa5f71859072c4c462b1f5349f06bf0f0d671f78a795.bin": "ef7cbc3ea06c763e2d22fa5f71859072c4c462b1f5349f06bf0f0d671f78a795",
+    "boulder/bodies/f05667422bebff20dba95234495b1a0031c079bb6a5349882482f00ce021c46b.bin": "f05667422bebff20dba95234495b1a0031c079bb6a5349882482f00ce021c46b",
+    "potomac/requests/01fcf2cddbd4b70741288d47d1cf66a4d9f19d1de77b965c84c0f8a79fd27f25.json": "7b727e562c7d31d0f2575c3568e128e3e0061e27968d0b03b4a8c35e7ac7bbee",
+    "potomac/requests/056023e6366fe404704534990235319ac0852b420bdb7cd4add5626da4eac17f.json": "4f24351cf3a6852db5075413a9fce115623f948214036979dd4adc64ad99b9b5",
+    "potomac/requests/c14c3e6dc44721b00dded357410975b8c6771909529732eea3a0cdd799d1869f.json": "aef9e9e7723aa4f17c2457318385cbd0c72778298373cd5b6cf42d2acd62e397",
+    "potomac/bodies/252094dd79c6527e3ea14cde454a82cf27d9d78f7426f2e74570348f9a95b034.bin": "252094dd79c6527e3ea14cde454a82cf27d9d78f7426f2e74570348f9a95b034",
+    "potomac/bodies/73d20b421911f09cbfbb7066d09fcf0cb1906edf0dd15f062c672492afde8ba1.bin": "73d20b421911f09cbfbb7066d09fcf0cb1906edf0dd15f062c672492afde8ba1",
+    "potomac/bodies/955b83a324f43d54ae14a73ae38f6b20fab546df311edd103c62350406a7a8ee.bin": "955b83a324f43d54ae14a73ae38f6b20fab546df311edd103c62350406a7a8ee",
+    "lees_ferry/requests/66d2d097be495f7dedb9ad81ae7c32849a331e8cad197744867783b286828516.json": "e02f333f9badc9f26ed8a2e50d9e9639834cb0b45a64b04a7756be091f6cb3a4",
+    "lees_ferry/requests/97d15f14b26bc5c542ff9478c7b2084ca5565d485fb4b1ab31548f721babec7b.json": "91eebb5cfbe6a9af019ca25fdeaca1e037e481822d2e514470710205d785b6e9",
+    "lees_ferry/requests/fc5bf7971b43428b4d463564742bb053fe7e8bcb0555c083c36e37882ca1bd69.json": "c6460ac9ea948c1831047142a75a2b1080a1726265522156c5129d9225106c1e",
+    "lees_ferry/bodies/6340b13bde27e1e7e29e01c11e788f2591eafa993369465303d3822acc6689a5.bin": "6340b13bde27e1e7e29e01c11e788f2591eafa993369465303d3822acc6689a5",
+    "lees_ferry/bodies/8d3a69baf8c2512d8feec2925cc50466d0f331afaeaa51138ac3b7efc85b6716.bin": "8d3a69baf8c2512d8feec2925cc50466d0f331afaeaa51138ac3b7efc85b6716",
+    "lees_ferry/bodies/dfd3fa14ae1016e59de98a12e311cf9658c7e3bdab1b39043b71a0b4357f85a1.bin": "dfd3fa14ae1016e59de98a12e311cf9658c7e3bdab1b39043b71a0b4357f85a1"
+  },
+  "acquired_by": "scripts/check_source_candidates.py",
+  "contract": "usgs-continuous-discharge-v1",
+  "scope": "Three stations, one day; exact raw-value and metadata checks, not hydrologic suitability",
+  "limitations": "Provisional observations may change; original raw snapshots retained."
+}

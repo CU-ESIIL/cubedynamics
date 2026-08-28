@@ -14,6 +14,9 @@ Look up an operation, its inputs, or its return value. Start with
 look up [data and source configuration](../api/data.md), or inspect
 [provenance and revisions](../learn/provenance.md).
 
+Static and non-raster inputs: [elevation](../library/nouns/elevation.md) ·
+[roads](../library/nouns/roads.md) · [streamflow](../library/nouns/streamflow.md).
+
 ## Pipe and grammar
 
 [Pipe reference](../api/pipe.md) · [Grammar reference](../grammar/index.md) ·

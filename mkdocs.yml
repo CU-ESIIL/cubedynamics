@@ -86,6 +86,13 @@ nav:
           - Methods and citation: methods_and_citation.md
       - Developer documentation:
           - Developer directory: developer/index.md
+          - Source engineering and validation:
+              - Engineering directory: data/source_projects/index.md
+              - 3DEP acquisition evidence: data/source_projects/three_dep.md
+              - Road-source comparison evidence: data/source_projects/roads.md
+              - USGS acquisition evidence: data/source_projects/usgs.md
+              - Retained validation evidence: data/source_projects/evidence.md
+              - Operational readiness: data/source_projects/production.md
           - Contribute and test:
               - Contributing: dev/contributing.md
               - CI and testing: dev/ci_testing.md
@@ -146,6 +153,10 @@ nav:
           - "06 · Follow cold from value to event": vignettes/states_and_events.ipynb
           - "07 · Give a project its own verb": vignettes/custom_verb_project.ipynb
           - "08 · Scale the analysis lazily": vignettes/lazy_composition.ipynb
+      - Source lessons:
+          - "Elevation: read the landscape": vignettes/elevation_landscape.ipynb
+          - "Roads: compare mapped networks": vignettes/roads_local_network.ipynb
+          - "Streamflow: preserve the observations": vignettes/streamflow_snapshots.ipynb
       - South Dakota Decision Lab:
           - Decision challenges: decision_vignettes/index.md
           - "A · Black Hills: Growth, Fire & Extraction": decision_vignettes/black_hills.md

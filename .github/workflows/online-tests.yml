@@ -32,7 +32,7 @@ jobs:
         env:
           PYTEST_ADDOPTS: ""
         run: |
-          pytest -m "integration or online" --maxfail=1 -q
+          pytest -m "(integration or online) and not browser" --maxfail=1 -q
 
       - name: Write live source certification evidence
         if: always()
@@ -47,3 +47,49 @@ jobs:
         with:
           name: live-source-certification
           path: artifacts/source_qa/live/
+
+  source-candidates:
+    name: Bounded candidate / ${{ matrix.source }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [usgs, three_dep, overture, osm]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install bounded candidate dependencies
+        run: python -m pip install -e '.[test,roads]' 'rasterio>=1.4'
+      - name: Independent live sample and raw evidence
+        env:
+          MPLBACKEND: Agg
+        run: python scripts/check_source_candidates.py --project ${{ matrix.source }} --output artifacts/source_qa/candidates/${{ matrix.source }}
+      - name: Replay exact sample without provider access
+        env:
+          MPLBACKEND: Agg
+        run: python scripts/check_source_candidates.py --project ${{ matrix.source }} --output artifacts/source_qa/candidates/${{ matrix.source }} --offline
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-${{ matrix.source }}
+          path: artifacts/source_qa/candidates/${{ matrix.source }}/
+
+  candidate-optional-dependencies:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[test,roads]' 'rasterio>=1.4'
+      - name: Offline candidate contracts with optional decoders
+        run: python -m pytest tests/test_source_transport.py tests/test_source_candidates_usgs.py tests/test_source_candidates_spatial.py tests/test_source_promotion.py -q

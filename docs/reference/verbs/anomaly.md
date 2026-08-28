@@ -116,6 +116,7 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 - [03 · Two variables, two questions](../../vignettes/cube_from_dataset.ipynb)
 - [04 · Read the analysis from left to right](../../vignettes/grammar_basics.ipynb)
 - [08 · Stay lazy until the answer is requested](../../vignettes/lazy_composition.ipynb)
+- [Streamflow: keep the observations, keep the evidence](../../vignettes/streamflow_snapshots.ipynb)
 - [05 · One cube, six analytical views](../../vignettes/verbs_gallery.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)

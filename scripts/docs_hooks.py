@@ -33,7 +33,8 @@ def on_config(config):
                     if not current:
                         entries.append({title: current})
                     current.append({match[1]: "library/" + match[2]})
-            entries.extend(e for e in group["Library"] if "Browse sources" in e or "Source QA evidence" in e)
+            entries.extend(e for e in group["Library"] if any(key in e for key in
+                ("Browse sources", "Source QA evidence")))
             for entry in entries:
                 if "Browse sources" in entry:
                     entry["Browse sources"] = [{"All sources": "library/sources/index.md"},
@@ -58,7 +59,11 @@ def rewrite_notebook_links(output, page, files):
         target = files.get_file_from_path(source)
         if target is None:
             return match.group(0)  # Let the link checker report unknown targets.
-        relative = get_relative_url(target.url, page.url)
+        target_url = target.url
+        if url.path.endswith(".ipynb") and url.query == "download=1":
+            # MkDocs-Jupyter places the original notebook beside the rendered page.
+            target_url = target.url.rstrip("/") + "/" + PurePosixPath(target.src_uri).name
+        relative = get_relative_url(target_url, page.url)
         href = urlunsplit(("", "", relative, url.query, url.fragment))
         return match.group(1) + html.escape(href, quote=True) + match.group(3)
 
@@ -80,6 +85,7 @@ def on_files(files, config):
 def on_page_content(html_content, page, config, files):
     source = page.file.src_uri
     labels = (("library/nouns/", "Library · Noun reference"),
+              ("data/source_projects/", "Documents · Source engineering and validation"),
               ("library/sources/", "Library · Source reference"),
               ("library/", "Library · Data directory"),
               ("reference/", "Documents · Verb reference"),

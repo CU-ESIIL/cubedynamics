@@ -76,6 +76,19 @@ Provider-specific loaders remain supported for deliberate low-level access:
 
 ## Maintained vocabulary and project extensions
 
+### Terrain, network, and station nouns
+
+`cubedynamics.data.usgs.streamflow`, `cubedynamics.data.three_dep.elevation`,
+and `cubedynamics.data.roads.roads` are explicit **candidate** imports, not
+certified catalog nouns or stable production APIs. Their bounded scope and
+raw-snapshot behavior are documented in the main noun references:
+[elevation](../library/nouns/elevation.md), [roads](../library/nouns/roads.md),
+and [streamflow](../library/nouns/streamflow.md), each with a real-data vignette.
+[Operational review](../data/source_projects/production.md) is separate from
+their place in the library and does not change the existing catalog registry.
+`data.validate_source_promotion` verifies evidence-bound production gates;
+it does not publish or change serving history.
+
 - Maintained adapters and vocabulary include block helpers
   (`v.block_signature`, `v.collect_blocks`, `v.compare_blocks`), correlation and
   NDVI helpers, I/O, and visualization verbs. Their external dependencies and

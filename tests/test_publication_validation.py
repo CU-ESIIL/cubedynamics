@@ -5,14 +5,41 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+import shutil
+import sys
 
 import numpy as np
 import xarray as xr
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
+import run_validation
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
 PROVENANCE = DATA.with_suffix(".provenance.json")
+
+
+@pytest.mark.parametrize("fixture,provenance", run_validation.VIGNETTE_INPUTS.items())
+def test_publication_accepts_only_integrity_verified_real_inputs(fixture, provenance):
+    metadata = {"data_fixture": fixture, "provenance": provenance}
+    assert run_validation.vignette_input_verified(metadata)
+    assert not run_validation.vignette_input_verified({**metadata, "data_fixture": "invented.nc"})
+    assert not run_validation.vignette_input_verified({**metadata, "provenance": "invented.json"})
+
+
+def test_publication_rejects_damaged_or_missing_station_snapshot(tmp_path, monkeypatch):
+    name = "tests/fixtures/real_data/usgs_streamflow"
+    shutil.copytree(ROOT / name, tmp_path / name)
+    monkeypatch.setattr(run_validation, "ROOT", tmp_path)
+    metadata = {"data_fixture": name, "provenance": f"{name}/provenance.json"}
+    assert run_validation.vignette_input_verified(metadata)
+    body = next((tmp_path / name).glob("boulder/bodies/*"))
+    body.write_bytes(b"corrupt response")
+    assert not run_validation.vignette_input_verified(metadata)
+    body.unlink()
+    assert not run_validation.vignette_input_verified(metadata)
 
 
 def test_prism_vignette_fixture_matches_provenance_and_physics() -> None:

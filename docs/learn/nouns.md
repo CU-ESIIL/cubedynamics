@@ -28,6 +28,13 @@ plt.show()
 Find the spatial coordinates and units. The noun describes the measurements;
 selecting one day is an explicit analytical choice.
 
+Not every noun is a space–time raster. [Elevation](../library/nouns/elevation.md)
+is a static field, [roads](../library/nouns/roads.md) are vector features, and
+[streamflow](../library/nouns/streamflow.md) is a station time series. Their
+references document the installed imports, source flavors, and compatible
+operations. Follow the [noun lessons](../vignettes/index.md#explore-a-noun)
+to see each object used in a short, reproducible pipe.
+
 ## What to learn next
 
 [2. Verbs do things](verbs.md) · [All nouns](../library/index.md) ·

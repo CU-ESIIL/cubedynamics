@@ -1,6 +1,7 @@
 """Follow the reference journeys through visible links, at both viewport sizes."""
 from pathlib import Path
 import re
+from urllib.parse import urljoin
 
 import pytest
 
@@ -71,3 +72,43 @@ def test_reference_navigation_journeys(page, site_base, pytestconfig, width):
     checkpoint("reference/verbs/a-z/", "All public callables (A–Z)", "all-callables")
     for name in ("mean", "fit_model", "correlation_cube", "month_filter"):
         expect(article.get_by_role("link", name=name, exact=True)).to_have_count(1)
+
+
+@pytest.mark.parametrize("width", [1280, 390])
+@pytest.mark.parametrize("noun,source,lesson", [
+    ("elevation", "usgs_3dep", "elevation_landscape"),
+    ("roads", "overture", "roads_local_network"),
+    ("streamflow", "usgs", "streamflow_snapshots"),
+])
+def test_noun_source_lesson_download_journey(page, site_base, pytestconfig, width, noun, source, lesson):
+    page.set_viewport_size({"width": width, "height": 844})
+    article = page.get_by_role("article")
+    page.goto(site_base + "library/")
+    article.get_by_role("link", name=noun, exact=True).click()
+    expect(page).to_have_url(site_base + f"library/nouns/{noun}/")
+    expect(article.get_by_role("heading", name="Returned data", exact=True)).to_have_count(1)
+    image = article.locator("img").first
+    image.scroll_into_view_if_needed()
+    expect(image).to_be_visible()
+    assert image.evaluate("img => img.complete && img.naturalWidth > 100")
+    article.get_by_role("link", name=source, exact=True).click()
+    expect(page).to_have_url(site_base + f"library/sources/{source}/")
+    article.get_by_role("link", name=noun, exact=True).click()
+    article.get_by_role("link", name="Full lesson", exact=True).click()
+    expect(page).to_have_url(site_base + f"vignettes/{lesson}/")
+    download = article.get_by_role("link", name="Download this notebook", exact=True)
+    expect(download).to_have_count(1)
+    href = download.get_attribute("href")
+    response = page.request.get(urljoin(page.url, href))
+    assert response.ok
+    assert response.json()["metadata"]["cubedynamics"]["supported_vignette"]
+    expect(article.locator("img")).to_have_count(3)
+    for image in article.locator("img").all():
+        image.scroll_into_view_if_needed()
+        assert image.evaluate("img => img.complete && img.naturalWidth > 100")
+    assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1")
+    evidence = Path(pytestconfig.getoption("--site-report-dir")) / "noun-lessons"
+    evidence.mkdir(parents=True, exist_ok=True)
+    page.screenshot(path=str(evidence / f"{width}-{noun}.png"), full_page=False)
+    article.get_by_role("link", name=noun, exact=True).click()
+    expect(page).to_have_url(site_base + f"library/nouns/{noun}/")

@@ -156,18 +156,19 @@ plt.show()'''
 def generate():
     from docs_examples import EXAMPLES, FIXTURE_SETUP, NOTES
     from visual_examples import render_examples
+    from noun_reference import generate_helpers
+    adapter_pages, adapter_index, adapter_source_rows = generate_helpers(table, section, signature, link)
     pages = {}
     catalog = data.list_sources()
     index = "# Library\n\nFind environmental information by scientific noun. "
-    index += "This index contains only implemented catalog entries. "
+    index += "Choose a noun, inspect its returned object and source contract, then follow a real-data lesson. "
     index += "[Browse by source](sources/index.md), or look up an operation in [Documents](../reference/verbs/index.md).\n"
-    index += "\nLooking for soil moisture, roads, streamflow, or other unlisted nouns? They are not implemented in this catalog. "
-    index += "[Candidate integrations](../project/data_vocabulary_plan.md) are not available source flavors.\n"
     for group in sorted({family(noun) for noun in catalog}):
         index += section(group, table(["Noun", "Meaning", "Source flavors", "Coverage / resolution / time"], [
             (f"[{noun}](nouns/{noun}.md)", NOUN_DEFINITIONS.get(noun, summary(getattr(data, noun))), ", ".join(catalog[noun]), coverage_summary(noun, catalog[noun]))
             for noun in catalog if family(noun) == group]))
-    index += section("Use and extend", "[Learn about source choice](../learn/provenance.md) · [Custom nouns](../extending/custom_nouns.md) · [Source QA](../data/phase1_qa.md)")
+    index += adapter_index
+    index += section("Use and extend", "[Learn about source choice](../learn/provenance.md) · [Custom nouns](../extending/custom_nouns.md) · [Source QA](../data/phase1_qa.md)\n\nSource-specific imports and tested limits are shown on each noun page. Inclusion in this library is not a claim that all sources share the same certification or serving history.")
     pages["library/index.md"] = index
 
     for noun, sources in catalog.items():
@@ -212,8 +213,8 @@ def generate():
         pages[page] = text
 
     all_sources = sorted({s for sources in catalog.values() for s in sources})
-    pages["library/sources/index.md"] = "# Sources\n\nImplemented catalog source flavors. Scientific nouns remain the primary [Library index](../index.md).\n\n" + table(["Source", "Provider", "Available nouns"], [
-        (f"[{s}]({s}.md)", data.describe(next(n for n in catalog if s in catalog[n]), s)['provider'], ", ".join(n for n in catalog if s in catalog[n])) for s in all_sources]) + "\n[Daymet candidate](../../datasets/daymet.md) is not a promoted source. Other legacy adapters are described in [source configuration](../../api/data.md).\n"
+    pages["library/sources/index.md"] = "# Sources\n\nSource flavors for documented scientific nouns. Source-specific support and QA are explained on each page. Scientific nouns remain the primary [Library index](../index.md).\n\n" + table(["Source", "Provider", "Available nouns"], [
+        (f"[{s}]({s}.md)", data.describe(next(n for n in catalog if s in catalog[n]), s)['provider'], ", ".join(n for n in catalog if s in catalog[n])) for s in all_sources] + adapter_source_rows) + "\n[Daymet candidate](../../datasets/daymet.md) is not a promoted source. Other legacy adapters are described in [source configuration](../../api/data.md).\n"
     for source in all_sources:
         page = f"library/sources/{source}.md"
         entries = [data.describe(noun, source) for noun in catalog if source in catalog[noun]]
@@ -226,6 +227,8 @@ def generate():
         text += section("Important limitations", "\n".join(f"- **{e['noun']}:** {e['limitations']}" for e in entries))
         text += section("Examples using this source", link(page, SOURCE_NOTES.get(source, "vignettes/index.md"), "Source methods, QA plots and examples"))
         pages[page] = text
+
+    pages.update(adapter_pages)
 
     verbs = public_verbs()
     classification = {name: classify(name, func) for name, func in verbs.items()}

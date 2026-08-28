@@ -1,0 +1,330 @@
+{
+  "certification": {
+    "caveats": [
+      "One station/day; not hydrologic suitability or station-completeness certification.",
+      "Provisional data are retained; identical later queries need not be byte-identical.",
+      "No serving revision assigned: observation updates do not change the interpretation contract."
+    ],
+    "evidence": {
+      "actual_end": "2026-08-26T23:45:00.000000000",
+      "actual_start": "2026-08-26T00:00:00.000000000",
+      "cubedynamics_version": "0.1.0",
+      "end": "2026-08-26T23:59:59Z",
+      "figure": "streamflow.png",
+      "finite_fraction": 1.0,
+      "gaps_exceeding_provider_threshold": 0,
+      "git_sha": "6fdba3f1038dcf651bc5c4fdaacaa330af778e2f",
+      "http": [
+        {
+          "anonymous": true,
+          "bytes": 65968,
+          "content_type": "application/json; charset=utf-8",
+          "headers": {
+            "Content-Length": null,
+            "Content-Range": null,
+            "ETag": null,
+            "Last-Modified": null,
+            "Retry-After": null
+          },
+          "max_bytes": 2000000,
+          "params": {
+            "f": "json",
+            "limit": 2000,
+            "monitoring_location_id": "USGS-06730200",
+            "parameter_code": "00060",
+            "time": "2026-08-26T00:00:00+00:00/2026-08-26T23:59:59+00:00"
+          },
+          "retrieved_at": "2026-08-28T00:02:36.133081+00:00",
+          "sha256": "84cab859397555f9a481c2c42aaa2d0003dfe61e44eceb710b3d18d3a55fe29a",
+          "status": 200,
+          "url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items?f=json&monitoring_location_id=USGS-06730200&parameter_code=00060&time=2026-08-26T00%3A00%3A00%2B00%3A00%2F2026-08-26T23%3A59%3A59%2B00%3A00&limit=2000"
+        },
+        {
+          "anonymous": true,
+          "bytes": 4005,
+          "content_type": "application/json; charset=utf-8",
+          "headers": {
+            "Content-Length": null,
+            "Content-Range": null,
+            "ETag": null,
+            "Last-Modified": null,
+            "Retry-After": null
+          },
+          "max_bytes": 2000000,
+          "params": {
+            "f": "json"
+          },
+          "retrieved_at": "2026-08-28T00:02:36.558699+00:00",
+          "sha256": "b74e9316584af7070e623a02cfcc8487eb6b91f67c73f6b8d45984a2adcbe3b4",
+          "status": 200,
+          "url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items/USGS-06730200?f=json"
+        },
+        {
+          "anonymous": true,
+          "bytes": 4718,
+          "content_type": "application/json; charset=utf-8",
+          "headers": {
+            "Content-Length": null,
+            "Content-Range": null,
+            "ETag": null,
+            "Last-Modified": null,
+            "Retry-After": null
+          },
+          "max_bytes": 2000000,
+          "params": {
+            "f": "json"
+          },
+          "retrieved_at": "2026-08-28T00:02:36.760922+00:00",
+          "sha256": "ef7cbc3ea06c763e2d22fa5f71859072c4c462b1f5349f06bf0f0d671f78a795",
+          "status": 200,
+          "url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=json"
+        }
+      ],
+      "largest_gap_seconds": 900.0,
+      "max": 36.9,
+      "min": 32.8,
+      "missing": 0,
+      "negative_count": 0,
+      "provenance": {
+        "crs": "EPSG:4326",
+        "interpretation_contract": "project-usgs-streamflow-v1; no serving revision assigned",
+        "is_synthetic": false,
+        "provenance": "{\"endpoint\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items\", \"observed\": {\"monitoring_location_id\": \"USGS-06730200\", \"parameter_code\": \"00060\", \"query\": {\"f\": \"json\", \"limit\": 2000, \"monitoring_location_id\": \"USGS-06730200\", \"parameter_code\": \"00060\", \"time\": \"2026-08-26T00:00:00+00:00/2026-08-26T23:59:59+00:00\"}, \"response_sha256\": \"84cab859397555f9a481c2c42aaa2d0003dfe61e44eceb710b3d18d3a55fe29a\", \"time_series_id\": \"a36b95ef8f7140a3828b4e7c376bc4b5\"}, \"product\": \"continuous discharge\", \"provider\": \"USGS\", \"retrieved_at\": \"2026-08-28T00:02:36.133081+00:00\", \"strategy\": {\"kind\": \"rolling_site_parameter_series_query\"}}",
+        "query": "{\"f\": \"json\", \"limit\": 2000, \"monitoring_location_id\": \"USGS-06730200\", \"parameter_code\": \"00060\", \"time\": \"2026-08-26T00:00:00+00:00/2026-08-26T23:59:59+00:00\"}",
+        "reproducibility": "Rolling content may be revised; preserve raw response and checksum.",
+        "requested_end": "2026-08-26T23:59:59Z",
+        "requested_start": "2026-08-26T00:00:00Z",
+        "scientific_noun": "streamflow",
+        "series_metadata": "{\"geometry\": {\"coordinates\": [-105.178333, 40.051667], \"type\": \"Point\"}, \"id\": \"a36b95ef8f7140a3828b4e7c376bc4b5\", \"links\": [{\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0?f=json\", \"rel\": \"root\", \"title\": \"The landing page of this server as JSON\", \"type\": \"application/json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0?f=html\", \"rel\": \"root\", \"title\": \"The landing page of this server as HTML\", \"type\": \"text/html\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=json\", \"rel\": \"self\", \"title\": \"This document as JSON\", \"type\": \"application/geo+json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=jsonld\", \"rel\": \"alternate\", \"title\": \"This document as RDF (JSON-LD)\", \"type\": \"application/ld+json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=html\", \"rel\": \"alternate\", \"title\": \"This document as HTML\", \"type\": \"text/html\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata\", \"rel\": \"collection\", \"title\": \"Time series metadata\", \"type\": \"application/json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b2574b6b544fbb3f3e1afc456b72a?f=json\", \"rel\": \"prev\", \"type\": \"application/json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36c16c849a844e3b0aaefec6f1c452f?f=json\", \"rel\": \"next\", \"type\": \"application/json\"}], \"next\": \"a36c16c849a844e3b0aaefec6f1c452f\", \"prev\": \"a36b2574b6b544fbb3f3e1afc456b72a\", \"properties\": {\"begin\": \"1987-09-17T06:00:00.000001\", \"begin_utc\": \"1987-09-17T12:00:00+00:00\", \"computation_identifier\": \"Instantaneous\", \"computation_period_identifier\": \"Points\", \"data_gap_interval\": \"PT1H12M\", \"end\": \"2026-08-27T07:15:00.000001\", \"end_utc\": \"2026-08-27T13:15:00+00:00\", \"hydrologic_unit_code\": \"101900050601\", \"id\": \"a36b95ef8f7140a3828b4e7c376bc4b5\", \"last_modified\": \"2026-08-27T07:20:28.167377\", \"monitoring_location_id\": \"USGS-06730200\", \"parameter_code\": \"00060\", \"parameter_description\": \"Discharge, cubic feet per second\", \"parameter_name\": \"Discharge\", \"parent_time_series_id\": \"7348e13af46a4da794504c6d550a37a7\", \"primary\": \"Primary\", \"state_name\": \"Colorado\", \"statistic_id\": \"00011\", \"sublocation_identifier\": null, \"thresholds\": [{\"Description\": \"Unspecified threshold value\", \"DisplayColor\": \"#800000\", \"Name\": \"VERY LOW\", \"Periods\": [{\"AppliedTime\": \"2017-07-11T14:55:02.6738515Z\", \"EndTime\": \"9999-12-31T23:59:59.9999999+00:00\", \"ReferenceValue\": 0.01, \"StartTime\": \"2017-02-10T00:00:00.0000000-07:00\", \"SuppressData\": true}], \"ProcessingOrder\": \"Suppression\", \"ReferenceCode\": \"AQUARIUS only\", \"Severity\": 0, \"Type\": \"ThresholdBelow\"}, {\"Description\": \"Unspecified threshold value\", \"DisplayColor\": \"#FF0000\", \"Name\": \"VERY HIGH\", \"Periods\": [{\"AppliedTime\": \"2017-07-11T14:55:02.5486934Z\", \"EndTime\": \"9999-12-31T23:59:59.9999999+00:00\", \"ReferenceValue\": 7000, \"StartTime\": \"2017-02-10T00:00:00.0000000-07:00\", \"SuppressData\": true}], \"ProcessingOrder\": \"Suppression\", \"ReferenceCode\": \"AQUARIUS only\", \"Severity\": 0, \"Type\": \"ThresholdAbove\"}], \"unit_of_measure\": \"ft^3/s\", \"web_description\": null}, \"type\": \"Feature\"}",
+        "site_metadata": "{\"geometry\": {\"coordinates\": [-105.178333, 40.051667], \"type\": \"Point\"}, \"id\": \"USGS-06730200\", \"links\": [{\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0?f=json\", \"rel\": \"root\", \"title\": \"The landing page of this server as JSON\", \"type\": \"application/json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0?f=html\", \"rel\": \"root\", \"title\": \"The landing page of this server as HTML\", \"type\": \"text/html\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items/USGS-06730200?f=json\", \"rel\": \"self\", \"title\": \"This document as JSON\", \"type\": \"application/geo+json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items/USGS-06730200?f=jsonld\", \"rel\": \"alternate\", \"title\": \"This document as RDF (JSON-LD)\", \"type\": \"application/ld+json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items/USGS-06730200?f=html\", \"rel\": \"alternate\", \"title\": \"This document as HTML\", \"type\": \"text/html\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations\", \"rel\": \"collection\", \"title\": \"Monitoring locations\", \"type\": \"application/json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items/USGS-06730160?f=json\", \"rel\": \"prev\", \"type\": \"application/json\"}, {\"href\": \"https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items/USGS-06730300?f=json\", \"rel\": \"next\", \"type\": \"application/json\"}], \"next\": \"USGS-06730300\", \"prev\": \"USGS-06730160\", \"properties\": {\"agency_code\": \"USGS\", \"agency_name\": \"U.S. Geological Survey\", \"altitude\": 5105.65, \"altitude_accuracy\": 0.18, \"altitude_method_code\": \"X\", \"altitude_method_name\": \"GNSS2 - Level 2 Quality Survey Grade Global Navigation Satellite System\", \"aquifer_code\": null, \"aquifer_type_code\": null, \"basin_code\": \"06\", \"construction_date\": null, \"contributing_drainage_area\": null, \"country_code\": \"US\", \"country_name\": \"United States of America\", \"county_code\": \"013\", \"county_name\": \"Boulder County\", \"depth_source_code\": null, \"district_code\": \"08\", \"drainage_area\": 307.0, \"hole_constructed_depth\": null, \"horizontal_position_method_code\": \"M\", \"horizontal_position_method_name\": \"Interpolated from map\", \"horizontal_positional_accuracy\": \"Accurate to + or - 1 min.\", \"horizontal_positional_accuracy_code\": \"M\", \"hydrologic_unit_code\": \"101900050601\", \"id\": \"USGS-06730200\", \"minor_civil_division_code\": \"90342\", \"monitoring_location_name\": \"BOULDER CREEK AT NORTH 75TH ST. NEAR BOULDER, CO\", \"monitoring_location_number\": \"06730200\", \"national_aquifer_code\": null, \"original_horizontal_datum\": \"NAD27\", \"original_horizontal_datum_name\": \"North American Datum of 1927\", \"revision_created\": \"2017-11-13T06:00:00+00:00\", \"revision_modified\": null, \"revision_note\": \"WDR-US-2011: Drainage area.\", \"site_type\": \"Stream\", \"site_type_code\": \"ST\", \"state_code\": \"08\", \"state_name\": \"Colorado\", \"time_zone_abbreviation\": \"MST\", \"uses_daylight_savings\": \"Y\", \"vertical_datum\": \"NAVD88\", \"vertical_datum_name\": \"North American Vertical Datum of 1988\", \"well_constructed_depth\": null}, \"type\": \"Feature\"}",
+        "source": "USGS",
+        "source_flavor": "usgs",
+        "source_mode": "rolling",
+        "source_url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items",
+        "stable_observation_key": "time_series_id + time",
+        "time_zone": "UTC"
+      },
+      "provider_gap_threshold_seconds": 4320.0,
+      "qa_profile": {
+        "caveats": [],
+        "checks": {
+          "continuous_numeric_variables": true,
+          "station_dimension_present": true,
+          "station_identifiers_unique": true,
+          "station_locations_documented": true,
+          "stations_present": true,
+          "time_coordinate_present": true,
+          "time_strictly_increasing": true,
+          "units_documented": true
+        },
+        "details": {
+          "dimensions": [
+            "station",
+            "time"
+          ],
+          "station_dimension": "station",
+          "variables": [
+            "streamflow"
+          ]
+        },
+        "outcome": "PASS",
+        "profile": "station_timeseries"
+      },
+      "qualifiers": {
+        "null": 96
+      },
+      "rows": 96,
+      "schema": {
+        "coordinates": {
+          "approval_status": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "time"
+            ],
+            "dtype": "object",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "last_modified": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "time"
+            ],
+            "dtype": "object",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "latitude": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "station"
+            ],
+            "dtype": "float64",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "longitude": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "station"
+            ],
+            "dtype": "float64",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "qualifier": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "time"
+            ],
+            "dtype": "object",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "record_id": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "time"
+            ],
+            "dtype": "object",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "station": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "station"
+            ],
+            "dtype": "str416",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "time": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "time"
+            ],
+            "dtype": "datetime64[ns]",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          },
+          "time_series_id": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "station"
+            ],
+            "dtype": "str1024",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "coordinate",
+            "units": null
+          }
+        },
+        "crs": "EPSG:4326",
+        "dimensions": [
+          "station",
+          "time"
+        ],
+        "fingerprint_version": 1,
+        "grid_mappings": {},
+        "object_type": "Dataset",
+        "variables": {
+          "streamflow": {
+            "calendar": null,
+            "categorical": false,
+            "dims": [
+              "time",
+              "station"
+            ],
+            "dtype": "float64",
+            "fill_value": null,
+            "grid_mapping": null,
+            "role": "variable",
+            "units": "ft^3/s"
+          }
+        }
+      },
+      "schema_fingerprint": "sha256:8b373f71189420ea3cfecd7e9edf60f2d5d79fbaea56d5a026e39155f9d83fdf",
+      "site": "USGS-06730200",
+      "source_mode": "rolling",
+      "start": "2026-08-26T00:00:00Z",
+      "statuses": {
+        "\"Provisional\"": 96
+      },
+      "uncommitted_changes_possible": true,
+      "units": "ft^3/s",
+      "upstream_identity": {
+        "endpoint": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items",
+        "observed": {
+          "monitoring_location_id": "USGS-06730200",
+          "parameter_code": "00060",
+          "query": {
+            "f": "json",
+            "limit": 2000,
+            "monitoring_location_id": "USGS-06730200",
+            "parameter_code": "00060",
+            "time": "2026-08-26T00:00:00+00:00/2026-08-26T23:59:59+00:00"
+          },
+          "response_sha256": "84cab859397555f9a481c2c42aaa2d0003dfe61e44eceb710b3d18d3a55fe29a",
+          "time_series_id": "a36b95ef8f7140a3828b4e7c376bc4b5"
+        },
+        "product": "continuous discharge",
+        "provider": "USGS",
+        "retrieved_at": "2026-08-28T00:02:36.133081+00:00",
+        "strategy": {
+          "kind": "rolling_site_parameter_series_query"
+        }
+      },
+      "visual_review": {
+        "figure_sha256": {
+          "usgs/streamflow.png": "bbf022ed5ffb00e4480c8140007d03ca092d616b8acc056e296561861a6b8c99"
+        },
+        "note": "Inspected the real one-day line/scatter plot: UTC time, discharge units, provisional observations and window mean are legible; the isolated high value is retained. No independent hydrologic accuracy claim.",
+        "reviewed_at": "2026-08-28T00:04:08.662735+00:00",
+        "scope": "Human-readable figure inspection, not independent ground-truth accuracy"
+      }
+    },
+    "gates": {
+      "bounded_access": "PASS",
+      "identity": "PASS",
+      "numerical_qa": "PASS",
+      "retrieval": "PASS",
+      "rolling_source": "PASS",
+      "schema": "PASS",
+      "semantics": "PASS",
+      "visual_qa": "PASS"
+    },
+    "last_validated": "2026-08-28T00:02:37.282744+00:00",
+    "mode": "live_source",
+    "outcome": "PASS_WITH_CAVEATS",
+    "serving_revision": null
+  },
+  "lifecycle_state": "candidate",
+  "live_health": "healthy",
+  "registered": false
+}

@@ -1,0 +1,156 @@
+{
+  "certification": {
+    "caveats": [
+      "One small AOI; no completeness/topology certification.",
+      "Overture incorporates OSM; these are not independent observations.",
+      "No automatic class harmonization; native features may extend outside bbox."
+    ],
+    "evidence": {
+      "bbox": [
+        -105.285,
+        40.008,
+        -105.27,
+        40.02
+      ],
+      "classifications": {
+        "primary": 80,
+        "primary_link": 4,
+        "residential": 87,
+        "secondary": 14,
+        "secondary_link": 1,
+        "service": 254,
+        "tertiary": 148,
+        "tertiary_link": 8,
+        "unclassified": 15
+      },
+      "cubedynamics_version": "0.1.0",
+      "duplicate_ids": 0,
+      "feature_count": 611,
+      "git_sha": "6fdba3f1038dcf651bc5c4fdaacaa330af778e2f",
+      "http": [
+        {
+          "anonymous": true,
+          "bytes": 486251,
+          "content_type": "application/json",
+          "headers": {
+            "Content-Length": null,
+            "Content-Range": null,
+            "ETag": null,
+            "Last-Modified": null,
+            "Retry-After": null
+          },
+          "max_bytes": 4000000,
+          "params": {
+            "data": "[out:json][timeout:25][maxsize:33554432];way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|residential|unclassified|service|living_street|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link)$\"][\"area\"!=\"yes\"](40.008,-105.285,40.02,-105.27);out body geom 5001;"
+          },
+          "retrieved_at": "2026-08-28T00:03:45.444533+00:00",
+          "sha256": "298f63db8c1d90ce38370a05f9dbd601866c68b004f6ed6233038b3e22a1618e",
+          "status": 200,
+          "url": "https://overpass-api.de/api/interpreter?data=%5Bout%3Ajson%5D%5Btimeout%3A25%5D%5Bmaxsize%3A33554432%5D%3Bway%5B%22highway%22~%22%5E%28motorway%7Ctrunk%7Cprimary%7Csecondary%7Ctertiary%7Cresidential%7Cunclassified%7Cservice%7Cliving_street%7Cmotorway_link%7Ctrunk_link%7Cprimary_link%7Csecondary_link%7Ctertiary_link%29%24%22%5D%5B%22area%22%21%3D%22yes%22%5D%2840.008%2C-105.285%2C40.02%2C-105.27%29%3Bout+body+geom+5001%3B"
+        }
+      ],
+      "license": "ODbL-1.0; \u00a9 OpenStreetMap contributors",
+      "max_length_m": 519.1153168380193,
+      "memory_bytes": 479311,
+      "min_length_m": 0.527789872395891,
+      "naming_fraction": 0.5891980360065466,
+      "native_feature_length_m": 53907.09163109014,
+      "osm_timestamp": {
+        "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+        "timestamp_osm_base": "2026-08-28T00:02:36Z"
+      },
+      "qa_profile": {
+        "caveats": [],
+        "checks": {
+          "crs_documented": true,
+          "features_present": true,
+          "geometries_valid": true,
+          "identifiers_documented": true,
+          "line_geometry_only": true
+        },
+        "details": {
+          "feature_count": 611,
+          "geometry_types": [
+            "LineString"
+          ],
+          "valid_geometry_fraction": 1.0
+        },
+        "outcome": "PASS",
+        "profile": "feature_line"
+      },
+      "query": "[out:json][timeout:25][maxsize:33554432];way[\"highway\"~\"^(motorway|trunk|primary|secondary|tertiary|residential|unclassified|service|living_street|motorway_link|trunk_link|primary_link|secondary_link|tertiary_link)$\"][\"area\"!=\"yes\"](40.008,-105.285,40.02,-105.27);out body geom 5001;",
+      "schema": {
+        "coded_domains": {},
+        "crs": "EPSG:4326",
+        "fields": {
+          "geometry": "geometry",
+          "name": "object",
+          "native": "object",
+          "source": "object",
+          "source_classification": "object",
+          "source_feature_id": "object"
+        },
+        "fingerprint_version": 1,
+        "geometry_type": "LineString",
+        "layer_id": "roads/osm",
+        "object_type": "vector"
+      },
+      "schema_fingerprint": "sha256:c30e524cdfb874192fe4ebd3a5735ab79785f730015cf5f3b42e804ee2406ff6",
+      "source": "osm",
+      "source_mode": "rolling",
+      "uncommitted_changes_possible": true,
+      "upstream_identity": {
+        "endpoint": "https://overpass-api.de/api/interpreter",
+        "observed": {
+          "assets": [],
+          "bbox": [
+            -105.285,
+            40.008,
+            -105.27,
+            40.02
+          ],
+          "osm_timestamp": {
+            "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+            "timestamp_osm_base": "2026-08-28T00:02:36Z"
+          },
+          "release": null,
+          "response_sha256": [
+            "298f63db8c1d90ce38370a05f9dbd601866c68b004f6ed6233038b3e22a1618e"
+          ]
+        },
+        "product": "OSM ways",
+        "provider": "OpenStreetMap contributors",
+        "retrieved_at": "2026-08-28T00:03:45.444533+00:00",
+        "strategy": {
+          "kind": "rolling_query_timestamp"
+        }
+      },
+      "visual_review": {
+        "figure_sha256": {
+          "roads/comparison.png": "ced9e059300e70201b24e9d63bbb3081c6b46494ac13d8ff09e2ab6b9479cae6",
+          "roads/osm.png": "ba0aad2c4864fe6cc459ce0f1cd4162252e656f6dc0df1708c834901907aa346"
+        },
+        "note": "Inspected native-highway map and same-scale comparison: legible labels and external legend, explicit link classes retained, no geometric harmonization or count matching. No completeness or routing certification.",
+        "reviewed_at": "2026-08-28T00:04:20.335310+00:00",
+        "scope": "Human-readable figure inspection, not independent ground-truth accuracy"
+      },
+      "within_aoi_length_m": 43065.36675473509
+    },
+    "gates": {
+      "bounded_access": "PASS",
+      "identity": "PASS",
+      "numerical_qa": "PASS",
+      "retrieval": "PASS",
+      "schema": "PASS",
+      "semantics": "PASS",
+      "visual_qa": "PASS"
+    },
+    "last_validated": "2026-08-28T00:03:47.104165+00:00",
+    "mode": "live_source",
+    "outcome": "PASS_WITH_CAVEATS",
+    "serving_revision": null
+  },
+  "lifecycle_state": "candidate",
+  "live_health": "healthy",
+  "registered": false
+}

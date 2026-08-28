@@ -1,5 +1,22 @@
 # Phase 1 real-data QA fixtures
 
+`source_lessons/` contains a 99×99 native 3DEP elevation window and 528 Overture /
+611 OSM road features near Boulder, frozen from the previously validated bounded
+responses. The two provenance manifests bind the three files to SHA-256 hashes
+and retain original acquisition metadata. The explicit freeze script is
+`scripts/build_source_lesson_fixtures.py`; it only replays existing responses,
+checks serialization identity, and refuses overwrite. No invented values,
+resampling, or simplification. Preserve Overture/OSM ODbL attribution in reuse.
+These small teaching inputs are not new production certification.
+
+The `usgs_streamflow/` directory additionally retains exact modern USGS OGC
+JSON response bodies (`.bin`) and request records for three stations on
+August 26, 2026. `provenance.json` binds every file checksum. Acquisition was
+explicit through `scripts/check_source_candidates.py --export-usgs-fixture`;
+the export refuses overwrite. Values, native status and NetCDF round trips
+were checked against the raw responses. All retained observations were
+provisional; this is adapter regression evidence, not hydrologic certification.
+
 These small NetCDF files are bounded extracts from observational products used
 to keep publication QA deterministic and offline-capable. They are not
 synthetic data and are not alternative production backends.

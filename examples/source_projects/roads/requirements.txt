@@ -1,0 +1,2 @@
+# Optional experiment dependency; not a CubeDynamics core requirement.
+pyarrow==21.0.0; python_version >= '3.9'

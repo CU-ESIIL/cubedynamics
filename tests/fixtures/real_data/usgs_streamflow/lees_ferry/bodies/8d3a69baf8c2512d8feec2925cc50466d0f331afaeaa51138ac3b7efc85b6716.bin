@@ -1,0 +1,85 @@
+{
+    "type":"Feature",
+    "properties":{
+        "id":"a62122d8ff094125b63bb2f73410b2b4",
+        "unit_of_measure":"ft^3/s",
+        "parameter_name":"Discharge",
+        "parameter_code":"00060",
+        "statistic_id":"00011",
+        "hydrologic_unit_code":"140700061105",
+        "state_name":"Arizona",
+        "last_modified":"2026-08-27T08:11:41.342909",
+        "begin":"1985-10-01T07:09:00.000001",
+        "end":"2026-08-27T08:00:00.000001",
+        "begin_utc":"1985-10-01T13:09:00+00:00",
+        "end_utc":"2026-08-27T14:00:00+00:00",
+        "computation_period_identifier":"Points",
+        "computation_identifier":"Instantaneous",
+        "thresholds":[],
+        "sublocation_identifier":null,
+        "primary":"Primary",
+        "monitoring_location_id":"USGS-09380000",
+        "web_description":null,
+        "parameter_description":"Discharge, cubic feet per second",
+        "parent_time_series_id":"3f656973c0054ef696bb2192c2947e58",
+        "data_gap_interval":"PT4H"
+    },
+    "id":"a62122d8ff094125b63bb2f73410b2b4",
+    "geometry":{
+        "type":"Point",
+        "coordinates":[
+            -111.58787222222222,
+            36.864333333333335
+        ]
+    },
+    "prev":"a621208a9770458e9df607382ca92ede",
+    "next":"a6214e81eb734c229fbf9b263870983a",
+    "links":[
+        {
+            "type":"application/json",
+            "rel":"root",
+            "title":"The landing page of this server as JSON",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0?f=json"
+        },
+        {
+            "type":"text/html",
+            "rel":"root",
+            "title":"The landing page of this server as HTML",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0?f=html"
+        },
+        {
+            "rel":"self",
+            "type":"application/geo+json",
+            "title":"This document as JSON",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a62122d8ff094125b63bb2f73410b2b4?f=json"
+        },
+        {
+            "rel":"alternate",
+            "type":"application/ld+json",
+            "title":"This document as RDF (JSON-LD)",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a62122d8ff094125b63bb2f73410b2b4?f=jsonld"
+        },
+        {
+            "rel":"alternate",
+            "type":"text/html",
+            "title":"This document as HTML",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a62122d8ff094125b63bb2f73410b2b4?f=html"
+        },
+        {
+            "rel":"collection",
+            "type":"application/json",
+            "title":"Time series metadata",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata"
+        },
+        {
+            "rel":"prev",
+            "type":"application/json",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a621208a9770458e9df607382ca92ede?f=json"
+        },
+        {
+            "rel":"next",
+            "type":"application/json",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a6214e81eb734c229fbf9b263870983a?f=json"
+        }
+    ]
+}

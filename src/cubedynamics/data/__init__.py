@@ -42,6 +42,7 @@ from .revisions import (
     rollback_target,
     serving_history,
     validate_promotion,
+    validate_source_promotion,
 )
 from .schema import (
     compare_normalized_schemas,
@@ -96,4 +97,5 @@ __all__ = [
     "schema_fingerprint",
     "serving_history",
     "validate_promotion",
+    "validate_source_promotion",
 ]

@@ -1,0 +1,122 @@
+{
+    "type":"Feature",
+    "properties":{
+        "id":"a36b95ef8f7140a3828b4e7c376bc4b5",
+        "unit_of_measure":"ft^3/s",
+        "parameter_name":"Discharge",
+        "parameter_code":"00060",
+        "statistic_id":"00011",
+        "hydrologic_unit_code":"101900050601",
+        "state_name":"Colorado",
+        "last_modified":"2026-08-27T07:20:28.167377",
+        "begin":"1987-09-17T06:00:00.000001",
+        "end":"2026-08-27T07:15:00.000001",
+        "begin_utc":"1987-09-17T12:00:00+00:00",
+        "end_utc":"2026-08-27T13:15:00+00:00",
+        "computation_period_identifier":"Points",
+        "computation_identifier":"Instantaneous",
+        "thresholds":[
+            {
+                "Name":"VERY LOW",
+                "Type":"ThresholdBelow",
+                "Periods":[
+                    {
+                        "EndTime":"9999-12-31T23:59:59.9999999+00:00",
+                        "StartTime":"2017-02-10T00:00:00.0000000-07:00",
+                        "AppliedTime":"2017-07-11T14:55:02.6738515Z",
+                        "SuppressData":true,
+                        "ReferenceValue":0.01
+                    }
+                ],
+                "Severity":0,
+                "Description":"Unspecified threshold value",
+                "DisplayColor":"#800000",
+                "ReferenceCode":"AQUARIUS only",
+                "ProcessingOrder":"Suppression"
+            },
+            {
+                "Name":"VERY HIGH",
+                "Type":"ThresholdAbove",
+                "Periods":[
+                    {
+                        "EndTime":"9999-12-31T23:59:59.9999999+00:00",
+                        "StartTime":"2017-02-10T00:00:00.0000000-07:00",
+                        "AppliedTime":"2017-07-11T14:55:02.5486934Z",
+                        "SuppressData":true,
+                        "ReferenceValue":7000
+                    }
+                ],
+                "Severity":0,
+                "Description":"Unspecified threshold value",
+                "DisplayColor":"#FF0000",
+                "ReferenceCode":"AQUARIUS only",
+                "ProcessingOrder":"Suppression"
+            }
+        ],
+        "sublocation_identifier":null,
+        "primary":"Primary",
+        "monitoring_location_id":"USGS-06730200",
+        "web_description":null,
+        "parameter_description":"Discharge, cubic feet per second",
+        "parent_time_series_id":"7348e13af46a4da794504c6d550a37a7",
+        "data_gap_interval":"PT1H12M"
+    },
+    "id":"a36b95ef8f7140a3828b4e7c376bc4b5",
+    "geometry":{
+        "type":"Point",
+        "coordinates":[
+            -105.178333,
+            40.051667
+        ]
+    },
+    "prev":"a36b2574b6b544fbb3f3e1afc456b72a",
+    "next":"a36c16c849a844e3b0aaefec6f1c452f",
+    "links":[
+        {
+            "type":"application/json",
+            "rel":"root",
+            "title":"The landing page of this server as JSON",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0?f=json"
+        },
+        {
+            "type":"text/html",
+            "rel":"root",
+            "title":"The landing page of this server as HTML",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0?f=html"
+        },
+        {
+            "rel":"self",
+            "type":"application/geo+json",
+            "title":"This document as JSON",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=json"
+        },
+        {
+            "rel":"alternate",
+            "type":"application/ld+json",
+            "title":"This document as RDF (JSON-LD)",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=jsonld"
+        },
+        {
+            "rel":"alternate",
+            "type":"text/html",
+            "title":"This document as HTML",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=html"
+        },
+        {
+            "rel":"collection",
+            "type":"application/json",
+            "title":"Time series metadata",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata"
+        },
+        {
+            "rel":"prev",
+            "type":"application/json",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b2574b6b544fbb3f3e1afc456b72a?f=json"
+        },
+        {
+            "rel":"next",
+            "type":"application/json",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36c16c849a844e3b0aaefec6f1c452f?f=json"
+        }
+    ]
+}

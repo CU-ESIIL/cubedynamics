@@ -61,6 +61,7 @@ class SourceChange(str, Enum):
     """Maintenance-relevant classes of upstream change."""
 
     CONTENT_EXTENSION = "CONTENT_EXTENSION"
+    OBSERVATION_UPDATE = "OBSERVATION_UPDATE"
     NEW_SNAPSHOT_RELEASE = "NEW_SNAPSHOT_RELEASE"
     SCHEMA_CHANGE = "SCHEMA_CHANGE"
     SEMANTIC_CHANGE = "SEMANTIC_CHANGE"
@@ -158,13 +159,16 @@ class CertificationRecord:
     mode: str
     outcome: CertificationOutcome
     gates: Mapping[str, CertificationOutcome]
-    serving_revision: str
+    serving_revision: str | None
     last_validated: str
     evidence: Mapping[str, Any] = field(default_factory=dict)
     caveats: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        ServingRevision.parse(self.serving_revision)
+        # Access proofs can precede source registration. None means no serving
+        # revision has been assigned; it is never an immutable content version.
+        if self.serving_revision is not None:
+            ServingRevision.parse(self.serving_revision)
         if self.mode not in {"offline_baseline", "live_source"}:
             raise ValueError("Certification mode must be offline_baseline or live_source.")
         outcome = _coerce_enum(
@@ -275,6 +279,14 @@ def decide_source_change(
 
     if change is SourceChange.SERVICE_HEALTH_CHANGE:
         return ChangeDecision(False, False, False, False, True, "Update live health only.")
+    if change is SourceChange.OBSERVATION_UPDATE:
+        # Routine provisional/value/status refreshes do not reinterpret a
+        # rolling source. A declared product-wide historical revision remains
+        # HISTORICAL_REVISION and still requires scientific review.
+        return ChangeDecision(
+            source_mode is SourceMode.SNAPSHOT, False, False, True, False,
+            "Preserve both retrievals and compare observations; keep a rolling interpretation unchanged.",
+        )
     if change is SourceChange.CONTENT_EXTENSION:
         if source_mode is SourceMode.ROLLING:
             return ChangeDecision(

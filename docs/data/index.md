@@ -7,6 +7,7 @@ QA status now live in the [Library](../library/index.md).
 - [Surface observations](surface_observation.md)
 - [Browse by source](../library/sources/index.md)
 - [Source QA evidence](phase1_qa.md)
+- [Elevation](../library/nouns/elevation.md), [roads](../library/nouns/roads.md), and [streamflow](../library/nouns/streamflow.md)
 
 To learn how a noun enters an analysis, start with
 [Learn: nouns](../learn/nouns.md). Provider-specific loaders remain supported

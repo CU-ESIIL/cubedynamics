@@ -2,12 +2,16 @@
 
 # Sources
 
-Implemented catalog source flavors. Scientific nouns remain the primary [Library index](../index.md).
+Source flavors for documented scientific nouns. Source-specific support and QA are explained on each page. Scientific nouns remain the primary [Library index](../index.md).
 
 | Source | Provider | Available nouns |
 | --- | --- | --- |
 | [gridmet](gridmet.md) | gridMET / University of California, Merced | humidity, precipitation, radiation, temperature, vpd, wind |
 | [prism](prism.md) | PRISM Climate Group, Oregon State University | precipitation, temperature |
 | [sentinel2](sentinel2.md) | European Union Copernicus Programme / ESA | surface_reflectance, vegetation_index |
+| [usgs_3dep](usgs_3dep.md) | US Geological Survey | elevation |
+| [overture](overture.md) | Overture Maps Foundation | roads |
+| [osm](osm.md) | OpenStreetMap contributors | roads |
+| [usgs](usgs.md) | US Geological Survey | streamflow |
 
 [Daymet candidate](../../datasets/daymet.md) is not a promoted source. Other legacy adapters are described in [source configuration](../../api/data.md).

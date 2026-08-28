@@ -1,0 +1,125 @@
+{
+    "type":"Feature",
+    "properties":{
+        "id":"66a4e3fb8abe42fcb0942b5c0fe98f68",
+        "unit_of_measure":"ft^3/s",
+        "parameter_name":"Discharge",
+        "parameter_code":"00060",
+        "statistic_id":"00011",
+        "hydrologic_unit_code":"020700081005",
+        "state_name":"Maryland",
+        "last_modified":"2026-08-27T07:57:29.284220",
+        "begin":"1972-06-09T05:00:00.000001",
+        "end":"2026-08-27T07:50:00.000001",
+        "begin_utc":"1972-06-09T09:00:00+00:00",
+        "end_utc":"2026-08-27T11:50:00+00:00",
+        "computation_period_identifier":"Points",
+        "computation_identifier":"Instantaneous",
+        "thresholds":[
+            {
+                "Name":"Begin low flow measurements",
+                "Type":"None",
+                "Periods":[
+                    {
+                        "EndTime":"9999-12-31T23:59:59.9999999+00:00",
+                        "StartTime":"2025-06-16T00:00:00.0000000-05:00",
+                        "AppliedTime":"2025-06-20T16:02:17.2082799Z",
+                        "SuppressData":false,
+                        "ReferenceValue":2000,
+                        "SecondaryReferenceValue":2500
+                    }
+                ],
+                "Severity":0,
+                "Description":"NWISWeb reference line displayed to WSC level users",
+                "DisplayColor":"#009933",
+                "ReferenceCode":"NWISWeb ref level - WSC",
+                "ProcessingOrder":"Normal"
+            },
+            {
+                "Name":"Base discharge",
+                "Type":"ThresholdAbove",
+                "Periods":[
+                    {
+                        "EndTime":"9999-12-31T23:59:59.9999999+00:00",
+                        "Comments":"Base discharge from adaps",
+                        "StartTime":"2016-10-01T00:00:00.0000000-05:00",
+                        "AppliedTime":"2017-11-24T19:12:15.0109953Z",
+                        "SuppressData":false,
+                        "ReferenceValue":45000,
+                        "SecondaryReferenceValue":45000
+                    }
+                ],
+                "Severity":0,
+                "Description":"Unspecified threshold value",
+                "DisplayColor":"#f20aee",
+                "ReferenceCode":"AQUARIUS only",
+                "ProcessingOrder":"Suppression"
+            }
+        ],
+        "sublocation_identifier":null,
+        "primary":"Primary",
+        "monitoring_location_id":"USGS-01646500",
+        "web_description":null,
+        "parameter_description":"Discharge, cubic feet per second",
+        "parent_time_series_id":"8a83eb3a3cbc4087b0c201cf07c0c76d",
+        "data_gap_interval":"PT1H15M"
+    },
+    "id":"66a4e3fb8abe42fcb0942b5c0fe98f68",
+    "geometry":{
+        "type":"Point",
+        "coordinates":[
+            -77.12763888888888,
+            38.949777777777776
+        ]
+    },
+    "prev":"66a48b9466bd480b9ee07f58b1b5108e",
+    "next":"66a54f5599704ec5b924b6edd5b17411",
+    "links":[
+        {
+            "type":"application/json",
+            "rel":"root",
+            "title":"The landing page of this server as JSON",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0?f=json"
+        },
+        {
+            "type":"text/html",
+            "rel":"root",
+            "title":"The landing page of this server as HTML",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0?f=html"
+        },
+        {
+            "rel":"self",
+            "type":"application/geo+json",
+            "title":"This document as JSON",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/66a4e3fb8abe42fcb0942b5c0fe98f68?f=json"
+        },
+        {
+            "rel":"alternate",
+            "type":"application/ld+json",
+            "title":"This document as RDF (JSON-LD)",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/66a4e3fb8abe42fcb0942b5c0fe98f68?f=jsonld"
+        },
+        {
+            "rel":"alternate",
+            "type":"text/html",
+            "title":"This document as HTML",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/66a4e3fb8abe42fcb0942b5c0fe98f68?f=html"
+        },
+        {
+            "rel":"collection",
+            "type":"application/json",
+            "title":"Time series metadata",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata"
+        },
+        {
+            "rel":"prev",
+            "type":"application/json",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/66a48b9466bd480b9ee07f58b1b5108e?f=json"
+        },
+        {
+            "rel":"next",
+            "type":"application/json",
+            "href":"https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/66a54f5599704ec5b924b6edd5b17411?f=json"
+        }
+    ]
+}

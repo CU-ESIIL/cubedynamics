@@ -79,6 +79,35 @@ Put source acquisition and preparation before the pipe. Explain the baseline
 and interpretation after it. See [anomaly](../reference/verbs/anomaly.md) and
 [mean](../reference/verbs/mean.md) for their canonical argument reference.
 
+## Explore a noun
+
+Three different objects, the same grammar. Each lesson uses frozen real source
+data, explains the baseline and limitations, and produces three inline figures.
+
+<div class="cd-gallery">
+  <a class="cd-gallery-card" href="elevation_landscape/">
+    <small>Terrain · USGS 3DEP</small>
+    <h3>Read a landscape at its native scale</h3>
+    <p>Inspect a real hillside, center on a local baseline, and reduce the map to a west–east profile.</p>
+    <strong>Explore elevation →</strong>
+  </a>
+  <a class="cd-gallery-card" href="roads_local_network/">
+    <small>Networks · Overture and OSM</small>
+    <h3>Compare mapped roads carefully</h3>
+    <p>Keep native segments and classes, clip an explicit area, and measure length with two small project verbs.</p>
+    <strong>Explore roads →</strong>
+  </a>
+  <a class="cd-gallery-card" href="streamflow_snapshots/">
+    <small>Water · USGS stations</small>
+    <h3>Keep the observations and their evidence</h3>
+    <p>Inspect real discharge, subtract a one-day mean, and reuse the pipe at three identified stations.</p>
+    <strong>Explore streamflow →</strong>
+  </a>
+</div>
+
+References: [elevation](../library/nouns/elevation.md) ·
+[roads](../library/nouns/roads.md) · [streamflow](../library/nouns/streamflow.md).
+
 ## Other analyses and educational material
 
 | Collection | What to expect |
@@ -100,7 +129,7 @@ python -m pip install -e ".[vignettes]"
 python scripts/run_vignettes.py
 ```
 
-The runner executes clean copies of all nine supported notebooks, verifies
+The runner executes clean copies of all twelve supported notebooks, verifies
 static plots, and leaves source notebooks unchanged. MkDocs renders the same
 code and figures on the site. [Validation](../validation/index.md) records
 the real-data checks; live-data recipes are not covered by the offline claim.

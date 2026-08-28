@@ -1,0 +1,20 @@
+{
+  "attempt": 1,
+  "bytes": 4718,
+  "cache": "network",
+  "headers": {
+    "Content-Length": "4718",
+    "Content-Range": null,
+    "Content-Type": "application/json; charset=utf-8",
+    "ETag": null,
+    "Last-Modified": null,
+    "Retry-After": null
+  },
+  "request": {
+    "headers": {},
+    "url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items/a36b95ef8f7140a3828b4e7c376bc4b5?f=json"
+  },
+  "retrieved_at": "2026-08-28T00:47:10.251689+00:00",
+  "sha256": "ef7cbc3ea06c763e2d22fa5f71859072c4c462b1f5349f06bf0f0d671f78a795",
+  "status": 200
+}

@@ -36,6 +36,16 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = ROOT / "tests" / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
 PROVENANCE = FIXTURE.with_suffix(".provenance.json")
 VIGNETTES = ROOT / "docs" / "vignettes"
+VIGNETTE_INPUTS = {
+    "tests/fixtures/real_data/prism_boulder_january_2024.nc":
+        "tests/fixtures/real_data/prism_boulder_january_2024.provenance.json",
+    "tests/fixtures/real_data/usgs_streamflow":
+        "tests/fixtures/real_data/usgs_streamflow/provenance.json",
+    "tests/fixtures/real_data/source_lessons/elevation.nc":
+        "tests/fixtures/real_data/source_lessons/elevation.provenance.json",
+    "tests/fixtures/real_data/source_lessons/roads_overture.geojson":
+        "tests/fixtures/real_data/source_lessons/roads.provenance.json",
+}
 DEFAULT_OUTPUT = ROOT / "artifacts" / "validation"
 FACE_PATTERN = re.compile(
     r'class="cd-face cd-(front|back|left|right|top|bottom)"[^>]*'
@@ -208,12 +218,54 @@ def validate_cube(output: Path, dataset: xr.Dataset) -> dict:
     return write_result(output, "cube", checks, fig)
 
 
+def vignette_input_verified(metadata: dict) -> bool:
+    """Verify an explicitly supported input, not an arbitrary provenance claim.
+
+    This validates retained input integrity, not production-source certification.
+    New providers require an intentional fixture/contract addition here.
+    """
+    fixture_name = metadata.get("data_fixture")
+    provenance_name = VIGNETTE_INPUTS.get(fixture_name)
+    if not provenance_name or metadata.get("provenance") != provenance_name:
+        return False
+    try:
+        fixture = ROOT / fixture_name
+        provenance = json.loads((ROOT / provenance_name).read_text())
+        if "files" in provenance and fixture.suffix in {".nc", ".geojson"}:
+            base = fixture.parent
+            return provenance.get("is_synthetic") is False and fixture.name in provenance["files"] and all(
+                not Path(relative).is_absolute()
+                and (base / relative).resolve().is_relative_to(base.resolve())
+                and sha256(base / relative) == digest
+                for relative, digest in provenance["files"].items()
+            )
+        if fixture.is_file():
+            return provenance.get("is_synthetic") is False and sha256(fixture) == provenance["fixture_sha256"]
+        files = provenance["files"]
+        actual = {str(p.relative_to(fixture)) for p in fixture.rglob("*") if p.is_file()
+                  and p != ROOT / provenance_name}
+        return bool(files) and set(files) == actual and all(
+            not Path(relative).is_absolute()
+            and (fixture / relative).resolve().is_relative_to(fixture.resolve())
+            and sha256(fixture / relative) == digest
+            for relative, digest in files.items()
+        )
+    except (OSError, KeyError, TypeError, ValueError):
+        return False
+
+
 def validate_vignettes(output: Path, run_notebooks: bool) -> dict:
     paths = sorted(VIGNETTES.glob("*.ipynb"))
+    required_lessons = {"cube_from_arrays", "cube_from_dataset", "cube_from_tidy_table",
+                        "grammar_basics", "verbs_gallery", "states_and_events",
+                        "custom_verb_project", "lazy_composition", "streamflow_snapshots",
+                        "elevation_landscape", "roads_local_network"}
     checks = {
-        "eight_supported_lessons": len(paths) == 8,
+        "required_lessons_present": required_lessons <= {path.stem for path in paths},
+        "all_marked_supported": True,
         "all_use_real_fixture": True,
         "all_record_provenance": True,
+        "all_fixture_checksums_match": True,
         "all_are_offline": True,
         "all_emit_static_plot_code": True,
         "no_random_data_generation": True,
@@ -226,8 +278,11 @@ def validate_vignettes(output: Path, run_notebooks: bool) -> dict:
         notebook = json.loads(path.read_text())
         metadata = notebook.get("metadata", {}).get("cubedynamics", {})
         source = "\n".join("".join(cell.get("source", [])) for cell in notebook["cells"])
-        checks["all_use_real_fixture"] &= metadata.get("data_fixture") == str(FIXTURE.relative_to(ROOT))
-        checks["all_record_provenance"] &= metadata.get("provenance") == str(PROVENANCE.relative_to(ROOT))
+        checks["all_marked_supported"] &= metadata.get("supported_vignette") is True
+        expected_provenance = VIGNETTE_INPUTS.get(metadata.get("data_fixture"))
+        checks["all_use_real_fixture"] &= expected_provenance is not None
+        checks["all_record_provenance"] &= expected_provenance is not None and metadata.get("provenance") == expected_provenance
+        checks["all_fixture_checksums_match"] &= vignette_input_verified(metadata)
         checks["all_are_offline"] &= metadata.get("network") is False
         checks["all_emit_static_plot_code"] &= "plt.show()" in source
         checks["no_random_data_generation"] &= "np.random" not in source and "default_rng" not in source
@@ -298,6 +353,10 @@ def validate_vignettes(output: Path, run_notebooks: bool) -> dict:
             capture_output=True,
         )
         checks["all_notebooks_execute"] = completed.returncode == 0
+        (output / "notebook-execution.log").write_text(completed.stdout + completed.stderr)
+        print(completed.stdout, end="")
+        if completed.returncode:
+            print(completed.stderr, file=sys.stderr)
 
     fig, ax = plt.subplots(figsize=(10, 4.2), constrained_layout=True)
     ax.bar([path.stem.replace("_", "\n") for path in paths], plot_cells, color="#547b75")

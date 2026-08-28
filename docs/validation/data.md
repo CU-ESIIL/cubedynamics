@@ -1,10 +1,10 @@
 ---
-description: "Provenance and acceptance checks for the observational PRISM data used by every publication vignette."
+description: "Provenance and acceptance checks for the real PRISM and USGS inputs used by publication vignettes."
 ---
 
 # Real-data validation
 
-Every supported vignette uses the same observational teaching extract:
+The eight core grammar vignettes use the observational teaching extract:
 `tests/fixtures/real_data/prism_boulder_january_2024.nc`.
 
 | Field | Reviewed value |
@@ -49,3 +49,34 @@ python scripts/run_validation.py
 Downloads are never implicit in the lessons or offline CI. The rebuild flag is
 an explicit request to retrieve the 60 recorded official archives; each is
 verified before the extract is written.
+
+## USGS source lesson
+
+The [streamflow lesson](../vignettes/streamflow_snapshots.ipynb) instead replays
+real USGS continuous-discharge responses for Boulder Creek, the Potomac, and
+Lees Ferry on August 26, 2026. Its manifest at
+`tests/fixtures/real_data/usgs_streamflow/provenance.json` binds every request
+record and raw response body to a SHA-256 checksum. Missing, additional, or
+modified snapshot files fail the publication input check; replay never downloads
+replacement observations.
+
+The loader retains station identity, native units, UTC timestamps, and quality
+status. Values and statuses were compared with the original provider JSON;
+NetCDF round trips and pipe reductions were checked. All these samples were
+provisional. This establishes retained-input integrity and adapter behavior,
+not hydrologic suitability or broad production certification. See the
+[candidate evidence and limitations](../data/source_projects/production.md).
+
+## Terrain and road lessons
+
+The [elevation lesson](../vignettes/elevation_landscape.ipynb) uses a retained
+99×99 native 3DEP window. The [roads lesson](../vignettes/roads_local_network.ipynb)
+uses 528 Overture and 611 OSM features from the same Boulder query area. These
+serialized loader outputs live in `tests/fixtures/real_data/source_lessons/`.
+Their manifests retain original request/response identities, source metadata,
+and extract hashes. Export checks compare native cells, geometries, identifiers,
+and provider records before and after serialization.
+
+The fixtures are not simplified, regridded, or class-harmonized. Clipping and
+projected-length calculations are explicit later transformations. Attribution
+is retained; Overture and OSM are not independent ground truth.

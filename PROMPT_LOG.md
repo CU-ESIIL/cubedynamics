@@ -3002,3 +3002,280 @@ secrets, credentials, private tokens, or unrelated transcript text.
   mean/zscore references and a separately acquired/reviewed matched source
   comparison. Legacy figures elsewhere are not certified by this new manifest.
   No commit, push, release or deployment was performed.
+
+## 2026-08-27 — Daymet OPeNDAP access experiment stopped at authentication
+
+- Inspected the existing catalog, candidate serving history, noun dispatch,
+  lifecycle outcomes, schema/QA profiles, certification writer and prior NCSS
+  evidence. Confirmed the March 2026 ORNL Earthdata Forum guidance for indexed
+  Daymet V4R1 OPeNDAP access; did not retry NCSS or change source registration.
+- Added the unregistered diagnostic `scripts/probe_daymet_opendap.py`, reusing
+  certification records and the existing evidence writer. It disables implicit
+  environment/.netrc authentication, follows no redirects, caps response reads
+  near 1 MiB, bounds requested cell count and validates returned dimensions
+  before reading coordinates. It is not a public loader or geographic adapter.
+- Exact attempted granule: `Daymet_Daily_V4R1.daymet_v4_daily_na_tmin_2024.nc`
+  under Earthdata collection `C2532426483-ORNL_CLOUD`, suffix `.dap.nc4`;
+  `dap4.ce=/y[5000:1:5002];/x[4000:1:4002];/tmin[0:1:0][5000:1:5002][4000:1:4002]`.
+  Requested shape was one time slice by three rows by three columns.
+- The sandbox attempt recorded a ConnectionError. Authorized network execution
+  of `.venv/bin/python scripts/probe_daymet_opendap.py` reached the provider and
+  returned HTTP 302 to `https://opendap.earthdata.nasa.gov/login/urs`. Stopped
+  without following login or reading a body: zero response-body bytes, no sample.
+  Command exit code 2 accurately signals BLOCKED, not scientific success.
+- Evidence: `artifacts/source_qa/daymet/opendap_probe.json`; sandbox diagnosis:
+  `opendap_sandbox_probe.json` in the same directory. Historical NCSS evidence
+  and candidate serving record were preserved. No coordinates, units, observed
+  provider identity, scientific values or plot were obtained. Grid translation,
+  numerical/visual QA and certification remain NOT_TESTED/BLOCKED; Daymet is
+  not ready for integration. No new serving revision or catalog entry was made.
+- Follow-up safety tests and status-documentation edits were not completed
+  before the user supplied three new source-experiment prompts (3DEP, roads,
+  USGS streamflow). The attempted test patch did not apply. The diagnostic's
+  non-authentication branches have not yet been regression-tested; do not claim
+  them validated. Next Daymet step would require an explicitly authorized
+  Earthdata authentication approach; no credentials were requested or accessed.
+
+## 2026-08-27 — Three contained real-source projects: 3DEP, roads, USGS
+
+- User clarified that all three supplied prompts should be completed as
+  individually contained projects within the repo and its grammar, not as
+  mutually exclusive stop instructions. Inspected catalog/noun dispatch,
+  lifecycle/revisions, schema/provenance, static/vector/station QA profiles,
+  spatial contract, dependencies, docs generators and test conventions first.
+  Preserved the prior Daymet authentication blocker and its untracked probe;
+  no credentials, synthetic fallback, production promotion or new tasks.
+- Added `examples/source_projects/three_dep`, `roads`, and `usgs`, with separate
+  commands and artifact roots. Project-owned nouns return native 2-D xarray
+  elevation, a roads GeoDataFrame, and a time-by-station streamflow Dataset.
+  Ordinary pipe/callable verbs work without a new registry or framework. Public
+  `data.list_sources()` is unchanged: these are bounded candidate proofs, not
+  broadly certified production sources. Shared helpers are limited to anonymous
+  byte-capped HTTP and the existing certification writer.
+- 3DEP: authoritative TNM `/api/v1/products`, dataset tag `National Elevation
+  Dataset (NED) 1/3 arc-second Current`, selected ScienceBase
+  `6a471a0d1ba49bcdf785e0fa`, `USGS_13_n40w106_20260630.tif`. WGS84 bounds
+  `[-105.300,39.985,-105.291,39.994]` yielded a 99x99 EPSG:4269 window. GDAL
+  requested two HTTP ranges totaling 770,048 bytes from a 413,480,184-byte tile;
+  both returned 206. Separate range preflight: 16,384 bytes. Full-cell outward
+  rounding, tile clipping and native north-up orientation are tested. Sample
+  elevations 1886.041–2363.250 m; finite fraction 1.0. NAVD88 derives from the
+  catalog CONUS description, not independent tile-specific vertical accuracy.
+  Window/block caps and timeouts act before reads; total GDAL byte evidence is
+  checked afterward, not represented as a hard runtime network firewall.
+- Roads: shared WGS84 bounds `[-105.285,40.008,-105.270,40.020]`. Official
+  Overture STAC resolved release `2026-08-19.0`, transportation/segment,
+  GeoParquet 1.1.0, ODbL. Read 3 of 128 row groups in partition 00018, one of
+  128 partitions, transferring 19,872,693 Parquet bytes (32 MB enforced cap).
+  Collection contains 350,469,378 features; it was not materialized. Optional
+  PyArrow 21.0.0 installed only in the dev virtualenv/project requirements.
+  Current STAC schema version is null; preserved that and actual Arrow schema.
+- OSM: anonymous `https://overpass-api.de/api/interpreter`, bounded ways query
+  with exact highway class regex, 25s server timeout, 32 MiB server-memory
+  setting, 5,001-feature truncation sentinel, 4 MB response cap. Both providers
+  include native major/local motor-road classes plus service/living streets;
+  OSM also retains its explicit `_link` classes. Excluded paths/trails/tracks,
+  rail/ferries/construction/area features; no automatic class crosswalk.
+  Preserved IDs, native tags/rules/connectors and full feature segmentation.
+  Overture returned 528 features, OSM 611; explicit AOI clipping and UTM 13N
+  measurement gave 43.115 km vs 43.065 km. Named fractions 56.1% vs 58.9% are
+  segmentation-dependent, not quality rankings. Overture incorporates OSM:
+  visual agreement is not independent ground truth. Independent maps and a
+  same-scale comparison were inspected; overlapping tick labels/legends fixed.
+- USGS: modern `https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items`,
+  site `USGS-06730200` (Boulder Creek at N. 75th St.), parameter `00060`,
+  `2026-08-26T00:00:00Z/2026-08-26T23:59:59Z`, limit 2000. Anonymous query
+  returned 96 observations, 15-minute spacing, 32.8–36.9 ft^3/s, all Provisional,
+  qualifier null; zero missing/negative/duplicate values or gaps above the
+  provider's 72-minute threshold. Site and time-series metadata came from the
+  same API; series ID `a36b95ef8f7140a3828b4e7c376bc4b5`, instantaneous statistic
+  00011, native site/HUC/datum/threshold metadata retained. Per-row UUIDs may
+  change on refresh; stable observation key is series ID + time. Preserve
+  approval/qualifier/last-modified values as documented JSON-valued coordinates.
+  No legacy API fallback, credentials, silent unit conversion or provisional
+  filtering. Pagination fails closed rather than returning partial results.
+- Small lifecycle extensions: pre-registration `CertificationRecord` accepts
+  `serving_revision=None`; existing serving records/promotion gates remain
+  strict. `OBSERVATION_UPDATE` distinguishes routine rolling value/status
+  refreshes from declared product-wide historical revisions. It compares
+  retained content without creating a new rolling serving interpretation.
+  String metadata uses object dtype so status/qualifier string lengths do not
+  create false schema-fingerprint drift. No generic time-series abstraction.
+- All four provider records are PASS_WITH_CAVEATS with explicit reviewed-figure
+  hashes. Figures, complete evidence and architecture reviews are under
+  `docs/data/source_projects/` and `docs/assets/generated/source_projects/`
+  (about 1.3 MB). Raw/local samples remain in ignored `artifacts/source_qa/`.
+  `build_source_project_docs.py` reuses certification records; generation cannot
+  automatically approve images and fresh-clone checks need no upstream data.
+  Five tabs retained; added an experimental Library subsection and fixed the
+  nav hook that initially dropped it, with a regression test. README/AGENTS
+  explain experimental/public boundaries. No package catalog entries added.
+- Validation so far: 55 new offline source/evidence controls passed; final full
+  offline suite 593 passed, 5 skipped, 347 deselected (28.17s). Explicit online
+  pytest: 3DEP + USGS 2 passed; Overture + OSM 2 passed (68.23s). Documentation/
+  guide-focused suite 83 passed. Strict MkDocs build passed; all internal files
+  and anchors resolve; 68 generated references and published source-project
+  evidence checks pass. Regenerated the existing 8 visual results because their
+  freshness manifest hashes runtime source. Existing PRISM/gridMET/Sentinel-2
+  source QA passes. Tracked policy passed (1021 files) and all 34 new files
+  passed policy; diff whitespace check passed. Final Chromium suite: 334 passed
+  (253.31s), 298 pages, 630 images, 46 backgrounds, zero failed pages. Browser
+  DOM review confirmed the experimental Library subsection, generated evidence
+  rows, and decoded roads figures. Source-project and existing visual freshness
+  checks passed again after final rendering. Browser JUnit is
+  `artifacts/source_qa/project-browser-tests.xml`; crawl details are under
+  `artifacts/browser/`. The local preview is on port 54939; no deployment.
+- Added manual `.github/workflows/source-projects.yml`: independent project
+  jobs, bounded real requests, evidence upload even on failure; no automatic
+  figure approval or source promotion. Regular docs CI checks publication
+  evidence offline. Actual local test commands/reports include:
+  `pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q`,
+  project-specific `pytest ... -m online`, `mkdocs build --strict`,
+  `scripts/check_site_links.py site`, `scripts/run_source_qa.py`, and browser
+  pytest with JUnit under `artifacts/source_qa/`. No push, deployment or release.
+
+### 2026-08-27 — Hardening the three source-noun projects
+
+- User approved moving the new nouns toward production robustness. Added
+  installed candidate adapters in `src/cubedynamics/data/usgs.py`,
+  `three_dep.py`, and `roads.py`, with internal `_transport.py` and `_ranges.py`.
+  The original independent proofs remain historical evidence; runtime code
+  does not import them. Existing catalog nouns and serving histories are
+  unchanged. Candidates are explicitly not production-certified.
+- Shared anonymous transport enforces approved HTTPS origins, bounded retries,
+  Retry-After/deadline handling, query-wide request/body-byte budgets, no
+  redirects or ambient credentials, and explicit immutable raw snapshots.
+  Offline replay validates identity/checksums and never downloads replacements.
+  Range reads require a strong ETag and If-Match; whole-object and oversized
+  reads fail before acquisition. Bounds are response bytes, not TCP/TLS traffic
+  or a hard process memory/deadline guarantee.
+- USGS retains native units, UTC station-series semantics, status/qualifier
+  null-versus-absent flags, and provisional observations. Exact pagination and
+  seven-day batching fail closed on partial or conflicting results. Live QA
+  exposed cursor pagination rather than offset-only links; fixed and tested
+  while preserving endpoint/query-scope checks. Rolling comparison ignores
+  routine row-ID refreshes but detects value/status/qualifier changes.
+- 3DEP reads a fully covering native window with Rasterio's capped Python
+  opener (requires >=1.4); no silent tile clipping, mosaic, or uncapped fallback.
+  Asheville had no Current-tagged result: explicitly selected ScienceBase ID
+  `627f3798d34e3bef0c9a3198`, labeled as a pinned version, not current.
+- Overture requires an explicit release, strict STAC/asset identities, native
+  schemas and bounded row-group pruning. The first attempt hit the request
+  budget because PyArrow requested many tiny columns. Coalesced row-group
+  spans fixed this without removing limits; regression test verifies reads
+  within a prefetched span do not make extra requests. OSM remains a small
+  Overpass candidate with explicit node-in-bbox selection limitations, not a
+  sustained production serving backend or a routing/completeness guarantee.
+- Added `validate_source_promotion`: exact candidate/revision identity, seven
+  explicit PASS gates, reviewer/scope, fresh timestamp, and verified evidence
+  hashes. The old outcome-string gate remains deprecated for compatibility.
+  No automatic approval, promotion, serving revision, or synthetic fallback.
+- `scripts/check_source_candidates.py` runs independent real checks and exact
+  offline replay. Live and replay reports are separate and use the existing
+  CertificationRecord model. Successful retrieval is PASS_WITH_CAVEATS;
+  scientific/visual certification remains NOT_TESTED, not inferred from plots.
+  Live evidence under `artifacts/source_qa/candidates/`:
+  - `usgs_cursor`: Boulder 96, Potomac 288, Lees Ferry 96 observations for
+    August 26; raw-value/status/unit comparisons and NetCDF round trips passed.
+    Real cursor test returned 96 observations over two 50-row pages; the
+    eight-day request returned 768 observations across two time batches.
+  - `three_dep_pinned`: Boulder 99x99 / 760,458 response bytes; Asheville
+    55x55 / 802,007 bytes, both native EPSG:4269.
+  - `overture_coalesced`: release `2026-08-19.0`, 528 road features,
+    20,432,795 body bytes including metadata, 137 requests, 6.41 s.
+  - `osm`: 611 features, 486,251 body bytes. All four exact offline replays
+    passed. These are bounded samples, not throughput or soak guarantees.
+- Added 368,261 bytes of real USGS response/request fixtures and provenance
+  under `tests/fixtures/real_data/usgs_streamflow/`. The generated
+  `streamflow_snapshots.ipynb` tells a three-step story with three inline plots,
+  native observations, one-line anomaly pipes, visible provisional warnings,
+  and explicit offline replay. Browser inspection verified readable rendered
+  code/plots; warnings no longer expose machine-specific traceback paths.
+- Added source production-readiness documentation, linked it from all three
+  projects, and updated API/README/AGENTS/vignette navigation. Five site tabs
+  retained. Validation documentation distinguishes the published PRISM baseline
+  from new candidate evidence. The full publication run exposed an old
+  eight-lessons/all-PRISM assumption; replaced it with explicit supported input
+  pairs, hash verification, required lessons, and unknown/corrupt/missing-input
+  regression controls. Notebook stdout/stderr now survives in the run log.
+- CI adds installed-wheel replay, generated-notebook freshness checks,
+  independent weekly/manual candidate checks and evidence uploads, and an
+  Ubuntu/macOS optional-decoder matrix. These are configured, not represented
+  as already observed hosted runs. Pytest discovery now targets the original
+  source/test trees in their original order, excluding temporary wheel/build
+  artifacts that caused a local import-mismatch collection failure.
+- Final validation: offline pytest **682 passed, 5 skipped, 349 deselected**
+  (33.92 s); JUnit `artifacts/source_qa/candidates/offline-all.xml`. Full browser
+  suite **336 passed** (215.99 s), including both added pages; JUnit
+  `artifacts/source_qa/candidates/browser.xml`. Strict MkDocs build and built
+  internal file/anchor checks passed. Installed non-editable wheel imported
+  candidate modules and replayed all three real USGS stations. Eight visual
+  results, 68 references, historical source evidence and new notebook freshness
+  checks passed. Full publication QA passed five modules and executed **all
+  ten notebooks offline**, with three plots from the new streamflow lesson.
+  One concurrent run hit a local Jupyter startup timeout; standalone retry
+  passed without changing the scientific checks. Tracked policy passed for
+  1021 files; all 67 untracked candidate/previous-project files passed policy.
+- Remaining release requirements: representative approved/missing-status USGS
+  data, broader independent scientific/visual review, supported-limit and soak
+  measurements, an OSM serving decision, and reviewed serving-history/rollback
+  exercise. Do not label these candidates production-ready before those gates.
+  Local website preview remains on port 54939. No commit, push, deployment or
+  package release was performed; pre-existing working-tree changes preserved.
+
+## 2026-08-28 — Main noun-library documentation and real-data lessons
+
+- User requested that elevation, roads, and streamflow be presented alongside
+  the existing nouns, with equivalent reference and vignette treatment rather
+  than an experimental-project entry. Resumed the same task after interruption.
+- Added three generated noun references and four source references (3DEP,
+  Overture, OSM, USGS), with installed signatures, arguments, returned-data
+  contracts, source differences, live examples, figures, provenance and limits.
+  The main library now documents eleven nouns; the runtime catalog still has
+  its original eight. This editorial integration does not assign serving
+  revisions or claim broader source certification. No loader or grammar
+  behavior changed in this task.
+- Preserved the five top-level tabs and existing styles. Added all three noun
+  lessons as peers in the Vignettes gallery; moved source engineering reports
+  to Documents / Developer documentation while retaining their URLs. Updated
+  Learn, Documents, public API notes, README and AGENTS to match. All seven
+  source flavors share one source-index table.
+- Added elevation_landscape and roads_local_network notebooks; integrated the
+  existing streamflow_snapshots notebook into the same main-library journey.
+  Each source lesson has three code/plot steps, narrative interpretation and
+  checksum-verified real inputs. Static terrain uses spatial mean and an
+  ordinary centering callable, not a temporal anomaly or invented time axis.
+  Roads use explicit project-owned clipping and projected-length verbs; native
+  classifications remain separate and are not routing or completeness claims.
+- Froze 2,167,592 bytes of small lesson inputs and provenance from the prior
+  validated raw-response snapshots via exact offline replay: a 99x99 native
+  Boulder 3DEP window, 528 Overture features from release 2026-08-19.0, and 611
+  OSM features. No new live retrieval, synthetic values, resampling, geometry
+  simplification, or road-class crosswalk was introduced. Input attribution,
+  native metadata and checksums are retained under tests/fixtures/real_data.
+- scripts/source_lesson_content.py owns the two lessons' analytical code;
+  scripts/build_source_vignettes.py produces notebooks and seven real-data
+  reference figures with an input/output hash manifest. CI checks freshness.
+  Expanded publication validation to verify these explicit fixture/provenance
+  pairs, including every file of multi-file inputs and unsafe-path rejection.
+- Added notebook-download links and corrected the MkDocs notebook-link hook
+  to resolve them to the copied .ipynb files rather than the rendered page.
+  Added six desktop/mobile noun → source → lesson → download → noun browser
+  journeys, plus nine reference/fixture/figure/lesson regression tests.
+- Publication QA passed all five modules and executed all twelve supported
+  notebooks offline, with three static plots from each source lesson. Evidence:
+  artifacts/validation/suite_manifest.json and notebook-execution.log. Strict
+  MkDocs build, all built internal files/anchors, 75 generated references,
+  notebook/figure freshness and tracked repository-size checks passed.
+- Final offline pytest: **693 passed, 5 skipped, 364 deselected** (32.87 s),
+  recorded in artifacts/source_qa/noun-library-offline.xml. Repository policy
+  also passed for all 93 untracked files, including prior source-project work.
+- Final full Chromium suite: **351 passed** (243.60 s), recorded in
+  artifacts/browser/noun-library-final.xml. It checks built links, image loads
+  and desktop/mobile journeys, including actual notebook JSON downloads and
+  three decoded plots per source lesson. The initial run caught a URL-joining
+  error in the new download test, not in the website; fixed with urljoin and
+  reran the complete suite successfully. Manual browser inspection also
+  confirmed the main-library navigation and matching 390/1280-pixel layouts.
+- Local preview remains on port 54939. No commit, push, deployment or package
+  release was performed; all pre-existing source-project changes preserved.

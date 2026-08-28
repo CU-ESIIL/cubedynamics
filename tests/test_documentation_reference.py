@@ -107,7 +107,9 @@ def test_vignettes_have_complete_shell_and_valid_section_equivalents():
 
 def test_reference_does_not_present_candidates_or_placeholders_as_implemented():
     pages = reference.generate()
-    assert "library/nouns/roads.md" not in pages
+    for noun in ("roads", "elevation", "streamflow"):
+        assert f"library/nouns/{noun}.md" in pages
+        assert "no production serving revision" in pages[f"library/nouns/{noun}.md"]
     assert "library/sources/daymet.md" not in pages
     for name in ("correlation_cube", "fit_model"):
         assert "Not implemented" in pages[f"reference/verbs/{name}.md"]

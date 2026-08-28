@@ -1,0 +1,40 @@
+name: Bounded Source Projects
+
+on:
+  workflow_dispatch:
+
+jobs:
+  source-project:
+    name: ${{ matrix.project }} source proof
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [three_dep, roads, usgs]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install project dependencies
+        run: python -m pip install -e '.[dev]'
+      - name: Install optional Overture reader
+        if: matrix.project == 'roads'
+        run: python -m pip install -r examples/source_projects/roads/requirements.txt
+      - name: Offline safety and contract tests
+        run: python -m pytest tests/test_source_project_${{ matrix.project }}.py tests/test_source_project_evidence.py -m 'not online and not integration' -q
+      - name: One bounded live proof
+        env:
+          MPLBACKEND: Agg
+        run: python -m examples.source_projects.${{ matrix.project }}.proof
+      - name: Preserve source-specific evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-project-${{ matrix.project }}
+          path: artifacts/source_qa/${{ matrix.project }}/
+
+# Manual only. No secrets, automatic serving promotion, visual approval or
+# publication. Roads records its two providers independently before exiting.

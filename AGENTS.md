@@ -1,7 +1,7 @@
 # AGENTS.md — CubeDynamics Repository Operating Guide
 
 This guide describes the current checkout, not a guarantee that every feature
-is in the installed PyPI release. Last synchronized: **2026-08-27**.
+is in the installed PyPI release. Last synchronized: **2026-08-28**.
 
 ## 1) Project identity and scope
 
@@ -32,6 +32,7 @@ decisions, validation scope, and outstanding issues; drafts are not API truth.
 | `docs/`, `mkdocs.yml`, `docs/overrides/` | Website content, navigation, theme overrides |
 | `scripts/` | Reference/notebook generators, validation and source QA tools |
 | `examples/custom_verb_project/` | Project-owned verb scaffold |
+| `examples/source_projects/` | Three contained experimental sources: 3DEP, Overture/OSM roads, modern USGS streamflow; not public catalog entries |
 | `paper/` | Software manuscript drafts, bibliography, and supplied citation-map PDF |
 | `docs/manuscripts/` | Separate scientific manuscript/audit material |
 | `config/`, `schemas/`, `manifests/releases/` | Storage policy/templates, schemas, release records |
@@ -148,10 +149,21 @@ provenance/revision records, generated references, and tests. Live checks use
 `scripts/run_live_source_certification.py`; missing credentials or unavailable
 services should yield honest blocked/failure evidence, not substitute data.
 
+Contained source proofs under `examples/source_projects/` reuse these contracts
+without claiming production registration. Their `CertificationRecord` may have
+`serving_revision=None` until registration. `OBSERVATION_UPDATE` means a routine
+rolling value/status refresh (compare retained content, not a new interpretation);
+it is distinct from declared product-wide `HISTORICAL_REVISION`. Keep the three
+projects' independent artifacts and reports separate. The manual
+`source-projects.yml` workflow runs bounded live proofs without keys or promotion.
+`scripts/build_source_project_docs.py --check` verifies published evidence and
+hash-bound figure reviews offline. Do not auto-approve newly generated figures.
+
 ## 6) Real-data examples and fixture policy
 
 - Supported notebooks are metadata-marked under `docs/vignettes/` (eight core
-  lessons) and `docs/decision_vignettes/` (Working Lands). Exploratory
+  lessons plus elevation, roads, and streamflow noun lessons)
+  and `docs/decision_vignettes/` (Working Lands). Exploratory
   `notebooks/` files are not automatically supported publication lessons.
 - Inputs live in `tests/fixtures/real_data/`, with sibling provenance JSON and
   checksums: PRISM Boulder and Working Lands, gridMET Badlands, Sentinel-2
@@ -181,6 +193,11 @@ old URLs. Do not add tabs or redesign navigation as a side effect of API work.
 - `scripts/build_reference_docs.py` generates noun/source pages and public
   callable pages/indexes from catalog facts, signatures, docstrings, and grammar
   metadata. Never hand-edit files bearing its generated marker.
+- `scripts/noun_reference.py` supplies editorial contracts for installed
+  elevation, roads, and streamflow loaders in the same main noun library.
+  Signatures come from runtime. Library inclusion does not modify
+  `data.list_sources()` or assign a production serving revision. Historical
+  source reports belong under Documents → Developer documentation.
 - `scripts/reference_classification.py` owns a small purpose/type/compatibility
   map plus implementation inspection. Keep implemented operations separate
   from compatibility/deprecated names and reserved placeholders; retain A–Z.
@@ -222,6 +239,8 @@ python -m pytest tests/test_public_api_smoke.py tests/test_piping_verbs.py tests
 `make test` uses the offline filter. `make test-streaming` and `make test-fire`
 hold focused contract suites; inspect their lists when modifying those areas.
 Unfiltered `pytest` can require a built site, browsers, and remote services.
+Default discovery is limited to `src/cubedynamics/tests` and `tests`; temporary
+wheel installations and generated artifacts must not become collected suites.
 
 Publication and source evidence (no live provider requests):
 
@@ -339,3 +358,34 @@ Use `tools/debug_viewer_pipeline.py` and viewer/plotting tests for diagnosis.
 - When uncertain, prefer minimal composable changes and a focused regression
   over silently expanding scope. Determine the source of a discrepancy before
   changing an API, checksum, scientific assumption, or expected test result.
+
+## 11) Bounded source candidates and promotion gates
+
+- `src/cubedynamics/data/usgs.py`, `src/cubedynamics/data/three_dep.py`, and
+  `src/cubedynamics/data/roads.py` are installed **candidate** adapters. They are
+  deliberately absent from `data.list_sources()` and have no serving revision.
+  The earlier project proofs remain historical access evidence, not canonical
+  runtime implementations. See `docs/data/source_projects/production.md`.
+- `_transport.py` and `_ranges.py` in the runtime data package enforce shared
+  attempt/byte/deadline budgets, exact raw snapshots, strong ETag range identity,
+  and offline replay. Never bypass them with native uncapped GDAL fallback.
+  Deadlines are checked between reads; socket timeouts bound blocked reads.
+- `data.validate_source_promotion` binds required PASS gates to candidate
+  identity and artifact hashes. `validate_promotion` remains a deprecated
+  outcome-only structural check, not production approval. No script auto-promotes.
+- Real USGS responses under `tests/fixtures/real_data/usgs_streamflow/` are
+  intentionally retained, checksum-controlled fixtures. They preserve original
+  provisional status and do not establish hydrologic suitability.
+- `scripts/check_source_candidates.py` runs independent bounded checks and
+  records failures honestly. Its USGS fixture export is explicit and refuses
+  overwrite. Use a new snapshot directory for refresh, `--offline` for replay.
+- `scripts/build_streamflow_vignette.py` owns the new lesson and reuses
+  `scripts/vignette_shell.py`. Every analysis cell emits an inline figure.
+- `scripts/build_source_vignettes.py` and `scripts/source_lesson_content.py`
+  own elevation/roads notebooks and seven shared noun figures. Run the builder
+  and `--check` after edits. `scripts/build_source_lesson_fixtures.py` freezes
+  explicitly selected, previously acquired real responses offline and refuses
+  overwrite. `tests/fixtures/real_data/source_lessons/` contains small native
+  3DEP and Overture/OSM extracts with hashes and acquisition metadata.
+- Candidate operational checks run independently in the existing weekly/manual
+  online workflow. They do not replace offline tests or reviewer sign-off.

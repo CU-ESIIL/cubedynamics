@@ -63,6 +63,7 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 
 - [Working Lands · Read hot-and-dry weather as two nouns](../../decision_vignettes/working_lands.ipynb)
 - [03 · Two variables, two questions](../../vignettes/cube_from_dataset.ipynb)
+- [Elevation · read a landscape at its native scale](../../vignettes/elevation_landscape.ipynb)
 - [04 · Read the analysis from left to right](../../vignettes/grammar_basics.ipynb)
 - [05 · One cube, six analytical views](../../vignettes/verbs_gallery.ipynb)
 - [Learn: verbs](../../learn/verbs.md)

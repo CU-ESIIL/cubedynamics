@@ -1,0 +1,20 @@
+{
+  "attempt": 1,
+  "bytes": 4005,
+  "cache": "network",
+  "headers": {
+    "Content-Length": "4005",
+    "Content-Range": null,
+    "Content-Type": "application/json; charset=utf-8",
+    "ETag": null,
+    "Last-Modified": null,
+    "Retry-After": null
+  },
+  "request": {
+    "headers": {},
+    "url": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items/USGS-06730200?f=json"
+  },
+  "retrieved_at": "2026-08-28T00:47:10.203323+00:00",
+  "sha256": "b74e9316584af7070e623a02cfcc8487eb6b91f67c73f6b8d45984a2adcbe3b4",
+  "status": 200
+}
