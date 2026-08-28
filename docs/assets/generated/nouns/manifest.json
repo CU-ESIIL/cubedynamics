@@ -1,6 +1,6 @@
 {
   "inputs": {
-    "scripts/build_source_vignettes.py": "90b6710a2215519da71ad4af65f823b72481d4c7b0139028ca2d91463725fecf",
+    "scripts/build_source_vignettes.py": "6920be1770c3ea5e09f3a5f863de179369a8f048e1db2a01552b29a19823cfaa",
     "scripts/build_streamflow_vignette.py": "51a3c0143f467a0a8a99fa4638e2cf48ae2c712ed4561c841ff011739095fb46",
     "scripts/source_lesson_content.py": "9bbb0c437c8f498dac01916526c52c355c25226d653d16bae7475a0476c5c7f5",
     "scripts/vignette_shell.py": "d36e7c404bc1536b226fbb81bdd149b29265a619b5bb2ea6c717cfb41f1630e5",

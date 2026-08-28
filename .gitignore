@@ -64,6 +64,8 @@ tmp/
 # publication QA, vignette execution, and clean-clone CI. Repository policy
 # independently restricts generated-data extensions to tests/fixtures/.
 !tests/fixtures/real_data/*.nc
+# Reviewed native 3DEP lesson window; nested paths do not match the rule above.
+!tests/fixtures/real_data/source_lessons/elevation.nc
 *.nc4
 *.zarr/
 *.parquet

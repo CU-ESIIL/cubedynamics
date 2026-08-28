@@ -3279,3 +3279,39 @@ secrets, credentials, private tokens, or unrelated transcript text.
   confirmed the main-library navigation and matching 390/1280-pixel layouts.
 - Local preview remains on port 54939. No commit, push, deployment or package
   release was performed; all pre-existing source-project changes preserved.
+
+## 2026-08-28 — Include the nested elevation fixture in clean checkouts
+
+- User reported CI failures in source-figure freshness and the elevation
+  lesson. Both came from the same omission: `.gitignore` allowed only direct
+  `tests/fixtures/real_data/*.nc`, so the nested `source_lessons/elevation.nc`
+  existed locally but was never included in Git. Earlier local/untracked-only
+  checks did not catch the ignored input.
+- Added an exact ignore exception for this reviewed 215,108-byte fixture,
+  leaving bulk and unreviewed nested NetCDF files ignored. Its SHA-256 remains
+  `708b1e76b8baeb58f416d44009c517bb6a4b078faae4bb39e0495c72baf16ea8`,
+  matching the original provenance and figure manifest. No acquisition,
+  substituted measurements, or expected-data checksum changes.
+- The source-figure checker now reports missing paths before scanning current
+  inputs, and names changed/unrecorded inputs. Added five regression cases for
+  ignored evidence, preservation of bulk-data exclusions, missing fixtures,
+  changed hashes and unexpected inputs. Updated AGENTS fixture guidance.
+- Regenerated the noun artifacts through their owner; only the changed
+  generator's input hash changed. All seven figure byte hashes, notebooks and
+  scientific input hashes remain unchanged.
+- Verified in a temporary Git-filtered checkout projection containing tracked
+  and commit-eligible files, not ignored caches or artifacts. The temporary
+  repository was given a local QA commit because the existing visual builder
+  records HEAD. Confirmed imports resolve to that copy's src directory; reused
+  the installed Python 3.11 dependency environment, not a new Linux runner.
+- From that copy, the reported CI generation/check sequence passed: eight
+  visual results, 75 references, historical source evidence, streamflow lesson,
+  and all source notebooks/seven figures. Offline pytest: **698 passed,
+  5 skipped, 56 deselected** (34.90 s). The clean-copy repository-size policy
+  passed all 1,115 tracked files, including the elevation input. Publication
+  validation passed five modules and executed all twelve notebooks offline.
+  Evidence: artifacts/source_qa/noun-fixture-clean-checkout.xml and
+  artifacts/source_qa/noun-fixture-clean-validation/. Focused local tests:
+  14 passed. `git diff --check` passed.
+- No source-repository commit, push or deployment. The newly unignored
+  elevation.nc must be included with these changes when committing.

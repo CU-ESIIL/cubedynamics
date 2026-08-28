@@ -3,6 +3,7 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import subprocess
 from types import SimpleNamespace
 
 import matplotlib.pyplot as plt
@@ -75,6 +76,52 @@ def test_noun_figures_are_current_and_decodable():
         with Image.open(path) as image:
             assert min(image.size) > 100
             assert any(low != high for low, high in image.convert("RGB").getextrema())
+
+
+def test_noun_figure_inputs_are_not_git_ignored():
+    # --no-index catches bad ignore rules even if a local file was force-added.
+    # Checking every recorded input includes nested NetCDF fixtures, not just
+    # whatever Git already reports as tracked or untracked.
+    manifest = json.loads((builder.ASSETS / "manifest.json").read_text())
+    result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "--stdin"], cwd=ROOT,
+        input="\n".join(manifest["inputs"]) + "\n", text=True, capture_output=True,
+    )
+    assert result.returncode in (0, 1), result.stderr
+    assert result.returncode == 1, f"Required inputs excluded from a checkout:\n{result.stdout}"
+
+
+def test_bulk_netcdf_outputs_remain_ignored():
+    result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "--stdin"], cwd=ROOT,
+        input="artifacts/terrain.nc\ntests/fixtures/real_data/source_lessons/unreviewed.nc\n",
+        text=True, capture_output=True,
+    )
+    assert result.returncode == 0, result.stderr
+    assert len(result.stdout.splitlines()) == 2
+
+
+def test_figure_check_names_missing_fixture_before_inventory(monkeypatch, tmp_path):
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    monkeypatch.setattr(builder, "evidence_inputs", lambda: pytest.fail("Missing inputs must fail first"))
+    name = "tests/fixtures/real_data/source_lessons/elevation.nc"
+    with pytest.raises(SystemExit, match="Missing noun figure inputs") as error:
+        builder.check_evidence_inputs({name: "expected-digest"})
+    assert name in str(error.value)
+    assert "do not regenerate" in str(error.value)
+
+
+@pytest.mark.parametrize("kindchange", ["changed", "unrecorded"])
+def test_figure_check_names_stale_inputs(monkeypatch, tmp_path, kindchange):
+    path = tmp_path / "input.json"
+    path.write_text("original")
+    digest = hashlib.sha256(path.read_bytes()).hexdigest()
+    recorded = {path.name: digest}
+    current = {path.name: "different"} if kindchange == "changed" else {**recorded, "extra.json": digest}
+    monkeypatch.setattr(builder, "ROOT", tmp_path)
+    monkeypatch.setattr(builder, "evidence_inputs", lambda: current)
+    with pytest.raises(SystemExit, match=f"{kindchange}: "):
+        builder.check_evidence_inputs(recorded)
 
 
 @pytest.mark.parametrize("noun", sorted(LESSONS))

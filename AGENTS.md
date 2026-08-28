@@ -171,6 +171,10 @@ hash-bound figure reviews offline. Do not auto-approve newly generated figures.
 - These small NetCDF files are intentional policy-approved exceptions. Do not
   move them to ignored output locations or remove them to satisfy size checks:
   fresh-clone validation and notebooks depend on them.
+- Verify nested fixtures are not Git-ignored (`git check-ignore --no-index`):
+  the direct `real_data/*.nc` exception does not cover subdirectories.
+  Preserve narrow exceptions and test from tracked plus commit-eligible files;
+  an existing ignored local file is not evidence that CI can read it.
 - A missing or mismatched fixture is an error. Do not silently download a new
   dataset, rewrite expected checksums, skip the test, or invent measurements.
   Rebuilding source fixtures is a deliberate online acquisition/review task.

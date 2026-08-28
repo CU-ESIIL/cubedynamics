@@ -57,6 +57,20 @@ def evidence_inputs():
     return {str(p.relative_to(ROOT)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(paths)}
 
 
+def check_evidence_inputs(recorded):
+    """Name missing checkout inputs before comparing the current file inventory."""
+    missing = sorted(name for name in recorded if not (ROOT / name).is_file())
+    if missing:
+        raise SystemExit("Missing noun figure inputs:\n- " + "\n- ".join(missing)
+                         + "\nRestore these repository inputs; do not regenerate evidence to bypass missing data.")
+    current = evidence_inputs()
+    changed = sorted(name for name in recorded if current.get(name) != recorded[name])
+    added = sorted(current.keys() - recorded.keys())
+    if changed or added:
+        details = [f"changed: {name}" for name in changed] + [f"unrecorded: {name}" for name in added]
+        raise SystemExit("Stale noun figure inputs:\n- " + "\n- ".join(details))
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
@@ -72,7 +86,7 @@ def main():
     manifest_path = ASSETS / "manifest.json"
     if args.check:
         manifest = json.loads(manifest_path.read_text())
-        assert manifest["inputs"] == evidence_inputs(), "Stale noun figures"
+        check_evidence_inputs(manifest["inputs"])
         for name, digest in manifest["outputs"].items():
             assert hashlib.sha256((ASSETS / name).read_bytes()).hexdigest() == digest
     else:
