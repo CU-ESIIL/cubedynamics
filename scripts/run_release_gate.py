@@ -15,7 +15,7 @@ import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 MANDATORY = {
-    "build", "twine", "contents", "create-environment", "install-wheel", "pip-check",
+    "build", "twine", "contents", "create-environment", "upgrade-installer", "install-wheel", "pip-check",
     "package-only", "readme", "candidate-wheel", "install-vignette-extra", "wheel-vignettes",
     "offline", "streaming", "vignettes", "publication", "source-qa", "decision-qa",
     "visuals", "references", "noun-figures", "streamflow-notebook", "source-projects",
@@ -122,6 +122,9 @@ def main():
         checker = ROOT / "scripts/check_release_artifact.py"
         run("contents", [py, checker, "--wheel", wheel, "--sdist", sdist, "--inspect-only", "--output", output / "distributions.json"])
         run("create-environment", [py, "-m", "venv", environment])
+        # venv seeds pip independently of the build interpreter. Old seeds can
+        # omit direct_url archive hashes, which the identity check must reject.
+        run("upgrade-installer", [wheel_python, "-m", "pip", "install", "--upgrade", "pip"], environment.parent)
         run("install-wheel", [wheel_python, "-m", "pip", "install", wheel], environment.parent)
         run("pip-check", [wheel_python, "-m", "pip", "check"], environment.parent)
         run("base-resolution", [wheel_python, "-m", "pip", "freeze", "--all"], environment.parent)

@@ -85,6 +85,27 @@ def inspect_distributions(wheel, sdist=None):
     return result
 
 
+def archive_sha256(info):
+    """Read modern/legacy direct_url hashes without accepting absent evidence."""
+    require(isinstance(info, dict), "Invalid archive origin metadata")
+    hashes = info.get("hashes", {})
+    require(isinstance(hashes, dict), "Invalid archive hashes metadata")
+    if "hash" in info:
+        legacy = info["hash"]
+        require(isinstance(legacy, str), "Invalid legacy archive hash")
+        algorithm, separator, value = legacy.partition("=")
+        require(algorithm and separator and value, "Invalid legacy archive hash")
+        if "hashes" in info:
+            require(hashes.get(algorithm) == value, "Conflicting archive hash metadata")
+        else:
+            hashes = {algorithm: value}
+    value = hashes.get("sha256")
+    require(isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{64}", value),
+            "Wheel origin metadata lacks a valid SHA256; upgrade pip in the wheel "
+            "environment and reinstall the supplied wheel")
+    return value.lower()
+
+
 def check_installed_wheel(wheel, repo=ROOT):
     """Reject editable/wrong artifacts and verify loaded code plus package data."""
     import cubedynamics
@@ -97,8 +118,8 @@ def check_installed_wheel(wheel, repo=ROOT):
     require(sys.prefix != sys.base_prefix, "Use a fresh virtual environment for the wheel check")
     direct = json.loads(dist.read_text("direct_url.json") or "{}")
     require(not direct.get("dir_info", {}).get("editable", False), "Editable installation is not a wheel test")
-    hashes = direct.get("archive_info", {}).get("hashes", {})
-    require(hashes.get("sha256") == digest(wheel), "Installed distribution is not the supplied wheel (SHA256 differs)")
+    expected = archive_sha256(direct.get("archive_info", {}))
+    require(expected == digest(wheel), "Installed distribution is not the supplied wheel (SHA256 differs)")
     with zipfile.ZipFile(wheel) as archive:
         files = {n for n in archive.namelist() if n.startswith(("cubedynamics/", "climate_cube_math/")) and not n.endswith("/")}
         require(REQUIRED <= files, "Wheel lacks required runtime assets")

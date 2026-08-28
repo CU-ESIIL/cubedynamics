@@ -1,9 +1,11 @@
 """Release gates must reject source leakage and repository payloads."""
+import ast
 import importlib.util
 import json
 from pathlib import Path
 import re
 import sys
+from types import SimpleNamespace
 import zipfile
 
 import pytest
@@ -53,6 +55,97 @@ def test_editable_checkout_cannot_pass_installed_wheel_check(tmp_path):
     # The ordinary test environment resolves the checkout or its editable venv.
     with pytest.raises(RuntimeError, match="checkout|Editable|wheel test|supplied wheel"):
         artifact.check_installed_wheel(tmp_path / "missing.whl", ROOT)
+
+
+def archive_origin(sha256, style):
+    if style == "legacy":
+        return {"hash": "sha256=" + sha256}
+    if style == "modern":
+        return {"hashes": {"sha256": sha256}}
+    return {"hash": "sha256=" + sha256, "hashes": {"sha256": sha256}}
+
+
+@pytest.mark.parametrize("style", ["legacy", "modern", "both"])
+def test_archive_sha256_accepts_pip_metadata_formats(style):
+    expected = "ab" * 32
+    assert artifact.archive_sha256(archive_origin(expected, style)) == expected
+
+
+@pytest.mark.parametrize("info", [
+    None, [], {}, {"hashes": None}, {"hashes": []}, {"hashes": {}},
+    {"hash": None}, {"hash": 123}, {"hash": "sha256"},
+    {"hash": "sha256="}, {"hash": "sha256=not-hex"},
+    {"hash": "sha256=" + "a" * 63}, {"hash": "md5=" + "a" * 32},
+    {"hashes": {"sha256": 123}}, {"hashes": {"sha256": "z" * 64}},
+    {"hashes": {"md5": "a" * 32}},
+    # A legacy field must not override or rescue conflicting modern metadata.
+    {"hashes": {}, "hash": "sha256=" + "a" * 64},
+    {"hashes": {"sha256": "b" * 64}, "hash": "sha256=" + "a" * 64},
+])
+def test_archive_sha256_rejects_missing_malformed_or_conflicting_metadata(info):
+    with pytest.raises(RuntimeError, match="archive|SHA256|hash"):
+        artifact.archive_sha256(info)
+
+
+def mock_external_distribution(monkeypatch, installed, origin):
+    dist = SimpleNamespace(
+        locate_file=lambda name: installed / name,
+        read_text=lambda name: json.dumps({"archive_info": origin}),
+    )
+    monkeypatch.setattr(artifact.metadata, "distribution", lambda name: dist)
+    monkeypatch.setattr(sys, "prefix", str(installed.parent))
+
+
+@pytest.mark.parametrize("style", ["legacy", "modern", "both"])
+def test_wrong_wheel_sha256_still_fails_for_every_metadata_format(tmp_path, monkeypatch, style):
+    wheel = tmp_path / "wrong.whl"
+    wheel.write_bytes(b"a different artifact")
+    mock_external_distribution(monkeypatch, tmp_path / "site-packages", archive_origin("0" * 64, style))
+    with pytest.raises(RuntimeError, match="SHA256 differs"):
+        artifact.check_installed_wheel(wheel, ROOT)
+
+
+@pytest.mark.parametrize("style", ["legacy", "modern", "both"])
+def test_matching_archive_hash_does_not_hide_modified_installed_code(tmp_path, monkeypatch, style):
+    wheel = tmp_path / "release.whl"
+    installed = tmp_path / "site-packages"
+    with zipfile.ZipFile(wheel, "w") as archive:
+        for name in artifact.REQUIRED:
+            archive.writestr(name, b"original runtime bytes")
+            path = installed / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"original runtime bytes")
+    (installed / "cubedynamics/piping.py").write_bytes(b"modified runtime bytes")
+    mock_external_distribution(monkeypatch, installed, archive_origin(artifact.digest(wheel), style))
+    with pytest.raises(RuntimeError, match="Installed wheel file changed: cubedynamics/piping.py"):
+        artifact.check_installed_wheel(wheel, ROOT)
+
+
+@pytest.mark.parametrize("workflow, environment", [
+    ("tests.yml", "cubedynamics-wheel"), ("publish.yml", "cubedynamics-release"),
+])
+def test_ci_upgrades_the_fresh_environments_pip_before_installing_wheel(workflow, environment):
+    document = yaml.safe_load((ROOT / ".github/workflows" / workflow).read_text())
+    blocks = [step["run"] for job in document["jobs"].values() for step in job["steps"]
+              if "run" in step and f'python -m venv "$RUNNER_TEMP/{environment}"' in step["run"]]
+    assert len(blocks) == 1
+    commands = blocks[0].splitlines()
+    create = commands.index(f'python -m venv "$RUNNER_TEMP/{environment}"')
+    upgrade = commands.index(f'"$RUNNER_TEMP/{environment}/bin/python" -m pip install --upgrade pip')
+    install = commands.index(f'"$RUNNER_TEMP/{environment}/bin/python" -m pip install dist/cubedynamics-0.1.0-py3-none-any.whl')
+    assert create < upgrade < install
+
+
+def test_release_gate_requires_upgrade_with_the_wheel_interpreter():
+    assert "upgrade-installer" in gate.MANDATORY
+    tree = ast.parse((ROOT / "scripts/run_release_gate.py").read_text())
+    calls = {node.args[0].value: node for node in ast.walk(tree)
+             if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+             and node.func.id == "run" and isinstance(node.args[0], ast.Constant)}
+    assert calls["create-environment"].lineno < calls["upgrade-installer"].lineno < calls["install-wheel"].lineno
+    command = calls["upgrade-installer"].args[1].elts
+    assert command[0].id == "wheel_python"
+    assert [node.value for node in command[1:]] == ["-m", "pip", "install", "--upgrade", "pip"]
 
 
 def test_release_kernel_uses_exact_python_and_ignores_user_pythonpath(tmp_path):

@@ -3390,3 +3390,40 @@ secrets, credentials, private tokens, or unrelated transcript text.
   dependency deprecation warnings and limited provider/fixture coverage remain
   caveats. No scientific runtime edits, dependency moves, source promotion,
   commit, push, tag, publication, DOI, branch protection or permission changes.
+
+## 2026-08-28 — Repair clean-wheel CI archive-hash validation
+
+- User supplied Python 3.9 and 3.10 package-job failures after successful wheel
+  installation and `pip check`, both using pip 23.0.1. Starting checkout was
+  clean at 1628705. Reproduced the identical failure with a fresh external
+  Python 3.11.11 environment and pip 23.0.1: local-wheel `direct_url.json`
+  contained `archive_info: {}`. The old checker misreported absent hash
+  evidence as a SHA256 mismatch. Upgrading pip in the build environment does
+  not update the separate installer seeded by `python -m venv`.
+- Both package/publish validation workflows and run_release_gate.py now
+  upgrade the external environment's pip before installing the wheel. The
+  local gate records this as mandatory `upgrade-installer` evidence. No
+  workflow trigger, permission, scientific dependency or runtime change.
+- check_release_artifact.py accepts modern `hashes` and legacy `hash` archive
+  metadata, rejects conflicts/malformed/missing SHA256, and gives an explicit
+  upgrade/reinstall diagnostic for missing evidence. Exact archive SHA256,
+  installed file bytes, external import paths and editable rejection remain
+  enforced. RELEASING.md documents the cause and repair procedure.
+- Added 30 regression cases for metadata formats, missing/malformed/conflicting
+  hashes, wrong wheels, modified installed code and installer upgrade ordering
+  in both workflows and the local gate. The legacy-format regression failed
+  against the original checker before the fix.
+- Controlled reproduction: upgraded the same external environment to pip
+  26.2.1 and reinstalled the unchanged wheel offline (`--force-reinstall
+  --no-deps`). Its metadata then contained the matching SHA256. Full installed
+  artifact check passed, including all 132 runtime files, package-only grammar,
+  the actual real-data README PRISM analysis/figure, and existing candidate
+  imports/three real USGS snapshot checks. `pip check` passed. Wheel SHA256
+  remains 462b8bb41d749fd16f5e47f5e9e9f168c61ed2c44139042c4dfd99f5ce8ab029.
+- Validation: offline suite 745 passed, 5 skipped, 367 deselected; strict MkDocs,
+  built-site links/anchors, repository policy (1,123 tracked files) and diff
+  checks passed. Evidence: artifacts/release-pip-compat/installed.json and
+  offline.xml. No full release-gate/browser rerun or new release-readiness
+  claim; the historical release manifest is unchanged. Linux Python 3.9/3.10
+  CI jobs still need to rerun after these changes are committed/pushed; no
+  commit, push, tag, deployment or publication performed here.

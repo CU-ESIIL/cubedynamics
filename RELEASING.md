@@ -22,6 +22,15 @@ external reviewed PRISM input and all twelve notebooks against that wheel.
 Each notebook kernel uses an explicit isolated Python and verifies installed
 package paths, file bytes, version and wheel SHA before and after execution.
 
+The new environment's pip is upgraded before wheel installation; upgrading
+only the build environment does not update the pip seeded by `venv`. Older pip
+versions can omit the archive hash for local wheels. Missing SHA256 evidence
+is an error, not a mismatch or permission to bypass validation. The checker
+accepts both modern `archive_info.hashes` and legacy `archive_info.hash`
+metadata while rejecting conflicting hashes. When repairing an existing
+environment, upgrade its pip and reinstall the wheel with
+`--force-reinstall --no-deps` to refresh its installation metadata.
+
 It also runs offline pytest, streaming contracts, ordinary vignette execution,
 publication/source/decision QA, generated-content checks, strict MkDocs,
 internal links, the Chromium browser suite, and repository-size checks.
