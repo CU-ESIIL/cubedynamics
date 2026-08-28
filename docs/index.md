@@ -19,8 +19,14 @@ hide:
   </div>
   <div class="cd-hero-art">
     <div class="cd-html-cube-hero">
+      <div class="cd-cube-picker">
+        <label for="hero-cube-example">Explore an example</label>
+        <select id="hero-cube-example" aria-controls="hero-cube-frame" aria-describedby="hero-cube-description" disabled>
+          <!-- HERO_EXAMPLE_OPTIONS -->
+        </select>
+      </div>
       <div class="cd-html-cube-frame cd-deferred-embed" data-deferred-embed>
-        <iframe src="about:blank" data-src="assets/figures/prism_boulder_tmax_cube.html" title="Interactive cube of observed PRISM daily maximum temperature" loading="lazy" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
+        <iframe id="hero-cube-frame" src="about:blank" data-src="assets/figures/prism_boulder_tmax_cube.html" title="Interactive cube of observed PRISM daily maximum temperature" loading="lazy" sandbox="allow-scripts allow-same-origin" allowfullscreen></iframe>
         <div class="cd-embed-loader">
           <strong>Observed PRISM temperature cube</strong>
           <span>Interactive viewer loads after the page is ready.</span>
@@ -28,11 +34,14 @@ hide:
         </div>
       </div>
       <div class="cd-html-cube-meta">
-        <p><strong>Live CubeDynamics viewer</strong><span>Observed PRISM temperature · longitude × latitude × time</span></p>
-        <a href="assets/figures/prism_boulder_tmax_cube.html">Open full viewer <span aria-hidden="true">↗</span></a>
+        <p aria-live="polite"><strong id="hero-cube-kind">Interactive raster cube</strong><span id="hero-cube-description">Observed PRISM daily maximum temperature</span></p>
+        <div class="cd-cube-links">
+          <a id="hero-cube-open" href="assets/figures/prism_boulder_tmax_cube.html">Open full viewer <span aria-hidden="true">↗</span></a>
+          <a id="hero-cube-lesson" href="vignettes/cube_from_arrays/">Lesson / source notes <span aria-hidden="true">↗</span></a>
+        </div>
       </div>
       <p class="cd-html-cube-instructions">Drag the cube to rotate it. Scroll over the viewer to zoom.</p>
-      <noscript><p><a href="assets/figures/prism_boulder_tmax_cube.html">Open the interactive cube viewer</a>.</p></noscript>
+      <noscript><p>Choose a standalone example:</p><ul><!-- HERO_EXAMPLE_LINKS --></ul></noscript>
     </div>
   </div>
 </section>

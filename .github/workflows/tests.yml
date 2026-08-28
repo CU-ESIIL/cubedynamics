@@ -148,6 +148,7 @@ jobs:
           MPLBACKEND: module://matplotlib_inline.backend_inline
         run: |
           python scripts/build_visual_docs.py --check
+          python scripts/build_real_data_assets.py --check
           python scripts/build_visual_docs.py
           python scripts/build_visual_docs.py --check
           python scripts/build_reference_docs.py --check

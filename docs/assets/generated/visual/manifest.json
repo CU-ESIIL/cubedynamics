@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "6fdba3f1038dcf651bc5c4fdaacaa330af778e2f",
+    "git_sha": "fa2cb9260610a77ddceb53817dc808e36d0bc56d",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -558,9 +558,9 @@
     "src/cubedynamics/ops_io/gridmet_loader.py": "8338533cabc1c334d752f2f48a6d33686579090876660ccc6a226684a6edaff9",
     "src/cubedynamics/piping.py": "ba2e438a0ad95fcd5e74af461e5e660660ebaa50d85f7218ab02d62645b62b87",
     "src/cubedynamics/plotting/__init__.py": "0bf7483cd9f1ab116e48ccb2d02721b9f350f7e77a46056fb91827f5e54ae59f",
-    "src/cubedynamics/plotting/axis_rig.py": "03207a4c3e9f069929635597ebc33c0fecbdbcec69d852cead49c81ab21fdea3",
+    "src/cubedynamics/plotting/axis_rig.py": "ce2069dbd5d80cef0d328c77963efbc68daab472d7d0278bf39be511e195a488",
     "src/cubedynamics/plotting/cube_plot.py": "6aa7e51b91cda82b74288257f1cec63bf25ca00918887d3efac089151935d4aa",
-    "src/cubedynamics/plotting/cube_viewer.py": "ac13f1f737ba42419546b221e5ae689fc20e05e0a4616020f87ffca2d03107e6",
+    "src/cubedynamics/plotting/cube_viewer.py": "72f6530c19e1cd3587c472f9c96782b6d3c7c87defa897baaa898c55832cb639",
     "src/cubedynamics/plotting/geom.py": "4ec4fb1c527551c846bcdc3d3e3fd44b344089a7e0a3557e5440b567995c296b",
     "src/cubedynamics/plotting/progress.py": "27f6d7d4ae598abe3f479ffa98f26ade83d7725e0748b5a58086909ae2c8d3c2",
     "src/cubedynamics/plotting/stats.py": "83f8708e116da6b04577dbf646699ccc4d78f464229b0c2f8405ac33c9042a5c",

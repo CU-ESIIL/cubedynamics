@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from cubedynamics.plotting.axis_rig import AxisRigSpec, build_axis_rig_meta
+from cubedynamics.plotting.axis_rig import AxisRigSpec, axis_rig_css, build_axis_rig_meta
 from cubedynamics.plotting.cube_viewer import cube_from_dataarray
 
 
@@ -48,6 +48,33 @@ def test_axis_rig_time_label_subsampling():
     )
 
     assert label_count <= spec.time_label_max
+
+
+def test_axis_billboards_invert_camera_and_local_time_rotation():
+    css = axis_rig_css(AxisRigSpec())
+    assert "rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x))" in css
+    assert "rotateY(-90deg) rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x))" in css
+    assert "--cd-axis-color: var(--cube-axis-color," in css
+    for selector in (".cd-axis-label", ".cd-axis-ticks", ".cd-axis-tick", ".cd-axis-tick-label"):
+        rule = css.split("\n    " + selector + " {", 1)[1].split("}", 1)[0]
+        assert "transform-style: preserve-3d" in rule
+
+
+def test_small_geographic_extent_has_distinguishable_endpoint_labels():
+    da = _make_da(pd.date_range("2024-01-01", periods=2)).assign_coords(
+        y=[40.05, 40.15], x=[-105.35, -105.25])
+    meta = build_axis_rig_meta(da, "time", "y", "x", None, AxisRigSpec())
+    assert meta["y"]["min_label"] == "40.05°N"
+    assert meta["y"]["max_label"] == "40.15°N"
+    assert meta["x"]["min_label"] == "105.35°W"
+    assert meta["x"]["max_label"] == "105.25°W"
+
+
+def test_axis_rig_can_shorten_dates_without_changing_time_direction():
+    da = _make_da(pd.date_range("2024-01-01", periods=30))
+    meta = build_axis_rig_meta(da, "time", "y", "x", None, AxisRigSpec(time_format="%d %b"))
+    assert meta["time"]["min_label"] == "01 Jan"
+    assert meta["time"]["max_label"] == "30 Jan"
 
 
 def test_cube_viewer_axis_rig_html_includes_meta(tmp_path):

@@ -44,6 +44,7 @@ jobs:
           CUBEDYNAMICS_GA_MEASUREMENT_ID: ${{ vars.CUBEDYNAMICS_GA_MEASUREMENT_ID }}
         run: |
           python scripts/build_visual_docs.py --check
+          python scripts/build_real_data_assets.py --check
           python scripts/build_visual_docs.py
           python scripts/build_visual_docs.py --check
           python scripts/build_reference_docs.py --check

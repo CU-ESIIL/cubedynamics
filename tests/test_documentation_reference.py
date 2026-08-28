@@ -61,7 +61,8 @@ def test_homepage_cube_is_deferred_but_accessible():
     text = (ROOT / "docs/index.md").read_text()
     assert 'data-src="assets/figures/prism_boulder_tmax_cube.html"' in text
     assert 'loading="lazy"' in text
-    assert "Open the interactive cube viewer" in text
+    assert "<noscript>" in text and "Choose a standalone example" in text
+    assert "<!-- HERO_EXAMPLE_LINKS -->" in text
     for route in ("learn/", "library/", "documentation/", "vignettes/"):
         assert f'href="{route}"' in text
 

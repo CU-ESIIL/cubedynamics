@@ -1,0 +1,318 @@
+{
+  "examples": [
+    {
+      "id": "prism_boulder_tmax_cube",
+      "kind": "cube",
+      "label": "Boulder \u00b7 maximum temperature",
+      "fixture": "prism_boulder_january_2024",
+      "variable": "tmax",
+      "legend": "Daily maximum temperature (\u00b0C)",
+      "units": "degC",
+      "limits": [
+        -25,
+        20
+      ],
+      "group": "Climate observations",
+      "cmap": "magma",
+      "transform": null,
+      "lesson": "vignettes/cube_from_arrays/",
+      "description": "Observed PRISM daily maximum temperature",
+      "title": "Boulder, in space and time",
+      "kicker": "PRISM \u00b7 Colorado \u00b7 January 2024",
+      "path": "assets/figures/prism_boulder_tmax_cube.html"
+    },
+    {
+      "id": "prism_boulder_tmin_cube",
+      "kind": "cube",
+      "label": "Boulder \u00b7 minimum temperature",
+      "fixture": "prism_boulder_january_2024",
+      "variable": "tmin",
+      "legend": "Daily minimum temperature (\u00b0C)",
+      "units": "degC",
+      "limits": [
+        -35,
+        5
+      ],
+      "group": "Climate observations",
+      "cmap": "magma",
+      "transform": null,
+      "lesson": "vignettes/cube_from_dataset/",
+      "description": "Observed PRISM daily minimum temperature",
+      "title": "Boulder, in space and time",
+      "kicker": "PRISM \u00b7 Colorado \u00b7 January 2024",
+      "path": "assets/figures/prism_boulder_tmin_cube.html"
+    },
+    {
+      "id": "prism_boulder_range_cube",
+      "kind": "cube",
+      "label": "Boulder \u00b7 daily temperature range",
+      "fixture": "prism_boulder_january_2024",
+      "variable": "diurnal_range",
+      "legend": "Maximum \u2212 minimum temperature (\u00b0C)",
+      "units": "degC",
+      "limits": [
+        0,
+        30
+      ],
+      "group": "Climate observations",
+      "cmap": "viridis",
+      "transform": null,
+      "lesson": "vignettes/cube_from_dataset/",
+      "description": "PRISM daily range: tmax \u2212 tmin; not an anomaly",
+      "title": "Boulder, in space and time",
+      "kicker": "PRISM \u00b7 Colorado \u00b7 January 2024",
+      "path": "assets/figures/prism_boulder_range_cube.html"
+    },
+    {
+      "id": "prism_working_lands_temperature_cube",
+      "kind": "cube",
+      "label": "Working lands \u00b7 temperature",
+      "fixture": "sd_working_lands_july_2024",
+      "variable": "temperature",
+      "legend": "Daily maximum temperature (\u00b0C)",
+      "units": "degC",
+      "limits": [
+        20,
+        45
+      ],
+      "group": "Climate observations",
+      "cmap": "magma",
+      "transform": null,
+      "lesson": "decision_vignettes/working_lands/",
+      "description": "Observed PRISM daily maximum temperature \u00b7 southwest of Pierre",
+      "title": "Working lands, in space and time",
+      "kicker": "PRISM \u00b7 South Dakota \u00b7 July 2024",
+      "path": "assets/figures/prism_working_lands_temperature_cube.html"
+    },
+    {
+      "id": "prism_working_lands_rain_cube",
+      "kind": "cube",
+      "label": "Working lands \u00b7 precipitation",
+      "fixture": "sd_working_lands_july_2024",
+      "variable": "precipitation",
+      "legend": "Daily precipitation (mm)",
+      "units": "mm",
+      "limits": [
+        0,
+        45
+      ],
+      "group": "Climate observations",
+      "cmap": "Blues",
+      "transform": null,
+      "lesson": "decision_vignettes/working_lands/",
+      "description": "Observed PRISM daily total precipitation \u00b7 southwest of Pierre",
+      "title": "Working lands, in space and time",
+      "kicker": "PRISM \u00b7 South Dakota \u00b7 July 2024",
+      "path": "assets/figures/prism_working_lands_rain_cube.html"
+    },
+    {
+      "id": "gridmet_badlands_temperature_cube",
+      "kind": "cube",
+      "label": "Badlands \u00b7 gridMET temperature",
+      "fixture": "gridmet_badlands_july_2001",
+      "variable": "temperature",
+      "legend": "Daily maximum temperature (K)",
+      "units": "K",
+      "limits": [
+        290,
+        310
+      ],
+      "group": "Climate observations",
+      "cmap": "magma",
+      "transform": null,
+      "lesson": "data/phase1_qa/",
+      "description": "Observed gridMET \u00b7 1\u201310 July 2001 \u00b7 native kelvin values",
+      "title": "Badlands, in space and time",
+      "kicker": "gridMET \u00b7 South Dakota \u00b7 July 2001",
+      "path": "assets/figures/gridmet_badlands_temperature_cube.html"
+    },
+    {
+      "id": "sentinel_badlands_red_cube",
+      "kind": "cube",
+      "label": "Badlands \u00b7 Sentinel-2 red band",
+      "fixture": "sentinel2_badlands_june_2023",
+      "variable": "surface_reflectance",
+      "legend": "Red B04 (provider-scaled reflectance)",
+      "units": "scaled surface reflectance",
+      "limits": [
+        0,
+        6000
+      ],
+      "group": "Satellite observations",
+      "cmap": "Reds",
+      "transform": "B04",
+      "lesson": "data/phase1_qa/",
+      "description": "Two acquisitions \u00b7 native 10 m UTM grid \u00b7 no pixel cloud mask",
+      "title": "Badlands, in space and time",
+      "kicker": "Sentinel-2 \u00b7 South Dakota \u00b7 June 2023",
+      "path": "assets/figures/sentinel_badlands_red_cube.html"
+    },
+    {
+      "id": "sentinel_badlands_nir_cube",
+      "kind": "cube",
+      "label": "Badlands \u00b7 Sentinel-2 near infrared",
+      "fixture": "sentinel2_badlands_june_2023",
+      "variable": "surface_reflectance",
+      "legend": "Near infrared B08 (provider-scaled reflectance)",
+      "units": "scaled surface reflectance",
+      "limits": [
+        0,
+        6000
+      ],
+      "group": "Satellite observations",
+      "cmap": "Purples",
+      "transform": "B08",
+      "lesson": "data/phase1_qa/",
+      "description": "Two acquisitions \u00b7 native 10 m UTM grid \u00b7 no pixel cloud mask",
+      "title": "Badlands, in space and time",
+      "kicker": "Sentinel-2 \u00b7 South Dakota \u00b7 June 2023",
+      "path": "assets/figures/sentinel_badlands_nir_cube.html"
+    },
+    {
+      "id": "sentinel_badlands_ndvi_cube",
+      "kind": "cube",
+      "label": "Badlands \u00b7 NDVI (two scenes)",
+      "fixture": "sentinel2_badlands_june_2023",
+      "variable": "surface_reflectance",
+      "legend": "NDVI (unitless)",
+      "units": "1",
+      "limits": [
+        -1,
+        1
+      ],
+      "group": "Satellite observations",
+      "cmap": "RdYlGn",
+      "transform": "ndvi",
+      "lesson": "data/phase1_qa/",
+      "description": "(B08 \u2212 B04) / (B08 + B04) on retained provider-scaled values; no pixel cloud mask",
+      "title": "Badlands, in space and time",
+      "kicker": "Sentinel-2 \u00b7 South Dakota \u00b7 June 2023",
+      "path": "assets/figures/sentinel_badlands_ndvi_cube.html"
+    },
+    {
+      "id": "prism_array_lesson_cube",
+      "kind": "cube",
+      "label": "Lesson \u00b7 build a cube from an array",
+      "fixture": "prism_boulder_january_2024",
+      "variable": "tmax",
+      "legend": "Daily maximum temperature (\u00b0C)",
+      "units": "degC",
+      "limits": [
+        -25,
+        20
+      ],
+      "group": "Grammar lessons",
+      "cmap": "magma",
+      "transform": "array",
+      "lesson": "vignettes/cube_from_arrays/",
+      "description": "The array lesson's exact 18-day, 5 \u00d7 6 PRISM extract",
+      "title": "From an array to a cube",
+      "kicker": "PRISM \u00b7 Colorado \u00b7 January 2024",
+      "path": "assets/figures/prism_array_lesson_cube.html"
+    },
+    {
+      "id": "prism_anomaly_lesson_cube",
+      "kind": "cube",
+      "label": "Lesson \u00b7 local temperature anomaly",
+      "fixture": "prism_boulder_january_2024",
+      "variable": "tmax",
+      "legend": "Departure from 10\u201320 January mean (\u00b0C)",
+      "units": "degC",
+      "limits": [
+        -30,
+        30
+      ],
+      "group": "Grammar lessons",
+      "cmap": "RdBu_r",
+      "transform": "anomaly",
+      "lesson": "vignettes/grammar_basics/",
+      "description": "anomaly() \u00b7 per-pixel 10\u201320 January mean, not a climate normal",
+      "title": "Remove the local baseline",
+      "kicker": "PRISM \u00b7 Colorado \u00b7 January 2024",
+      "path": "assets/figures/prism_anomaly_lesson_cube.html"
+    },
+    {
+      "id": "prism_zscore_lesson_cube",
+      "kind": "cube",
+      "label": "Lesson \u00b7 standardized temperature",
+      "fixture": "prism_boulder_january_2024",
+      "variable": "tmax",
+      "legend": "Per-pixel z-score (unitless)",
+      "units": "1",
+      "limits": [
+        -3,
+        3
+      ],
+      "group": "Grammar lessons",
+      "cmap": "RdBu_r",
+      "transform": "zscore",
+      "lesson": "vignettes/grammar_basics/",
+      "description": "zscore() \u00b7 10\u201320 January 2024 \u00b7 standard deviations from each pixel's mean",
+      "title": "Compare variation, not units",
+      "kicker": "PRISM \u00b7 Colorado \u00b7 January 2024",
+      "path": "assets/figures/prism_zscore_lesson_cube.html"
+    },
+    {
+      "id": "prism_cold_state_lesson_cube",
+      "kind": "cube",
+      "label": "Lesson \u00b7 severe-cold states",
+      "fixture": "prism_boulder_january_2024",
+      "variable": "tmax",
+      "legend": "Below \u221210 \u00b0C: 0 = no, 1 = yes",
+      "units": "1",
+      "limits": [
+        0,
+        1
+      ],
+      "group": "Grammar lessons",
+      "cmap": "Blues",
+      "transform": "state",
+      "lesson": "vignettes/states_and_events/",
+      "description": "threshold_state() \u00b7 daily maximum below \u221210 \u00b0C; not an event-duration map",
+      "title": "From measurements to states",
+      "kicker": "PRISM \u00b7 Colorado \u00b7 January 2024",
+      "path": "assets/figures/prism_cold_state_lesson_cube.html"
+    },
+    {
+      "id": "fire_vase_gridmet_interactive",
+      "kind": "hull",
+      "group": "Specialized viewer",
+      "label": "Fire VASE \u00b7 FIRED + gridMET",
+      "path": "assets/figures/fire_vase_gridmet_interactive.html",
+      "title": "Fire VASE with gridMET temperature",
+      "lesson": "capabilities/fire-vase/",
+      "description": "Published real FIRED/gridMET hull \u00b7 Plotly viewer (not a raster cube); requires CDN access"
+    }
+  ],
+  "inputs": {
+    "scripts/build_real_data_assets.py": "e0c6220eebb17604d3ec3600113566c0bbe72ed531b55843f3cf1c821385e53a",
+    "scripts/hero_examples.py": "a9aa6cf9a8764acb5c0fa92d66a888c4df573632581ce9a034c18e4914f4145c",
+    "docs/assets/styles/hero-cube.css": "4458e2e136a3178222b12ee7f52711851282e59300ec94c6bdc1283d77e5ba36",
+    "src/cubedynamics/plotting/cube_viewer.py": "72f6530c19e1cd3587c472f9c96782b6d3c7c87defa897baaa898c55832cb639",
+    "src/cubedynamics/plotting/axis_rig.py": "ce2069dbd5d80cef0d328c77963efbc68daab472d7d0278bf39be511e195a488",
+    "tests/fixtures/real_data/gridmet_badlands_july_2001.nc": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721",
+    "tests/fixtures/real_data/gridmet_badlands_july_2001.provenance.json": "fa13beaad547747eeaf7764b1b08bb481ca08bc3fc97761fa153bd90c6370888",
+    "tests/fixtures/real_data/prism_boulder_january_2024.nc": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7",
+    "tests/fixtures/real_data/prism_boulder_january_2024.provenance.json": "a06bf922f0b5524ab7e53d740c1f869d7e8d9c95be934cde62b1ae7143691127",
+    "tests/fixtures/real_data/sd_working_lands_july_2024.nc": "f9f3f0da6c621383b60d4895e661a185d3d58e7393b4f339ee91d36d83228a6a",
+    "tests/fixtures/real_data/sd_working_lands_july_2024.provenance.json": "d3f8cb66c4aa070e8269bf85b5327fb4dbe28ffb0d9d021c3d6024c482436c2d",
+    "tests/fixtures/real_data/sentinel2_badlands_june_2023.nc": "eb7c02b01bc741483d28714f7081e08639282685705d5d7a15ff44bf7e97672a",
+    "tests/fixtures/real_data/sentinel2_badlands_june_2023.provenance.json": "f0675cc1df9d1c28c561bc8ae978bacc3d01093d57af0c76b77bddb7f0a2c8fa"
+  },
+  "outputs": {
+    "assets/figures/prism_boulder_tmax_cube.html": "0b50b6851923d968aa50d7f442b9a19d018c1cfb4940fedc6985888e6186c76f",
+    "assets/figures/prism_boulder_tmin_cube.html": "1273d1f66f57fc3a477627e97d5ac78edb8629b3e1e2f26d719667a1d885490a",
+    "assets/figures/prism_boulder_range_cube.html": "afa5e9b0004377397efbf1dd3ecc2d394c27b7eb540cb1aa45385d9a01fcfc67",
+    "assets/figures/prism_working_lands_temperature_cube.html": "5f39355ae31c2e7d2dd59ac93d6efc8f87fdc222db6e0d07ea2048b623e762fa",
+    "assets/figures/prism_working_lands_rain_cube.html": "c909a3d1df8b6790f786caae664e15f63ab27b1b1bd3459c32f0b926e3488514",
+    "assets/figures/gridmet_badlands_temperature_cube.html": "26928989b03bb47d9eb3790690994f52447266e83b255df1c33e12f8b60c05d7",
+    "assets/figures/sentinel_badlands_red_cube.html": "5ca049662257164e7cadf4e0cac508b375abc5c5d62d5e52bec99c565b92798a",
+    "assets/figures/sentinel_badlands_nir_cube.html": "09c096ac022a0e218035e0b6bacb3e7511efb693f11475db3c3eda18e7a048b8",
+    "assets/figures/sentinel_badlands_ndvi_cube.html": "3dc5b03ba9d90e2d0c7406d949d6ffab78b95505c460238629016325886b08a4",
+    "assets/figures/prism_array_lesson_cube.html": "e570af6e63c30f878f8b5b82afaf58663553dae52fdda8d352a3288db128c714",
+    "assets/figures/prism_anomaly_lesson_cube.html": "59a53a4b23bf277cbee70d32bf051fb78321fa75e06ecc48b411d393ac4aff34",
+    "assets/figures/prism_zscore_lesson_cube.html": "5977000e9d717f50f66d47adfa4d66edd2494a0644ad9c54725e3ad94e95712c",
+    "assets/figures/prism_cold_state_lesson_cube.html": "12b50b0332bdb018bb224afc642d6a42efb79644e09d5d6fb88f6eccb0365ce4",
+    "assets/figures/fire_vase_gridmet_interactive.html": "7df4651234830020970017c79c71f0fd7e81b96ccce138af51c6aa2b4a2fcd99"
+  }
+}

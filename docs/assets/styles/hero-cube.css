@@ -1,0 +1,44 @@
+/* Presentation only: the canonical cube viewer owns geometry and controls. */
+:root {
+  color-scheme: light;
+  --cd-cube-size: min(260px, 40vw, 38vh);
+  --cd-axis-font: 11px;
+  --cd-axis-pill-px: 3px;
+  --cd-drift-max-px: 0;
+}
+html, body { min-height: 100%; }
+body { padding: 24px 22px 20px; }
+.cube-figure { max-width: 760px; min-height: calc(100vh - 44px); padding: 0; gap: 0; }
+.hero-kicker { margin: 0 0 10px; color: #526b6d; font-size: 10px; font-weight: 650; letter-spacing: .13em; text-transform: uppercase; }
+.cube-title { margin: 0; font-size: clamp(20px, 4.5vw, 27px); letter-spacing: -.035em; font-weight: 650; }
+.hero-description { margin: 8px 0 16px; color: #526b6d; font-size: 12px; text-align: center; line-height: 1.5; }
+.hero-controls { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+.hero-controls span { margin-right: 8px; color: #526b6d; }
+.hero-controls button { min-width: 32px; min-height: 32px; padding: 5px 10px; border: 1px solid #ccd8d4; border-radius: 5px; background: #fff; color: #213e46; font: inherit; cursor: pointer; }
+.hero-controls button:hover { background: #e3ece7; }
+.hero-controls button:focus-visible, .cube-drag-surface:focus-visible { outline: 2px solid #267c83; outline-offset: 3px; }
+.cube-main { flex: 1; align-items: center; min-height: 300px; padding: 40px 0 58px; overflow: hidden; }
+.cube-inner { transform: translateX(-12px); }
+.cube-drag-surface { inset: -28%; }
+.cd-axis-label-face:not(:empty) { background: #f4f6f3; border-radius: 3px; box-shadow: 0 1px 3px #213e4612; letter-spacing: 0; }
+.cd-axis-rig { --cd-axis-y-extra-left: 0px; --cd-axis-label-gap: 8px; --cd-axis-x-name-drop: 58px; --cd-axis-time-name-drop: 10px; }
+.cd-axis-x .cd-axis-end { top: 8px; }
+.cd-axis-time .cd-axis-end { top: 32px; }
+.cd-axis-time .cd-axis-label-face { transform-origin: 0 0; }
+.cd-axis-time .cd-axis-end--max { transform: none; }
+.cube-legend-panel { position: relative; margin: 0; z-index: 1; }
+.cube-legend-card { width: 100%; min-width: 0; border-radius: 8px; padding: 16px 18px 12px; border: 1px solid #dde5df; box-shadow: none; }
+.colorbar-title { text-align: left; font-size: 12px; margin-bottom: 12px; }
+.colorbar-img { height: 10px; border: none; border-radius: 2px; }
+.colorbar-labels { gap: 0; font-size: 11px; margin-top: 8px; }
+.cb-tick { flex: 0 0 0; white-space: nowrap; overflow: visible; position: relative; display: flex; justify-content: center; }
+.cb-tick:first-child { justify-content: flex-start; }
+.cb-tick:last-child { justify-content: flex-end; }
+@media (max-width: 380px) {
+  body { padding: 18px 12px 14px; }
+  .hero-kicker { font-size: 9px; }
+  .hero-description { font-size: 11px; }
+  .cube-main { min-height: 260px; padding-top: 36px; padding-bottom: 52px; }
+  .cd-axis-label-face { font-size: 10px; }
+  .cube-legend-card { padding: 12px; }
+}

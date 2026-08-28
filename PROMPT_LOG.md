@@ -4,6 +4,64 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-08-28 — Readable interactive homepage hero
+
+- User requested a polished interactive hero with visible legend text and
+  readable cube labels, retaining the real-data HTML viewer.
+- Updated `scripts/build_real_data_assets.py` and added the small modular
+  `docs/assets/styles/hero-cube.css`: light research-figure styling, distinct
+  header/controls/stage/legend regions, explicit Celsius ticks, and responsive
+  framing. Rebuilt `docs/assets/figures/prism_boulder_tmax_cube.html` from the
+  unchanged, hash-verified PRISM fixture; units and full data range are checked
+  against the explicit −25 to 20 °C scale. Deferred loading remains intact.
+- Fixed canonical viewer label inverse-rotation order, local time-axis
+  cancellation, intermediate 3D preservation, theme inheritance, duplicate
+  endpoint labels, and two-dimensional zoom distortion (now uniform 3D zoom).
+  Added keyboard rotation/zoom/reset and shared optional button controls.
+  Geographic labels retain two decimals; optional short dates preserve the
+  existing default format. Cube faces, geometry and newest/front semantics
+  are unchanged.
+- Added real-fixture and axis regression tests plus desktop/mobile browser
+  assertions for legend contrast, stage layout, label rotation matrices and
+  controls. Updated viewer invariants and refreshed the visual evidence manifest.
+- Validation: 749 offline tests passed (5 skipped); 3 homepage browser checks
+  passed; strict MkDocs build, visual evidence check and tracked-size policy
+  passed. Browser skill used for visual inspection of the local preview.
+  No production deployment, commit or push performed.
+
+### Follow-up — Keep the year on the cube
+
+- At the user's request, changed the homepage generator's date format to
+  `%d %b %Y`: both cube endpoint labels now include 2024, not just the heading.
+- Rebuilt the asset, aligned the invariant notes, and added regression checks
+  for full dates and their fit within desktop/mobile viewports.
+- Validation: 7 focused Python tests, 3 homepage browser checks and strict
+  MkDocs build passed; visually checked the full labels in the narrow embed.
+
+### Follow-up — Homepage example dropdown
+
+- User requested a dropdown covering the available example cubes. Added 14
+  curated choices: 13 raster cubes from reviewed PRISM, gridMET and Sentinel-2
+  fixtures and the existing FIRED/gridMET hull, explicitly labeled as a
+  specialized Plotly viewer. Included raw variables/bands and existing grammar
+  lesson results; historical synthetic or unverified exports remain excluded.
+- Added `scripts/hero_examples.py`, deterministic gallery generation and an
+  input/output checksum manifest. The build hook renders accessible grouped
+  options and no-JavaScript standalone links. Each selection updates its
+  description and lesson/source links, retaining full years, native units,
+  coordinate labels and Sentinel-2 cloud/scene-count caveats.
+- Only one viewer loads at a time. Switching replaces its browsing context to
+  cancel stale in-flight navigation; completed loader overlays immediately
+  stop intercepting controls. Fixed mobile selector clipping. Initial viewer
+  HTML is 57,244 bytes; all 14 HTML exports total 763,063 bytes.
+- Added gallery/fixture-integrity and desktop/mobile browser regressions,
+  including every choice, rapid switching, controls and no-JavaScript links.
+  CI now checks gallery freshness. Updated asset ownership and viewer notes.
+- Validation: 765 offline tests passed (5 skipped); final focused browser suite
+  passed all 17 checks. Strict MkDocs build, gallery/visual evidence checks,
+  built-site links, tracked repository policy and diff checks passed. Local
+  preview rebuilt; no commit, push or production deployment performed.
+
 ## 2026-07-21 — Real Climate-colored Non-prescribed Fire VASE PDF Panel
 
 ### User Goals

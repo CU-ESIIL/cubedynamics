@@ -111,11 +111,19 @@ READ_LINKS = """() => [...document.querySelectorAll('a[href]')].map(a => {
 
 def activate_embeds(page):
     """Use the visible load controls; never manufacture an iframe src in tests."""
+    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
     for wrapper in page.locator("[data-deferred-embed]").all():
         wrapper.scroll_into_view_if_needed()
         button = wrapper.locator("button")
         if button.count() and button.is_visible():
-            button.click()
+            try:
+                button.click(timeout=2000)
+            except PlaywrightTimeoutError:
+                # The idle/visibility loader may complete between is_visible
+                # and click. A disappeared button is fine only if it loaded.
+                if wrapper.get_attribute("data-loaded") != "true":
+                    raise
         # Load events alone also fire for 404 documents. Network checks and the
         # nonempty-frame assertion below separately verify successful loading.
         page.wait_for_function("el => el.dataset.loaded === 'true'", arg=wrapper.element_handle(), timeout=15000)

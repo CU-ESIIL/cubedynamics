@@ -255,6 +255,7 @@ extra_css:
 
 extra_javascript:
   - javascripts/deferred-embeds.js
+  - javascripts/hero-examples.js
   - javascripts/site-motion.js
 
 hooks:

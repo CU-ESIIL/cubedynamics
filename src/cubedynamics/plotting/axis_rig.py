@@ -25,6 +25,7 @@ class AxisRigSpec:
     tick_w_px: int = 1
     tick_l_px: int = 8
     debug: bool = False
+    time_format: str = "%d.%m.%Y"
 
 
 def resolve_axis_rig_spec(axis_rig: bool | AxisRigSpec | None) -> AxisRigSpec | None:
@@ -37,10 +38,10 @@ def resolve_axis_rig_spec(axis_rig: bool | AxisRigSpec | None) -> AxisRigSpec | 
     raise TypeError("axis_rig must be a bool or AxisRigSpec")
 
 
-def _format_time_label(value: Any) -> str:
+def _format_time_label(value: Any, time_format: str = "%d.%m.%Y") -> str:
     try:
         ts = pd.to_datetime(value)
-        return ts.strftime("%d.%m.%Y")
+        return ts.strftime(time_format)
     except Exception:
         return str(value)
 
@@ -51,7 +52,8 @@ def _format_lat(value: Any) -> str:
     except Exception:
         return str(value)
     hemi = "N" if val >= 0 else "S"
-    return f"{abs(val):.0f}°{hemi}"
+    degrees = f"{abs(val):.2f}".rstrip("0").rstrip(".")
+    return f"{degrees}°{hemi}"
 
 
 def _format_lon(value: Any) -> str:
@@ -60,7 +62,8 @@ def _format_lon(value: Any) -> str:
     except Exception:
         return str(value)
     hemi = "E" if val >= 0 else "W"
-    return f"{abs(val):.0f}°{hemi}"
+    degrees = f"{abs(val):.2f}".rstrip("0").rstrip(".")
+    return f"{degrees}°{hemi}"
 
 
 def _format_numeric(value: Any) -> str:
@@ -253,12 +256,12 @@ def build_axis_rig_meta(
             tick_payload = []
             for tick in ticks:
                 frac = (tick - t0).total_seconds() / denom
-                tick_payload.append({"frac": float(frac), "label": _format_time_label(tick)})
+                tick_payload.append({"frac": float(frac), "label": _format_time_label(tick, spec.time_format)})
             tick_payload = _subsample_tick_labels(tick_payload, spec.time_label_max)
             return {
                 "name": axis_name,
-                "min_label": _format_time_label(t0),
-                "max_label": _format_time_label(tN),
+                "min_label": _format_time_label(t0, spec.time_format),
+                "max_label": _format_time_label(tN, spec.time_format),
                 "ticks": tick_payload,
             }
 
@@ -304,7 +307,7 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
       font-size: var(--cd-axis-font, var(--cube-axis-font-size, 13px));
       letter-spacing: 0.04em;
       /* Axis rig lives in cube-local coords; out-z anchors to front face, Y labels shift left for legibility. */
-      --cd-axis-color: rgba(25, 25, 25, 0.9);
+      --cd-axis-color: var(--cube-axis-color, rgba(25, 25, 25, 0.9));
       --cd-axis-out-x: 16px;
       --cd-axis-out-y: 14px;
       --cd-axis-front-z: calc(0.5 * var(--cd-cube-size, var(--cube-size)));
@@ -351,10 +354,12 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
     .cd-axis-ticks {
       position: absolute;
       inset: 0;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick {
       position: absolute;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick-mark {
@@ -365,17 +370,24 @@ def axis_rig_css(spec: AxisRigSpec) -> str:
     .cd-axis-label {
       position: absolute;
       white-space: nowrap;
+      transform-style: preserve-3d;
+    }
+
+    .cd-axis-tick-label {
+      transform-style: preserve-3d;
     }
 
     .cd-axis-label-face {
       display: inline-block;
       padding: var(--cd-axis-pill-px, 0px);
       transform-style: preserve-3d;
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* Invert the camera in reverse order: (Rx Ry)^-1 = Ry^-1 Rx^-1. */
+      transform: rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     .cd-axis-label-face--time {
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* First cancel the time edge's local 90-degree rotation. */
+      transform: rotateY(-90deg) rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     /* X axis (longitude) - front bottom edge */
@@ -704,7 +716,9 @@ def axis_rig_js(viewer_id: str) -> str:
             mark.className = "cd-axis-tick-mark";
             tickEl.appendChild(mark);
 
-            if (tick.label && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {{
+            const hasEndLabel = !axisRig.classList.contains("cd-axis-rig--hide-end-labels")
+              && (tick.frac === 0 || tick.frac === 1);
+            if (tick.label && !hasEndLabel && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {{
               const label = document.createElement("div");
               label.className = "cd-axis-tick-label";
               const labelFace = document.createElement("span");

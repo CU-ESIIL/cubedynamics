@@ -313,6 +313,7 @@
 .cd-deferred-embed[data-loaded="true"] .cd-embed-loader {
   visibility: hidden;
   opacity: 0;
+  pointer-events: none;
 }
 
 .cd-embed-loader button {

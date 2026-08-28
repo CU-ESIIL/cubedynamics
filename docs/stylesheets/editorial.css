@@ -471,6 +471,45 @@ input {
   box-shadow: 0 0.8rem 2.4rem rgba(23, 36, 44, 0.1);
 }
 
+/* The general embed rule uses min-height:100%. In this flex column that
+   would consume the entire hero and push the selector outside its clip. */
+.cd-html-cube-frame.cd-deferred-embed {
+  min-height: 25rem;
+  flex: 0 0 auto;
+}
+
+.cd-cube-picker {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.65rem;
+}
+
+.cd-cube-picker label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #213e46;
+}
+
+.cd-cube-picker select {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.25rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #aab9b8;
+  border-radius: 4px;
+  background: #f4f6f3;
+  color: #213e46;
+  font: inherit;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color-scheme: light;
+}
+
+.cd-cube-picker select:focus-visible { outline: 2px solid #267c83; outline-offset: 3px; }
+.cd-cube-links { display: grid; gap: 0.4rem; flex: 0 0 auto; }
+
 .cd-html-cube-frame iframe {
   width: 100%;
   height: 100%;

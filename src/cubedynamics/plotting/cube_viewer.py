@@ -290,6 +290,7 @@ def _render_cube_html(
 <html lang=\"en\">
 <head>
   <meta charset=\"UTF-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
     <style>
     :root {{
       /* Viewer override hooks:
@@ -426,7 +427,7 @@ def _render_cube_html(
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }}
 
     .cube-drag-surface {{
@@ -456,7 +457,7 @@ def _render_cube_html(
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }}
 
     .scene-drag-surface {{
@@ -601,7 +602,7 @@ def _render_cube_html(
       margin-top: 6px;
     }}
     .cube-legend-card {{
-      background: #ffffff;
+      background: var(--cube-panel-color);
       padding: 8px 12px;
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
@@ -656,7 +657,7 @@ def _render_cube_html(
                 {vase_html}
                 {axis_rig_markup}
               </div>
-              <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\"></div>
+              <div class=\"cube-drag-surface\" id=\"cube-drag-{viewer_id}\" tabindex=\"0\" role=\"img\" aria-label=\"Interactive cube. Drag or use arrow keys to rotate; scroll or press plus and minus to zoom; Home resets the view.\"></div>
             </div>
 
             <div class=\"axis-label cube-label cube-label-x axis-x-min\">{x_meta.get('min','')}</div>
@@ -754,6 +755,20 @@ def _render_cube_html(
 
         applyCubeRotation();
 
+        const controlView = (action) => {{
+          if (action === "reset") {{
+            rotationX = (parseFloat(data.rotX) || 0) * Math.PI / 180;
+            rotationY = (parseFloat(data.rotY) || 0) * Math.PI / 180;
+            zoom = parseFloat(data.zoom) || 1;
+          }} else if (action === "in" || action === "out") {{
+            zoom = Math.min(zoomMax, Math.max(zoomMin, zoom * (action === "in" ? 0.85 : 1.18)));
+          }}
+          applyCubeRotation();
+        }};
+        root.querySelectorAll("[data-cube-control]").forEach(button => {{
+          button.addEventListener("click", () => controlView(button.dataset.cubeControl));
+        }});
+
         let dragging = false;
         let activePointerId = null;
         let startX = 0, startY = 0;
@@ -787,6 +802,18 @@ def _render_cube_html(
         if (dragSurface) {{
           dragSurface.style.cursor = "grab";
           dragSurface.style.touchAction = "none";
+          dragSurface.addEventListener("keydown", e => {{
+            const actions = {{Home: "reset", "+": "in", "=": "in", "-": "out"}};
+            if (actions[e.key]) {{
+              e.preventDefault();
+              controlView(actions[e.key]);
+            }} else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {{
+              e.preventDefault();
+              rotationY += e.key === "ArrowLeft" ? -0.12 : e.key === "ArrowRight" ? 0.12 : 0;
+              rotationX += e.key === "ArrowUp" ? -0.12 : e.key === "ArrowDown" ? 0.12 : 0;
+              applyCubeRotation();
+            }}
+          }});
 
           dragSurface.addEventListener("pointerdown", e => {{
             e.preventDefault();

@@ -1,11 +1,33 @@
 """Small MkDocs adapters for reference navigation and notebook links."""
 import html
+import json
 from pathlib import Path, PurePosixPath
 import posixpath
 import re
 from urllib.parse import urlsplit, urlunsplit
 
 from mkdocs.utils import get_relative_url
+
+
+def on_page_markdown(markdown, page, config, files):
+    if page.file.src_uri != "index.md":
+        return markdown
+    # Render all choice labels and fallback links during the site build.
+    # No client-side catalog fetch or eager loading of the example viewers.
+    manifest = Path(config["docs_dir"]) / "assets/figures/hero_examples.json"
+    examples = json.loads(manifest.read_text())["examples"]
+    groups = {}
+    links = []
+    for example in examples:
+        fields = {key: html.escape(str(value), quote=True) for key, value in example.items()}
+        option = (f'<option value="{fields["path"]}" data-title="{fields["title"]}" '
+                  f'data-description="{fields["description"]}" data-kind="{fields["kind"]}" '
+                  f'data-lesson="{fields["lesson"]}">{fields["label"]}</option>')
+        groups.setdefault(example["group"], []).append(option)
+        links.append(f'<li><a href="{fields["path"]}">{fields["label"]}</a></li>')
+    options = "\n".join(f'<optgroup label="{html.escape(group, quote=True)}">' + "\n".join(items) + '</optgroup>'
+                        for group, items in groups.items())
+    return markdown.replace("<!-- HERO_EXAMPLE_OPTIONS -->", options).replace("<!-- HERO_EXAMPLE_LINKS -->", "\n".join(links))
 
 
 def on_config(config):
