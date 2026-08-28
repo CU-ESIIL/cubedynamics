@@ -83,6 +83,7 @@ nav:
           - Full public API: api/index.md
           - Objects: api/objects.md
           - Public API and stability: project/public_api.md
+          - 0.1 API support contract: project/api_support_0_1.md
           - Methods and citation: methods_and_citation.md
       - Developer documentation:
           - Developer directory: developer/index.md
@@ -100,6 +101,8 @@ nav:
               - Reproducible visual examples: dev/visual_documentation.md
               - Site analytics and SEO: project/site_analytics_seo.md
               - Changelog: changelog.md
+              - 0.1.0 release notes: project/release_0_1_0.md
+              - Dependency audit: project/dependency_audit_0_1.md
           - Architecture and contracts:
               - Spatial and CRS contract: design/spatial_dataset_contract.md
               - Cube viewer invariants: dev/cube_viewer_invariants.md

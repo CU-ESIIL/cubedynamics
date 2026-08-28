@@ -1,0 +1,5 @@
+# Repository tests and reviewed scientific inputs are not distribution data.
+prune tests
+prune src/cubedynamics/tests
+global-exclude __pycache__ *.py[cod] .DS_Store
+include CITATION.cff

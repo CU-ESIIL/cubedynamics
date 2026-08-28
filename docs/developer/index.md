@@ -5,6 +5,7 @@ selection, return to [Documents](../documentation/index.md).
 
 ## Contribute and test
 
+- [0.1 API support](../project/api_support_0_1.md), [release notes](../project/release_0_1_0.md), and [dependency audit](../project/dependency_audit_0_1.md)
 - [Contributing](../dev/contributing.md) and [CI and browser testing](../dev/ci_testing.md)
 - [Source lifecycle and certification](../dev/source_lifecycle.md)
 - [Source engineering and retained evidence](../data/source_projects/index.md) and [operational readiness](../data/source_projects/production.md)

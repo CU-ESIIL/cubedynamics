@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "CubeDynamics: Streaming Climate Cube Math for Environmental Data Science"
+title: "CubeDynamics: A Composable Grammar for Spatiotemporal Science"
 message: "If you use CubeDynamics, please cite it as described here."
 type: software
 authors:
@@ -16,9 +16,8 @@ keywords:
   - dask
 license: MIT
 abstract: |
-  CubeDynamics (`cubedynamics`) is a streaming-first Python library for
-  constructing multi-source climate data cubes, computing variance and
-  correlation diagnostics, and exporting derived "lexcubes" for dashboards and
-  climate resilience workflows.
-  Add the Zenodo DOI to this citation record after the first tagged release is
-  archived.
+  CubeDynamics is an early scientific Python software release centered on
+  pipe(value) | verb() composition over labeled spatiotemporal objects.
+  It includes documented source loaders, provenance and QA interfaces,
+  visualization, and project-specific vocabularies. Version 0.1.0 is alpha;
+  source suitability and operational maturity are documented separately.

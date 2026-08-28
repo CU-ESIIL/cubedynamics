@@ -16,6 +16,10 @@ support. Development and documentation CI use Python 3.11; the offline test
 matrix covers 3.9–3.12. These are repository metadata and CI targets, not a claim
 that an installed PyPI release contains every change on `main`.
 
+For the first public alpha release candidate, see the [0.1 support contract](docs/project/api_support_0_1.md),
+[release-note draft](docs/project/release_0_1_0.md), and [non-publishing release checklist](RELEASING.md).
+The candidate artifact targets `0.1.0`; it is not a published release or tag.
+
 ## Start here
 
 The [website](https://cu-esiil.github.io/cubedynamics/) has five entry points:

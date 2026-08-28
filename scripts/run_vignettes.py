@@ -15,6 +15,8 @@ import nbformat
 from PIL import Image
 from nbclient import NotebookClient
 from nbclient.exceptions import CellExecutionError
+from jupyter_client import KernelManager
+from jupyter_client.kernelspec import KernelSpecManager
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,10 +39,36 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--timeout", type=int, default=120, help="Seconds per cell")
     parser.add_argument("--output-dir", type=Path, help="Optionally retain executed notebooks and a run manifest")
-    return parser.parse_args()
+    parser.add_argument("--wheel", type=Path, help="Release mode: require this exact installed wheel in every kernel")
+    parser.add_argument("--kernel-python", type=Path, help="External wheel environment Python (requires --wheel)")
+    args = parser.parse_args()
+    if bool(args.wheel) != bool(args.kernel_python):
+        parser.error("--wheel and --kernel-python must be supplied together")
+    return args
 
 
-def execute(path: Path, *, timeout: int, runtime_dir: Path, output_dir: Path | None = None) -> dict:
+def release_kernel(runtime_dir, kernel_python):
+    """Own the kernelspec; never silently use a user's editable python3 kernel."""
+    directory = runtime_dir / "kernels" / "cubedynamics-release"
+    directory.mkdir(parents=True, exist_ok=True)
+    # Keep the venv symlink path: resolving it would select the base interpreter.
+    spec = {"argv": [str(kernel_python.absolute()), "-I", "-m", "ipykernel_launcher", "-f", "{connection_file}"],
+            "display_name": "CubeDynamics release wheel", "language": "python"}
+    (directory / "kernel.json").write_text(json.dumps(spec))
+    manager = KernelSpecManager(kernel_dirs=[str(directory.parent)], ensure_native_kernel=False)
+    return KernelManager(kernel_name="cubedynamics-release", kernel_spec_manager=manager)
+
+
+def release_guard(wheel):
+    script = ROOT / "scripts/check_release_artifact.py"
+    return ("import runpy as _release_runpy, json as _release_json\n"
+            f"_release_api = _release_runpy.run_path({str(script)!r})\n"
+            f"_release_install = _release_api['check_installed_wheel']({str(wheel.resolve())!r}, {str(ROOT)!r})\n"
+            "print(_release_json.dumps(_release_install))\n")
+
+
+def execute(path: Path, *, timeout: int, runtime_dir: Path, output_dir: Path | None = None,
+            wheel: Path | None = None, kernel_python: Path | None = None) -> dict:
     notebook = nbformat.read(path, as_version=4)
     metadata = notebook.metadata.get("cubedynamics", {})
     if not metadata.get("supported_vignette", False):
@@ -48,14 +76,24 @@ def execute(path: Path, *, timeout: int, runtime_dir: Path, output_dir: Path | N
     if metadata.get("network", True):
         raise ValueError(f"{path} does not declare network=false")
 
+    kernel_args = {}
+    if wheel is not None:
+        if kernel_python is None or not kernel_python.is_file() or not wheel.is_file():
+            raise ValueError("Release mode requires an existing wheel and external kernel Python")
+        kernel_args["km"] = release_kernel(runtime_dir, kernel_python)
+        guard = release_guard(wheel)
+        notebook.cells.insert(0, nbformat.v4.new_code_cell(guard))
+        notebook.cells.append(nbformat.v4.new_code_cell(guard))
+
     client = NotebookClient(
         notebook,
         timeout=timeout,
         kernel_name="python3",
         resources={"metadata": {"path": str(ROOT)}},
+        **kernel_args,
     )
     try:
-        client.execute()
+        client.execute(cleanup_kc=True)
     except CellExecutionError as exc:
         raise RuntimeError(f"vignette failed: {path.relative_to(ROOT)}") from exc
 
@@ -74,6 +112,9 @@ def execute(path: Path, *, timeout: int, runtime_dir: Path, output_dir: Path | N
     nbformat.write(notebook, executed)
     result = {"notebook": str(path.relative_to(ROOT)), "plots": plot_count,
         "visual_steps": sum(bool(c.metadata.get("visual_example")) for c in notebook.cells)}
+    if wheel is not None:
+        stdout = "".join(o.get("text", "") for o in notebook.cells[-1].outputs if o.get("name") == "stdout")
+        result["installed_wheel"] = json.loads(stdout)
     print(f"PASS {path.relative_to(ROOT)} ({plot_count} plots)")
     return result
 
@@ -144,7 +185,8 @@ def main() -> int:
         results = []
         for raw_path in paths:
             path = raw_path if raw_path.is_absolute() else ROOT / raw_path
-            results.append(execute(path.resolve(), timeout=args.timeout, runtime_dir=runtime_dir, output_dir=args.output_dir))
+            results.append(execute(path.resolve(), timeout=args.timeout, runtime_dir=runtime_dir,
+                                   output_dir=args.output_dir, wheel=args.wheel, kernel_python=args.kernel_python))
         if args.output_dir:
             (args.output_dir / "execution.json").write_text(json.dumps(results, indent=2) + "\n")
 

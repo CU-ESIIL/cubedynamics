@@ -103,6 +103,7 @@ Issues = "https://github.com/CU-ESIIL/cubedynamics/issues"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
+include-package-data = false
 
 [tool.setuptools.package-data]
 "cubedynamics.viewers" = ["templates/*.html"]
@@ -111,3 +112,4 @@ package-dir = { "" = "src" }
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["cubedynamics*", "climate_cube_math*"]
+exclude = ["cubedynamics.tests", "cubedynamics.tests.*"]

@@ -4,6 +4,11 @@ This audit records the repository state on 12 August 2026 and turns it into a
 publication plan. It distinguishes changes that are safe before a `0.x`
 release from moves that need an explicit archival decision.
 
+This page is a historical audit, not the current release checklist. For the
+0.1.0 alpha candidate see [release notes](release_0_1_0.md),
+[API support](api_support_0_1.md), and [dependency decisions](dependency_audit_0_1.md).
+Current navigation is Home / Learn / Library / Documents / Vignettes.
+
 ## Executive finding
 
 CubeDynamics has a coherent core, but the repository does not yet present that

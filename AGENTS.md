@@ -215,6 +215,14 @@ old URLs. Do not add tabs or redesign navigation as a side effect of API work.
 - `scripts/docs_hooks.py` derives reference navigation and rewrites notebook
   links. Library categories follow generated entries; multi-source noun pages
   explain differences without asserting scientific equivalence.
+- Release support and maturity are documented in `docs/project/api_support_0_1.md`,
+  `docs/project/release_0_1_0.md`, and `docs/project/dependency_audit_0_1.md`.
+  `RELEASING.md` and `scripts/run_release_gate.py` define the non-publishing gate.
+  `scripts/check_release_artifact.py` rejects checkout imports and checks exact
+  installed wheel bytes. `run_vignettes.py --wheel ... --kernel-python ...`
+  pins each kernel to an external environment and audits imports before/after.
+  Tests/fixtures are deliberately excluded from distributions, not removed
+  from Git. Curated release evidence belongs in `manifests/releases/`.
 - `docs/overrides/` contains theme overrides, not published content. The
   homepage viewer is deferred; preserve accessible fallback links and loading.
 - Keep noun → verb → Learn/vignette cross-links. Verify links after notebook

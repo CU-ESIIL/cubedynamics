@@ -3315,3 +3315,78 @@ secrets, credentials, private tokens, or unrelated transcript text.
   14 passed. `git diff --check` passed.
 - No source-repository commit, push or deployment. The newly unignored
   elevation.nc must be included with these changes when committing.
+
+## 2026-08-28 — 0.1.0 release hardening, without publication
+
+- User requested a release-only audit and full artifact gate, with no new
+  scientific features, source promotion, branch protection/permission changes,
+  tags, publication, DOI fabrication, module extraction or research deletion.
+  Inspected AGENTS, metadata, API/runtime imports, all workflows, catalog,
+  installed candidates, notebook/figure owners and release-manifest tooling
+  before editing. Base commit: 57a32dd81829ee29092bdf2b45c92aac6e889660.
+- pyproject/runtime/both citation versions were already 0.1.0, with alpha
+  appropriate. Citation descriptions were outdated and the docs copy lacked
+  URL/license. Active release version 1.1.0 was not found; matches were external
+  dependency versions and GeoParquet metadata, not package releases. Historical
+  publication/changelog navigation language was marked historical, not erased.
+- The first real isolated build/Twine check passed, but archive inspection
+  found nine internal test files in the wheel and 121 test files in the sdist.
+  Added narrow package-discovery exclusions and MANIFEST.in pruning; required
+  serving_history.json, viewer template, runtime code and climate_cube_math
+  remain. No fixtures, research outputs, manuscripts or evidence are packaged.
+- Added check_release_artifact.py: archive inventory/version/runtime parity,
+  exact installed wheel SHA and file-byte checks, rejection of checkout/editable
+  imports, package-only deterministic unit control, and actual README PRISM
+  code against its external reviewed fixture with numerical/figure validation.
+- Added explicit run_vignettes.py release mode with an external isolated kernel
+  interpreter and before/after installed-wheel guards. Default development
+  execution is preserved. The source notebooks remain unchanged;
+  real-data fixtures remain repository inputs rather than package data.
+- Added a non-publishing run_release_gate.py using existing source lifecycle
+  inventory/manifests, with command logs, exact wheel/sdist identity, actual
+  Python/platform versus configured CI targets, source QA scope and candidate
+  caveats. Failed/incomplete gates and changed release inputs cannot be marked
+  ready. The manifest excludes its own digest to avoid a self-reference loop.
+- Added explicit 0.1 support classes, dependency audit, release-note draft and
+  release checklist. Both citation files now match with no DOI. Runtime
+  dependencies and scientific APIs are unchanged. Candidate USGS/3DEP/Overture/
+  OSM remain outside the eight-noun catalog; Daymet remains BLOCKED.
+- CI package checks now cover clean-wheel imports/README/replay across the
+  existing Python 3.9–3.12 targets, with all wheel notebooks on 3.11. Publish
+  builds gain artifact checks but no trigger, environment, permissions or
+  branch-policy changes. No workflow was dispatched. New tests cover archive
+  payload rejection, missing assets, version/citation consistency, editable
+  rejection, kernel identity and refusal to record incomplete gates.
+- Manually inspected seven current noun figures: three terrain, three roads
+  and raw USGS discharge. References expose the first figure and link to the
+  complete three-plot lessons; the native datum, lack of OSM/Overture scientific
+  equivalence, and USGS provisional status remain explicit.
+- Full non-publishing gate passed on macOS arm64 / Python 3.11.11: isolated
+  build, Twine, archive inspection, fresh outside-checkout wheel-only install,
+  pip check, installed grammar/compatibility checks, the actual README PRISM
+  analysis and figure, candidate wheel replay, and all 12 supported notebooks
+  against the exact wheel. Package code resolved to the external environment's
+  site-packages; real fixtures remained external inputs. Evidence and resolved
+  dependencies: artifacts/release-0.1.0/; curated record:
+  manifests/releases/v0.1.0-candidate.json.
+- Offline suite: 715 passed, 5 skipped; streaming contracts: 32 passed;
+  Chromium built-site suite: 354 passed. Ordinary notebook execution,
+  publication validation (five modules plus 12 notebooks), source/decision QA,
+  all generated visual/reference/noun/streamflow/source-project checks, strict
+  MkDocs build, internal file/anchor links, tracked repository policy and diff
+  checks passed. Repository policy also checked all eight new files. Source
+  fixture baselines retain PASS_WITH_CAVEATS, not live endpoint certification.
+- After clarifying that crc32c has no direct runtime import, rebuilt the site
+  strictly, rechecked all internal links and reran the affected dependency-audit
+  page in Chromium (1 passed). The 21 base dependencies remain unchanged;
+  review unused crc32c and cleaner optional boundaries in a separate 0.2 pass.
+- Final wheel: cubedynamics-0.1.0-py3-none-any.whl (292,722 bytes), SHA256
+  462b8bb41d749fd16f5e47f5e9e9f168c61ed2c44139042c4dfd99f5ce8ab029.
+  Sdist: cubedynamics-0.1.0.tar.gz (253,083 bytes), SHA256
+  e61f510d57592dee8a903e49a7c6c0fb3665437ffeaff62224012f6d2458eae9.
+- Ready for v0.1.0rc1 review; artifacts themselves remain version 0.1.0 and no
+  rc tag exists. This is a base commit plus an uncommitted, hash-recorded overlay.
+  Python 3.9/3.10/3.12 CI runs are configured, not locally observed. Existing
+  dependency deprecation warnings and limited provider/fixture coverage remain
+  caveats. No scientific runtime edits, dependency moves, source promotion,
+  commit, push, tag, publication, DOI, branch protection or permission changes.

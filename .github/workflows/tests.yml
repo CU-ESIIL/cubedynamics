@@ -75,7 +75,11 @@ jobs:
 
   package:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -83,23 +87,37 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
           cache: pip
 
       - name: Build distribution artifacts
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[test]"
+          pip install -e ".[test,vignettes]"
           python -m build
           python -m twine check dist/*
+          python scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0-py3-none-any.whl --sdist dist/cubedynamics-0.1.0.tar.gz --inspect-only --output artifacts/release/distributions.json
 
       - name: Install built wheel in clean environment
         run: |
-          python -m venv .pkg-venv
-          .pkg-venv/bin/pip install --upgrade pip
-          .pkg-venv/bin/pip install dist/*.whl
-          .pkg-venv/bin/python -c "import cubedynamics; import cubedynamics.verbs; print(cubedynamics.__version__)"
-          .pkg-venv/bin/python scripts/check_candidate_wheel.py
+          python -m venv "$RUNNER_TEMP/cubedynamics-wheel"
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install dist/cubedynamics-0.1.0-py3-none-any.whl
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip check
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0-py3-none-any.whl --sdist dist/cubedynamics-0.1.0.tar.gz --repo-example --output artifacts/release/installed.json
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_candidate_wheel.py
+
+      - name: Run supported notebooks against the wheel
+        if: matrix.python-version == '3.11'
+        run: |
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install 'dist/cubedynamics-0.1.0-py3-none-any.whl[vignettes]'
+          python scripts/run_vignettes.py --wheel dist/cubedynamics-0.1.0-py3-none-any.whl --kernel-python "$RUNNER_TEMP/cubedynamics-wheel/bin/python" --output-dir artifacts/release/wheel-notebooks
+
+      - name: Preserve release evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-wheel-${{ matrix.python-version }}
+          path: artifacts/release/
 
   docs:
     runs-on: ubuntu-latest

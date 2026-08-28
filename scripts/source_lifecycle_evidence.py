@@ -72,7 +72,8 @@ def release_manifest(output, reports=(), qa_roots=()):
     changed = subprocess.check_output(["git", "diff", "--name-only", "HEAD"], cwd=ROOT, text=True).splitlines()
     untracked = subprocess.check_output(["git", "ls-files", "--others", "--exclude-standard"], cwd=ROOT, text=True).splitlines()
     result["working_tree_changes"] = {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-        if (ROOT / name).is_file() else "deleted" for name in sorted(set(changed + untracked))}
+        if (ROOT / name).is_file() else "deleted" for name in sorted(set(changed + untracked))
+        if (ROOT / name).resolve() != output.resolve()}
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     return result

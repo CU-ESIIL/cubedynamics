@@ -2,6 +2,10 @@
 
 This page describes the supported, user-facing surface of `cubedynamics` and how it is intended to evolve. Anything not listed here should be treated as internal and subject to change between releases.
 
+For the alpha release, the [explicit 0.1 support contract](api_support_0_1.md)
+distinguishes stable behavior, evolving reports, projects, candidates,
+compatibility and reserved names. Exported does not mean production-certified.
+
 ## Canonical namespace
 
 Import the library as:
@@ -129,7 +133,9 @@ Internal modules may be refactored or renamed as the streaming architecture stab
 CubeDynamics follows semantic versioning for the public surface described above:
 
 - **Patch releases (`0.x.y`)**: bug fixes only; no breaking changes to documented public symbols.
-- **Minor releases (`0.y`)**: may add new verbs or loaders; existing public APIs remain compatible, but internal modules can change.
+- **Minor releases (`0.y`)**: may evolve early interfaces with release notes and migration guidance; preserve the named stable subset deliberately rather than casually breaking it.
 - **Major releases (`1.0` and beyond)**: may remove deprecated aliases after advance notice.
 
-Deprecated entry points will emit `DeprecationWarning` with guidance on the replacement and a planned removal version. Legacy aliases remain available until the stated removal window.
+Warning-emitting deprecated entry points remain available in 0.1. Some older
+shims do not yet specify a removal version; do not invent one. Compatibility
+aliases without warnings are not automatically deprecated.
