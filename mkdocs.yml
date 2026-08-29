@@ -101,7 +101,7 @@ nav:
               - Reproducible visual examples: dev/visual_documentation.md
               - Site analytics and SEO: project/site_analytics_seo.md
               - Changelog: changelog.md
-              - 0.1.0 release notes: project/release_0_1_0.md
+              - 0.1.0rc1 release notes: project/release_0_1_0.md
               - Dependency audit: project/dependency_audit_0_1.md
           - Architecture and contracts:
               - Spatial and CRS contract: design/spatial_dataset_contract.md

@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "fa2cb9260610a77ddceb53817dc808e36d0bc56d",
+    "git_sha": "862a80aed8a2781b40e6e5293fd6cfbcba887aa4",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -579,7 +579,7 @@
     "src/cubedynamics/streaming/__init__.py": "6258819d8698f2dfd7273a9b886ec2d276c76d5ca7652f8caec94e0d5e6fbe4a",
     "src/cubedynamics/streaming/global_climate.py": "f2cb2e056d34e7082424bca8146c45c2bbdba3733fb84c9dd86f22d06f545852",
     "src/cubedynamics/streaming/gridmet.py": "f5122cc9d263dd9fe0e44ba06f60a015671f34ad030019ad5b9ea01852d8d804",
-    "src/cubedynamics/streaming/virtual.py": "956fe1a14c913de3fd6b8950806511407e5ce6e463e424aa4773e43c7b80d408",
+    "src/cubedynamics/streaming/virtual.py": "3108c2ee454cac5604335e555945052f2a30d47d937e6a32fd779dd7f7de6ace",
     "src/cubedynamics/synchrony/__init__.py": "51eb8954378544d8baa17523f6a5cbefb2ff27349f0067d1b1834fbc1b1dbb64",
     "src/cubedynamics/synchrony/coupling.py": "83441d37552e92442237d7de01c38c6b9c266de392bee9c5d961cac41ee09f06",
     "src/cubedynamics/synchrony/occurrence.py": "721e5b2a27d6327a82503d60220ba29a397012ddb6a6ed4cd9115f744fbeccb4",
@@ -625,7 +625,7 @@
     "src/cubedynamics/verbs/synchrony.py": "66df50f622cbc6968ca156d2a1b08d93bb82103148e53bc22bdcb1d5f3839bd6",
     "src/cubedynamics/verbs/tubes.py": "148c26bf82aa8a8e71f65586bae2f417f83314cef0cb3c07f0ac9436f6282fa4",
     "src/cubedynamics/verbs/vase.py": "b9b7a1580b6774dec533daa7438f4dc54ecf8707f4f265f7809b4bba6d2d11cf",
-    "src/cubedynamics/version.py": "29018f3f042e771da6374de4f1eedf30fc246889123fe83dfacf61bc3c77b2b6",
+    "src/cubedynamics/version.py": "5aff1387d57ebdb1b6b9713a8d9567f37c2f8e767e9a01be65a30cbb967b8296",
     "src/cubedynamics/viewers/__init__.py": "5a53d090c36d3c8b4303204da667226b996c3bc23bbb2342732e7486d68deadd",
     "src/cubedynamics/viewers/cube_viewer.py": "8505d96f14e8c0fc196776d0cce9d8859179404ff10e2e805074c118526f1306",
     "src/cubedynamics/viewers/simple_plot.py": "7dc6c90d34cba1b600c31f4c122ac85da2f46844d6b016b881aa1b93426e1ab9",

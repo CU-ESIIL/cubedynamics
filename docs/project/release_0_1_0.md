@@ -1,10 +1,30 @@
-# 0.1.0 release notes — draft
+# 0.1.0rc1 release notes — not published
 
 **First public alpha / early scientific software release. Not yet published.**
-These notes describe the proposed 0.1.0 artifact, not a GitHub release, PyPI
-upload, DOI, or source-promotion decision. An RC review labeled `v0.1.0rc1`
-does not change the artifact version to `0.1.0rc1`; that would require another
-explicit version change, build and validation.
+This is the **first release candidate**, intended for outside-user acceptance
+testing. The package version is actually `0.1.0rc1`; it is not a relabeled
+`0.1.0` wheel. No GitHub Release, PyPI upload, DOI, or source promotion has
+occurred in this preparation task.
+
+## Installation and acceptance testing
+
+**Current state: not published.** Install only a maintainer-supplied tested
+wheel with its SHA256, or wait for public assets. After GitHub publication:
+
+```bash
+python -m pip install "https://github.com/CU-ESIIL/cubedynamics/releases/download/v0.1.0rc1/cubedynamics-0.1.0rc1-py3-none-any.whl"
+```
+
+That URL is future/post-publication, not currently available. After separate
+PyPI publication, use `python -m pip install cubedynamics==0.1.0rc1`.
+See [installation](../getting_started/install.md) for fresh environments,
+checksums, and the distinction from a future final release. The
+[quickstart](../quickstart.md) needs no source checkout.
+
+Please report problems in [GitHub Issues](https://github.com/CU-ESIIL/cubedynamics/issues)
+with the wheel SHA256, Python/platform, `pip check`, package version/import
+path, minimal code and full traceback. Do not include credentials. A failed
+public install is a release blocker, not permission to substitute a clone.
 
 ## Ready for documented use
 
@@ -60,7 +80,7 @@ modules extracted during this release pass.
 ## Release evidence
 
 The curated candidate record lives in `manifests/releases/` in the repository;
-large logs and executed notebooks remain under ignored `artifacts/release-0.1.0/`.
+large logs and executed notebooks remain under ignored `artifacts/release-0.1.0rc1/`.
 Records distinguish the base commit from uncommitted release-hardening changes,
 actual Python versions exercised from configured CI targets, and fixture checks
 from live certification. Rebuild after release-relevant changes; old hashes do

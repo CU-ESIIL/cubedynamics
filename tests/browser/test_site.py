@@ -11,6 +11,21 @@ from scripts.hero_examples import EXAMPLES
 pytestmark = [pytest.mark.browser, pytest.mark.integration]
 
 
+def test_outside_user_installation_journey(page, site_base):
+    page.goto(site_base)
+    page.get_by_role("link", name="Installation status and release instructions").click()
+    expect(page.locator("article h1")).to_have_text("Installation & setup")
+    expect(page.get_by_role("heading", name="Current development state — not published")).to_be_visible()
+    assert "cubedynamics-0.1.0rc1-py3-none-any.whl" in page.locator("article").inner_text()
+    page.locator("article").get_by_role("link", name="Quickstart", exact=True).click()
+    expect(page.get_by_role("heading", name="First executable example — public reviewed observations")).to_be_visible()
+    assert "hashlib.sha256(payload)" in page.locator("article").inner_text()
+    page.locator("article").get_by_role("link", name="installation and release instructions").click()
+    page.locator("article").get_by_role("link", name="RC release notes").click()
+    expect(page.locator("article h1")).to_have_text("0.1.0rc1 release notes — not published")
+    assert "outside-user acceptance" in page.locator("article").inner_text()
+
+
 def test_every_built_page(page, site_base, site_path, link_cache, report_page):
     report = audit_page(page, page_url(site_base, site_path), site_base, link_cache)
     report_page(report, page)

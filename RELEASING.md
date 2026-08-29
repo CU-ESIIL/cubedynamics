@@ -1,89 +1,130 @@
-# Preparing a CubeDynamics release candidate
+# Preparing CubeDynamics v0.1.0rc1
 
-Target: **0.1.0, first public alpha**. A green checkout is not an artifact test.
-Nothing in this checklist tags, publishes, changes permissions or promotes sources.
-Publishing and DOI archival require a separate explicit maintainer decision.
+**Preparation only; not published.** The independent outside-user test stopped
+correctly: plain PyPI installation had no distribution, and the historical
+GitHub releases had no wheel/sdist assets. A source clone is not a remedy.
 
-## Candidate gate
+## Non-publishing gate
 
-Use Python 3.11 and a development environment with browser tooling installed:
+Use Python 3.11 with development and browser tooling. From a **clean committed
+checkout** of the intended release commit:
 
 ```bash
 python -m pip install -e ".[dev,browser]"
 python -m playwright install chromium
-python scripts/run_release_gate.py --output artifacts/release-0.1.0
+python scripts/run_release_gate.py --output artifacts/release-0.1.0rc1
 ```
 
-The gate builds wheel and sdist, runs Twine and archive-content checks, creates
-a new virtual environment outside the checkout, installs only the wheel and
-declared dependencies, tests the package-only grammar, and then adds the
-documented vignette extra. It checks the actual README example against
-external reviewed PRISM input and all twelve notebooks against that wheel.
-Each notebook kernel uses an explicit isolated Python and verifies installed
-package paths, file bytes, version and wheel SHA before and after execution.
+The gate refuses dirty sources and mismatched version tags. It builds with
+`python -m build`, checks wheel/sdist with Twine and archive inspection,
+creates a new external environment, upgrades that environment's pip, installs
+only the wheel plus declared dependencies, and runs `pip check`. It validates
+package-only grammar, help/discovery, the actual README with an external
+reviewed fixture, and the actual no-checkout quickstart using its public pinned
+input. Then it adds the vignette extra and runs all twelve supported notebooks
+against the exact wheel, auditing imports and file hashes in every kernel.
 
-The new environment's pip is upgraded before wheel installation; upgrading
-only the build environment does not update the pip seeded by `venv`. Older pip
-versions can omit the archive hash for local wheels. Missing SHA256 evidence
-is an error, not a mismatch or permission to bypass validation. The checker
-accepts both modern `archive_info.hashes` and legacy `archive_info.hash`
-metadata while rejecting conflicting hashes. When repairing an existing
-environment, upgrade its pip and reinstall the wheel with
-`--force-reinstall --no-deps` to refresh its installation metadata.
+It also runs offline pytest, streaming contracts, ordinary notebooks,
+publication/source/decision QA, generated reference/figure/gallery checks,
+strict docs, links/anchors, all Chromium checks, size policy and diff checks.
+Build/dependency installation and the public quickstart require network;
 
-It also runs offline pytest, streaming contracts, ordinary vignette execution,
-publication/source/decision QA, generated-content checks, strict MkDocs,
-internal links, the Chromium browser suite, and repository-size checks.
-Distribution builds and fresh dependency installation need network access;
-scientific examples are offline. Reports preserve command exit codes and logs.
+scientific fixture QA remains offline. Live provider certification is separate.
 
-For a focused manual artifact check after `python -m build`:
+The result includes filenames, byte sizes and SHA256s; `dist/SHA256SUMS`
+covers exactly the wheel and sdist. Old files elsewhere in `dist/` are not
+automatically uploaded. The prepared files are:
+
+- `cubedynamics-0.1.0rc1-py3-none-any.whl`
+- `cubedynamics-0.1.0rc1.tar.gz`
+
+For a local pre-commit review, `scripts/prepare_release_snapshot.py --output
+artifacts/release-0.1.0rc1/snapshot.json` copies tracked and commit-eligible
+inputs to a new temporary Git repository and records a local snapshot commit.
+Run the gate there with a development environment installed there. This does
+not stage or commit the user's checkout, and **the snapshot is not the eventual
+public release SHA**. Re-run on the reviewed release commit before publication.
+
+## Exact artifact check
 
 ```bash
-python -m twine check dist/*
-python scripts/check_release_artifact.py \
-  --wheel dist/cubedynamics-0.1.0-py3-none-any.whl \
-  --sdist dist/cubedynamics-0.1.0.tar.gz --inspect-only \
-  --output artifacts/release-0.1.0/distributions.json
+python -m twine check dist/cubedynamics-0.1.0rc1-py3-none-any.whl dist/cubedynamics-0.1.0rc1.tar.gz
+python scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0rc1-py3-none-any.whl --sdist dist/cubedynamics-0.1.0rc1.tar.gz --inspect-only --output artifacts/release-0.1.0rc1/distributions.json
 ```
 
-Using an already installed, external wheel environment (replace the example
-absolute Python path; do not use the checkout's editable `.venv`):
+Installed-wheel validation must use an external environment's Python with
+`-I`, not this checkout's editable environment. Upgrade the fresh environment's
+pip before installation: old venv-seeded pip can omit the required archive hash.
+Missing SHA256 evidence remains an error; modern and legacy hash formats are
+both checked. Runtime viewer templates, serving history, compatibility imports,
+and every packaged runtime byte must match. Repository fixtures/tests are
+deliberately absent from distributions.
+
+## Publication workflow — explicit authorization only
+
+`.github/workflows/publish.yml` runs the full gate on the selected commit and
+then checks the **same wheel** across Python 3.9, 3.10, 3.11 and 3.12. Tag pushes
+and a default manual dispatch verify only; they perform no public writes.
+Neither a successful gate nor this document authorizes publication.
+
+After a separate maintainer approval:
+
+1. Review/commit the prepared changes, integrate any newer main commits, and
+   require the full gate and existing test matrix to pass on that final SHA.
+2. Create `v0.1.0rc1` at exactly that SHA. No tag is created by the gate.
+3. Dispatch **Prepare or publish a release** on that existing tag with
+   `destination=github`. The job refuses branch refs and mismatched tags,
+   creates a prerelease, and attaches the tested wheel, sdist and SHA256SUMS.
+   It does not overwrite an existing release. Its job-scoped `contents: write`
+   token is needed for assets; no repository settings/permissions are changed.
+4. Confirm an unauthenticated user can download/install the wheel by the
+   [documented command](docs/getting_started/install.md), and rerun the
+   independent `cubedynamics_test_user` acceptance test without a clone.
+5. Only if separately authorized and PyPI configured, dispatch on the same
+   tag with `destination=pypi`. That run also gates its exact
+   tested artifacts before upload. Never upload a different local build.
+6. After actual availability is confirmed, update the public installation
+   status. Keep final-release commands distinct from the RC. Assign a DOI only
+   after an archive genuinely issues one; update both citations together.
+
+## PyPI manual configuration still remains to be verified
+
+The code uses PyPI trusted publishing (`id-token: write`), not an API token.
+No PyPI credentials, name reservation, or account-side publisher configuration
+has been demonstrated here. Public JSON returning 404 does not prove the name
+can be registered.
+
+For a first project, an authorized PyPI maintainer must set up a
+[pending trusted publisher](https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/)
+with these exact values:
+
+| Field | Value |
+| --- | --- |
+| PyPI project | `cubedynamics` |
+| Repository owner | `CU-ESIIL` |
+| Repository | `cubedynamics` |
+| Workflow filename | `publish.yml` |
+| GitHub environment | `pypi` |
+
+Verify that the repository's existing `pypi` environment and its tag/approval
+rules permit the approved run. No secrets, environments, branch protection or
+permissions are changed by this preparation. A pending publisher does not
+reserve a name or prove an upload will succeed; see
+[PyPI trusted-publisher instructions](https://docs.pypi.org/trusted-publishers/adding-a-publisher/).
+
+After successful PyPI publication only, outside users can run:
 
 ```bash
-/absolute/wheel-env/bin/python -I scripts/check_release_artifact.py \
-  --wheel dist/cubedynamics-0.1.0-py3-none-any.whl --repo-example \
-  --output artifacts/release-0.1.0/installed-example.json
-python scripts/run_vignettes.py \
-  --wheel dist/cubedynamics-0.1.0-py3-none-any.whl \
-  --kernel-python /absolute/wheel-env/bin/python \
-  --output-dir artifacts/release-0.1.0/wheel-notebooks
+python -m pip install cubedynamics==0.1.0rc1
+# Unpinned alternative that also admits later prereleases:
+python -m pip install --pre cubedynamics
 ```
 
-The `.ipynb` sources and reviewed fixtures stay in Git, not the distributions.
-The package-only smoke intentionally uses a tiny deterministic unit input;
-the scientist-facing README and notebook checks use real observations.
+## Review boundaries
 
-## Review before any tag
-
-- Synchronize pyproject/runtime version and both CITATION.cff copies; inspect
-  README, [release notes](docs/project/release_0_1_0.md), and
-  [0.1 support contract](docs/project/api_support_0_1.md).
-- Confirm wheel/sdist hashes, exact tested source snapshot, actual Python
-  versions and resolved dependencies. Configured CI versions are not observed
-  results; rerun the gate after packaging/runtime changes.
-- Review the curated record under `manifests/releases/`. A dirty-tree record
-  names the base commit and hashes the overlay; it is not a release commit.
-- Keep USGS, 3DEP, Overture and OSM as candidates, and Daymet BLOCKED, unless a
-  separately reviewed promotion explicitly changes that state.
-- Keep DOI absent until an archive assigns one. No invented release date.
-- Never upload `dist/*` blindly when it also contains old artifacts or a site.
-
-## Separate future publication decision
-
-Commit and review the changes first. An eventual `0.1.0rc1` package requires a
-deliberate version update and new validation, not relabeling a `0.1.0` wheel.
-The existing publishing workflow can publish on `v*` tags or manual dispatch;
-do not trigger it during preparation. Only after explicit approval should a
-maintainer create a tag/release, publish, archive, and synchronize the assigned
-DOI in both citation files. Branch protection remains the maintainer's choice.
+Read [RC notes](docs/project/release_0_1_0.md),
+[0.1 support](docs/project/api_support_0_1.md), and the curated records in
+`manifests/releases/`. Historical 0.1.0 evidence does not validate 0.1.0rc1.
+Report actual Python/platform runs separately from configured Linux CI targets.
+USGS, 3DEP, Overture and OSM remain candidates; Daymet remains BLOCKED.
+Offline fixture passes do not certify live providers or scientific suitability.

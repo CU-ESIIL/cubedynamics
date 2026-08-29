@@ -1,5 +1,13 @@
 # Installation Guide
 
+**Current state: 0.1.0rc1 is not published.** For the primary no-clone external
+install, use [installation and release instructions](docs/getting_started/install.md).
+Before publication, an outside-user tester needs a maintainer-supplied wheel
+and its SHA256. After publication, install the GitHub wheel asset or PyPI RC.
+The workflows below are contributor/advanced Conda setup, not the acceptance
+installation path; `--no-deps` is appropriate only when dependencies are already
+managed and `python -m pip check` passes.
+
 This guide shows how to set up a stable environment for CubeDynamics (the `cubedynamics` package) using conda/mamba. It avoids dependency thrash by installing heavy geospatial libraries with conda-forge and installing `cubedynamics` separately via pip with `--no-deps`.
 
 ## 1. Prerequisites

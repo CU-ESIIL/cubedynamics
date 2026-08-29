@@ -1,10 +1,32 @@
 import numpy as np
 import pandas as pd
+import pytest
 import xarray as xr
 
 from cubedynamics import pipe, verbs as v
 from cubedynamics.streaming import VirtualCube, make_spatial_tiler, make_time_tiler
 from cubedynamics import variables
+
+
+@pytest.mark.parametrize("frequency, offset", [
+    ("AS", pd.offsets.YearBegin()),
+    ("2AS-APR", pd.offsets.YearBegin(2, month=4)),
+    ("A", pd.offsets.YearEnd()),
+    ("Y", pd.offsets.YearEnd()),
+    ("3A-JUN", pd.offsets.YearEnd(3, month=6)),
+])
+def test_legacy_year_aliases_preserve_calendar_boundaries(frequency, offset):
+    start, end = pd.Timestamp("2019-03-15"), pd.Timestamp("2025-08-20")
+    tiles = list(make_time_tiler(start, end, freq=frequency)({}))
+    edges = [start, *pd.date_range(start, end, freq=offset), end]
+    assert tiles == [{"start": left, "end": right} for left, right in zip(edges[:-1], edges[1:])]
+
+
+def test_nonannual_frequency_is_not_reinterpreted():
+    tiles = list(make_time_tiler("2024-01-01", "2024-01-05", freq="2D")({}))
+    assert [(t["start"].day, t["end"].day) for t in tiles] == [(1, 3), (3, 5)]
+    with pytest.raises(ValueError):
+        list(make_time_tiler("2024-01-01", "2024-01-05", freq="AS-INVALID")({}))
 
 
 def _make_base_cube():

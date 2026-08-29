@@ -1,64 +1,96 @@
 # Installation & setup
 
-CubeDynamics (`cubedynamics`) runs anywhere `xarray` does—laptops, clusters, or hosted notebooks. Use this guide to install the package, configure environments, and find ready-to-run notebooks.
+## Current development state — not published
 
-## Choose an installation source
+CubeDynamics is preparing its first public release candidate, **0.1.0rc1**.
+No CubeDynamics wheel/sdist is currently published on PyPI or attached to the
+existing GitHub Releases. A new user cannot yet install a public release.
+Do not interpret a green source checkout or a GitHub source ZIP as a tested
+package release. Python **3.9–3.12** remains the supported test matrix.
 
-### Install from GitHub today
-
-Grab the latest commits straight from `main`. Installing inside a virtual environment (`venv`, Conda, or `uv`) is recommended but optional.
-
-```bash
-pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
-```
-
-### Install from PyPI once released
-
-The first PyPI release will ship as soon as the streaming loaders stabilize. At that point you can simply run:
+For pre-publication acceptance testing, a maintainer must provide the exact
+tested wheel and its SHA256. In a fresh folder outside any source checkout:
 
 ```bash
-pip install cubedynamics
+python3.11 -m venv cube-env
+source cube-env/bin/activate
+python -m pip install --upgrade pip
+# First compare this file with the maintainer's SHA256 record.
+python -m pip install ./cubedynamics-0.1.0rc1-py3-none-any.whl
+python -m pip check
 ```
 
-Until then, the GitHub install above is the canonical way to pick up fixes and examples.
+On Windows use `cube-env\Scripts\activate`. The wheel installs its
+declared dependencies; neither Git nor an editable installation is needed.
+If you have not received an artifact, wait for publication rather than
+silently switching to a source clone.
 
-## Environment notes
+## Release candidate install — after GitHub publication
 
-- **Python version** – target Python 3.9+; CI covers Python 3.9 through 3.12.
-- **xarray + dask** – both dependencies ship automatically; if you already manage these packages with Conda, install CubeDynamics inside that environment to avoid duplication.
-- **Optional extras** – notebooks rely on `jupyterlab`/`notebook`, Lexcube visualizations require a live frontend (VS Code, JupyterLab, or Binder).
+**Future command, unavailable until the v0.1.0rc1 release is published.**
+In the fresh environment above, install the wheel asset directly:
 
-## First steps after install
+```bash
+python -m pip install "https://github.com/CU-ESIIL/cubedynamics/releases/download/v0.1.0rc1/cubedynamics-0.1.0rc1-py3-none-any.whl"
+python -m pip check
+```
 
-1. Launch a notebook (JupyterLab, VS Code, Colab, Binder, etc.).
-2. Import the helpers and stream a cube:
+The [GitHub Releases page](https://github.com/CU-ESIIL/cubedynamics/releases)
+will expose the wheel, `cubedynamics-0.1.0rc1.tar.gz`, and `SHA256SUMS`.
+For an explicit checksum check, download those assets and use
+`shasum -a 256 -c SHA256SUMS` (macOS) or `sha256sum -c SHA256SUMS` (Linux)
+before installing the local wheel. The sdist is for users who need to build;
+the wheel is the primary outside-user path.
 
-   ```python
-   import cubedynamics as cd
-   from cubedynamics import pipe, verbs as v
+## PyPI prerelease — after separate PyPI publication
 
-   cube = cd.load_prism_cube(
-       lat=40.0,
-       lon=-105.25,
-       start="2000-01-01",
-       end="2020-12-31",
-       variable="ppt",
-   )
+**Future commands; PyPI publication has not occurred.** Once uploaded:
 
-   pipe(cube) \
-       | v.anomaly(dim="time") \
-       | v.month_filter([6, 7, 8]) \
-       | v.variance(dim="time")
-   ```
+```bash
+python -m pip install cubedynamics==0.1.0rc1
+# Or opt into the newest prerelease:
+python -m pip install --pre cubedynamics
+```
 
-3. Continue into the [First PRISM cube guide](../quickstart.md) for more context, AOI patterns, and Lexcube screenshots.
+Pin `==0.1.0rc1` to reproduce this RC. `--pre` can select a later prerelease.
+The [PyPA prerelease specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#handling-of-pre-releases)
+explains selection. Package-name availability and trusted publishing must be
+confirmed by the maintainer; a missing public project is not a reservation.
 
-## Documentation + notebooks
+## Final release — future only
 
-- Read [What is a cube?](../concepts/cubes.md) to align vocabulary.
-- Study [Pipe syntax & verbs](../concepts/pipe_and_verbs.md) for the `pipe(cube) | verbs` grammar.
-- Open the maintained notebooks:
-  - [Quickstart – CubeDynamics](https://github.com/CU-ESIIL/cubedynamics/blob/main/notebooks/quickstart_cubedynamics.ipynb)
-  - [Sentinel-2 NDVI anomaly tutorial](https://github.com/CU-ESIIL/cubedynamics/blob/main/notebooks/example_sentinel2_ndvi_zscore.ipynb)
+After a final release is published, `python -m pip install cubedynamics`
+will be the ordinary stable-release command. It does not work today.
 
-These notebooks match the code snippets in the documentation, so you can copy/paste cells or launch them on Binder for a fully hosted workflow.
+## Verify and start an analysis
+
+```python
+import cubedynamics
+from cubedynamics import data, pipe, verbs as v
+
+print(cubedynamics.__version__)  # 0.1.0rc1
+print(cubedynamics.__file__)     # your environment's site-packages
+print(data.describe("temperature", "prism"))
+help(v.mean)
+```
+
+Continue to the [Quickstart](../quickstart.md). Its first real-data example
+downloads a small, checksum-pinned public PRISM extract into memory;
+it does not require repository files or package-internal fixtures. A separate
+live noun request explains network and provider limitations.
+
+## Notebook and contributor environments
+
+The `vignettes` extra adds execution tooling and a kernel; JupyterLab is a
+separate frontend. To add the extra to a supplied wheel, use
+`python -m pip install './cubedynamics-0.1.0rc1-py3-none-any.whl[vignettes]'`.
+The canonical HTML viewer does not require Lexcube. Complete supported
+notebooks use external reviewed inputs, not bundled package data.
+
+An editable source checkout is only for contributors and full notebook replay;
+see the [Learn setup](../learn/index.md#shared-setup) and
+[contributing guide](../dev/contributing.md). It is not the primary RC install
+or an acceptable fallback for the outside-user package acceptance test.
+
+Read the [RC release notes](../project/release_0_1_0.md) for support boundaries,
+candidate adapters, known limitations, and problem reporting.

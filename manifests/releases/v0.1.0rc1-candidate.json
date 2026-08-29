@@ -1,0 +1,982 @@
+{
+  "artifact_version": "0.1.0rc1",
+  "artifacts": {
+    "sdist": {
+      "bytes": 252869,
+      "filename": "cubedynamics-0.1.0rc1.tar.gz",
+      "sha256": "e07bd7d1383e56e2a65d215554611b01285479b5113edb7b19118cc4e6ad3b83"
+    },
+    "wheel": {
+      "bytes": 294182,
+      "filename": "cubedynamics-0.1.0rc1-py3-none-any.whl",
+      "sha256": "6f5b269b64d7ab1d1cfc9651f1cb9e7caee76a6621275ec77c27439302934d26"
+    }
+  },
+  "callable_statuses": {
+    "compatibility": [
+      "aoi_signature",
+      "compare_aoi_signature",
+      "exceedance",
+      "vase_demo"
+    ],
+    "deprecated": [],
+    "implemented": [
+      "align_cube",
+      "anomaly",
+      "apply",
+      "binary_state",
+      "block_signature",
+      "change_state",
+      "climate_hist",
+      "collect_blocks",
+      "compare_blocks",
+      "detect_events",
+      "diagnostic_panel",
+      "duration_synchrony",
+      "extract",
+      "fire_derivative",
+      "fire_panel",
+      "fire_plot",
+      "fire_vase_panel",
+      "flatten_cube",
+      "flatten_space",
+      "landsat8_mpc",
+      "landsat_ndvi_plot",
+      "landsat_vis_ndvi",
+      "mean",
+      "month_filter",
+      "ndvi_from_s2",
+      "occurrence_synchrony",
+      "overlap",
+      "plot",
+      "plot_mean",
+      "quantile_state",
+      "rasterize_observations",
+      "rolling_median_split_synchrony",
+      "rolling_tail_dep_vs_center",
+      "severity_synchrony",
+      "show_cube_lexcube",
+      "sync_with",
+      "threshold_state",
+      "timing_synchrony",
+      "to_netcdf",
+      "tubes",
+      "variance",
+      "vase",
+      "vase_extract",
+      "vase_mask",
+      "zscore"
+    ],
+    "placeholder": [
+      "correlation_cube",
+      "fit_model"
+    ]
+  },
+  "candidate_adapters": {
+    "osm": "cubedynamics.data.roads.roads",
+    "overture": "cubedynamics.data.roads.roads",
+    "usgs": "cubedynamics.data.usgs.streamflow",
+    "usgs_3dep": "cubedynamics.data.three_dep.elevation"
+  },
+  "candidate_serving_revision": null,
+  "canonical_example": {
+    "code": "README.md marked offline block",
+    "dimensions": [
+      "y",
+      "x"
+    ],
+    "figure": {
+      "bytes": 40455,
+      "filename": "readme-prism.png",
+      "sha256": "c2d9e6f76cb9dc0ef3d16f4a1201552c2456dfbc8263b610c47b0e10319aaa63"
+    },
+    "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7",
+    "status": "PASS"
+  },
+  "certification_records": [
+    {
+      "certification": {
+        "caveats": [
+          "This reviewed extract validates gridMET maximum temperature, not every gridMET variable.",
+          "The current production adapter opens an annual file before selecting the AOI."
+        ],
+        "evidence": {
+          "figure": "gridmet_temperature.png",
+          "fixture_sha256": "a36b2c4e1164d0a85429bc855fd94b32eb708a0f72e6be96f4959fc92bfe2721"
+        },
+        "gates": {
+          "bounded_access_verified": "PASS",
+          "endpoint_verified": "NOT_TESTED",
+          "fixture_integrity": "PASS",
+          "numerical_qa": "PASS",
+          "reusable_qa_profile": "PASS",
+          "sample_retrieved": "PASS",
+          "schema_validated": "PASS",
+          "upstream_identity_verified": "PASS",
+          "visual_qa": "PASS"
+        },
+        "last_validated": "2026-08-29",
+        "mode": "offline_baseline",
+        "outcome": "PASS_WITH_CAVEATS",
+        "serving_revision": "temperature.gridmet@2026-08-26.1"
+      },
+      "path": "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/source_qa/gridmet_temperature.json",
+      "source_flavor": "gridmet"
+    },
+    {
+      "certification": {
+        "caveats": [
+          "This fixture validates PRISM temperature, not every PRISM variable.",
+          "The offline fixture covers one Colorado AOI and one winter month."
+        ],
+        "evidence": {
+          "figure": "prism_temperature.png",
+          "fixture_sha256": "630b8857d8e0e66409bed3c03194ead009506d093adae5411f39727e0c0e4cf7"
+        },
+        "gates": {
+          "bounded_access_verified": "PASS",
+          "endpoint_verified": "NOT_TESTED",
+          "fixture_integrity": "PASS",
+          "numerical_qa": "PASS",
+          "reusable_qa_profile": "PASS",
+          "sample_retrieved": "PASS",
+          "schema_validated": "PASS",
+          "upstream_identity_verified": "PASS",
+          "visual_qa": "PASS"
+        },
+        "last_validated": "2026-08-29",
+        "mode": "offline_baseline",
+        "outcome": "PASS_WITH_CAVEATS",
+        "serving_revision": "temperature.prism@2026-08-26.1"
+      },
+      "path": "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/source_qa/prism_temperature.json",
+      "source_flavor": "prism"
+    },
+    {
+      "certification": {
+        "caveats": [
+          "This extract covers one 640 m South Dakota window and two acquisition dates.",
+          "Cloud metadata are retained, but this baseline does not implement pixel-level cloud masking."
+        ],
+        "evidence": {
+          "figure": "sentinel2_reflectance.png",
+          "fixture_sha256": "eb7c02b01bc741483d28714f7081e08639282685705d5d7a15ff44bf7e97672a"
+        },
+        "gates": {
+          "bounded_access_verified": "PASS",
+          "endpoint_verified": "NOT_TESTED",
+          "fixture_integrity": "PASS",
+          "numerical_qa": "PASS",
+          "reusable_qa_profile": "PASS",
+          "sample_retrieved": "PASS",
+          "schema_validated": "PASS",
+          "upstream_identity_verified": "PASS",
+          "visual_qa": "PASS"
+        },
+        "last_validated": "2026-08-29",
+        "mode": "offline_baseline",
+        "outcome": "PASS_WITH_CAVEATS",
+        "serving_revision": "surface_reflectance.sentinel2@2026-08-26.1"
+      },
+      "path": "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/source_qa/sentinel2_surface_reflectance.json",
+      "source_flavor": "sentinel2"
+    }
+  ],
+  "configured_matrix_note": "Other CI Python targets are not claimed as locally exercised.",
+  "decision_qa_status": "PASS",
+  "generated_reference_page_count": 75,
+  "generated_reference_pages": [
+    "docs/library/index.md",
+    "docs/library/nouns/elevation.md",
+    "docs/library/nouns/humidity.md",
+    "docs/library/nouns/precipitation.md",
+    "docs/library/nouns/radiation.md",
+    "docs/library/nouns/roads.md",
+    "docs/library/nouns/streamflow.md",
+    "docs/library/nouns/surface_reflectance.md",
+    "docs/library/nouns/temperature.md",
+    "docs/library/nouns/vegetation_index.md",
+    "docs/library/nouns/vpd.md",
+    "docs/library/nouns/wind.md",
+    "docs/library/sources/gridmet.md",
+    "docs/library/sources/index.md",
+    "docs/library/sources/osm.md",
+    "docs/library/sources/overture.md",
+    "docs/library/sources/prism.md",
+    "docs/library/sources/sentinel2.md",
+    "docs/library/sources/usgs.md",
+    "docs/library/sources/usgs_3dep.md",
+    "docs/reference/verbs/a-z.md",
+    "docs/reference/verbs/align_cube.md",
+    "docs/reference/verbs/anomaly.md",
+    "docs/reference/verbs/aoi_signature.md",
+    "docs/reference/verbs/apply.md",
+    "docs/reference/verbs/binary_state.md",
+    "docs/reference/verbs/block_signature.md",
+    "docs/reference/verbs/change_state.md",
+    "docs/reference/verbs/climate_hist.md",
+    "docs/reference/verbs/collect_blocks.md",
+    "docs/reference/verbs/compare_aoi_signature.md",
+    "docs/reference/verbs/compare_blocks.md",
+    "docs/reference/verbs/compatibility.md",
+    "docs/reference/verbs/correlation_cube.md",
+    "docs/reference/verbs/detect_events.md",
+    "docs/reference/verbs/diagnostic_panel.md",
+    "docs/reference/verbs/duration_synchrony.md",
+    "docs/reference/verbs/exceedance.md",
+    "docs/reference/verbs/extract.md",
+    "docs/reference/verbs/fire_derivative.md",
+    "docs/reference/verbs/fire_panel.md",
+    "docs/reference/verbs/fire_plot.md",
+    "docs/reference/verbs/fire_vase_panel.md",
+    "docs/reference/verbs/fit_model.md",
+    "docs/reference/verbs/flatten_cube.md",
+    "docs/reference/verbs/flatten_space.md",
+    "docs/reference/verbs/index.md",
+    "docs/reference/verbs/landsat8_mpc.md",
+    "docs/reference/verbs/landsat_ndvi_plot.md",
+    "docs/reference/verbs/landsat_vis_ndvi.md",
+    "docs/reference/verbs/mean.md",
+    "docs/reference/verbs/month_filter.md",
+    "docs/reference/verbs/ndvi_from_s2.md",
+    "docs/reference/verbs/occurrence_synchrony.md",
+    "docs/reference/verbs/overlap.md",
+    "docs/reference/verbs/planned.md",
+    "docs/reference/verbs/plot.md",
+    "docs/reference/verbs/plot_mean.md",
+    "docs/reference/verbs/quantile_state.md",
+    "docs/reference/verbs/rasterize_observations.md",
+    "docs/reference/verbs/rolling_median_split_synchrony.md",
+    "docs/reference/verbs/rolling_tail_dep_vs_center.md",
+    "docs/reference/verbs/severity_synchrony.md",
+    "docs/reference/verbs/show_cube_lexcube.md",
+    "docs/reference/verbs/sync_with.md",
+    "docs/reference/verbs/threshold_state.md",
+    "docs/reference/verbs/timing_synchrony.md",
+    "docs/reference/verbs/to_netcdf.md",
+    "docs/reference/verbs/tubes.md",
+    "docs/reference/verbs/variance.md",
+    "docs/reference/verbs/vase.md",
+    "docs/reference/verbs/vase_demo.md",
+    "docs/reference/verbs/vase_extract.md",
+    "docs/reference/verbs/vase_mask.md",
+    "docs/reference/verbs/zscore.md"
+  ],
+  "git_sha": "d6a6c4b44bf295f64bb754a6470bcc67375bb4e6",
+  "known_blocked_sources": [
+    "daymet"
+  ],
+  "known_caveats": [
+    "Prepared source snapshot is not a public tag or release.",
+    "Provider availability and scientific suitability are separate from offline fixture QA.",
+    "Candidate APIs remain unpromoted; coaching/report schemas may evolve.",
+    "Broad base dependencies retained; full matrix and lower-bound dependency coverage are CI/future work.",
+    "No DOI assigned; no permission, tag, publication or source-promotion action performed."
+  ],
+  "live_source_checks": "NOT_RUN; no new live PASS claimed",
+  "maturity": "first release candidate; not published",
+  "noun_count": 8,
+  "nouns": {
+    "humidity": [
+      "gridmet"
+    ],
+    "precipitation": [
+      "gridmet",
+      "prism"
+    ],
+    "radiation": [
+      "gridmet"
+    ],
+    "surface_reflectance": [
+      "sentinel2"
+    ],
+    "temperature": [
+      "gridmet",
+      "prism"
+    ],
+    "vegetation_index": [
+      "sentinel2"
+    ],
+    "vpd": [
+      "gridmet"
+    ],
+    "wind": [
+      "gridmet"
+    ]
+  },
+  "package_only": {
+    "attrs_preserved": true,
+    "candidate_imports": "usable, not promoted",
+    "catalog": {
+      "humidity": [
+        "gridmet"
+      ],
+      "precipitation": [
+        "gridmet",
+        "prism"
+      ],
+      "radiation": [
+        "gridmet"
+      ],
+      "surface_reflectance": [
+        "sentinel2"
+      ],
+      "temperature": [
+        "gridmet",
+        "prism"
+      ],
+      "vegetation_index": [
+        "sentinel2"
+      ],
+      "vpd": [
+        "gridmet"
+      ],
+      "wind": [
+        "gridmet"
+      ]
+    },
+    "dimensions": [
+      "y",
+      "x"
+    ],
+    "numerical_result": [
+      [
+        4.0,
+        5.0
+      ],
+      [
+        6.0,
+        7.0
+      ]
+    ],
+    "status": "PASS"
+  },
+  "package_version": "0.1.0rc1",
+  "public_callable_count": 51,
+  "public_callables": {
+    "align_cube": {
+      "category": "Spatial and alignment",
+      "description": "align a field to a reference cube",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "anomaly": {
+      "category": "Transform",
+      "description": "express values as departures from a mean",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "aoi_signature": {
+      "category": "Other helpers",
+      "description": null,
+      "kind": "stage",
+      "status": "compatibility"
+    },
+    "apply": {
+      "category": "Transform",
+      "description": "apply a user-supplied function without changing pipe syntax",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "binary_state": {
+      "category": "State and events",
+      "description": "normalize a binary mask into the state-cube contract",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "block_signature": {
+      "category": "Spatial and alignment",
+      "description": "summarize a cube as a named spatial-block signature",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "change_state": {
+      "category": "State and events",
+      "description": "define a condition from lagged change",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "climate_hist": {
+      "category": "Visualization",
+      "description": "render a climate distribution",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "collect_blocks": {
+      "category": "Spatial and alignment",
+      "description": "collect compatible block signatures",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "compare_aoi_signature": {
+      "category": "Other helpers",
+      "description": null,
+      "kind": "stage",
+      "status": "compatibility"
+    },
+    "compare_blocks": {
+      "category": "Synchrony and comparison",
+      "description": "compare collected spatial-block signatures",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "correlation_cube": {
+      "category": "Other helpers",
+      "description": null,
+      "kind": "placeholder",
+      "status": "placeholder"
+    },
+    "detect_events": {
+      "category": "State and events",
+      "description": "group consecutive true periods into events",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "diagnostic_panel": {
+      "category": "Visualization",
+      "description": "render a diagnostic panel",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "duration_synchrony": {
+      "category": "Synchrony and comparison",
+      "description": "compare the duration of detected events",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "exceedance": {
+      "category": "Other helpers",
+      "description": null,
+      "kind": "stage",
+      "status": "compatibility"
+    },
+    "extract": {
+      "category": "Spatial and alignment",
+      "description": "attach fire-hull climate summaries to a cube",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "fire_derivative": {
+      "category": "Visualization",
+      "description": "derive a configured fire-event product",
+      "kind": "visualization_helper",
+      "status": "implemented"
+    },
+    "fire_panel": {
+      "category": "Visualization",
+      "description": "render a compact fire-event diagnostic panel",
+      "kind": "visualization_helper",
+      "status": "implemented"
+    },
+    "fire_plot": {
+      "category": "Visualization",
+      "description": "render one fire event and its climate context",
+      "kind": "visualization_helper",
+      "status": "implemented"
+    },
+    "fire_vase_panel": {
+      "category": "Visualization",
+      "description": "render a multi-event VASE panel",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "fit_model": {
+      "category": "Other helpers",
+      "description": null,
+      "kind": "placeholder",
+      "status": "placeholder"
+    },
+    "flatten_cube": {
+      "category": "Transform",
+      "description": "stack non-time dimensions into a sample dimension",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "flatten_space": {
+      "category": "Transform",
+      "description": "stack spatial dimensions into a pixel dimension",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "landsat8_mpc": {
+      "category": "Other helpers",
+      "description": "load Landsat observations through the MPC integration",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "landsat_ndvi_plot": {
+      "category": "Visualization",
+      "description": "render a Landsat NDVI view",
+      "kind": "visualization_helper",
+      "status": "implemented"
+    },
+    "landsat_vis_ndvi": {
+      "category": "Other helpers",
+      "description": "prepare a visualization-friendly Landsat NDVI cube",
+      "kind": "helper",
+      "status": "implemented"
+    },
+    "mean": {
+      "category": "Transform",
+      "description": "average values over a named dimension",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "month_filter": {
+      "category": "Transform",
+      "description": "retain observations from selected calendar months",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "ndvi_from_s2": {
+      "category": "Transform",
+      "description": "derive NDVI from Sentinel-2 red and near-infrared bands",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "occurrence_synchrony": {
+      "category": "Synchrony and comparison",
+      "description": "compare co-occurrence among state cubes",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "overlap": {
+      "category": "Synchrony and comparison",
+      "description": "identify coincident truth in two exactly aligned conditions",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "plot": {
+      "category": "Visualization",
+      "description": "render an interactive cube view",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "plot_mean": {
+      "category": "Visualization",
+      "description": "render a spatial-mean time series",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "quantile_state": {
+      "category": "State and events",
+      "description": "define a condition relative to an empirical quantile",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "rasterize_observations": {
+      "category": "Spatial and alignment",
+      "description": "place feature observations onto a reference cube grid",
+      "kind": "helper",
+      "status": "implemented"
+    },
+    "rolling_median_split_synchrony": {
+      "category": "Synchrony and comparison",
+      "description": "measure rolling median-split synchrony",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "rolling_tail_dep_vs_center": {
+      "category": "Synchrony and comparison",
+      "description": "compare rolling tail behavior with the center",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "severity_synchrony": {
+      "category": "Synchrony and comparison",
+      "description": "compare condition magnitude where states co-occur",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "show_cube_lexcube": {
+      "category": "Output and side effects",
+      "description": "render a cube while preserving it in the pipe",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "sync_with": {
+      "category": "Synchrony and comparison",
+      "description": "compare an input cube with another aligned temporal cube",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "threshold_state": {
+      "category": "State and events",
+      "description": "turn continuous values into a named true/false condition",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "timing_synchrony": {
+      "category": "Synchrony and comparison",
+      "description": "compare the timing of detected events",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "to_netcdf": {
+      "category": "Output and side effects",
+      "description": "write an explicit NetCDF output",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "tubes": {
+      "category": "Visualization",
+      "description": "construct a tube representation from a spatiotemporal cube",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "variance": {
+      "category": "Transform",
+      "description": "measure variation over a named dimension",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "vase": {
+      "category": "Visualization",
+      "description": "construct a configured fire VASE representation",
+      "kind": "stage",
+      "status": "implemented"
+    },
+    "vase_demo": {
+      "category": "Other helpers",
+      "description": null,
+      "kind": "stage",
+      "status": "compatibility"
+    },
+    "vase_extract": {
+      "category": "Spatial and alignment",
+      "description": "extract cube values for a VASE geometry",
+      "kind": "helper",
+      "status": "implemented"
+    },
+    "vase_mask": {
+      "category": "Spatial and alignment",
+      "description": "mask a cube with a VASE geometry",
+      "kind": "helper",
+      "status": "implemented"
+    },
+    "zscore": {
+      "category": "Transform",
+      "description": "standardize values relative to their mean and spread",
+      "kind": "stage",
+      "status": "implemented"
+    }
+  },
+  "publication_status": "PASS",
+  "qa_artifact_locations": [
+    "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/source_qa",
+    "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/decision_qa"
+  ],
+  "rc_label_note": "Real prerelease version; no tag or publication performed.",
+  "readiness": "LOCAL GATE PASS; publication requires reviewed commit and matrix evidence",
+  "recorded_at": "2026-08-29T04:15:47.522135+00:00",
+  "release_gate": {
+    "path": "artifacts/release-0.1.0rc1/gate.json",
+    "sha256": "7aa9a25ce4a9e26d063108696afec3c4eda46cb6163032b63627cddb72221e91",
+    "steps": {
+      "base-resolution": 0,
+      "browser": 0,
+      "build": 0,
+      "candidate-wheel": 0,
+      "contents": 0,
+      "create-environment": 0,
+      "decision-qa": 0,
+      "diff-check": 0,
+      "docs": 0,
+      "external-quickstart": 0,
+      "hero-examples": 0,
+      "install-vignette-extra": 0,
+      "install-wheel": 0,
+      "links": 0,
+      "noun-figures": 0,
+      "offline": 0,
+      "package-only": 0,
+      "pip-check": 0,
+      "publication": 0,
+      "readme": 0,
+      "references": 0,
+      "repository-size": 0,
+      "source-identity": 0,
+      "source-projects": 0,
+      "source-qa": 0,
+      "streamflow-notebook": 0,
+      "streaming": 0,
+      "twine": 0,
+      "upgrade-installer": 0,
+      "vignette-resolution": 0,
+      "vignettes": 0,
+      "visuals": 0,
+      "wheel-vignettes": 0
+    }
+  },
+  "requires_python": ">=3.9",
+  "schema_version": 1,
+  "serving_history": {
+    "revisions": [
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Reviewed evidence covers maximum temperature only."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/gridmet_temperature.json",
+        "revision_id": "temperature.gridmet@2026-08-26.1",
+        "schema_fingerprint": "sha256:679cb479a430ba221ef0ee57d94cdfe0f3525da2cb298f9903f15bb7eb4045c1",
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Reviewed evidence covers one Colorado winter window."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/prism_temperature.json",
+        "revision_id": "temperature.prism@2026-08-26.1",
+        "schema_fingerprint": "sha256:7a75c30b5208eface3874b89459ef20fe4a41508cc4d2f645ea0f56fd0713e88",
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Adapter evidence is representative; precipitation-specific QA remains required."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/gridmet_temperature.json",
+        "revision_id": "precipitation.gridmet@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Adapter evidence is representative; precipitation-specific QA remains required."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/prism_temperature.json",
+        "revision_id": "precipitation.prism@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Variable-specific QA remains required."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/gridmet_temperature.json",
+        "revision_id": "vpd.gridmet@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Variable-specific QA remains required."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/gridmet_temperature.json",
+        "revision_id": "wind.gridmet@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Variable-specific QA remains required."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/gridmet_temperature.json",
+        "revision_id": "humidity.gridmet@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Variable-specific QA remains required."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "provider variable renamed to scientific noun; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/gridmet_temperature.json",
+        "revision_id": "radiation.gridmet@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Pixel-level cloud masking is not implemented."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "selected provider bands with dimension ordering; values unchanged",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/sentinel2_surface_reflectance.json",
+        "revision_id": "surface_reflectance.sentinel2@2026-08-26.1",
+        "schema_fingerprint": "sha256:dbc3c55e4784a8698c7c94e198eab777d122ceeabee6d57b97858572383e16e8",
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "Evidence is derived from the reviewed B04/B08 extract."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "NDVI = (B08 - B04) / (B08 + B04 + 1e-6)",
+        "promoted_at": "2026-08-26",
+        "qa_evidence": "docs/assets/source_qa/sentinel2_surface_reflectance.json",
+        "revision_id": "vegetation_index.sentinel2@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CURRENT",
+        "status": "VALIDATED"
+      },
+      {
+        "adapter_version": "0.1.0",
+        "caveats": [
+          "BLOCKED: ORNL data access currently requires NASA Earthdata authentication and no reviewed credentialed fixture is available."
+        ],
+        "created_at": "2026-08-26",
+        "normalization_contract": "proposed Daymet V4R1 tmax to temperature mapping; no unit conversion",
+        "promoted_at": null,
+        "qa_evidence": null,
+        "revision_id": "temperature.daymet@2026-08-26.1",
+        "schema_fingerprint": null,
+        "stage": "CANDIDATE",
+        "status": "NOT_VALIDATED"
+      }
+    ],
+    "schema_version": 1
+  },
+  "source_count": 3,
+  "source_flavor_count": 10,
+  "source_qa_status": "Phase 1 source-adapter baseline complete; variable-specific coverage is documented",
+  "sources": [
+    "gridmet",
+    "prism",
+    "sentinel2"
+  ],
+  "supported_notebook_count": 12,
+  "supported_notebooks": [
+    "docs/decision_vignettes/working_lands.ipynb",
+    "docs/vignettes/cube_from_arrays.ipynb",
+    "docs/vignettes/cube_from_dataset.ipynb",
+    "docs/vignettes/cube_from_tidy_table.ipynb",
+    "docs/vignettes/custom_verb_project.ipynb",
+    "docs/vignettes/elevation_landscape.ipynb",
+    "docs/vignettes/grammar_basics.ipynb",
+    "docs/vignettes/lazy_composition.ipynb",
+    "docs/vignettes/roads_local_network.ipynb",
+    "docs/vignettes/states_and_events.ipynb",
+    "docs/vignettes/streamflow_snapshots.ipynb",
+    "docs/vignettes/verbs_gallery.ipynb"
+  ],
+  "supported_python_versions": [
+    "3.9",
+    "3.10",
+    "3.11",
+    "3.12"
+  ],
+  "target_version": "0.1.0rc1",
+  "test_reports": {
+    "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/browser.xml": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 373,
+      "skipped": 0,
+      "tests": 373
+    },
+    "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/offline.xml": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 782,
+      "skipped": 5,
+      "tests": 787
+    },
+    "/private/var/folders/s8/lrymhy5j13d_8jkh4zv8gjm00000gr/T/cubedynamics-rc-source-yehkl95n/artifacts/release-0.1.0rc1/streaming.xml": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 32,
+      "skipped": 0,
+      "tests": 32
+    }
+  },
+  "tested_git_sha": "d6a6c4b44bf295f64bb754a6470bcc67375bb4e6",
+  "tested_platform": "macOS-26.6.2-arm64-arm-64bit",
+  "tested_python_versions": [
+    "3.11.11"
+  ],
+  "tested_tree_sha": "00193325084fc9727592545d0d32261ceedc27aa",
+  "wheel_vignettes": [
+    {
+      "notebook": "docs/vignettes/cube_from_arrays.ipynb",
+      "plots": 1
+    },
+    {
+      "notebook": "docs/vignettes/cube_from_dataset.ipynb",
+      "plots": 1
+    },
+    {
+      "notebook": "docs/vignettes/cube_from_tidy_table.ipynb",
+      "plots": 1
+    },
+    {
+      "notebook": "docs/vignettes/custom_verb_project.ipynb",
+      "plots": 1
+    },
+    {
+      "notebook": "docs/vignettes/elevation_landscape.ipynb",
+      "plots": 3
+    },
+    {
+      "notebook": "docs/vignettes/grammar_basics.ipynb",
+      "plots": 5
+    },
+    {
+      "notebook": "docs/vignettes/lazy_composition.ipynb",
+      "plots": 1
+    },
+    {
+      "notebook": "docs/vignettes/roads_local_network.ipynb",
+      "plots": 3
+    },
+    {
+      "notebook": "docs/vignettes/states_and_events.ipynb",
+      "plots": 1
+    },
+    {
+      "notebook": "docs/vignettes/streamflow_snapshots.ipynb",
+      "plots": 3
+    },
+    {
+      "notebook": "docs/vignettes/verbs_gallery.ipynb",
+      "plots": 1
+    },
+    {
+      "notebook": "docs/decision_vignettes/working_lands.ipynb",
+      "plots": 2
+    }
+  ],
+  "working_tree_changes": {}
+}

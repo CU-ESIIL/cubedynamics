@@ -6,7 +6,7 @@ is in the installed PyPI release. Last synchronized: **2026-08-28**.
 ## 1) Project identity and scope
 
 - Package: `cubedynamics`, formerly `climate_cube_math`. Version sources are
-  `pyproject.toml` and `src/cubedynamics/version.py`; both currently say `0.1.0`.
+  `pyproject.toml` and `src/cubedynamics/version.py`; both currently say `0.1.0rc1`.
   Packaging declares alpha status and Python `>=3.9`.
 - Core: `pipe(cube) | verb() | verb()`, a small composable grammar over labeled
   spatiotemporal objects. xarray/NumPy provide array semantics; Dask supports

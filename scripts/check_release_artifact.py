@@ -61,7 +61,7 @@ def inspect_distributions(wheel, sdist=None):
         meta_names = [n for n in names if n.endswith(".dist-info/METADATA")]
         require(len(meta_names) == 1, "Expected one wheel METADATA record")
         info = BytesParser().parsebytes(archive.read(meta_names[0]))
-        require(info["Name"] == "cubedynamics" and info["Version"] == "0.1.0", "Unexpected release name/version")
+        require(info["Name"] == "cubedynamics" and info["Version"] == "0.1.0rc1", "Unexpected release name/version")
         package_files = {n: hashlib.sha256(archive.read(n)).hexdigest() for n in names
                          if n.startswith(("cubedynamics/", "climate_cube_math/"))}
     result = {"wheel": artifact_info(wheel), "version": info["Version"], "wheel_members": sorted(names),
@@ -135,7 +135,7 @@ def check_installed_wheel(wheel, repo=ROOT):
                 path = Path(location).resolve()
                 require(path.is_relative_to(installed) and not path.is_relative_to(repo), f"Source checkout leaked into kernel: {path}")
                 require(path.relative_to(installed).as_posix() in files, f"Unpackaged module loaded: {name}")
-    require(cubedynamics.__version__ == dist.version == "0.1.0", "Runtime/installed metadata version mismatch")
+    require(cubedynamics.__version__ == dist.version == "0.1.0rc1", "Runtime/installed metadata version mismatch")
     return {"version": dist.version, "module": str(Path(cubedynamics.__file__).resolve()),
             "python": sys.version.split()[0], "executable": sys.executable,
             "wheel": artifact_info(wheel), "checked_package_files": len(files)}
@@ -161,7 +161,7 @@ def smoke():
     with warnings.catch_warnings(record=True) as notices:
         warnings.simplefilter("always")
         import climate_cube_math as legacy
-    require(legacy.pipe is pipe and legacy.__version__ == "0.1.0", "Compatibility import differs")
+    require(legacy.pipe is pipe and legacy.__version__ == "0.1.0rc1", "Compatibility import differs")
     require(any(issubclass(n.category, DeprecationWarning) for n in notices), "Compatibility warning missing")
     catalog = data.list_sources()
     require(len(catalog) == 8, "Catalog noun count changed")

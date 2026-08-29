@@ -11,14 +11,14 @@ CubeDynamics is a composable grammar for spatiotemporal environmental cubes:
 order explicit.** Its core is deliberately small: `pipe(cube) | verb() | verb()`.
 It builds on xarray, NumPy, Dask, and geospatial tools rather than replacing them.
 
-The checkout currently declares **version 0.1.0, alpha**, with Python **3.9+**
+The checkout currently declares **version 0.1.0rc1, alpha**, with Python **3.9+**
 support. Development and documentation CI use Python 3.11; the offline test
 matrix covers 3.9–3.12. These are repository metadata and CI targets, not a claim
 that an installed PyPI release contains every change on `main`.
 
 For the first public alpha release candidate, see the [0.1 support contract](docs/project/api_support_0_1.md),
 [release-note draft](docs/project/release_0_1_0.md), and [non-publishing release checklist](RELEASING.md).
-The candidate artifact targets `0.1.0`; it is not a published release or tag.
+The candidate artifact targets `0.1.0rc1`; it is not a published release or tag.
 
 ## Start here
 
@@ -35,15 +35,28 @@ separates architecture, CI, source maintenance, and audits from user reference.
 
 ## Install
 
-For the packaged release:
+**Current state: preparing the first public release candidate; not published.**
+There is no installable CubeDynamics distribution on PyPI or in the existing
+GitHub Releases. Do not substitute a source clone for outside-user acceptance
+testing. A reviewer can install a maintainer-supplied, checksum-verified
+`cubedynamics-0.1.0rc1-py3-none-any.whl` directly with pip today.
+
+**After the v0.1.0rc1 GitHub Release is published**, the external install command
+will be (this URL is not available yet):
 
 ```bash
-python -m pip install cubedynamics
+python -m pip install "https://github.com/CU-ESIIL/cubedynamics/releases/download/v0.1.0rc1/cubedynamics-0.1.0rc1-py3-none-any.whl"
 ```
 
-For this checkout's code, real-data fixtures, and notebooks, clone the repository
-and install from its root. The following uses the repository's Python 3.11
-development target:
+After a separate PyPI publication, `python -m pip install cubedynamics==0.1.0rc1`
+will install the same version. Plain `pip install cubedynamics` is reserved for
+the future final release. See the [installation guide](docs/getting_started/install.md)
+and [package-only quickstart](docs/quickstart.md); neither requires a clone.
+
+### Developer checkout (not the release-candidate install)
+
+Contributors who need this checkout's code, real-data fixtures, and notebooks
+can clone and install from its root. This uses the Python 3.11 development target:
 
 ```bash
 git clone https://github.com/CU-ESIIL/cubedynamics.git

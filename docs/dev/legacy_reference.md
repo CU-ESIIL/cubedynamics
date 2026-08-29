@@ -205,6 +205,9 @@ cloud environments.
 
 # Getting started with CubeDynamics
 
+**Historical reference. Current state: 0.1.0rc1 is not published.**
+Follow [current installation instructions](../getting_started/install.md).
+
 **In plain English:**  
 This guide walks you through installing CubeDynamics, loading your first cube, and seeing how the pipe `|` syntax works.
 Everything stays light and copy-friendly so you can paste examples into a notebook.
@@ -229,9 +232,7 @@ Streaming cubes let you explore without heavy downloads, and the pipe syntax kee
 Install the package, then try a short pipeline.
 
 ```bash
-pip install cubedynamics
-# or install straight from GitHub for the freshest commits
-pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
+# Historical installation snippet removed; use the current installation guide.
 ```
 
 ```python
@@ -294,7 +295,7 @@ CubeDynamics (`cubedynamics`) runs anywhere `xarray` does—laptops, clusters, o
 Grab the latest commits straight from the main branch. Installing inside a virtual environment (via `venv` or Conda) is recommended but optional.
 
 ```bash
-pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
+# Development-only VCS install is not the RC acceptance path.
 ```
 
 ### Install from PyPI once released
@@ -302,10 +303,11 @@ pip install "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 As soon as the first release is uploaded to PyPI you will be able to run:
 
 ```bash
-pip install cubedynamics
+# Future only, after final PyPI publication:
+python -m pip install cubedynamics
 ```
 
-Until then, use the GitHub install above for the working package.
+Until publication, request a tested wheel from the maintainer.
 
 ## First pipeline in a notebook
 

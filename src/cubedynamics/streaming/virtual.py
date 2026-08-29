@@ -9,6 +9,7 @@ demand.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import re
 from typing import Any, Callable, Dict, Iterable, Mapping, Tuple
 
 import numpy as np
@@ -131,7 +132,21 @@ def make_time_tiler(start: Any, end: Any, freq: str = "A") -> Callable[[Dict[str
     -----
     Passing ``None`` for either boundary defers to values in ``loader_kwargs``
     supplied at iteration time, which is useful for factories.
+    Legacy annual aliases (``A``, ``Y``, ``AS`` and anchored/multiplied forms)
+    retain their calendar boundaries on pandas versions that removed them.
     """
+
+    # Use the stable offset classes, not aliases renamed/removed in pandas 3.
+    # Keep the public defaults and explicit legacy calls backwards compatible.
+    annual = re.fullmatch(r"([1-9][0-9]*)?(AS|A|Y)(?:-([A-Z]{3}))?", freq) if isinstance(freq, str) else None
+    offset = freq
+    if annual:
+        count, alias, anchor = annual.groups()
+        months = ("JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC")
+        if anchor is None or anchor in months:
+            month = months.index(anchor) + 1 if anchor else (1 if alias == "AS" else 12)
+            kind = pd.offsets.YearBegin if alias == "AS" else pd.offsets.YearEnd
+            offset = kind(n=int(count or 1), month=month)
 
     def tiler(kwargs: Mapping[str, Any]) -> Iterable[Dict[str, Any]]:
         t0 = pd.to_datetime(start if start is not None else kwargs.get("start"))
@@ -140,7 +155,7 @@ def make_time_tiler(start: Any, end: Any, freq: str = "A") -> Callable[[Dict[str
             yield {}
             return
 
-        edges = pd.date_range(t0, t1, freq=freq)
+        edges = pd.date_range(t0, t1, freq=offset)
         if len(edges) == 0 or edges[0] != t0:
             edges = pd.DatetimeIndex([t0]).append(edges)
         if edges[-1] < t1:

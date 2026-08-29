@@ -1,59 +1,145 @@
-name: Publish to PyPI
+name: Prepare or publish a release
 
+# Tags run verification only. Public writes require a separately authorized,
+# explicit workflow dispatch, selecting the matching existing v* tag.
 on:
   push:
-    tags:
-      - "v*"
+    tags: ["v*"]
   workflow_dispatch:
+    inputs:
+      destination:
+        description: "Explicitly authorized publication destination (verify performs no public writes)"
+        required: true
+        default: verify
+        type: choice
+        options: [verify, github, pypi]
+
+permissions:
+  contents: read
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
-      - name: Build package
+      - name: Install gate tools
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[test]"
-          python -m build
-          python -m twine check dist/*
-          python scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0-py3-none-any.whl --sdist dist/cubedynamics-0.1.0.tar.gz --inspect-only --output artifacts/release/distributions.json
-
-      - name: Verify the built wheel before any publication
-        run: |
-          python -m venv "$RUNNER_TEMP/cubedynamics-release"
-          # Upgrade this environment's installer too, so it records the wheel SHA.
-          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install --upgrade pip
-          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install dist/cubedynamics-0.1.0-py3-none-any.whl
-          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip check
-          "$RUNNER_TEMP/cubedynamics-release/bin/python" -I scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0-py3-none-any.whl --sdist dist/cubedynamics-0.1.0.tar.gz --repo-example --output artifacts/release/installed.json
-
-      - name: Upload artifacts
+          python -m pip install -e ".[dev,browser]"
+          python -m playwright install --with-deps chromium
+      - name: Full non-publishing gate on this exact commit
+        run: python scripts/run_release_gate.py --output artifacts/release-0.1.0rc1
+      - name: Preserve exact tested artifacts
         uses: actions/upload-artifact@v4
         with:
           name: python-package-distributions
-          path: dist/
+          if-no-files-found: error
+          path: |
+            dist/cubedynamics-0.1.0rc1-py3-none-any.whl
+            dist/cubedynamics-0.1.0rc1.tar.gz
+            dist/SHA256SUMS
+      - name: Preserve evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-gate-evidence
+          path: |
+            artifacts/release-0.1.0rc1/
+            manifests/releases/v0.1.0rc1-candidate.json
 
-  publish:
+  compatibility:
     needs: build
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    environment:
-      name: pypi
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/download-artifact@v4
         with:
           name: python-package-distributions
           path: dist/
+      - name: Check exact artifact hashes
+        working-directory: dist
+        run: sha256sum -c SHA256SUMS
+      - name: Offline contracts for this Python
+        run: |
+          python -m pip install -e ".[dev]"
+          python -m pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q
+      - name: Verify exact wheel in a new external environment
+        run: |
+          python -m venv "$RUNNER_TEMP/cubedynamics-release"
+          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install dist/cubedynamics-0.1.0rc1-py3-none-any.whl
+          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip check
+          "$RUNNER_TEMP/cubedynamics-release/bin/python" -I scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0rc1-py3-none-any.whl --sdist dist/cubedynamics-0.1.0rc1.tar.gz --repo-example --output artifacts/release/installed.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: installed-wheel-${{ matrix.python-version }}
+          path: artifacts/release/
 
-      - name: Publish distributions to PyPI
+  github-release:
+    needs: [build, compatibility]
+    if: github.event_name == 'workflow_dispatch' && inputs.destination == 'github'
+    runs-on: ubuntu-latest
+    # Job-scoped asset-upload capability; no repository settings are changed.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Refuse a branch or mismatched tag
+        run: |
+          test "$GITHUB_REF" = "refs/tags/v0.1.0rc1"
+          python scripts/check_release_source.py
+      - name: Verify before uploading
+        working-directory: dist
+        run: sha256sum -c SHA256SUMS
+      - name: Create the explicitly authorized prerelease with tested assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create v0.1.0rc1 --verify-tag --prerelease --title "CubeDynamics 0.1.0rc1" --notes "First release candidate for outside-user acceptance testing. Install the attached wheel; verify SHA256SUMS. Support and limitations: https://cu-esiil.github.io/cubedynamics/project/release_0_1_0/" dist/cubedynamics-0.1.0rc1-py3-none-any.whl dist/cubedynamics-0.1.0rc1.tar.gz dist/SHA256SUMS
+
+  publish:
+    needs: [build, compatibility]
+    if: github.event_name == 'workflow_dispatch' && inputs.destination == 'pypi'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    environment:
+      name: pypi
+    steps:
+      - uses: actions/checkout@v4
+      - name: Refuse a branch or mismatched tag
+        run: |
+          test "$GITHUB_REF" = "refs/tags/v0.1.0rc1"
+          python scripts/check_release_source.py
+      - uses: actions/download-artifact@v4
+        with:
+          name: python-package-distributions
+          path: dist/
+      - name: Verify exact tested hashes and isolate distributions
+        run: |
+          cd dist
+          sha256sum -c SHA256SUMS
+          mkdir upload
+          cp cubedynamics-0.1.0rc1-py3-none-any.whl cubedynamics-0.1.0rc1.tar.gz upload/
+      - name: Publish distributions to PyPI after separate authorization
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/upload/

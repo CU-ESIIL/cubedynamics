@@ -24,7 +24,7 @@ def test_release_versions_citation_and_maturity_are_consistent():
     from cubedynamics import __version__
     root_citation = yaml.safe_load((ROOT / "CITATION.cff").read_text())
     assert root_citation == yaml.safe_load((ROOT / "docs/CITATION.cff").read_text())
-    assert declared == __version__ == root_citation["version"] == "0.1.0"
+    assert declared == __version__ == root_citation["version"] == "0.1.0rc1"
     assert "Development Status :: 3 - Alpha" in pyproject
     assert "doi" not in root_citation
     assert 'exclude = ["cubedynamics.tests", "cubedynamics.tests.*"]' in pyproject
@@ -132,7 +132,7 @@ def test_ci_upgrades_the_fresh_environments_pip_before_installing_wheel(workflow
     commands = blocks[0].splitlines()
     create = commands.index(f'python -m venv "$RUNNER_TEMP/{environment}"')
     upgrade = commands.index(f'"$RUNNER_TEMP/{environment}/bin/python" -m pip install --upgrade pip')
-    install = commands.index(f'"$RUNNER_TEMP/{environment}/bin/python" -m pip install dist/cubedynamics-0.1.0-py3-none-any.whl')
+    install = commands.index(f'"$RUNNER_TEMP/{environment}/bin/python" -m pip install dist/cubedynamics-0.1.0rc1-py3-none-any.whl')
     assert create < upgrade < install
 
 

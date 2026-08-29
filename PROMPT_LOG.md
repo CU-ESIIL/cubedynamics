@@ -4,6 +4,61 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-08-28 — Prepare an installable 0.1.0rc1
+
+- Independent outside-user acceptance correctly stopped: PyPI had no package
+  and GitHub Releases had no wheel/sdist assets. A clone is not a substitute.
+  Local main: 862a80aed8a2781b40e6e5293fd6cfbcba887aa4. Public main:
+  cb80b6c7d1b1562016b8ae1a1bf7c0221ea392f0, differing only by an added PDF.
+  Public prereleases 0.0.1 and build both had empty asset lists.
+- Prepared real RC metadata, consistent unpublished installation guidance,
+  and a no-checkout public checksum-pinned PRISM quickstart. No science or
+  source registration changed. Historical developer installs are labeled.
+- Publication workflow now requires explicit destination selection, a matching
+  tag, full gate and same-wheel Python 3.9–3.12 checks. GitHub assets include
+  wheel, sdist and SHA256SUMS. PyPI trusted-publisher configuration remains
+  unverified; exact maintainer steps are in RELEASING.md. No public writes.
+- Gate now binds clean source identity and all commit-eligible inputs, checks
+  the public quickstart and gallery, and can run from a separate local snapshot.
+  A local snapshot is not the eventual public release SHA. Preliminary
+  release/docs regressions: 62 passed; final gate and hashes follow below.
+- Fresh dependency resolution exposed two VirtualCube failures on pandas 3:
+  removed AS frequency aliases. Added a narrow annual-offset compatibility
+  translation preserving calendar anchors/multipliers and regression tests.
+  Earlier artifacts are diagnostic only; the final RC is rebuilt and re-gated.
+- Synchronized `uv.lock` with the RC and the already-declared roads extra;
+  no existing dependency versions were upgraded. Added a version-consistency
+  regression. The existing lock retains a yanked build-tool version; release
+  validation resolves fresh tools with pip, not that development lock.
+- The full browser gate exposed missing notebook plots: the release gate's
+  global Agg backend suppressed `plt.show()` in MkDocs-Jupyter's own kernels.
+  Scoped the inline backend to the docs step; script plots retain Agg. Kept
+  the browser image-count checks unchanged and added an environment
+  regression. No missing-figure failure is waived.
+- Final local evidence was produced from isolated snapshot
+  `d6a6c4b44bf295f64bb754a6470bcc67375bb4e6` (base checkout
+  `862a80aed8a2781b40e6e5293fd6cfbcba887aa4`). The complete 33-step gate
+  passed: 782 offline tests passed with 5 skips; 32 streaming tests, 12
+  installed-wheel notebooks, publication/source/decision QA, all generated
+  checks, strict docs, links, repository policy and 373 Chromium checks passed.
+- Final artifacts: `cubedynamics-0.1.0rc1-py3-none-any.whl`, SHA256
+  `6f5b269b64d7ab1d1cfc9651f1cb9e7caee76a6621275ec77c27439302934d26`;
+  `cubedynamics-0.1.0rc1.tar.gz`, SHA256
+  `e07bd7d1383e56e2a65d215554611b01285479b5113edb7b19118cc4e6ad3b83`.
+  Twine, archive contents, exact wheel bytes, package-only use and `pip check`
+  passed. External wheel checks passed on local Python 3.9.21, 3.10.16,
+  3.11.11 and 3.12.8; the public fixture and bounded three-day live PRISM
+  quickstarts passed (the latter is not source certification). All 61 external
+  documentation links were available during the advisory check.
+- Final verdict remains `NOT READY TO PUBLISH v0.1.0rc1`: no tag, GitHub
+  Release or PyPI upload was performed. The prepared changes still require
+  review and commit after integrating public main
+  `cb80b6c7d1b1562016b8ae1a1bf7c0221ea392f0` (its only newer file at review
+  time was `docs/documentation/main-17.pdf`), followed by the configured Linux
+  matrix on that public SHA. PyPI project/pending-publisher and GitHub
+  environment settings also remain unverified. Exact authorized publication
+  steps are recorded in `RELEASING.md`.
+
 ## 2026-08-28 — Readable interactive homepage hero
 
 - User requested a polished interactive hero with visible legend text and

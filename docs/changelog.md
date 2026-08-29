@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.1.0 candidate — not yet released
+## 0.1.0rc1 — prepared, not yet released
+
+- Corrected contradictory installation claims identified by an independent
+  outside-user test. Public wheel/PyPI commands are explicitly post-publication.
+- Prepared real RC-versioned wheel/sdist artifacts, GitHub Release asset upload,
+  checksums, and a no-checkout quickstart using existing public reviewed data.
+- Preserved source candidate boundaries and all mandatory release checks.
+- Kept VirtualCube's legacy annual tile aliases working with pandas 3 without
+  changing calendar boundaries, eager/lazy behavior, or source selection.
 
 - First public alpha target; [release notes and limitations](project/release_0_1_0.md).
 - Preserved the core grammar, eight catalog nouns and candidate-source boundary.
