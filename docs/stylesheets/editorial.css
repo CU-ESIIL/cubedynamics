@@ -396,6 +396,18 @@ input {
   line-height: 1.48;
 }
 
+.cd-hero-copy > p:not(.cd-kicker):not(.cd-hero-deck) {
+  color: rgba(248, 247, 243, 0.72);
+  font-size: 0.76rem;
+  line-height: 1.55;
+}
+
+.cd-hero-copy > p:not(.cd-kicker):not(.cd-hero-deck) a {
+  color: #d7e3e1 !important;
+  font-weight: 700;
+  text-decoration-color: rgba(215, 227, 225, 0.7) !important;
+}
+
 .cd-hero-actions,
 .cd-final-actions {
   display: flex;
@@ -950,7 +962,7 @@ input {
   }
 
   .cd-hero-copy h1 {
-    font-size: clamp(3.1rem, 15vw, 4.8rem);
+    font-size: clamp(2.65rem, 12.5vw, 4.8rem);
   }
 
   .cd-hero-art {

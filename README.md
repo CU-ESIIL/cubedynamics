@@ -6,10 +6,19 @@
 
 ![Tests](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/tests.yml/badge.svg) ![Docs](https://github.com/CU-ESIIL/cubedynamics/actions/workflows/pages.yml/badge.svg)
 
-CubeDynamics is a composable grammar for spatiotemporal environmental cubes:
-**nouns describe observations, verbs describe operations, and pipes make their
-order explicit.** Its core is deliberately small: `pipe(cube) | verb() | verb()`.
-It builds on xarray, NumPy, Dask, and geospatial tools rather than replacing them.
+CubeDynamics is an inspectable grammar for spatiotemporal environmental data:
+**source-qualified nouns describe observations, semantic verbs describe
+operations, and pipes preserve authored order.** Its core is deliberately small:
+`pipe(cube) | verb() | verb()`. It builds on xarray, NumPy, Dask, and geospatial
+tools rather than replacing them.
+
+Rerunnable code is not automatically a recoverable scientific argument. A pipe
+retains semantic state and an ordered trace so a reader can inspect what object
+each transformation produced, while source records and bounded QA keep the
+evidence beneath a concise noun reachable. A common noun does not make sources
+interchangeable, a trace is not complete workflow provenance, and validation
+does not choose or certify the scientific question. See the
+[scientific framing](docs/concepts/scientific_inspectability.md).
 
 The checkout currently declares **version 0.1.0rc1, alpha**, with Python **3.9+**
 support. Development and documentation CI use Python 3.11; the offline test

@@ -1,5 +1,5 @@
 site_name: "CubeDynamics"
-site_description: "CubeDynamics: a composable grammar for spatiotemporal science."
+site_description: "CubeDynamics: an inspectable grammar for environmental data analysis."
 site_author: CubeDynamics Team
 site_url: "https://cu-esiil.github.io/cubedynamics/"
 
@@ -67,6 +67,7 @@ nav:
       - Pipe and grammar:
           - Pipe: api/pipe.md
           - Grammar reference: grammar/index.md
+          - Scientific inspectability: concepts/scientific_inspectability.md
           - Semantic grammar: concepts/semantic_grammar.md
           - Lazy evaluation: grammar/lazy_evaluation.md
           - Workflow composition: grammar/workflow_composition.md

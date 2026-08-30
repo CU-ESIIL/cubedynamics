@@ -1,17 +1,25 @@
 # Learn
 
-These short lessons build from finding environmental information to composing
-and checking an analysis. They use the same reviewed PRISM observations.
+These short lessons build an executable scientific statement from finding
+environmental information to composing and checking an analysis. They use the
+same reviewed PRISM observations so that source identity remains visible while
+the analytical object changes.
+
+The throughline is **scientific inspectability**: rerunnable code is useful, but
+a reader should also be able to recover which observations entered, what each
+stage produced, why authored order matters, and what evidence supports the
+result. [Read the research framing](../concepts/scientific_inspectability.md),
+or begin with the lessons below.
 
 | Lesson | What you will learn |
 | --- | --- |
-| [1. Nouns are environmental things](nouns.md) | Find data by scientific meaning |
-| [2. Verbs do things](verbs.md) | Turn a cube into an answer |
-| [3. Pipes establish order](pipes.md) | Compose small operations |
+| [1. Nouns are environmental things](nouns.md) | Find source-qualified observations |
+| [2. Verbs do things](verbs.md) | Transform an object with explicit parameters |
+| [3. Pipes establish order](pipes.md) | Preserve authored analytical syntax |
 | [4. Order can change meaning](order.md) | Distinguish similar-looking questions |
 | [5. Compose a question](compose.md) | Combine states explicitly |
-| [6. Inspect the result](inspect.md) | Check dimensions, units and computation |
-| [7. Provenance and source choice](provenance.md) | Keep an analysis reproducible |
+| [6. Inspect the result](inspect.md) | Read state, trace, dimensions, units and computation |
+| [7. Provenance and source choice](provenance.md) | Connect a short statement to bounded evidence |
 
 ## Shared setup
 

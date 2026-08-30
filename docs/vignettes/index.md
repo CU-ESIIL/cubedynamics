@@ -4,8 +4,10 @@ description: "Real-data analyses with explicit questions, compact pipelines, fig
 
 # Vignettes
 
-Run a complete analysis: Context → Question → Pipe → Figure → Interpretation.
-For a short introduction to the grammar, start with [Learn](../learn/index.md).
+Run a complete analysis: Context → Question → Source → Pipe → Figure →
+Interpretation → Evidence. Each vignette treats the pipe as an executable
+scientific statement and makes its assumptions and boundaries visible. For a
+short introduction to the grammar, start with [Learn](../learn/index.md).
 
 ## Executable real-data notebooks
 
@@ -76,7 +78,8 @@ result = (
 ```
 
 Put source acquisition and preparation before the pipe. Explain the baseline
-and interpretation after it. See [anomaly](../reference/verbs/anomaly.md) and
+and interpretation after it. Remember that the semantic trace covers the pipe,
+not that preparation or later work. See [anomaly](../reference/verbs/anomaly.md) and
 [mean](../reference/verbs/mean.md) for their canonical argument reference.
 
 ## Explore a noun

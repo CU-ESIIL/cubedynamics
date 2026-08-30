@@ -97,9 +97,15 @@ plt.show()
 The [temperature reference](library/nouns/temperature.md) describes source,
 units, coverage, and provenance. A shared noun does not harmonize providers.
 
+Keep the `Pipe` object before unwrapping when you want to inspect the authored
+statement with `explain()`, `semantic_state`, `semantic_trace`, or `validate()`.
+These metadata tools do not choose the scientific question or certify the
+observations.
+
 ## Continue
 
 - [Learn](learn/index.md): seven short lessons.
+- [Scientific inspectability](concepts/scientific_inspectability.md): why a rerunnable script may still hide its scientific question.
 - [Library](library/index.md): environmental nouns and sources.
 - [Documents](documentation/index.md): arguments and behavior.
 - [Vignettes](vignettes/index.md): complete reproducible analyses.

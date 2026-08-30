@@ -17,7 +17,8 @@ regional_mean = (pipe(cube) | v.mean(dim=("y", "x"), keep_dim=False)).unwrap()
 [threshold_state](../reference/verbs/threshold_state.md) makes the comparison
 explicit. Thresholding cells before averaging produces a fraction;
 thresholding the spatial mean produces one Boolean per day. These operations
-answer different questions.
+answer different questions even when both scripts are perfectly rerunnable.
+Authored order is therefore scientific syntax, not just formatting.
 
 ## Try it / worked example
 

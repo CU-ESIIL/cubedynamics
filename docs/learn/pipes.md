@@ -2,8 +2,9 @@
 
 ## Concept
 
-Read a pipe from top to bottom: each stage receives the previous result.
-Run the [shared setup](index.md#shared-setup) first.
+Read a pipe from top to bottom: each stage receives the previous result, and
+the authored order becomes the syntax of the analytical statement. Run the
+[shared setup](index.md#shared-setup) first.
 
 ## Tiny example
 
@@ -19,7 +20,11 @@ daily_anomaly = (
 
 Subtract each cell's mean over the observed period, then average those departures
 across space. Parentheses let the pipe span lines; `.unwrap()` returns the
-underlying result. The pipe does not choose a baseline or units automatically.
+underlying result. CubeDynamics calls stages once, from left to right, and does
+not rearrange them. The pipe does not choose a baseline or units automatically.
+
+`unwrap()` is a local statement boundary, not a compute or certification step.
+It returns the ordinary xarray value and leaves any Dask-backed work deferred.
 
 ## Try it / worked example
 

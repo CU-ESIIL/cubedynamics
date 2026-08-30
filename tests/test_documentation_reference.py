@@ -67,6 +67,23 @@ def test_homepage_cube_is_deferred_but_accessible():
         assert f'href="{route}"' in text
 
 
+def test_manuscript_framing_is_public_without_overstating_the_api():
+    config = (ROOT / "mkdocs.yml").read_text()
+    assert "Scientific inspectability: concepts/scientific_inspectability.md" in config
+    home = (ROOT / "docs/index.md").read_text()
+    assert "Rerunnable is not the same as inspectable" in home
+    framing = (ROOT / "docs/concepts/scientific_inspectability.md").read_text()
+    for boundary in (
+        "not a claim of equivalence",
+        "does not force computation",
+        "not complete workflow provenance",
+        "not current capability claims",
+    ):
+        assert boundary in framing
+    assert "current manuscript draft" in framing
+    assert "sources of truth" in framing
+
+
 @pytest.mark.parametrize("name", sorted(EXAMPLES))
 def test_reference_examples_execute_on_observed_fixture(name, monkeypatch):
     monkeypatch.chdir(ROOT)

@@ -15,6 +15,13 @@ create a second language, reorder verbs, optimize a workflow, or replace plain
 Python callables. Every stage is called once, from left to right, exactly where
 the author wrote it.
 
+This makes the pipeline more than a compact spelling of function calls: it is
+an executable scientific statement whose authored syntax can be inspected.
+Computational repeatability answers whether the statement can run again;
+scientific inspectability also asks which observations entered, what object
+each stage produced, and what evidence supports the path to the result. See
+[Scientific inspectability](scientific_inspectability.md) for the full framing.
+
 ```text
 scientific noun      configured verb       configured verb
       │                     │                     │
@@ -104,6 +111,10 @@ analysis.semantic_state.as_dict()
 analysis.semantic_trace[0].as_dict()
 ```
 
+The trace covers only the inspected statement. Preparation before `pipe(...)`
+and work after `unwrap()` remain outside it, so a semantic trace complements
+rather than replaces general workflow provenance.
+
 ## Useful failures
 
 Known incompatible steps fail before their technical implementation produces a
@@ -169,6 +180,19 @@ pipe(cube) | v.anomaly(over="time")
 
 The established `dim=` spelling remains supported. Supplying conflicting
 values for both names raises a direct error instead of guessing.
+
+## Statement boundary
+
+The adoption path is deliberately reversible:
+
+```text
+xarray object → pipe → semantic operations and inspection → unwrap → xarray object
+```
+
+`unwrap()` acts as a local boundary marker between the inspected statement and
+ordinary Python. It returns the wrapped value; it does not force computation,
+certify the analysis, complete the wider workflow, or prevent the value from
+entering another pipe.
 
 ## Architectural boundary
 

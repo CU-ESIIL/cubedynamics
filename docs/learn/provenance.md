@@ -2,8 +2,9 @@
 
 ## Concept
 
-Record what was observed, which revision was used, and what the analysis
-changed. Run the [shared setup](index.md#shared-setup) first.
+Connect the readable statement to the evidence underneath it: record what was
+observed, which interpretation revision was used, and what the analysis changed.
+Run the [shared setup](index.md#shared-setup) first.
 
 ## Tiny example
 
@@ -18,6 +19,11 @@ The catalog describes supported access; it does not prove a server is healthy
 now. A frozen fixture's checksum identifies its bytes. Providers can differ
 in units, grids, methods and revisions even when the noun name is the same.
 Compare them in [Library](../library/nouns/temperature.md).
+
+Keep the evidence questions separate: retrieval shows that bytes were obtained;
+structural checks show how an adapter interpreted them; numerical and visual
+review support a bounded plausibility claim. None alone establishes provider
+accuracy or fitness for a decision.
 
 ## Try it / worked example
 

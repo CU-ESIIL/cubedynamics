@@ -22,6 +22,11 @@ Inspection methods report semantic state, trace and checks; they do not execute
 new analytical stages. Display a plotting pipe in Jupyter to use its attached
 viewer; unwrapping returns the data rather than the viewer.
 
+The pipe records only the statement written inside it. Preparation before
+`pipe(...)` and transformations after `unwrap()` remain outside its trace.
+`unwrap()` returns the wrapped value; it does not force computation, certify a
+result, or complete the wider workflow.
+
 ## pipe
 
 ::: cubedynamics.piping.pipe
@@ -44,5 +49,6 @@ rather than constructing this wrapper directly.
 
 ## See also
 
+[Scientific inspectability](../concepts/scientific_inspectability.md) ·
 [Semantic grammar](../concepts/semantic_grammar.md) ·
 [Custom verbs](../extending/custom_verbs.md) · [API stability](../project/public_api.md)

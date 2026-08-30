@@ -3,6 +3,10 @@
 Look up an operation, its inputs, or its return value. Start with
 [Learn](../learn/index.md) for a guided introduction.
 
+For the research argument behind the reference—why rerunnable code is not
+automatically scientifically inspectable—read
+[Scientific inspectability](../concepts/scientific_inspectability.md).
+
 ## Verbs
 
 [Browse verbs by purpose](../reference/verbs/index.md) or find a name in
@@ -19,6 +23,7 @@ Static and non-raster inputs: [elevation](../library/nouns/elevation.md) ·
 
 ## Pipe and grammar
 
+[Scientific inspectability](../concepts/scientific_inspectability.md) ·
 [Pipe reference](../api/pipe.md) · [Grammar reference](../grammar/index.md) ·
 [Order and meaning](../learn/order.md) · [Custom verbs](../extending/custom_verbs.md)
 

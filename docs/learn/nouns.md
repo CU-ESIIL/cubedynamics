@@ -2,8 +2,9 @@
 
 ## Concept
 
-A noun identifies the environmental information you want; a source flavor
-selects the provider product. Begin with the [shared setup](index.md#shared-setup).
+A noun identifies the environmental information you want; a required source
+flavor identifies the provider and product that give it observational meaning.
+Begin with the [shared setup](index.md#shared-setup).
 
 ## Tiny example
 
@@ -17,6 +18,11 @@ Available flavors come from the implemented catalog. The
 [temperature reference](../library/nouns/temperature.md) defines units,
 coverage and returned data. `cube` here is a frozen observed extract that
 avoids a network request while teaching.
+
+A shared noun is a common entry point, not a claim that sources are equivalent.
+PRISM and gridMET temperature retain their native variables, units, grids,
+statistics, revisions, and provenance. Always inspect the source flavor before
+treating a noun as a scientific observation.
 
 ## Try it / worked example
 

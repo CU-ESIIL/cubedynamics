@@ -39,6 +39,13 @@ def test_primary_destinations_fit_viewport(page, site_base, route, width):
     page.goto(site_base + route)
     expect(page.locator("article h1")).to_be_visible()
     assert page.evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), "Page overflows horizontally"
+    if route == "":
+        assert page.locator(".cd-hero-copy h1").evaluate("""el => {
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          const box = range.getBoundingClientRect();
+          return box.left >= 0 && box.right <= innerWidth + 1;
+        }"""), "Homepage title is clipped by the viewport"
     if width > 1000:
         tabs = page.get_by_role("navigation", name="Tabs", exact=True)
         expect(tabs.get_by_role("link")).to_have_text(["Home", "Learn", "Library", "Documents", "Vignettes"])
