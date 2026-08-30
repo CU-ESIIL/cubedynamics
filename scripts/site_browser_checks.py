@@ -130,6 +130,29 @@ def activate_embeds(page):
     # Ordinary lazy iframes (not wrapped by the site's deferred loader).
     for frame in page.locator("iframe").all():
         frame.scroll_into_view_if_needed()
+
+        source = frame.get_attribute("src")
+        if not source or source == "about:blank":
+            continue
+        # A lazy iframe has an already-loaded initial about:blank document.
+        # Frame.wait_for_load_state("load") can therefore return before the
+        # requested navigation even starts. Match the browsing context to the
+        # element's resolved src and wait for that document to finish instead;
+        # otherwise page teardown can cancel a still-active navigation and
+        # surface a misleading net::ERR_ABORTED in the crawl.
+        page.wait_for_function(
+            """frame => {
+              const expected = new URL(frame.getAttribute('src'), document.baseURI).href;
+              try {
+                return frame.contentWindow.location.href === expected
+                  && frame.contentDocument.readyState === 'complete';
+              } catch (_) {
+                return false;
+              }
+            }""",
+            arg=frame.element_handle(),
+            timeout=30000,
+        )
     for frame in page.frames:
         frame.wait_for_load_state("load", timeout=20000)
 

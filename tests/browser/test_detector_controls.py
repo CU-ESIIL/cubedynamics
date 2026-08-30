@@ -1,4 +1,6 @@
 """Prove the browser checks can fail; these are DOM fixtures, not science data."""
+import time
+
 import pytest
 
 pytest.importorskip("playwright.sync_api")
@@ -37,6 +39,37 @@ def test_detector_accepts_inline_svg_and_lazy_frame(page, tmp_path):
         report = audit_page(page, base, base, {})
     assert not report["errors"], report
     assert len(report["frames"]) == 2
+
+
+def test_detector_waits_for_requested_lazy_frame_document(page, tmp_path):
+    """Do not mistake the iframe's initial about:blank load for its real load."""
+    (tmp_path / "image.svg").write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">'
+        '<rect width="10" height="10"/></svg>'
+    )
+    (tmp_path / "target.html").write_text(
+        '<body><script async src="slow.js"></script></body>'
+    )
+    (tmp_path / "index.html").write_text(
+        '<body><iframe loading="lazy" src="target.html" '
+        'style="margin-top:2000px"></iframe></body>'
+    )
+
+    def finish_frame(route):
+        time.sleep(0.25)
+        route.fulfill(
+            content_type="text/javascript",
+            body="document.body.insertAdjacentHTML('beforeend', "
+            "'<img src=\"image.svg\" alt=\"loaded after script\">');",
+        )
+
+    page.route("**/slow.js", finish_frame)
+    with serve_site(tmp_path) as base:
+        report = audit_page(page, base, base, {})
+
+    assert not report["errors"], report
+    assert len(report["frames"]) == 2
+    assert report["frames"][1]["images"] == 1
 
 
 def test_directory_redirect_preserves_pages_prefix(page, tmp_path):

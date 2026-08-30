@@ -4,6 +4,61 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-08-30 — Make lazy-iframe browser auditing deterministic
+
+- Investigated the single Chromium crawl failure on the Fire VASE page. The
+  published HTML asset was present and valid; the audit could instead observe
+  the iframe's already-loaded initial `about:blank` document, then finish and
+  close the page while the lazy navigation was still active. Chromium reported
+  that teardown as `net::ERR_ABORTED`.
+- Updated the shared embed activation check to wait until each nonblank iframe's
+  browsing context matches its resolved `src` and that requested document is
+  complete. Added a deliberately delayed lazy-iframe detector regression that
+  proves content loaded by the requested document is included in the audit.
+- Validation: 11 non-browser browser-support tests passed; the focused detector
+  and Fire VASE browser checks passed 12/12; the complete Chromium suite passed
+  375/375 in 262.69 seconds; `git diff --check` passed.
+
+## 2026-08-30 — Bring the software manuscript framing into the public documentation
+
+- User asked to find the newly added main manuscript PDF and incorporate its
+  ideas and language into the documentation and website. Identified
+  `docs/documentation/main-17.pdf` as the August 28, 2026 draft, extracted its
+  text, rendered all 13 pages, and visually inspected the complete document.
+- Adopted the manuscript's distinction between computational repeatability and
+  scientific inspectability, its two-level model of readable expression plus
+  inspectable foundation, and its source-qualified noun, semantic verb,
+  authored-order, state/trace, and evidence-boundary language. Retained the
+  design maxim that shorter expressions require stronger evidence underneath.
+- Added `docs/concepts/scientific_inspectability.md` and placed it under
+  Documents → Pipe and grammar. The page links to the dated manuscript while
+  stating that runtime, tests, public API, and generated references—not the
+  manuscript—remain implementation truth.
+- Reframed Home, Learn, the grammar and pipe references, methods/citation,
+  vignettes, README, quickstart, and the xarray comparison around inspectable
+  scientific statements. Preserved explicit boundaries: common nouns do not
+  establish source equivalence; trace is not complete provenance; `unwrap()`
+  does not compute or certify; fixture/live/structural/scientific evidence have
+  distinct jobs; many-dataset and full branch-and-join synthesis are not current
+  capability claims. No scientific runtime, catalog, source status, release
+  metadata, manuscript PDF, generated reference page, or primary navigation tab
+  changed.
+- Extended the research-focused homepage with an inspectability manifesto and
+  statement/state/evidence layer section using the existing editorial design.
+  Visual QA found and fixed low-contrast release-status text and a clipped
+  mobile wordmark; added a 390 px browser regression for the title.
+- Validation: the complete offline suite passed with 783 tests and 5 skips;
+  94 focused documentation/reference/repository/release tests passed;
+  75 generated reference pages were current; strict MkDocs build and built-site
+  file/anchor checks passed; all 374 Chromium browser checks passed. Desktop and
+  390 px views of Home and the new framing page were also inspected in the
+  in-app browser with no horizontal overflow. During final checks, the reviewed
+  documentation change set appeared on `origin/main` as commit `0156d25`
+  (`inspect`), created outside this task's tool actions. Read-only requests then
+  verified that both the public homepage and `/concepts/scientific_inspectability/`
+  served the new framing. No release, tag, DOI, or manuscript-status change was
+  performed.
+
 ## 2026-08-28 — Prepare an installable 0.1.0rc1
 
 - Independent outside-user acceptance correctly stopped: PyPI had no package
