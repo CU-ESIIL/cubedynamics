@@ -66,6 +66,28 @@ def test_climate_profile_fails_non_daily_or_undocumented_data() -> None:
     assert result.checks["crs_documented"] is False
 
 
+def test_climate_profile_reads_dataarray_provenance_without_hiding_synthetic() -> None:
+    array = _climate()["temperature"].copy(deep=False)
+    array.attrs.update(
+        {
+            "source_provider": "reviewed observation provider",
+            "is_synthetic": False,
+            "spatial_reference": "EPSG:4326",
+        }
+    )
+
+    observed = data.evaluate_qa_profile("climate_continuous_daily", array)
+    assert observed.outcome is data.CertificationOutcome.PASS
+    assert observed.checks["source_identity_documented"] is True
+    assert observed.checks["observational_source"] is True
+
+    generated = array.copy(deep=False)
+    generated.attrs["is_synthetic"] = True
+    rejected = data.evaluate_qa_profile("climate_continuous_daily", generated)
+    assert rejected.outcome is data.CertificationOutcome.FAIL
+    assert rejected.checks["observational_source"] is False
+
+
 def test_feature_line_profile_checks_geometry_identity_and_crs() -> None:
     result = data.evaluate_qa_profile(
         "feature_line",

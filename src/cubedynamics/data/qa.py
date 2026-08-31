@@ -57,6 +57,7 @@ def _climate_continuous_daily(
     value: Any, context: Mapping[str, Any]
 ) -> tuple[dict[str, bool], dict[str, Any]]:
     dataset = _as_dataset(value)
+    metadata = (dataset.attrs, *(array.attrs for array in dataset.data_vars.values()))
     time = dataset.coords.get("time")
     variables = list(dataset.data_vars.values())
     time_values = np.asarray(time.values) if time is not None else np.asarray([])
@@ -72,9 +73,13 @@ def _climate_continuous_daily(
         "xarray_object": True,
         "nonempty_dimensions": bool(dataset.sizes)
         and all(size > 0 for size in dataset.sizes.values()),
-        "observational_source": not bool(dataset.attrs.get("is_synthetic", False)),
+        "observational_source": not any(
+            bool(attrs.get("is_synthetic", False)) for attrs in metadata
+        ),
         "source_identity_documented": any(
-            dataset.attrs.get(name) for name in ("source", "source_provider", "source_url")
+            attrs.get(name)
+            for attrs in metadata
+            for name in ("source", "source_provider", "source_url")
         ),
         "time_coordinate_present": time is not None,
         "spatial_coordinates_present": {"y", "x"}.issubset(dataset.coords),

@@ -4,6 +4,27 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-08-31 — Repair DataArray live-source certification
+
+- Reproduced the scheduled live-source result: Daymet was intentionally
+  `BLOCKED` without an Earthdata token, while the bounded three-day PRISM sample
+  was retrieved successfully but failed only `source_identity_documented`.
+- Found that noun provenance was present on the returned `DataArray`, but the
+  climate QA profile converted it to a Dataset and inspected source identity
+  and synthetic status only in container attrs. Updated those checks to inspect
+  both container and data-variable attrs, preserving strict rejection when any
+  variable declares synthetic data.
+- Added DataArray provenance and synthetic-negative regressions. Enhanced live
+  certification console output to name failed gates, failed QA checks, and
+  blocker caveats while retaining complete JSON evidence.
+- Validation: 24 focused QA/noun/live-certification tests passed; the bounded
+  live command exited zero with Daymet `BLOCKED` for the absent local token and
+  PRISM `PASS_WITH_CAVEATS`; the complete offline suite passed with 785 tests
+  and 5 skips; offline Phase 1 source QA passed for PRISM, gridMET, and
+  Sentinel-2. Regenerated visual evidence changed only the manifest's QA-source
+  hash and checkout SHA; all 8 visual results (7 figures) and 75 reference pages
+  passed freshness checks. `git diff --check` passed.
+
 ## 2026-08-30 — Make lazy-iframe browser auditing deterministic
 
 - Investigated the single Chromium crawl failure on the Fire VASE page. The

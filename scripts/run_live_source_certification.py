@@ -46,6 +46,31 @@ def _daymet() -> tuple[object, str, str]:
 LOADERS = {"prism": _prism, "daymet": _daymet}
 
 
+def _diagnostics(result: dict[str, object]) -> list[str]:
+    """Return compact failure context suitable for a CI log."""
+
+    certification = result["certification"]
+    assert isinstance(certification, dict)
+    lines = []
+    failed_gates = sorted(
+        name
+        for name, outcome in certification.get("gates", {}).items()
+        if outcome in {"FAIL", "BLOCKED"}
+    )
+    if failed_gates:
+        lines.append(f"  failed gates: {', '.join(failed_gates)}")
+    evidence = certification.get("evidence", {})
+    profile = evidence.get("qa_profile", {}) if isinstance(evidence, dict) else {}
+    failed_checks = sorted(
+        name for name, passed in profile.get("checks", {}).items() if not passed
+    )
+    if failed_checks:
+        lines.append(f"  failed QA checks: {', '.join(failed_checks)}")
+    for caveat in certification.get("caveats", []):
+        lines.append(f"  caveat: {caveat}")
+    return lines
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", action="append", choices=sorted(LOADERS))
@@ -81,6 +106,8 @@ def main() -> int:
         result = {"source_flavor": source, **result}
         write_live_certification(result, args.output / f"{source}.json")
         print(f"{source}: {result['certification']['outcome']}")
+        if result["certification"]["outcome"] in {"FAIL", "BLOCKED"}:
+            print("\n".join(_diagnostics(result)))
     return 1 if failed else 0
 
 

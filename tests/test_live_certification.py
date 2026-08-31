@@ -9,6 +9,7 @@ import pandas as pd
 import xarray as xr
 
 from cubedynamics import data
+from scripts.run_live_source_certification import _diagnostics
 
 
 def _sample() -> xr.Dataset:
@@ -49,3 +50,29 @@ def test_blocked_live_certification_does_not_invalidate_revision() -> None:
     )
     assert result["live_health"] == "UNAVAILABLE"
     assert result["certification"]["outcome"] == "BLOCKED"
+
+
+def test_live_certification_diagnostics_name_failed_checks_and_blockers() -> None:
+    undocumented = _sample()
+    undocumented.attrs = {}
+    failed = data.certify_live_sample(
+        undocumented,
+        qa_profile="climate_continuous_daily",
+        serving_revision="temperature.prism@2026-08-26.1",
+        endpoint_verified=True,
+        bounded_access_verified=True,
+        upstream_identity_verified=None,
+    )
+    assert _diagnostics(failed) == [
+        "  failed gates: numerical_qa",
+        "  failed QA checks: crs_documented, source_identity_documented",
+    ]
+
+    blocked = data.blocked_live_certification(
+        serving_revision="temperature.daymet@2026-08-26.1",
+        reason="EARTHDATA_TOKEN missing",
+    )
+    assert _diagnostics(blocked) == [
+        "  failed gates: endpoint_verified",
+        "  caveat: EARTHDATA_TOKEN missing",
+    ]
