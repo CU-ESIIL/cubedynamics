@@ -24,15 +24,15 @@ v.threshold_state(*, threshold, direction, variable=None, name=None)
 
 ## Accepts
 
-Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+A continuous or categorical xarray field, or a summary produced by a reduction. Dataset inputs require variable= unless they contain only one data variable.
 
 ## Returns
 
-Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+A condition Dataset with state, magnitude, and threshold variables plus explicit condition metadata.
 
 ## Order / grammar behavior
 
-Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+Threshold then mean measures condition prevalence; mean then threshold defines a condition from an aggregate. Both are valid and intentionally distinct.
 
 ## Minimal example
 
@@ -111,7 +111,7 @@ plt.show()
 
 ## Works with
 
-Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+A continuous or categorical xarray field, or a summary produced by a reduction. Dataset inputs require variable= unless they contain only one data variable.
 
 ## See also
 

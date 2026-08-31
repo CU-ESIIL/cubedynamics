@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import builtins
 import numpy as np
 import pytest
 import xarray as xr
 
-from cubedynamics.viz.lexcube_viz import _prepare_lexcube_cube, show_cube_lexcube
+from cubedynamics.viz.lexcube_viz import (
+    LexcubeUnavailableError,
+    _prepare_lexcube_cube,
+    show_cube_lexcube,
+)
 
 
 def _require_lexcube() -> None:
@@ -62,3 +67,26 @@ def test_show_cube_lexcube_requires_time_y_x_dims() -> None:
 
     with pytest.raises(ValueError):
         show_cube_lexcube(bad_cube)
+
+
+def test_show_cube_lexcube_missing_optional_dependency_has_install_guidance(
+    monkeypatch,
+) -> None:
+    cube = xr.DataArray(
+        np.ones((2, 2, 2)),
+        dims=("time", "y", "x"),
+        coords={"time": [0, 1], "y": [0, 1], "x": [0, 1]},
+    )
+    original_import = builtins.__import__
+
+    def missing_lexcube(name, *args, **kwargs):
+        if name == "lexcube":
+            error = ModuleNotFoundError("No module named 'lexcube'")
+            error.name = "lexcube"
+            raise error
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", missing_lexcube)
+
+    with pytest.raises(LexcubeUnavailableError, match=r"cubedynamics\[viz\]"):
+        show_cube_lexcube(cube)

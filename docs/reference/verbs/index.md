@@ -30,7 +30,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | [change_state](change_state.md) | Grammar verb / pipe stage | define a condition from lagged change |
 | [detect_events](detect_events.md) | Grammar verb / pipe stage | group consecutive true periods into events |
 | [quantile_state](quantile_state.md) | Grammar verb / pipe stage | define a condition relative to an empirical quantile |
-| [threshold_state](threshold_state.md) | Grammar verb / pipe stage | turn continuous values into a named true/false condition |
+| [threshold_state](threshold_state.md) | Grammar verb / pipe stage | turn continuous values or a summary into a named true/false condition |
 
 ## Synchrony and comparison
 
@@ -69,7 +69,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | [fire_plot](fire_plot.md) | Visualization helper (direct call) | render one fire event and its climate context |
 | [fire_vase_panel](fire_vase_panel.md) | Grammar verb / pipe stage | render a multi-event VASE panel |
 | [landsat_ndvi_plot](landsat_ndvi_plot.md) | Visualization helper (direct call) | render a Landsat NDVI view |
-| [plot](plot.md) | Grammar verb / pipe stage | render an interactive cube view |
+| [plot](plot.md) | Grammar verb / pipe stage | render a cube, spatial map, or temporal line view |
 | [plot_mean](plot_mean.md) | Grammar verb / pipe stage | render a spatial-mean time series |
 | [tubes](tubes.md) | Grammar verb / pipe stage | construct a tube representation from a spatiotemporal cube |
 | [vase](vase.md) | Grammar verb / pipe stage | construct a configured fire VASE representation |

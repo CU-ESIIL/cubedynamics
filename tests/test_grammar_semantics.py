@@ -142,6 +142,54 @@ def test_reducing_time_before_event_detection_explains_lost_information():
     assert "Detect events before reducing over time" in message
 
 
+def test_threshold_then_mean_is_a_prevalence_summary_with_truthful_metadata():
+    result = (
+        cd.pipe(_temperature_cube())
+        | v.threshold_state(threshold=25.0, direction="below", name="cool")
+        | v.mean(dim=("time", "y", "x"), keep_dim=False)
+    )
+
+    summary = result.unwrap()
+    expected = (_temperature_cube() <= 25.0).mean().item()
+    assert result.semantic_state.semantic_kind == "summary"
+    assert result.semantic_state.has_time_variation is False
+    assert summary.attrs["semantic_kind"] == "summary"
+    assert summary["state"].attrs["semantic_units"] == "proportion"
+    assert summary["state"].item() == pytest.approx(expected)
+    assert any(
+        message.code == cd.grammar.ORDER_CHANGES_MEANING
+        for message in result.semantic_trace[-1].messages
+    )
+    assert "Semantic kind: summary" in result.explain()
+    assert "prevalence" in result.explain()
+
+
+def test_mean_then_threshold_is_allowed_and_defines_aggregate_condition():
+    result = (
+        cd.pipe(_temperature_cube())
+        | v.mean(dim=("time", "y", "x"), keep_dim=False)
+        | v.threshold_state(threshold=25.0, direction="below", name="cool mean")
+    )
+
+    condition = result.unwrap()
+    expected = _temperature_cube().mean().item() <= 25.0
+    assert result.semantic_state.semantic_kind == "condition"
+    assert condition.attrs["semantic_kind"] == "condition"
+    assert condition["state"].item() == expected
+    assert any(
+        message.code == cd.grammar.ORDER_CHANGES_MEANING
+        for message in result.semantic_trace[-1].messages
+    )
+    assert "Semantic kind: condition" in result.explain()
+    assert "aggregate value" in result.explain()
+
+
+def test_summary_suggests_threshold_state_as_an_implemented_next_step():
+    summary = cd.pipe(_temperature_cube()) | v.mean(over="time")
+
+    assert "threshold_state" in {item.verb for item in summary.suggest()}
+
+
 @pytest.mark.parametrize("verb", [v.mean, v.variance, v.anomaly, v.zscore])
 def test_over_alias_matches_dim_and_conflicts_are_explicit(verb):
     cube = _temperature_cube()
@@ -212,6 +260,8 @@ def test_order_library_covers_requested_bidirectional_concepts():
         ("events", "frequency"),
         ("events", "magnitude"),
         ("mean", "events"),
+        ("threshold", "mean"),
+        ("mean", "threshold"),
         ("aggregate", "onset"),
         ("filter", "change"),
         ("change", "filter"),
@@ -261,3 +311,52 @@ def test_state_and_event_outputs_carry_semantic_metadata():
     events = (cd.pipe(states) | v.detect_events()).unwrap()
     assert events.dataset.attrs["semantic_kind"] == "event"
     assert events.dataset.attrs["semantic_category"] == "event"
+
+
+@pytest.mark.parametrize(
+    ("stages", "expected_kind"),
+    [
+        ((v.anomaly(over="time"),), "continuous_field"),
+        ((v.anomaly(over="time"), v.zscore(over="time")), "continuous_field"),
+        (
+            (
+                v.anomaly(over="time"),
+                v.zscore(over="time"),
+                v.threshold_state(threshold=0.5, direction="above"),
+            ),
+            "condition",
+        ),
+        (
+            (
+                v.anomaly(over="time"),
+                v.zscore(over="time"),
+                v.threshold_state(threshold=0.5, direction="above"),
+                v.detect_events(min_duration=1),
+            ),
+            "event",
+        ),
+    ],
+)
+def test_curated_legal_chains_of_length_one_to_four(stages, expected_kind):
+    result = cd.pipe(_temperature_cube())
+    for stage in stages:
+        result = result | stage
+
+    assert result.semantic_state.semantic_kind == expected_kind
+    assert len(result.semantic_trace) == len(stages)
+
+
+@pytest.mark.parametrize(
+    ("first_stage", "invalid_stage", "guidance"),
+    [
+        (v.mean(over="time"), v.detect_events(), "earlier reduction removed"),
+        (v.anomaly(over="time"), v.detect_events(), "threshold_state"),
+    ],
+)
+def test_curated_invalid_chains_are_rejected_with_semantic_guidance(
+    first_stage, invalid_stage, guidance
+):
+    result = cd.pipe(_temperature_cube()) | first_stage
+
+    with pytest.raises(cd.grammar.SemanticGrammarError, match=guidance):
+        result | invalid_stage

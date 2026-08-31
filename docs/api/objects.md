@@ -24,9 +24,12 @@ for source and tile contracts.
 
 ## State and event results
 
-State constructors return xarray Datasets with state, magnitude and threshold
-variables. [detect_events](../reference/verbs/detect_events.md) turns them into
-an event result with a dataset and catalog. See the [state/event analysis](../vignettes/states_and_events.ipynb).
+Conditions are xarray Datasets with a Boolean `state` variable. Threshold and
+quantile constructors additionally expose scientifically defined `magnitude`
+and `threshold` variables; logical `overlap` contains only `state` and operand
+metadata. [detect_events](../reference/verbs/detect_events.md) turns a temporal
+condition into an event result with a dataset and catalog. See the
+[state/event analysis](../vignettes/states_and_events.ipynb).
 
 ## Fire geometry
 

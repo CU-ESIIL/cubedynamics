@@ -23,11 +23,14 @@ to each cell and this short period, not a definition of an extreme climate event
 
 ```python
 frequency = (pipe(coincidence) | v.mean(dim="time", keep_dim=False)).unwrap()
-frequency.plot()
+frequency["state"].plot(cbar_kwargs={"label": "Fraction of observed days"})
 plt.show()
 ```
 
-Read this as the fraction of observed days satisfying both conditions.
+`overlap` returns a condition Dataset containing only Boolean `state`. It does
+not invent a magnitude or threshold for a logical intersection. After `mean`,
+the `state` variable is explicitly labeled as a proportion summary. Read it as
+the fraction of observed days satisfying both conditions.
 Do not infer damage or risk from co-occurrence alone.
 
 ## What to learn next

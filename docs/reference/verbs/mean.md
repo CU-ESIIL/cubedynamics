@@ -75,6 +75,9 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 
 Streaming VirtualCube inputs are processed tile-by-tile without forcing a
 full load. Dask-backed arrays remain lazy. When ``keep_dim`` is False the
-reduced dimension is dropped.
+reduced dimension is dropped. A mean of a condition Dataset returns a
+summary Dataset containing only its reduced ``state`` proportion. The
+condition definition remains in Dataset metadata; auxiliary magnitude and
+threshold arrays are not averaged implicitly.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L113). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L293). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

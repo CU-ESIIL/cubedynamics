@@ -46,7 +46,7 @@ def _pipeline(observed: xr.Dataset) -> tuple[xr.Dataset, xr.Dataset, xr.DataArra
         pipe(warm)
         | v.overlap(dry, name="warm_and_dry")
         | v.mean(dim="time", keep_dim=False)
-    ).unwrap() * 100
+    ).unwrap()["state"] * 100
     return warm, dry, frequency
 
 

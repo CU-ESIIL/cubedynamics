@@ -119,6 +119,7 @@ nav:
                   - Cloud sources: streaming/cloud_sources.md
                   - STAC sources: streaming/stac_sources.md
           - Plans and audits:
+              - RC1 validation triage: project/rc1_validation_triage.md
               - Documentation structure: project/documentation_refactor.md
               - Publication audit and plan: project/publication_plan.md
               - Scientific vocabulary plan: project/data_vocabulary_plan.md

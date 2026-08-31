@@ -13,6 +13,10 @@ if TYPE_CHECKING:  # pragma: no cover - import-time dependency hint only
     import lexcube
 
 
+class LexcubeUnavailableError(ImportError):
+    """Raised when the optional Lexcube visualization extra is unavailable."""
+
+
 def show_cube_lexcube(
     cube: xr.DataArray,
     title: str = "",
@@ -20,11 +24,25 @@ def show_cube_lexcube(
     vmin: float | None = None,
     vmax: float | None = None,
 ) -> "lexcube.Cube3DWidget":
-    """Create a Lexcube Cube3DWidget from a 3D cube (time, y, x)."""
+    """Create a Lexcube widget from a 3-D ``(time, y, x)`` cube.
+
+    Lexcube is optional. Install ``cubedynamics[viz]`` and restart the notebook
+    kernel before calling this helper; a missing extra raises
+    :class:`LexcubeUnavailableError` with that guidance.
+    """
 
     cube = _prepare_lexcube_cube(cube)
 
-    import lexcube
+    try:
+        import lexcube
+    except ModuleNotFoundError as exc:
+        if exc.name != "lexcube":
+            raise
+        raise LexcubeUnavailableError(
+            "Lexcube is an optional CubeDynamics visualization dependency. "
+            "Install it with `python -m pip install \"cubedynamics[viz]\"` "
+            "and restart the notebook kernel before using show_cube_lexcube()."
+        ) from exc
 
     widget = lexcube.Cube3DWidget(
         cube,
@@ -68,3 +86,6 @@ def _has_integer_day_of_year_like_time(cube: xr.DataArray) -> bool:
         return False
 
     return bool(time.min().item() >= 0 and time.max().item() <= 365)
+
+
+__all__ = ["LexcubeUnavailableError", "show_cube_lexcube"]

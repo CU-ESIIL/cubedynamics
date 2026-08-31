@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any, Hashable, Iterable
 
 import numpy as np
@@ -70,6 +71,185 @@ def _broadcast_like(
     return stat.broadcast_like(obj)
 
 
+def _dimension_names(dim: Hashable | Iterable[Hashable]) -> tuple[str, ...]:
+    """Return stable string names for one or more reduction dimensions."""
+
+    if isinstance(dim, set):
+        return tuple(sorted(str(name) for name in dim))
+    if isinstance(dim, (list, tuple)):
+        return tuple(str(name) for name in dim)
+    return (str(dim),)
+
+
+def _variance_units(units: object) -> str | None:
+    """Return a conservative squared spelling for one physical unit string."""
+
+    if units is None:
+        return None
+    text = str(units).strip()
+    if not text:
+        return None
+    normalized = text.casefold()
+    if normalized in {"1", "dimensionless", "unitless"}:
+        return "1"
+    if normalized in {"unknown", "n/a", "na", "none", "unspecified"}:
+        return text
+    if re.fullmatch(r"[A-Za-zµμ°%]+", text):
+        return f"{text}^2"
+    return f"({text})^2"
+
+
+def _annotate_variance_units(attrs: dict[str, Any]) -> None:
+    """Update both physical and semantic units without inventing missing units."""
+
+    source_units = attrs.get("semantic_units") or attrs.get("units")
+    squared = _variance_units(source_units)
+    if squared is None:
+        attrs.pop("semantic_units", None)
+        attrs.pop("units", None)
+        return
+    attrs["units"] = squared
+    attrs["semantic_units"] = squared
+
+
+def _annotate_summary(
+    original: xr.Dataset | xr.DataArray,
+    reduced: xr.Dataset | xr.DataArray,
+    *,
+    operation: str,
+    dim: Hashable | Iterable[Hashable],
+) -> xr.Dataset | xr.DataArray:
+    """Replace inherited state labels with truthful reduction semantics."""
+
+    original_attrs = dict(original.attrs)
+    original_name = (
+        original_attrs.get("semantic_name")
+        or original_attrs.get("state_name")
+        or getattr(original, "name", None)
+        or "values"
+    )
+    attrs = dict(reduced.attrs)
+    for key in (
+        "analysis",
+        "state_name",
+        "semantic_name",
+        "semantic_kind",
+        "semantic_category",
+        "semantic_units",
+    ):
+        attrs.pop(key, None)
+    attrs.update(
+        {
+            "analysis": "reduction_summary",
+            "semantic_name": f"{operation} of {original_name}",
+            "semantic_kind": "summary",
+            "semantic_category": "summary",
+            "summary_operation": operation,
+            "summary_dimensions": ",".join(_dimension_names(dim)),
+        }
+    )
+
+    if operation == "variance":
+        _annotate_variance_units(attrs)
+        if isinstance(reduced, xr.Dataset):
+            for name in reduced.data_vars:
+                variable_attrs = dict(reduced[name].attrs)
+                _annotate_variance_units(variable_attrs)
+                reduced[name].attrs = variable_attrs
+
+    is_condition = (
+        original_attrs.get("semantic_kind") == "condition"
+        or original_attrs.get("analysis") == "state_cube"
+        or (isinstance(original, xr.DataArray) and original.dtype == bool)
+    )
+    if is_condition and operation == "mean":
+        if isinstance(reduced, xr.DataArray):
+            attrs.update({"semantic_units": "proportion", "units": "1"})
+        elif "state" in reduced.data_vars:
+            # The summary Dataset contains a unitless state proportion plus
+            # magnitude/threshold variables in source units, so one global
+            # units label would be misleading.
+            attrs.pop("units", None)
+            state_attrs = dict(reduced["state"].attrs)
+            state_attrs.update(
+                {
+                    "long_name": f"Proportion of {original_name}",
+                    "semantic_name": f"proportion of {original_name}",
+                    "semantic_kind": "summary",
+                    "semantic_category": "condition_frequency",
+                    "semantic_units": "proportion",
+                    "units": "1",
+                }
+            )
+            reduced["state"].attrs = state_attrs
+            reduced = xr.Dataset({"state": reduced["state"]})
+            attrs.update(
+                {
+                    "condition_summary": "occurrence_proportion",
+                    "reduced_condition_fields": "state",
+                    "excluded_condition_fields": "magnitude,threshold",
+                }
+            )
+
+    reduced.attrs = attrs
+    return reduced
+
+
+def _annotate_centered_transform(
+    original: xr.Dataset | xr.DataArray,
+    transformed: xr.Dataset | xr.DataArray,
+    *,
+    operation: str,
+) -> xr.Dataset | xr.DataArray:
+    """Describe an anomaly or z-score without evaluating its array values."""
+
+    source_attrs = dict(original.attrs)
+    source_name = (
+        source_attrs.get("semantic_name")
+        or source_attrs.get("scientific_noun")
+        or getattr(original, "name", None)
+        or "values"
+    )
+    attrs = dict(source_attrs)
+    attrs.update(
+        {
+            "analysis": operation,
+            "semantic_name": f"{operation} of {source_name}",
+            "semantic_kind": "continuous_field",
+            "semantic_category": "centered_transform",
+            "transform_operation": operation,
+        }
+    )
+    if operation == "zscore":
+        attrs.update({"units": "1", "semantic_units": "standard deviations"})
+
+    transformed.attrs = attrs
+    if isinstance(transformed, xr.Dataset):
+        for name in transformed.data_vars:
+            variable_source = original[name] if name in original.data_vars else original
+            variable_attrs = dict(getattr(variable_source, "attrs", {}))
+            variable_name = (
+                variable_attrs.get("semantic_name")
+                or variable_attrs.get("scientific_noun")
+                or name
+            )
+            variable_attrs.update(
+                {
+                    "analysis": operation,
+                    "semantic_name": f"{operation} of {variable_name}",
+                    "semantic_kind": "continuous_field",
+                    "semantic_category": "centered_transform",
+                    "transform_operation": operation,
+                }
+            )
+            if operation == "zscore":
+                variable_attrs.update(
+                    {"units": "1", "semantic_units": "standard deviations"}
+                )
+            transformed[name].attrs = variable_attrs
+    return transformed
+
+
 def month_filter(months: Iterable[int]):
     """Keep the requested calendar months on a datetime-like time coordinate.
 
@@ -136,12 +316,16 @@ def mean(
 
     Returns
     xr.Dataset | xr.DataArray | VirtualCube
-        Reduced cube with attrs preserved; VirtualCube inputs stay lazy.
+        Reduced cube with source/provenance attrs preserved and semantic attrs
+        normalized to describe a summary; VirtualCube inputs stay lazy.
 
     Notes
     Streaming VirtualCube inputs are processed tile-by-tile without forcing a
     full load. Dask-backed arrays remain lazy. When ``keep_dim`` is False the
-    reduced dimension is dropped.
+    reduced dimension is dropped. A mean of a condition Dataset returns a
+    summary Dataset containing only its reduced ``state`` proportion. The
+    condition definition remains in Dataset metadata; auxiliary magnitude and
+    threshold arrays are not averaged implicitly.
 
     Examples
     --------
@@ -170,7 +354,8 @@ def mean(
 
         _ensure_dim(obj, dim)
         reduced = obj.mean(dim=dim, skipna=skipna, keep_attrs=True)
-        return _expand_dim(reduced, dim, keep_dim)
+        reduced = _expand_dim(reduced, dim, keep_dim)
+        return _annotate_summary(obj, reduced, operation="mean", dim=dim)
 
     return _op
 
@@ -189,7 +374,8 @@ def variance(
     def _variance_xarray(obj: xr.Dataset | xr.DataArray) -> xr.Dataset | xr.DataArray:
         _ensure_dim(obj, dim)
         reduced = obj.var(dim=dim, skipna=skipna, keep_attrs=True)
-        return _expand_dim(reduced, dim, keep_dim)
+        reduced = _expand_dim(reduced, dim, keep_dim)
+        return _annotate_summary(obj, reduced, operation="variance", dim=dim)
 
     def _variance_virtual_cube(vc: VirtualCube):  # type: ignore[return-value]
         if isinstance(dim, (tuple, list)) and set(dim) == {"y", "x"}:
@@ -364,7 +550,9 @@ def anomaly(
     """Return a pipe verb that subtracts the mean over ``dim``.
 
     ``keep_dim`` is accepted for API symmetry; anomalies always preserve the
-    input shape so Lexcube visualization remains valid.
+    input shape so Lexcube visualization remains valid. Result metadata names
+    the anomaly transform, retains source identity and physical units, and
+    describes the result as a continuous field.
     """
 
     dim = _resolve_over(dim, over)
@@ -373,7 +561,8 @@ def anomaly(
         _ensure_dim(obj, dim)
         mean_op = obj.mean(dim=dim, skipna=True, keep_attrs=True)
         mean_op = _broadcast_like(obj, mean_op)
-        return obj - mean_op
+        result = obj - mean_op
+        return _annotate_centered_transform(obj, result, operation="anomaly")
 
     return _op
 
@@ -390,7 +579,8 @@ def zscore(
 
     ``keep_dim`` is included for API symmetry; z-scores preserve the incoming
     cube shape regardless of the flag. ``std_eps`` prevents division-by-zero for
-    flat series.
+    flat series. Result metadata retains source identity while recording
+    physical units as ``1`` and semantic units as standard deviations.
     """
 
     dim = _resolve_over(dim, over)
@@ -415,8 +605,21 @@ def zscore(
             combined = xr.combine_by_coords(tiles)
             if isinstance(combined, xr.Dataset) and len(combined.data_vars) == 1:
                 only_var = next(iter(combined.data_vars))
-                return combined[only_var]
-            return combined
+                result = combined[only_var]
+            else:
+                result = combined
+            result.attrs.update(
+                {
+                    "analysis": "zscore",
+                    "semantic_name": "zscore of streamed values",
+                    "semantic_kind": "continuous_field",
+                    "semantic_category": "centered_transform",
+                    "transform_operation": "zscore",
+                    "units": "1",
+                    "semantic_units": "standard deviations",
+                }
+            )
+            return result
 
         _ensure_dim(obj, dim)
         mean_op = obj.mean(dim=dim, skipna=skipna, keep_attrs=True)
@@ -428,7 +631,7 @@ def zscore(
         if isinstance(z, xr.DataArray):
             name = obj.name or "var"
             z = z.rename(f"{name}_zscore")
-        return z
+        return _annotate_centered_transform(obj, z, operation="zscore")
 
     return _op
 

@@ -2,7 +2,7 @@
 
 # plot
 
-Plot a cube using the CubePlot grammar and keep the cube flowing.
+Plot a cube, semantic Dataset, or EventResult using dimensional dispatch.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Visualization](index.md#visualization)
 
@@ -10,14 +10,15 @@ Plot a cube using the CubePlot grammar and keep the cube flowing.
 
 ```python
 from cubedynamics import verbs as v
-v.plot(da=None, *, title=None, cmap='viridis', size_px=None, thin_time_factor=4, time_dim=None, clim=None, camera=None, axis_rig=True, fig_id=None, fig_title=None, fig_text=None)
+v.plot(da=None, *, variable=None, title=None, cmap='viridis', size_px=None, thin_time_factor=4, time_dim=None, clim=None, camera=None, axis_rig=True, fig_id=None, fig_title=None, fig_text=None)
 ```
 
 ## Arguments
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| da | Input cube with dims (time, y, x). If None, a verb is returned. | None |
+| da | Input semantic object. Three-dimensional time-space fields use the interactive cube viewer, 2-D spatial fields use a static map, and 1-D temporal fields use a static line plot. EventResult selects its event_active field. If None, a verb is returned. | None |
+| variable | Dataset variable to render. When omitted, state then event_active is preferred, or the sole data variable is used. Ambiguous Datasets require an explicit selection. | None |
 | title | Override the viewer title. Defaults to <name> time × y × x cube. | None |
 | cmap | Colormap used for the fill scale. | 'viridis' |
 | size_px | Pixel size for each facet tile. If omitted, the viewer uses responsive sizing. | None |
@@ -32,25 +33,15 @@ v.plot(da=None, *, title=None, cmap='viridis', size_px=None, thin_time_factor=4,
 
 ## Accepts
 
-Side-effect verb (cube → cube, produces output). When called with ``da`` it
-immediately builds a :class:`~cubedynamics.plotting.cube_plot.CubePlot` and
-returns it while leaving the cube unchanged. When called without ``da`` it
-returns a pipe-ready :class:`~cubedynamics.piping.Verb` so you can write
-``pipe(cube) | v.plot(...)``.
+A renderable DataArray, Dataset, VirtualCube, or EventResult. Dataset selection prefers state, then event_active, then a sole variable; otherwise pass variable= explicitly.
 
 ## Returns
 
-CubePlot or Verb
-    Viewer ready for notebook display, or a pipe-ready verb when ``da`` is
-    omitted.
+A CubePlot for 3-D time-space cubes, or a notebook-ready StaticPlot for 2-D spatial maps and 1-D temporal lines. Dataset selection preserves laziness and combines Dataset-level semantic metadata with selected-variable metadata.
 
 ## Order / grammar behavior
 
-Side-effect verb (cube → cube, produces output). When called with ``da`` it
-immediately builds a :class:`~cubedynamics.plotting.cube_plot.CubePlot` and
-returns it while leaving the cube unchanged. When called without ``da`` it
-returns a pipe-ready :class:`~cubedynamics.piping.Verb` so you can write
-``pipe(cube) | v.plot(...)``.
+Plot the semantic product you intend to inspect. Plotting does not alter or certify the underlying analysis.
 
 ## Minimal example
 
@@ -68,7 +59,8 @@ with xr.open_dataset(path, engine="scipy") as observed:
     cube = observed["tmax"].load()
 assert cube.attrs["units"] == "degC"
 
-result = pipe(cube) | v.plot(title="Observed PRISM temperature")
+condition = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()
+result = pipe(condition) | v.plot(variable="state", title="Observed freezing condition")
 # In Jupyter, display the pipe to interact with its attached HTML viewer.
 from IPython.display import display
 display(result)
@@ -76,11 +68,7 @@ display(result)
 
 ## Works with
 
-Side-effect verb (cube → cube, produces output). When called with ``da`` it
-immediately builds a :class:`~cubedynamics.plotting.cube_plot.CubePlot` and
-returns it while leaving the cube unchanged. When called without ``da`` it
-returns a pipe-ready :class:`~cubedynamics.piping.Verb` so you can write
-``pipe(cube) | v.plot(...)``.
+A renderable DataArray, Dataset, VirtualCube, or EventResult. Dataset selection prefers state, then event_active, then a sole variable; otherwise pass variable= explicitly.
 
 ## See also
 
@@ -92,9 +80,11 @@ returns a pipe-ready :class:`~cubedynamics.piping.Verb` so you can write
 
 ## Implementation notes
 
-The viewer preserves dask-backed arrays and only samples minimal data for
+Selecting a Dataset variable preserves dask backing and merges Dataset
+semantic attrs with variable attrs on the shallow viewer input. The viewer
+only samples minimal data for
 thumbnails, keeping streaming behavior intact. If a vase is attached in
 ``da.attrs['vase']`` a thin outline overlay is attempted. The original cube
-is returned unchanged so pipe chains continue.
+is not mutated; the pipe's wrapped result is the viewer.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/plot.py#L92). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/plot.py#L135). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

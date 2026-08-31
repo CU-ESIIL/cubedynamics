@@ -68,4 +68,4 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 Preserves the historical integer coercion and selection behavior. This
 is the supported implementation; the old ops import forwards here.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L73). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L253). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

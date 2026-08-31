@@ -213,7 +213,7 @@ coincidence_frequency = (
     pipe(warm_days)
     | v.overlap(dry_days, name="warm_and_dry")
     | v.mean(dim="time", keep_dim=False)
-).unwrap() * 100
+).unwrap()["state"] * 100
 
 coincidence_frequency = coincidence_frequency.assign_attrs(
     long_name="July days that were both locally warm and dry",

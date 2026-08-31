@@ -180,6 +180,9 @@ def show_cube_lexcube(**kwargs):
     Notes
     -----
     The incoming object must represent a 3D cube with dims ``(time, y, x)``.
+    Lexcube is optional; install ``cubedynamics[viz]`` and restart the notebook
+    kernel before using this verb. A missing extra raises a CubeDynamics
+    dependency error with installation guidance.
     Reducers such as :func:`mean`, :func:`variance`, :func:`anomaly`, and
     :func:`zscore` keep the cube Lexcube-ready when ``keep_dim=True``. Dask
     backing is preserved and only a light viewer object is created.

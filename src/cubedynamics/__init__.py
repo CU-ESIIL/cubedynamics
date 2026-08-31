@@ -120,7 +120,7 @@ __all__ = [
 
 
 def plot(
-    cube: xr.DataArray,
+    cube: xr.DataArray | xr.Dataset,
     time_dim: str | None = "time",
     cmap: str = "viridis",
     clim: tuple[float, float] | None = None,
@@ -131,9 +131,11 @@ def plot(
 
     Parameters
     ----------
-    cube : xarray.DataArray
+    cube : xarray.DataArray or xarray.Dataset
         Input cube with dims ``(time, y, x)``. Dask-backed arrays are supported
-        and stay lazy; the viewer itself is small metadata/HTML.
+        and stay lazy; the viewer itself is small metadata/HTML. For a Dataset,
+        pass ``variable=`` through ``**kwargs`` when no canonical state/event
+        variable or sole data variable can be selected.
     time_dim : str, optional
         Name of the temporal dimension. Defaults to ``"time"``.
     cmap : str, optional
@@ -149,10 +151,10 @@ def plot(
 
     Returns
     -------
-    CubePlot or xarray.DataArray
-        The underlying plot verb returns a :class:`~cubedynamics.plotting.cube_plot.CubePlot`
-        viewer while leaving the original cube intact so it can continue through
-        downstream computations.
+    CubePlot or StaticPlot
+        The underlying plot verb returns an interactive cube viewer for 3-D
+        time-space data or a notebook-ready static map/line view for 2-D
+        spatial and 1-D temporal summaries, without mutating the source.
 
     Notes
     -----

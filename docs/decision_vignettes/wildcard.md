@@ -64,11 +64,13 @@ result = (
     pipe(warm.unwrap())
     | v.overlap(dry.unwrap())
     | v.mean(dim="time", keep_dim=False)
-).unwrap()
+).unwrap()["state"]
 ```
 
 `v.overlap` is for already aligned state rasters and refuses silent coordinate
-alignment. It is not a vector-intersection function. A possible third public
+alignment. It returns a condition Dataset; after `mean`, selecting `state`
+gives the proportion summary used here. It is not a vector-intersection
+function. A possible third public
 noun is `data.vegetation_index(..., source="sentinel2")`, but you must resolve
 its different grid, observation dates, clouds, and scale explicitly before
 combining it. Do not paste it into `v.overlap` and hope the coordinates match.
@@ -114,4 +116,3 @@ differently after seeing this?** It also says what the result cannot establish.
 - Change the AOI while preserving the decision logic.
 - Swap one source flavor and compare source assumptions.
 - Replace one noun only if the new noun changes the question coherently.
-

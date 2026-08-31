@@ -144,7 +144,12 @@ Order rules are explanatory knowledge, never rewrite instructions.
 | `ORDER_EQUIVALENT_OR_NEAR_EQUIVALENT` | The order is equivalent only under stated assumptions |
 
 The curated library includes current paths such as anomaly → threshold,
-threshold → events, and mean-over-time → events. It also records spatial and
+threshold → events, threshold → mean, mean → threshold, and mean-over-time →
+events. The two threshold/mean orders are both executable because they answer
+different questions: the first measures condition prevalence, while the second
+defines a condition from an aggregate. The trace records
+`ORDER_CHANGES_MEANING`; it never substitutes one sentence for the other. It
+also records spatial and
 event concepts such as near/density, intersect/summarize, events/duration, and
 upstream/intersect for future project vocabularies. Every rule has an
 `implemented` flag. A conceptual rule is available to documentation and agent
@@ -180,6 +185,19 @@ pipe(cube) | v.anomaly(over="time")
 
 The established `dim=` spelling remains supported. Supplying conflicting
 values for both names raises a direct error instead of guessing.
+
+Reducers also replace inherited condition labels with summary metadata. For a
+condition Dataset, `mean(...)` returns a summary Dataset containing only the
+reduced `state` proportion. The condition's threshold definition remains in
+Dataset metadata, but CubeDynamics does not silently average auxiliary
+`magnitude` or `threshold` arrays. Reduce magnitude explicitly when that is the
+scientific question. A later `threshold_state(...)` may consume a scalar or
+spatial summary and creates a new condition with its own explicit threshold.
+
+Variance summaries keep source and provenance metadata while changing physical
+units deterministically: `degC` becomes `degC^2`, `mm` becomes `mm^2`, and a
+compound unit such as `m s-1` becomes `(m s-1)^2`. Dimensionless variance stays
+`1`; missing or explicitly unknown units are not invented.
 
 ## Statement boundary
 

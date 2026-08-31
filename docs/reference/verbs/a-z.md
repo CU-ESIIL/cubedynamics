@@ -38,7 +38,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [ndvi_from_s2](ndvi_from_s2.md) | Grammar verb / pipe stage | implemented | derive NDVI from Sentinel-2 red and near-infrared bands |
 | [occurrence_synchrony](occurrence_synchrony.md) | Grammar verb / pipe stage | implemented | compare co-occurrence among state cubes |
 | [overlap](overlap.md) | Grammar verb / pipe stage | implemented | identify coincident truth in two exactly aligned conditions |
-| [plot](plot.md) | Grammar verb / pipe stage | implemented | render an interactive cube view |
+| [plot](plot.md) | Grammar verb / pipe stage | implemented | render a cube, spatial map, or temporal line view |
 | [plot_mean](plot_mean.md) | Grammar verb / pipe stage | implemented | render a spatial-mean time series |
 | [quantile_state](quantile_state.md) | Grammar verb / pipe stage | implemented | define a condition relative to an empirical quantile |
 | [rasterize_observations](rasterize_observations.md) | Direct helper function | implemented | place feature observations onto a reference cube grid |
@@ -47,7 +47,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [severity_synchrony](severity_synchrony.md) | Grammar verb / pipe stage | implemented | compare condition magnitude where states co-occur |
 | [show_cube_lexcube](show_cube_lexcube.md) | Grammar verb / pipe stage | implemented | render a cube while preserving it in the pipe |
 | [sync_with](sync_with.md) | Grammar verb / pipe stage | implemented | compare an input cube with another aligned temporal cube |
-| [threshold_state](threshold_state.md) | Grammar verb / pipe stage | implemented | turn continuous values into a named true/false condition |
+| [threshold_state](threshold_state.md) | Grammar verb / pipe stage | implemented | turn continuous values or a summary into a named true/false condition |
 | [timing_synchrony](timing_synchrony.md) | Grammar verb / pipe stage | implemented | compare the timing of detected events |
 | [to_netcdf](to_netcdf.md) | Grammar verb / pipe stage | implemented | write an explicit NetCDF output |
 | [tubes](tubes.md) | Grammar verb / pipe stage | implemented | construct a tube representation from a spatiotemporal cube |

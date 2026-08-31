@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 import xarray as xr
 
 from cubedynamics.fire_time_hull import (
@@ -89,6 +90,45 @@ def test_fire_hull_attach_environment_and_plot_smoke():
     fig = enriched.plot(color="vpd")
     intensity = np.asarray(fig.data[0].intensity, dtype=float)
     np.testing.assert_allclose(intensity, field.vertex_values)
+
+
+def test_fire_hull_attach_environment_supports_documented_climate_variables():
+    event = FireEventDaily.example()
+    hull = event.to_hull(n_ring_samples=16, n_theta=12)
+    template = _template_cube()
+    variables = (
+        "temperature",
+        "precipitation",
+        "vpd",
+        "wind",
+        "humidity",
+        "radiation",
+    )
+    dataset = xr.Dataset(
+        {name: template.rename(name) + index for index, name in enumerate(variables)}
+    )
+
+    enriched = hull.attach_environment(dataset, variables=variables)
+
+    assert set(enriched.environment) == set(variables)
+    assert all(
+        enriched.environment[name].vertex_values.shape[0] == hull.verts_km.shape[0]
+        for name in variables
+    )
+
+
+def test_fire_hull_attach_environment_reports_nonoverlapping_ranges():
+    event = FireEventDaily.example()
+    hull = event.to_hull(n_ring_samples=16, n_theta=12)
+    cube = _template_cube().assign_coords(
+        time=pd.date_range("2021-01-01", periods=3, freq="D")
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=r"Fire time range: .*climate time range: .*no temporal overlap exists",
+    ):
+        hull.attach_environment(cube, variables=["vpd"])
 
 
 def test_public_fire_verbs_bind_to_canonical_fire_module():

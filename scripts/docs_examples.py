@@ -14,7 +14,7 @@ assert cube.attrs["units"] == "degC"'''
 EXAMPLES = {
     "anomaly": 'result = (pipe(cube) | v.anomaly(dim="time")).unwrap()\nresult.isel(time=0).plot()\nplt.show()',
     "mean": 'result = (pipe(cube) | v.mean(dim="time", keep_dim=False)).unwrap()\nresult.plot()\nplt.show()',
-    "variance": 'result = (pipe(cube) | v.variance(dim="time", keep_dim=False)).unwrap()\n# Variance has squared input units, even if inherited attributes say degC.\nresult.plot(cbar_kwargs={"label": "Temperature variance (°C²)"})\nplt.show()',
+    "variance": 'result = (pipe(cube) | v.variance(dim="time", keep_dim=False)).unwrap()\n# CubeDynamics records squared source units (degC^2) on the result.\nassert result.attrs["units"] == "degC^2"\nresult.plot(cbar_kwargs={"label": "Temperature variance (°C²)"})\nplt.show()',
     "zscore": 'result = (pipe(cube) | v.zscore(dim="time")).unwrap()\nresult.isel(time=0).plot()\nplt.show()',
     "apply": 'result = (pipe(cube) | v.apply(lambda x: x.max("time"))).unwrap()\nresult.plot()\nplt.show()',
     "month_filter": 'result = (pipe(cube) | v.month_filter([1])).unwrap()\nresult.mean("time").plot()\nplt.show()',
@@ -26,7 +26,7 @@ EXAMPLES = {
     "binary_state": 'result = (pipe(cube < 0) | v.binary_state()).unwrap()\nresult.state.mean("time").plot()\nplt.show()',
     "change_state": 'result = (pipe(cube) | v.change_state(change="absolute", threshold=5, lag=1)).unwrap()\nresult.state.mean("time").plot()\nplt.show()',
     "detect_events": 'result = (pipe(cube) | v.threshold_state(threshold=0, direction="below") | v.detect_events(min_duration=2)).unwrap()\n# Count days belonging to detected events, not just all threshold crossings.\nprint(result.catalog.head())\nresult.dataset["event_active"].sum("time").plot(cbar_kwargs={"label": "Days in cold events"})\nplt.show()',
-    "overlap": 'cold = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()\nunusual = (pipe(cube) | v.quantile_state(quantile=0.2, direction="below")).unwrap()\nresult = (pipe(cold) | v.overlap(unusual) | v.mean(dim="time", keep_dim=False)).unwrap()\nresult.plot()\nplt.show()',
+    "overlap": 'cold = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()\nunusual = (pipe(cube) | v.quantile_state(quantile=0.2, direction="below")).unwrap()\nresult = (pipe(cold) | v.overlap(unusual) | v.mean(dim="time", keep_dim=False)).unwrap()\n# overlap returns a state Dataset; mean turns state into a proportion summary.\nresult["state"].plot(cbar_kwargs={"label": "Fraction of observed days"})\nplt.show()',
     "align_cube": 'target = cube.isel(y=slice(0, None, 2), x=slice(0, None, 2))\nresult = (pipe(cube) | v.align_cube(like=target)).unwrap()\nresult.isel(time=0).plot()\nplt.show()',
     "block_signature": 'result = (pipe(cube) | v.block_signature(block_id="boulder")).unwrap()\nresult["tmax"].squeeze().plot()\nplt.show()',
     "aoi_signature": 'result = (pipe(cube) | v.aoi_signature(unit_id="boulder")).unwrap()\nresult["tmax"].squeeze().plot()\nplt.show()',
@@ -35,7 +35,7 @@ EXAMPLES = {
     "rolling_tail_dep_vs_center": 'result = (pipe(cube) | v.rolling_tail_dep_vs_center(window=7)).unwrap()\nresult.isel(time=-1).plot()\nplt.show()',
     "rolling_median_split_synchrony": 'result = (pipe(cube) | v.rolling_median_split_synchrony(window_days=14, min_t=3)).unwrap()\nresult["bottom_minus_top"].isel(time_window_end=-1).plot()\nplt.show()',
     "diagnostic_panel": 'figure = v.diagnostic_panel(cube, title="Observed PRISM temperature")\nplt.show()',
-    "plot": 'result = pipe(cube) | v.plot(title="Observed PRISM temperature")\n# In Jupyter, display the pipe to interact with its attached HTML viewer.\nfrom IPython.display import display\ndisplay(result)',
+    "plot": 'condition = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()\nresult = pipe(condition) | v.plot(variable="state", title="Observed freezing condition")\n# In Jupyter, display the pipe to interact with its attached HTML viewer.\nfrom IPython.display import display\ndisplay(result)',
 }
 
 NOTES = {
@@ -65,3 +65,23 @@ for _name in ("occurrence_synchrony", "severity_synchrony", "timing_synchrony", 
 NOTES["ndvi_from_s2"] = {"workflow": "recipes/s2_ndvi_zcube.md", "accepts": "A Sentinel-2 cube containing the specified NIR and red bands, not an already-derived NDVI cube.", "example": "The [Sentinel-2 NDVI recipe](../../recipes/s2_ndvi_zcube.md) loads observed bands and applies this transform. Check scaling and cloud limitations in the [source reference](../../library/sources/sentinel2.md)."}
 NOTES["tubes"] = {"workflow": "viz/suitability_tubes.md"}
 NOTES["rasterize_observations"] = {"workflow": "howto/biological_cubes_and_coupling.md"}
+NOTES["threshold_state"] = {
+    "accepts": "A continuous or categorical xarray field, or a summary produced by a reduction. Dataset inputs require variable= unless they contain only one data variable.",
+    "returns": "A condition Dataset with state, magnitude, and threshold variables plus explicit condition metadata.",
+    "order": "Threshold then mean measures condition prevalence; mean then threshold defines a condition from an aggregate. Both are valid and intentionally distinct.",
+}
+NOTES["overlap"] = {
+    "accepts": "Two already aligned condition DataArrays or Datasets. Coordinates must match exactly; no reprojection, resampling, or scientific harmonization is inferred.",
+    "returns": "A condition Dataset containing only Boolean state. The state variable is true only where both inputs are true; operand identity and exact-alignment metadata remain inspectable. Overlap does not invent a magnitude or threshold.",
+    "order": "Define and align both conditions before overlap. Reduce the returned state variable when the intended result is a frequency or prevalence summary.",
+}
+NOTES["plot"] = {
+    "accepts": "A renderable DataArray, Dataset, VirtualCube, or EventResult. Dataset selection prefers state, then event_active, then a sole variable; otherwise pass variable= explicitly.",
+    "returns": "A CubePlot for 3-D time-space cubes, or a notebook-ready StaticPlot for 2-D spatial maps and 1-D temporal lines. Dataset selection preserves laziness and combines Dataset-level semantic metadata with selected-variable metadata.",
+    "order": "Plot the semantic product you intend to inspect. Plotting does not alter or certify the underlying analysis.",
+}
+NOTES["show_cube_lexcube"] = {
+    "accepts": "A 3-D DataArray with exactly (time, y, x) dimensions. Lexcube is an optional notebook widget, not the canonical website viewer.",
+    "returns": "A pass-through stage that displays a Lexcube widget and leaves the input cube in the pipe.",
+    "order": "Install the optional dependency with `python -m pip install \"cubedynamics[viz]\"`, restart the notebook kernel, and call this only while the cube still has time, y, and x dimensions.",
+}

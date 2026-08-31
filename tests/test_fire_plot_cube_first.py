@@ -4,6 +4,7 @@ import geopandas as gpd
 import shapely.geometry as geom
 import xarray as xr
 
+from cubedynamics import verbs as v
 from cubedynamics.fire_time_hull import (
     build_fire_event_daily,
     infer_epsg,
@@ -85,7 +86,7 @@ def test_cube_first_fire_plot_does_not_fetch(monkeypatch):
     event = _synthetic_event()
     da = _grid_like_cube()
 
-    out = fire_verbs.fire_plot(
+    out = v.fire_plot(
         da,
         fired_event=event,
         time_buffer_days=0,

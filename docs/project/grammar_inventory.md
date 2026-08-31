@@ -69,9 +69,14 @@ grammar verbs.
 - `detect_events` requires a state Dataset and a time dimension, then returns an
   `EventResult` containing an event cube and catalog.
 - `overlap` requires DataArray/Dataset state inputs and exact xarray coordinate
-  alignment; it refuses silent resampling or reprojection.
+  alignment; it refuses silent resampling or reprojection and returns the
+  canonical condition Dataset containing only Boolean `state`. It records the
+  operand identities and alignment contract without inventing a magnitude or
+  threshold for a logical intersection.
 - Flattening verbs validate required spatial/time dimensions.
-- Plotting validates cube layout and uses pass-through viewer attachment.
+- Plotting accepts DataArrays, VirtualCubes, and semantic Datasets. Dataset
+  selection prefers `state`, then `event_active`, then a sole variable;
+  ambiguous Datasets require `variable=`.
 - Errors are technical and local to each implementation. The pipe does not yet
   read them back in scientific language or suggest a preceding stage.
 
@@ -83,10 +88,10 @@ grammar verbs.
 | `mean`, `variance` | requested dimension | removes variation over reduced dimension; may retain a length-one axis | reduced field/summary |
 | state constructors | numeric/boolean field; time for quantile/change | preserves cube support | condition Dataset |
 | `detect_events` | temporal condition | preserves event cube support and adds catalog | event result |
-| `overlap` | exactly aligned states | preserves shared dimensions | boolean condition |
+| `overlap` | exactly aligned states | preserves shared dimensions | condition Dataset |
 | `flatten_space` | spatial dimensions | removes `y`, `x` as dimensions | time × pixel field |
 | `flatten_cube` | time | stacks non-time dimensions | time × sample field |
-| plotting | renderable cube | pass-through where configured | viewer attachment or figure |
+| plotting | renderable semantic array/Dataset/EventResult | selected values and semantic metadata | interactive 3-D cube, static 2-D map, or static 1-D temporal line |
 
 The key semantic gap is that a retained length-one `time` axis after
 `mean(dim="time")` no longer contains time variation even though a superficial

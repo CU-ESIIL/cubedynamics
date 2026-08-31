@@ -20,20 +20,19 @@ v.overlap(other, *, left_variable=None, right_variable=None, name='overlap')
 | other | The second aligned boolean or state cube. | required |
 | left_variable | Variables to select from Dataset inputs. If omitted, state is used when present; otherwise a single-variable Dataset is accepted. | None |
 | right_variable | Variables to select from Dataset inputs. If omitted, state is used when present; otherwise a single-variable Dataset is accepted. | None |
-| name | Name for the returned boolean DataArray. | 'overlap' |
+| name | Name for the returned condition Dataset. | 'overlap' |
 
 ## Accepts
 
-Consult the input parameters and implementation notes below. This namespace also includes direct helpers, not only pipe factories.
+Two already aligned condition DataArrays or Datasets. Coordinates must match exactly; no reprojection, resampling, or scientific harmonization is inferred.
 
 ## Returns
 
-callable
-    Pipe-ready verb producing a boolean DataArray.
+A condition Dataset containing only Boolean state. The state variable is true only where both inputs are true; operand identity and exact-alignment metadata remain inspectable. Overlap does not invent a magnitude or threshold.
 
 ## Order / grammar behavior
 
-A pipe passes the preceding result to the next callable. Confirm that the previous step's dimensions and semantic state satisfy the input contract. Reductions can remove dimensions; plotting may produce side effects.
+Define and align both conditions before overlap. Reduce the returned state variable when the intended result is a frequency or prevalence summary.
 
 ## Minimal example
 
@@ -54,13 +53,14 @@ assert cube.attrs["units"] == "degC"
 cold = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()
 unusual = (pipe(cube) | v.quantile_state(quantile=0.2, direction="below")).unwrap()
 result = (pipe(cold) | v.overlap(unusual) | v.mean(dim="time", keep_dim=False)).unwrap()
-result.plot()
+# overlap returns a state Dataset; mean turns state into a proportion summary.
+result["state"].plot(cbar_kwargs={"label": "Fraction of observed days"})
 plt.show()
 ```
 
 ## Works with
 
-Use only the input types documented by this callable; not every helper accepts every noun or VirtualCube.
+Two already aligned condition DataArrays or Datasets. Coordinates must match exactly; no reprojection, resampling, or scientific harmonization is inferred.
 
 ## See also
 

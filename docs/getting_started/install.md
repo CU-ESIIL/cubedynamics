@@ -87,6 +87,17 @@ separate frontend. To add the extra to a supplied wheel, use
 The canonical HTML viewer does not require Lexcube. Complete supported
 notebooks use external reviewed inputs, not bundled package data.
 
+Lexcube is a separate optional notebook widget. Add it only when you need
+`v.show_cube_lexcube()`:
+
+```bash
+python -m pip install "cubedynamics[viz]"
+```
+
+Restart the notebook kernel after installation. Without the extra,
+`v.show_cube_lexcube()` raises a CubeDynamics error with this guidance rather
+than exposing a raw `ModuleNotFoundError`.
+
 An editable source checkout is only for contributors and full notebook replay;
 see the [Learn setup](../learn/index.md#shared-setup) and
 [contributing guide](../dev/contributing.md). It is not the primary RC install

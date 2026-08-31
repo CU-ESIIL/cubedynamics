@@ -241,7 +241,7 @@ _VERB_SPECS: dict[str, VerbSpec] = {
         examples=("v.month_filter([6, 7, 8])",),
     ),
     "threshold_state": _spec(
-        "threshold_state", "turn continuous values into a named true/false condition", _FIELD_KINDS,
+        "threshold_state", "turn continuous values or a summary into a named true/false condition", _FIELD_KINDS + ("summary",),
         "condition", preserves=("dimensions", "provenance"),
         examples=("v.threshold_state(threshold=30, direction='above')",),
     ),
@@ -261,7 +261,7 @@ _VERB_SPECS: dict[str, VerbSpec] = {
         examples=("v.change_state(change='absolute', threshold=1, lag=1)",),
     ),
     "exceedance": _spec(
-        "exceedance", "alias for threshold_state", _FIELD_KINDS, "condition",
+        "exceedance", "alias for threshold_state", _FIELD_KINDS + ("summary",), "condition",
         preserves=("dimensions", "provenance"), examples=("v.exceedance(threshold=30, direction='above')",),
     ),
     "detect_events": _spec(
@@ -292,8 +292,8 @@ _VERB_SPECS: dict[str, VerbSpec] = {
         "relationship", category="semantic", examples=("v.severity_synchrony()",),
     ),
     "plot": _spec(
-        "plot", "render an interactive cube view", _ANY_KINDS, "observation",
-        requires=("spatial",), category="integration",
+        "plot", "render a cube, spatial map, or temporal line view", _ANY_KINDS, "same",
+        category="integration", side_effect=True,
         examples=("v.plot()",),
     ),
     "plot_mean": _spec(
@@ -471,6 +471,12 @@ _ORDER_RULES: tuple[OrderRule, ...] = (
     OrderRule("mean", "events", ORDER_REMOVES_REQUIRED_INFORMATION,
               "A mean over time removes the temporal variation needed to identify event runs.",
               "Detect events before reducing over time."),
+    OrderRule("threshold", "mean", ORDER_CHANGES_MEANING,
+              "Averaging a thresholded condition measures its prevalence over the reduced dimensions, rather than averaging the source measurements.",
+              "Use mean before threshold_state when the intended condition is defined from an aggregate value."),
+    OrderRule("mean", "threshold", ORDER_CHANGES_MEANING,
+              "Thresholding a mean defines a condition from an aggregate value, rather than measuring how often individual observations meet the condition.",
+              "Use threshold_state before mean when the intended summary is condition prevalence."),
     OrderRule("aggregate", "onset", ORDER_REMOVES_REQUIRED_INFORMATION,
               "Aggregation can remove the first transition needed to identify onset.", implemented=False),
     OrderRule("filter", "change", ORDER_CHANGES_MEANING,
@@ -711,12 +717,6 @@ def preflight(
                 f"The current condition uses {state.crs}, while the other uses {other.crs}. "
                 "Reproject one input explicitly before combining them."
             )
-        if state.dimensions and other.dimensions and state.dimensions != other.dimensions:
-            raise SemanticGrammarError(
-                "overlap() requires identical dimension order. "
-                f"The current condition uses {state.dimensions}, while the other uses {other.dimensions}. "
-                "Align the inputs explicitly before combining them."
-            )
 
 
 def transition_state(
@@ -746,7 +746,10 @@ def transition_state(
     if name in {"mean", "variance"}:
         reduced = parameters.get("over", parameters.get("dim", "time"))
         time_variation = after.has_time_variation
-        if reduced == "time" or reduced == ["time"] or reduced == ("time",):
+        reduced_dimensions = (
+            tuple(reduced) if isinstance(reduced, (list, tuple, set)) else (reduced,)
+        )
+        if "time" in reduced_dimensions:
             time_variation = False
         return replace(after, semantic_kind=kind, has_time_variation=time_variation)
     return replace(after, semantic_kind=kind)
@@ -804,7 +807,7 @@ def suggest_next(state: SemanticState) -> tuple[Suggestion, ...]:
         "categorical_field": ("binary_state", "plot"),
         "condition": ("detect_events", "overlap", "occurrence_synchrony", "mean", "plot"),
         "event": ("timing_synchrony", "duration_synchrony", "severity_synchrony"),
-        "summary": ("plot",),
+        "summary": ("threshold_state", "plot"),
         "relationship": (),
         "feature": (),
         "network": (),

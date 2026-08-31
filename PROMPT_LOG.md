@@ -4,6 +4,59 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-08-31 — Comprehensive RC1 validation triage and next-RC gate
+
+- Read the supplied 12-page `cubedynamics_codex_rc1_triage_fix_prompt.pdf` and
+  reproduced its semantic, plotting, alignment, optional-dependency, and fire
+  findings against the current checkout before changing runtime code.
+- Wrote the required one-category-per-finding maintainer classification in
+  `docs/project/rc1_validation_triage.md`. Genuine defects are condition
+  auxiliary-field reduction, variance units, semantic/dimensional plotting,
+  canonical overlap representation, alignment diagnostics, and the tested
+  release's fire routing. Random invalid chains, missing optional Lexcube, and
+  non-overlapping fire/climate dates are not grounds to loosen scientific
+  guardrails.
+- Decisions: conditions are Datasets with `state`; threshold conditions may
+  add meaningful threshold/magnitude fields, overlap must not invent them;
+  condition means expose only the state proportion; summaries remain
+  thresholdable because the maintained order lesson teaches that path; and the
+  preferred fire object route is `FireEventDaily -> FireHull -> environment ->
+  plot`, with cube-first `v.fire_plot` as the high-level convenience API.
+- Do not publish, tag, push, or describe offline fixture checks as live source
+  certification. Record exact gates and remaining caveats after implementation.
+
+## 2026-08-31 — Align summary, condition, overlap, and plotting semantics
+
+- Outside-user PyPI/Jupyter validation of `0.1.0rc1` found four connected
+  release-candidate issues: `threshold_state` cannot currently consume a
+  summary even though the published order lesson teaches that scientifically
+  distinct path; reducing a condition produces numerically valid output but
+  leaves condition metadata on the xarray value; `overlap` returns a bare
+  boolean DataArray rather than the standard state Dataset; and `v.plot()`
+  cannot directly select the renderable state variable from semantic Datasets.
+- Scope is deliberately narrow: preserve authored order and exact-alignment
+  enforcement, make reductions describe summaries in both runtime attrs and
+  the semantic trace, keep summary-to-threshold distinct from
+  threshold-to-summary, normalize overlap to the existing
+  `state`/`magnitude`/`threshold` contract, and give plotting an explicit,
+  deterministic Dataset-variable selection rule. Do not broaden unrelated
+  verbs or silently harmonize scientific operands.
+- Implemented both mean/threshold order paths with machine-readable
+  `ORDER_CHANGES_MEANING` notes. Condition means now expose summary metadata
+  and a unitless proportion on `state`; `overlap` returns the standard
+  condition Dataset; and `v.plot()` selects `state`, `event_active`, a sole
+  variable, or an explicitly named Dataset variable without materializing
+  Dask data.
+- Validation: 65 focused grammar/reduction/overlap/plot tests passed; 141
+  reference/usability/link tests passed; the complete offline suite passed
+  (795 passed, 5 skipped); all 12 supported real-data vignettes executed with
+  required plots; decision QA passed; 75 generated references and 8 visual
+  results checked current; strict MkDocs build, built-site links/anchors,
+  repository-size policy, and `git diff --check` passed; Chromium audited all
+  built pages (375 passed). Jupyter/MkDocs required local kernel sockets, so
+  those commands were rerun outside the filesystem sandbox without network
+  acquisition.
+
 ## 2026-08-31 — Repair DataArray live-source certification
 
 - Reproduced the scheduled live-source result: Daymet was intentionally

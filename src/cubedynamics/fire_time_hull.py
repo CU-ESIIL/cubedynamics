@@ -1361,7 +1361,18 @@ def build_inside_outside_climate_samples(
     time_vals = normalize_dates(da["time"].values)
     mask_time = (time_vals >= event.t0) & (time_vals <= event.t1)
     if not mask_time.any():
-        raise ValueError("Climate cube has no timesteps overlapping the fire time window.")
+        if len(time_vals):
+            climate_range = (
+                f"{pd.Timestamp(time_vals.min()).date()} to "
+                f"{pd.Timestamp(time_vals.max()).date()}"
+            )
+        else:
+            climate_range = "empty"
+        raise ValueError(
+            "Climate cube has no timesteps overlapping the fire time window. "
+            f"Fire time range: {event.t0.date()} to {event.t1.date()}; "
+            f"climate time range: {climate_range}; no temporal overlap exists."
+        )
 
     da_evt = da.isel(time=np.where(mask_time)[0])
     return sample_inside_outside(event, da_evt, date_col=date_col, fast=False, verbose=verbose)

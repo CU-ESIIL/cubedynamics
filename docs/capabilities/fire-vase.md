@@ -53,6 +53,12 @@ hull.attach_environment(cube, variables=["vpd"])
 hull.plot(color="vpd")
 ```
 
+The event and climate time ranges must overlap. A mismatch is rejected with
+both ranges in the error; CubeDynamics does not substitute or extrapolate
+climate values. One Dataset can attach the documented climate variables
+`temperature`, `precipitation`, `vpd`, `wind`, `humidity`, and `radiation`
+when those named fields are present.
+
 `TimeHull` remains available as a compatibility alias, but `FireHull` is the preferred public name going forward.
 
 The [real FIRED event and climate recipe](../recipes/fire_event_vase_hull.md)
@@ -138,6 +144,12 @@ climate measurements when either source is unavailable.
 already-open climate cube through the pipe or a climate-loading configuration
 and returns the event, hull, climate cube, summary table, and static/interactive
 figures.
+
+The preferred object route is
+`FireEventDaily -> FireHull -> attach_environment -> plot`. The cube-first
+`v.fire_plot(cube, fired_event=event)` spelling below is the high-level
+convenience route. Older `fired_daily=`/`event_id=` inputs remain compatibility
+paths, not the primary teaching API.
 
 ```python
 from cubedynamics import pipe, verbs as v

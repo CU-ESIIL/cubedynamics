@@ -32,12 +32,13 @@ def overlap(
         Variables to select from Dataset inputs. If omitted, ``state`` is used
         when present; otherwise a single-variable Dataset is accepted.
     name : str, default "overlap"
-        Name for the returned boolean DataArray.
+        Name for the returned condition Dataset.
 
     Returns
     -------
     callable
-        Pipe-ready verb producing a boolean DataArray.
+        Pipe-ready verb producing a condition Dataset containing Boolean
+        ``state``. Boolean overlap has no implicit magnitude or threshold.
 
     Notes
     -----
@@ -46,29 +47,29 @@ def overlap(
     """
 
     right = _select_state(other, variable=right_variable, side="right")
+    right_condition = _condition_name(other, right)
 
-    def _op(obj: xr.DataArray | xr.Dataset) -> xr.DataArray:
+    def _op(obj: xr.DataArray | xr.Dataset) -> xr.Dataset:
         left = _select_state(obj, variable=left_variable, side="left")
-        try:
-            aligned_left, aligned_right = xr.align(left, right, join="exact")
-        except ValueError as exc:
-            raise ValueError(
-                "overlap requires identical dimensions and coordinates; align or "
-                "reproject the inputs explicitly before combining them"
-            ) from exc
+        aligned_left, aligned_right = _align_exact(left, right)
 
-        result = (aligned_left.astype(bool) & aligned_right.astype(bool)).rename(name)
-        result.attrs = {
-            "analysis": "aligned_boolean_overlap",
+        conjunction = (aligned_left.astype(bool) & aligned_right.astype(bool)).rename(name)
+        conjunction.attrs = {
+            "long_name": name.replace("_", " "),
             "semantic_name": name,
             "semantic_kind": "condition",
             "semantic_category": "state",
             "semantic_units": "boolean",
-            "long_name": name.replace("_", " "),
+            "condition_operation": "aligned_boolean_overlap",
+            "left_condition": _condition_name(obj, left),
+            "right_condition": right_condition,
             "left_variable": str(left.name or left_variable or "value"),
             "right_variable": str(right.name or right_variable or "value"),
             "alignment": "exact",
         }
+        result = xr.Dataset({"state": conjunction})
+        result.attrs.update(conjunction.attrs)
+        result.attrs.update({"analysis": "state_cube", "state_name": name})
         return result
 
     _op._cd_semantic_context = {"other": infer_semantic_state(other)}
@@ -103,6 +104,64 @@ def _select_state(
             f"{list(obj.data_vars)!r}"
         )
     return obj[selected]
+
+
+def _condition_name(obj: xr.DataArray | xr.Dataset, selected: xr.DataArray) -> str:
+    attrs = getattr(obj, "attrs", {}) or {}
+    return str(
+        attrs.get("semantic_name")
+        or attrs.get("state_name")
+        or selected.attrs.get("semantic_name")
+        or selected.name
+        or "condition"
+    )
+
+
+def _alignment_kind(dim: Hashable, left: xr.DataArray, right: xr.DataArray) -> str:
+    name = str(dim).casefold()
+    if name in {"time", "t", "date", "datetime"}:
+        return "temporal"
+    for obj in (left, right):
+        coord = obj.coords.get(dim)
+        if coord is not None and getattr(coord.dtype, "kind", None) == "M":
+            return "temporal"
+    if name in {"x", "y", "lon", "lat", "longitude", "latitude"}:
+        return "spatial"
+    return "dimension"
+
+
+def _align_exact(
+    left: xr.DataArray,
+    right: xr.DataArray,
+) -> tuple[xr.DataArray, xr.DataArray]:
+    """Normalize harmless axis order and reject every coordinate mismatch."""
+
+    if set(left.dims) != set(right.dims):
+        raise ValueError(
+            "overlap dimension names differ: "
+            f"left {left.dims!r}, right {right.dims!r}. "
+            "Align or rename dimensions explicitly before combining them."
+        )
+    if right.dims != left.dims:
+        right = right.transpose(*left.dims)
+
+    for dim in left.dims:
+        if left.sizes[dim] != right.sizes[dim] or not left.get_index(dim).equals(
+            right.get_index(dim)
+        ):
+            kind = _alignment_kind(dim, left, right)
+            if kind == "temporal":
+                detail = f"temporal coordinates differ along {str(dim)!r}"
+            elif kind == "spatial":
+                detail = f"spatial coordinates differ along {str(dim)!r}"
+            else:
+                detail = f"coordinates differ along dimension {str(dim)!r}"
+            raise ValueError(
+                f"overlap {detail}; exact coordinate alignment is required. "
+                "Align or reproject the inputs explicitly before combining them."
+            )
+
+    return xr.align(left, right, join="exact")
 
 
 __all__ = ["overlap"]

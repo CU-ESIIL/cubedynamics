@@ -51,7 +51,8 @@ with xr.open_dataset(path, engine="scipy") as observed:
 assert cube.attrs["units"] == "degC"
 
 result = (pipe(cube) | v.variance(dim="time", keep_dim=False)).unwrap()
-# Variance has squared input units, even if inherited attributes say degC.
+# CubeDynamics records squared source units (degC^2) on the result.
+assert result.attrs["units"] == "degC^2"
 result.plot(cbar_kwargs={"label": "Temperature variance (°C²)"})
 plt.show()
 ```
@@ -73,4 +74,4 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L178). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L363). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

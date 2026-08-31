@@ -21,21 +21,15 @@ v.show_cube_lexcube(**kwargs)
 
 ## Accepts
 
-Side-effect verb (cube → cube, produces output). Returns a pipe-ready
-callable that displays an interactive Lexcube view while keeping the cube
-unchanged in the pipe.
+A 3-D DataArray with exactly (time, y, x) dimensions. Lexcube is an optional notebook widget, not the canonical website viewer.
 
 ## Returns
 
-Verb
-    Pipe-ready verb when used without immediate ``da``; otherwise the
-    original cube after rendering.
+A pass-through stage that displays a Lexcube widget and leaves the input cube in the pipe.
 
 ## Order / grammar behavior
 
-Side-effect verb (cube → cube, produces output). Returns a pipe-ready
-callable that displays an interactive Lexcube view while keeping the cube
-unchanged in the pipe.
+Install the optional dependency with `python -m pip install "cubedynamics[viz]"`, restart the notebook kernel, and call this only while the cube still has time, y, and x dimensions.
 
 ## Minimal example
 
@@ -43,9 +37,7 @@ A standalone, reviewed real-data example is not yet available for this helper. S
 
 ## Works with
 
-Side-effect verb (cube → cube, produces output). Returns a pipe-ready
-callable that displays an interactive Lexcube view while keeping the cube
-unchanged in the pipe.
+A 3-D DataArray with exactly (time, y, x) dimensions. Lexcube is an optional notebook widget, not the canonical website viewer.
 
 ## See also
 
@@ -57,6 +49,9 @@ unchanged in the pipe.
 ## Implementation notes
 
 The incoming object must represent a 3D cube with dims ``(time, y, x)``.
+Lexcube is optional; install ``cubedynamics[viz]`` and restart the notebook
+kernel before using this verb. A missing extra raises a CubeDynamics
+dependency error with installation guidance.
 Reducers such as :func:`mean`, :func:`variance`, :func:`anomaly`, and
 :func:`zscore` keep the cube Lexcube-ready when ``keep_dim=True``. Dask
 backing is preserved and only a light viewer object is created.
