@@ -51,6 +51,15 @@
 | [precipitation](../nouns/precipitation.md) | thredds_ncss |
 | [temperature](../nouns/temperature.md) | thredds_ncss |
 
+## Temporal support
+
+| Noun | Type | Label convention | Reference timezone | Start offset | End offset | Known |
+| --- | --- | --- | --- | --- | --- | --- |
+| [precipitation](../nouns/precipitation.md) | interval | day_ending | UTC | -12h | 12h | True |
+| [temperature](../nouns/temperature.md) | interval | day_ending | UTC | -12h | 12h | True |
+
+Offsets are relative to the midnight UTC calendar-date coordinate. [Interpret labels, support intervals, and events separately](../../concepts/temporal_alignment.md).
+
 ## Available CubeDynamics nouns
 
 [precipitation](../nouns/precipitation.md), [temperature](../nouns/temperature.md)

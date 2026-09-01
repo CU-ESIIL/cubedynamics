@@ -11,6 +11,16 @@ Signatures and descriptions below come from the runtime docstrings.
       members: [list_sources, sources, describe]
       show_docstring_examples: false
 
+## Temporal support
+
+Time labels and physical observation intervals are separate metadata. See the
+[Temporal alignment guide](../concepts/temporal_alignment.md).
+
+::: cubedynamics.temporal
+    options:
+      members: [TemporalSupport, TemporalAlignmentReport, temporal_support, observation_intervals, compare_temporal_support]
+      show_docstring_examples: false
+
 ## Source-specific loaders
 
 Provider-specific loaders remain supported alongside scientific nouns.

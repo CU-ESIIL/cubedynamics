@@ -53,6 +53,7 @@ from .schema import (
     schema_fingerprint,
 )
 from .sentinel2 import load_s2_cube, load_s2_ndvi_cube
+from ..temporal import observation_intervals, temporal_support
 
 __all__ = [
     "describe",
@@ -79,6 +80,8 @@ __all__ = [
     "sources",
     "surface_reflectance",
     "temperature",
+    "temporal_support",
+    "observation_intervals",
     "UpstreamIdentity",
     "vegetation_index",
     "vpd",

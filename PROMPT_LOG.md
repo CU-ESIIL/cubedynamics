@@ -4,6 +4,55 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-01 — Make temporal alignment scientifically explicit
+
+- Treat coordinate-label equality, observation temporal-support equality, and
+  event-time alignment as three distinct scientific questions. Preserve exact
+  coordinate/spatial guardrails and never silently shift, resample,
+  interpolate, aggregate, or truncate observations.
+- Audit authoritative PRISM and gridMET documentation before assigning source
+  conventions; represent verified interval/instant/unknown support as
+  source-qualified metadata, propagate it through semantic state, and surface
+  cross-source matches, mismatches, and unknowns through `explain()` and
+  `validate()`.
+- Add explicit label-versus-exact-support alignment choices, maintain xarray
+  interoperability and Dask laziness, clarify event/lag semantics, and prove
+  the scientific consequence with deterministic offset-window temperature and
+  precipitation regressions plus a concise real-data teaching example.
+- Do not publish, tag, loosen spatial alignment, infer unverified source
+  timing, or attribute all PRISM/gridMET product differences to temporal
+  support.
+- Implemented `TemporalSupport` and `TemporalAlignmentReport`, public metadata
+  inspection and one-dimensional interval derivation, temporal fields in
+  `SemanticState`, `v.align_time(mode="labels"|"require_exact_support")`, and
+  support-aware `v.overlap`. Known mismatches require an explicit choice;
+  unknown support remains a distinct `CHECK`; no policy changes coordinates or
+  values. Event and lag outputs now state whether they compare observation
+  labels, event anchors, or coordinate-period shifts.
+- Verified the source rules from provider documentation: PRISM days span
+  12:00–12:00 UTC and use the ending date; gridMET nominal days span
+  midnight-to-midnight MST (07:00 UTC). The catalog stores offsets relative to
+  each adapter's midnight UTC date coordinate. A bounded live South Dakota
+  check (2024-07-01 through 2024-07-31) returned 31 exact labels for PRISM and
+  gridMET temperature and precipitation, distinct source identities, different
+  declared supports, separate native grids, and lazy arrays. This does not
+  attribute numerical product differences solely to timing.
+- Added the focused Temporal alignment guide, generated noun/source/verb
+  references, and an opt-in live showcase notebook. The website does not
+  execute that online notebook during its offline build; readers can run it to
+  request the documented real observations. Added deterministic offset-window
+  regressions proving changed daily maxima, precipitation dates, threshold
+  labels, and event starts from one hourly signal.
+- Validation: 117 focused grammar/noun/overlap/synchrony/plot/temporal tests
+  passed; the full offline suite passed 854 tests with 5 skips; 32 streaming
+  contracts passed; all 12 supported notebooks passed both checkout and exact
+  wheel execution; publication validation passed five modules; source and
+  decision QA passed; 76 references and eight visual results passed freshness
+  checks; strict MkDocs, built-site links, 380 Chromium checks, repository size,
+  and diff checks passed. The complete clean temporary-snapshot non-publishing
+  gate passed all 35 steps. The direct checkout gate correctly refused the
+  uncommitted working tree. No tag, push, upload, or release was performed.
+
 ## 2026-09-01 — Naive outside-user first-use acceptance follow-up
 
 - Continued the existing RC1 hardening pass using the independent
@@ -23,6 +72,30 @@ secrets, credentials, private tokens, or unrelated transcript text.
   separate installed-wheel first-use gate alongside the existing broad gate.
 - Do not publish, tag, push, invent live-source evidence, or treat the bounded
   naive report as exhaustive functional coverage.
+- Root cause and fix: core import eagerly reached Cubo -> Rasterio -> Rasterio's
+  bundled GDAL, whose aarch64 1.4.4 wheel retained an unresolved
+  `libexpat.so.1` dependency on Debian 13. Sentinel/Cubo import is now deferred;
+  the exact `python:3.11-slim` arm64 image imports the rebuilt wheel and passes
+  the public first-use smoke. Xarray still warns while discovering the broken
+  optional Rasterio backend, and Sentinel use on that host remains unsupported.
+- Added deterministic NetCDF-safe metadata serialization, Boolean state-file
+  encoding without in-memory mutation, daily-only modern PRISM defaults and
+  validation, a bounded online PRISM first-use script, an installed-wheel
+  acceptance script, clean Debian-slim x86_64/aarch64 CI, and a public
+  documentation age/generation audit. Regenerated the output reference,
+  visual lesson, and grammar notebook from their owning builders.
+- Validation: 831 offline tests passed with 5 skips; 32 streaming contracts
+  passed; all 12 supported vignettes executed with required plots; aggregate
+  publication validation passed five modules; source and decision QA passed;
+  75 references, 8 visual results, noun/source notebooks, source-project
+  evidence and 14 homepage examples passed freshness checks; strict MkDocs and
+  built-site links passed; the built wheel passed Twine, `pip check`, release
+  identity, first-use, and checksum-pinned external quickstart checks. The full
+  Chromium run passed 373 checks and exposed four stale wording assertions;
+  all 12 affected desktop/mobile journeys passed after correction.
+- The monolithic release gate correctly refused to mint hash-bound evidence
+  from a dirty, uncommitted checkout. It was not bypassed, and the next
+  candidate remains blocked on a reviewed commit plus the configured CI matrix.
 
 ## 2026-08-31 — Comprehensive RC1 validation triage and next-RC gate
 

@@ -54,6 +54,16 @@ class SemanticState:
     source_flavor: str | None = None
     source_provider: str | None = None
     provenance: bool = False
+    temporal_resolution: str | None = None
+    temporal_support_type: str | None = None
+    temporal_support_known: bool | None = None
+    temporal_label_convention: str | None = None
+    temporal_reference_timezone: str | None = None
+    temporal_support_start_offset: str | None = None
+    temporal_support_end_offset: str | None = None
+    temporal_alignment_coordinates: str | None = None
+    temporal_alignment_support: str | None = None
+    temporal_alignment_note: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -72,6 +82,16 @@ class SemanticState:
             "source_flavor": self.source_flavor,
             "source_provider": self.source_provider,
             "provenance": self.provenance,
+            "temporal_resolution": self.temporal_resolution,
+            "temporal_support_type": self.temporal_support_type,
+            "temporal_support_known": self.temporal_support_known,
+            "temporal_label_convention": self.temporal_label_convention,
+            "temporal_reference_timezone": self.temporal_reference_timezone,
+            "temporal_support_start_offset": self.temporal_support_start_offset,
+            "temporal_support_end_offset": self.temporal_support_end_offset,
+            "temporal_alignment_coordinates": self.temporal_alignment_coordinates,
+            "temporal_alignment_support": self.temporal_alignment_support,
+            "temporal_alignment_note": self.temporal_alignment_note,
         }
 
 
@@ -273,6 +293,12 @@ _VERB_SPECS: dict[str, VerbSpec] = {
         "overlap", "identify coincident truth in two exactly aligned conditions", ("condition",),
         "condition", requires=("exact_alignment",), preserves=("dimensions",),
         examples=("v.overlap(other_state)",), category="semantic",
+    ),
+    "align_time": _spec(
+        "align_time", "make a time-label or exact-support alignment decision explicit",
+        _ANY_KINDS, "same", requires=("time",),
+        preserves=("coordinates", "values", "provenance"),
+        examples=("v.align_time(other, mode='exact_support')",), category="semantic",
     ),
     "occurrence_synchrony": _spec(
         "occurrence_synchrony", "compare co-occurrence among state cubes", ("condition",),
@@ -631,6 +657,16 @@ def infer_semantic_state(value: Any) -> SemanticState:
         source_flavor=attrs.get("source_flavor"),
         source_provider=attrs.get("source_provider"),
         provenance=provenance,
+        temporal_resolution=(str(attrs["temporal_resolution"]) if temporal and attrs.get("temporal_resolution") is not None else None),
+        temporal_support_type=(str(attrs["temporal_support_type"]) if temporal and attrs.get("temporal_support_type") is not None else None),
+        temporal_support_known=(_metadata_bool(attrs.get("temporal_support_known")) if temporal else None),
+        temporal_label_convention=(str(attrs["temporal_label_convention"]) if temporal and attrs.get("temporal_label_convention") is not None else None),
+        temporal_reference_timezone=(str(attrs["temporal_reference_timezone"]) if temporal and attrs.get("temporal_reference_timezone") is not None else None),
+        temporal_support_start_offset=(str(attrs["temporal_support_start_offset"]) if temporal and attrs.get("temporal_support_start_offset") is not None else None),
+        temporal_support_end_offset=(str(attrs["temporal_support_end_offset"]) if temporal and attrs.get("temporal_support_end_offset") is not None else None),
+        temporal_alignment_coordinates=(str(attrs["temporal_alignment_coordinates"]) if attrs.get("temporal_alignment_coordinates") is not None else None),
+        temporal_alignment_support=(str(attrs["temporal_alignment_support"]) if attrs.get("temporal_alignment_support") is not None else None),
+        temporal_alignment_note=(str(attrs["temporal_alignment_note"]) if attrs.get("temporal_alignment_note") is not None else None),
     )
 
 
@@ -738,6 +774,8 @@ def transition_state(
         kind = "summary"
     if name in {"threshold_state", "quantile_state", "binary_state", "change_state", "exceedance", "overlap"}:
         return replace(after, semantic_kind="condition", category="state", units="boolean")
+    if name == "align_time":
+        return replace(after, semantic_kind=before.semantic_kind, category=before.category)
     if name == "detect_events":
         return replace(after, semantic_kind="event", category="event")
     if name in {"anomaly", "zscore", "month_filter"}:
@@ -790,6 +828,30 @@ def explain_pipeline(initial: SemanticState, trace: Iterable[TraceStep]) -> str:
             f"- Units: {current.units or 'not declared'}",
         ]
     )
+    if current.temporal:
+        if current.temporal_support_known:
+            lines.append(
+                "- Temporal support: "
+                f"{current.temporal_support_type or 'known'} "
+                f"({current.temporal_label_convention or 'source-declared convention'})"
+            )
+        elif current.temporal_support_known is False:
+            lines.append("- Temporal support: not verified")
+    alignment_states = [
+        step.output_state for step in steps if step.output_state.temporal_alignment_support
+    ]
+    if alignment_states:
+        aligned = alignment_states[-1]
+        lines.extend(
+            [
+                "",
+                "Temporal alignment",
+                f"- Coordinate labels: {aligned.temporal_alignment_coordinates}",
+                f"- Observation support: {aligned.temporal_alignment_support}",
+            ]
+        )
+        if aligned.temporal_alignment_note:
+            lines.append(f"- {aligned.temporal_alignment_note}")
     notes = [message.text for step in steps for message in step.messages if message.severity == "ORDER_NOTE"]
     if notes:
         lines.extend(["", "Order notes"])
@@ -834,6 +896,24 @@ def validate_pipeline(initial: SemanticState, trace: Iterable[TraceStep]) -> Val
         severity = "INFO" if current.time_ordered is not False else "ERROR"
         text = "Time coordinates are ordered." if current.time_ordered is not False else "Time coordinates are not in increasing order."
         checks.append(ValidationCheck(severity, "time_order", text))
+        if current.temporal_support_known is True:
+            checks.append(
+                ValidationCheck(
+                    "INFO",
+                    "temporal_support",
+                    "Observation temporal support is declared as "
+                    f"{current.temporal_support_type or 'known'} "
+                    f"({current.temporal_label_convention or 'source convention'}).",
+                )
+            )
+        else:
+            checks.append(
+                ValidationCheck(
+                    "CHECK",
+                    "temporal_support_unknown",
+                    "A time coordinate is present, but observation temporal support is not verified.",
+                )
+            )
     if current.spatial:
         severity = "INFO" if current.crs else "CHECK"
         text = f"Spatial CRS is {current.crs}." if current.crs else "Spatial dimensions are present, but CRS metadata is not declared."
@@ -849,7 +929,44 @@ def validate_pipeline(initial: SemanticState, trace: Iterable[TraceStep]) -> Val
     for step in steps:
         for message in step.messages:
             checks.append(ValidationCheck(message.severity, message.code, message.text))
+        support_status = step.output_state.temporal_alignment_support
+        if support_status == "different":
+            checks.append(
+                ValidationCheck(
+                    "WARNING",
+                    "temporal_support_different",
+                    step.output_state.temporal_alignment_note
+                    or "Inputs share time labels but represent different observation intervals.",
+                )
+            )
+        elif support_status == "unknown":
+            checks.append(
+                ValidationCheck(
+                    "CHECK",
+                    "temporal_support_compatibility_unknown",
+                    step.output_state.temporal_alignment_note
+                    or "Time labels are compatible, but temporal-support compatibility could not be verified.",
+                )
+            )
+        elif support_status == "exact":
+            checks.append(
+                ValidationCheck(
+                    "INFO",
+                    "temporal_support_exact",
+                    "Time labels and declared observation support are compatible.",
+                )
+            )
     return ValidationReport(not any(check.severity == "ERROR" for check in checks), tuple(checks))
+
+
+def _metadata_bool(value: Any) -> bool | None:
+    """Interpret NetCDF-safe flags while retaining an unknown state."""
+
+    if value is None:
+        return False
+    if isinstance(value, str):
+        return value.strip().casefold() in {"1", "true", "yes", "known"}
+    return bool(value)
 
 
 def _looks_boolean(value: Any) -> bool:

@@ -2,7 +2,7 @@
 
 # sync_with
 
-Compare one aligned state cube with another.
+Compare one state cube with another using coordinate-label lags.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -25,15 +25,21 @@ v.sync_with(other, *, synchrony='occurrence', spatial_relation='same_pixel', lag
 
 ## Accepts
 
-State cube + aligned state cube -> coupling Dataset.
+State cube + aligned state cube -> coupling Dataset. Positive lags shift
+the right condition by coordinate periods; they do not shift or harmonize
+the physical observation support represented by either source.
 
 ## Returns
 
-State cube + aligned state cube -> coupling Dataset.
+State cube + aligned state cube -> coupling Dataset. Positive lags shift
+the right condition by coordinate periods; they do not shift or harmonize
+the physical observation support represented by either source.
 
 ## Order / grammar behavior
 
-State cube + aligned state cube -> coupling Dataset.
+State cube + aligned state cube -> coupling Dataset. Positive lags shift
+the right condition by coordinate periods; they do not shift or harmonize
+the physical observation support represented by either source.
 
 ## Minimal example
 
@@ -60,7 +66,9 @@ plt.show()
 
 ## Works with
 
-State cube + aligned state cube -> coupling Dataset.
+State cube + aligned state cube -> coupling Dataset. Positive lags shift
+the right condition by coordinate periods; they do not shift or harmonize
+the physical observation support represented by either source.
 
 ## See also
 
@@ -74,4 +82,4 @@ State cube + aligned state cube -> coupling Dataset.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L155). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L157). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

@@ -51,6 +51,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | Operation | Callable type | Purpose |
 | --- | --- | --- |
 | [align_cube](align_cube.md) | Grammar verb / pipe stage | align a field to a reference cube |
+| [align_time](align_time.md) | Grammar verb / pipe stage | make a time-label or exact-support alignment decision explicit |
 | [block_signature](block_signature.md) | Grammar verb / pipe stage | summarize a cube as a named spatial-block signature |
 | [collect_blocks](collect_blocks.md) | Grammar verb / pipe stage | collect compatible block signatures |
 | [extract](extract.md) | Grammar verb / pipe stage | attach fire-hull climate summaries to a cube |

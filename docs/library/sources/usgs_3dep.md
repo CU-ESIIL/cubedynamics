@@ -26,6 +26,10 @@ Static tile version, not a time series
 
 TNM catalog + conditional HTTPS ranges
 
+## Temporal support
+
+Not applicable: elevation has no time dimension; tile version is provenance, not observation support. See [Temporal alignment](../../concepts/temporal_alignment.md).
+
 ## What it provides
 
 Surface elevation on a native raster grid.

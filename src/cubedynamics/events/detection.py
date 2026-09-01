@@ -144,6 +144,12 @@ def detect_events(
             "min_duration": min_duration,
             "max_gap": max_gap,
             "event_count": len(records),
+            "event_time_basis": "observation_coordinate_labels",
+            "event_time_fields": "start,end",
+            "event_time_support_note": (
+                "Event start and end are labels of the first and last active "
+                "observations; they are not observation-support bounds."
+            ),
         }
     )
     catalog = pd.DataFrame.from_records(records)

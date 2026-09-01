@@ -26,6 +26,10 @@ Explicit release, e.g. 2026-08-19.0
 
 Release STAC + pruned, conditional GeoParquet ranges
 
+## Temporal support
+
+Not applicable: release identity is provenance for static vector features, not an observation interval. See [Temporal alignment](../../concepts/temporal_alignment.md).
+
 ## What it provides
 
 Mapped road features with provider-native geometry, identifiers, and classes.

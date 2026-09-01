@@ -7,6 +7,43 @@ from typing import Hashable
 import xarray as xr
 
 from ..grammar import infer_semantic_state
+from ..temporal import TemporalAlignmentReport, compare_temporal_support
+
+
+_TEMPORAL_POLICIES = {"labels", "require_exact_support"}
+
+
+def align_time(
+    other: xr.DataArray | xr.Dataset,
+    *,
+    mode: str = "require_exact_support",
+    time_dim: str = "time",
+):
+    """Return a verb that records an explicit temporal-alignment decision.
+
+    ``mode='labels'`` acknowledges pairing by unchanged coordinate labels even
+    when observation supports differ or are unknown.  ``mode='require_exact_support'``
+    requires both exact labels and identical, known support metadata.  Neither
+    mode shifts, resamples, interpolates, aggregates, or truncates either input.
+    """
+
+    policy = _validate_temporal_policy(mode)
+
+    def _op(obj: xr.DataArray | xr.Dataset) -> xr.DataArray | xr.Dataset:
+        if not isinstance(obj, (xr.DataArray, xr.Dataset)):
+            raise TypeError("align_time requires xarray DataArray or Dataset inputs")
+        report = compare_temporal_support(obj, other, time_dim=time_dim)
+        _require_exact_time_labels(report, caller="align_time")
+        _enforce_temporal_policy(report, policy, caller="align_time")
+        result = obj.copy(deep=False)
+        attrs = dict(obj.attrs)
+        attrs.update(_alignment_attrs(report, policy))
+        attrs.update({"analysis": "temporal_alignment", "temporal_alignment_mode": policy})
+        result.attrs = attrs
+        return result
+
+    _op._cd_semantic_context = {"other": infer_semantic_state(other)}
+    return _op
 
 
 def overlap(
@@ -15,6 +52,7 @@ def overlap(
     left_variable: Hashable | None = None,
     right_variable: Hashable | None = None,
     name: str = "overlap",
+    temporal_alignment: str | None = None,
 ):
     """Return a verb that finds coincident truth in two aligned state cubes.
 
@@ -33,6 +71,10 @@ def overlap(
         when present; otherwise a single-variable Dataset is accepted.
     name : str, default "overlap"
         Name for the returned condition Dataset.
+    temporal_alignment : {"labels", "require_exact_support"}, optional
+        Explicit temporal-support policy. Known, different supports require a
+        choice. ``"labels"`` pairs unchanged labels and records the caveat;
+        ``"require_exact_support"`` rejects different or unknown support.
 
     Returns
     -------
@@ -46,12 +88,31 @@ def overlap(
     causation or risk. It only records where two aligned conditions are true.
     """
 
+    policy = (
+        _validate_temporal_policy(temporal_alignment)
+        if temporal_alignment is not None
+        else None
+    )
     right = _select_state(other, variable=right_variable, side="right")
     right_condition = _condition_name(other, right)
 
     def _op(obj: xr.DataArray | xr.Dataset) -> xr.Dataset:
         left = _select_state(obj, variable=left_variable, side="left")
         aligned_left, aligned_right = _align_exact(left, right)
+        report = compare_temporal_support(obj, other)
+        if report.coordinates not in {"exact", "absent"}:
+            # _align_exact normally catches this first; retain an independent
+            # semantic diagnostic for nonstandard datetime dimension names.
+            _require_exact_time_labels(report, caller="overlap")
+        if report.temporal_support == "different" and policy is None:
+            raise ValueError(
+                "overlap inputs have exact time labels but different known observation "
+                "intervals. Choose temporal_alignment='labels' to pair the existing "
+                "labels with a recorded caveat, or 'require_exact_support' to reject "
+                "the mismatch. CubeDynamics will not shift or resample either input."
+            )
+        if policy is not None:
+            _enforce_temporal_policy(report, policy, caller="overlap")
 
         conjunction = (aligned_left.astype(bool) & aligned_right.astype(bool)).rename(name)
         conjunction.attrs = {
@@ -67,13 +128,93 @@ def overlap(
             "right_variable": str(right.name or right_variable or "value"),
             "alignment": "exact",
         }
+        conjunction.attrs.update(_alignment_attrs(report, policy or "implicit"))
         result = xr.Dataset({"state": conjunction})
+        result.attrs.update(getattr(obj, "attrs", {}) or {})
         result.attrs.update(conjunction.attrs)
         result.attrs.update({"analysis": "state_cube", "state_name": name})
+        if report.temporal_support != "exact" and report.coordinates != "absent":
+            result.attrs.update(
+                {
+                    "temporal_support_known": 0,
+                    "temporal_support_type": "composite",
+                    "temporal_label_convention": "paired_by_labels",
+                }
+            )
         return result
 
     _op._cd_semantic_context = {"other": infer_semantic_state(other)}
     return _op
+
+
+def _validate_temporal_policy(value: str | None) -> str:
+    policy = str(value)
+    if policy not in _TEMPORAL_POLICIES:
+        choices = ", ".join(sorted(_TEMPORAL_POLICIES))
+        raise ValueError(f"temporal alignment mode must be one of: {choices}")
+    return policy
+
+
+def _require_exact_time_labels(report: TemporalAlignmentReport, *, caller: str) -> None:
+    if report.coordinates == "absent":
+        raise ValueError(f"{caller} requires both inputs to have a time coordinate")
+    if report.coordinates != "exact":
+        raise ValueError(
+            f"{caller} time-coordinate labels differ; exact labels are required. "
+            "CubeDynamics will not shift, resample, interpolate, or truncate them."
+        )
+
+
+def _enforce_temporal_policy(
+    report: TemporalAlignmentReport,
+    policy: str,
+    *,
+    caller: str,
+) -> None:
+    if policy == "labels":
+        return
+    if report.temporal_support == "unknown":
+        raise ValueError(
+            f"{caller} mode='require_exact_support' cannot verify observation intervals "
+            "because temporal-support metadata is unknown for one or both inputs."
+        )
+    if report.temporal_support != "exact":
+        raise ValueError(
+            f"{caller} mode='require_exact_support' found different known observation "
+            "intervals. No timestamps or values were changed."
+        )
+
+
+def _alignment_attrs(report: TemporalAlignmentReport, policy: str) -> dict[str, object]:
+    support_status = (
+        "not_applicable" if report.coordinates == "absent" else report.temporal_support
+    )
+    return {
+        "temporal_alignment_coordinates": report.coordinates,
+        "temporal_alignment_support": support_status,
+        "temporal_alignment_policy": policy,
+        "temporal_alignment_left_source": report.left_source or "not declared",
+        "temporal_alignment_right_source": report.right_source or "not declared",
+        "temporal_alignment_note": _alignment_note(report, policy),
+        "temporal_alignment_modified_coordinates": 0,
+        "temporal_alignment_modified_values": 0,
+    }
+
+
+def _alignment_note(report: TemporalAlignmentReport, policy: str) -> str:
+    left = report.left_source or "The left input"
+    right = report.right_source or "the right input"
+    if report.temporal_support == "different":
+        return (
+            f"{left} and {right} have matching date labels but different declared "
+            f"observation intervals; policy {policy!r} does not make those intervals equal."
+        )
+    if report.temporal_support == "unknown":
+        return (
+            f"{left} and {right} have matching date labels, but temporal-support "
+            "compatibility could not be verified."
+        )
+    return f"{left} and {right} have exact time labels and declared observation support."
 
 
 def _select_state(
@@ -164,4 +305,4 @@ def _align_exact(
     return xr.align(left, right, join="exact")
 
 
-__all__ = ["overlap"]
+__all__ = ["align_time", "overlap"]

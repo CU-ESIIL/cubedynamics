@@ -10,7 +10,7 @@ Return a verb that finds coincident truth in two aligned state cubes.
 
 ```python
 from cubedynamics import verbs as v
-v.overlap(other, *, left_variable=None, right_variable=None, name='overlap')
+v.overlap(other, *, left_variable=None, right_variable=None, name='overlap', temporal_alignment=None)
 ```
 
 ## Arguments
@@ -21,10 +21,11 @@ v.overlap(other, *, left_variable=None, right_variable=None, name='overlap')
 | left_variable | Variables to select from Dataset inputs. If omitted, state is used when present; otherwise a single-variable Dataset is accepted. | None |
 | right_variable | Variables to select from Dataset inputs. If omitted, state is used when present; otherwise a single-variable Dataset is accepted. | None |
 | name | Name for the returned condition Dataset. | 'overlap' |
+| temporal_alignment | Explicit temporal-support policy. Known, different supports require a choice. "labels" pairs unchanged labels and records the caveat; "require_exact_support" rejects different or unknown support. | None |
 
 ## Accepts
 
-Two already aligned condition DataArrays or Datasets. Coordinates must match exactly; no reprojection, resampling, or scientific harmonization is inferred.
+Two already aligned condition DataArrays or Datasets. Coordinates must match exactly. Known different observation supports require temporal_alignment='labels' or 'require_exact_support'; no reprojection, resampling, shift, or scientific harmonization is inferred.
 
 ## Returns
 
@@ -60,7 +61,7 @@ plt.show()
 
 ## Works with
 
-Two already aligned condition DataArrays or Datasets. Coordinates must match exactly; no reprojection, resampling, or scientific harmonization is inferred.
+Two already aligned condition DataArrays or Datasets. Coordinates must match exactly. Known different observation supports require temporal_alignment='labels' or 'require_exact_support'; no reprojection, resampling, shift, or scientific harmonization is inferred.
 
 ## See also
 
@@ -75,4 +76,4 @@ Two already aligned condition DataArrays or Datasets. Coordinates must match exa
 ``overlap`` does not perform vector intersection and does not establish
 causation or risk. It only records where two aligned conditions are true.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/combine.py#L12). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/combine.py#L49). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

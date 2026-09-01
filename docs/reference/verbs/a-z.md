@@ -7,6 +7,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | Name | Callable type | Availability | Meaning |
 | --- | --- | --- | --- |
 | [align_cube](align_cube.md) | Grammar verb / pipe stage | implemented | align a field to a reference cube |
+| [align_time](align_time.md) | Grammar verb / pipe stage | implemented | make a time-label or exact-support alignment decision explicit |
 | [anomaly](anomaly.md) | Grammar verb / pipe stage | implemented | express values as departures from a mean |
 | [aoi_signature](aoi_signature.md) | Grammar verb / pipe stage | compatibility | Summarize an AOI cube into a named spatial-unit time signature. |
 | [apply](apply.md) | Grammar verb / pipe stage | implemented | apply a user-supplied function without changing pipe syntax |

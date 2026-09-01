@@ -30,6 +30,16 @@ Reproject vector inputs into the cube's CRS once. Never reproject the cube to th
 ## Time alignment contract (event-based)
 For cube timestamp `t`, select the latest geometry date `<= t` after day-level normalization. This allows event polygons to be matched to the nearest prior observation without stepping into the future.
 
+This geometry rule is not the general observation-time contract. Environmental
+rasters can share a timestamp label while representing different physical
+intervals. The normative observation contract is documented in
+[Temporal alignment](../concepts/temporal_alignment.md). Implementations must
+keep three questions separate: coordinate labels, observation support, and
+event-time matching.
+
+> **Alignment is part of the scientific question. Equal timestamps do not
+> guarantee equal observations in time.**
+
 ## Dataset compatibility table
 | Dataset | Expected grid | Metadata quirks | Contract behavior |
 | --- | --- | --- | --- |

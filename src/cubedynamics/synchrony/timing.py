@@ -59,6 +59,9 @@ def timing_synchrony(
         {
             "analysis": "timing_synchrony",
             "event_anchor": event_anchor,
+            "event_time_alignment": f"event_{event_anchor}_label",
+            "observation_support_alignment": "separate_not_performed",
+            "lag_semantics": "difference_between_selected_event_anchor_labels",
             "match_tolerance": str(match_tolerance),
             "score": score,
             "timescale": str(timescale),
@@ -119,6 +122,8 @@ def duration_synchrony(
         {
             "analysis": "duration_synchrony",
             "match_on": match_on,
+            "event_time_alignment": f"event_{match_on}",
+            "observation_support_alignment": "separate_not_performed",
             "match_tolerance": str(match_tolerance),
             "method": method,
             "spatial_mode": spatial_mode,

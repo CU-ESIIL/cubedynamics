@@ -44,24 +44,28 @@ SOURCES = {
     "usgs_3dep": dict(provider="US Geological Survey", product="3DEP 1/3 arc-second elevation",
         coverage="CONUS; one fully covering native tile", resolution="1/3 arc-second; native cells",
         time="Static tile version, not a time series", access="TNM catalog + conditional HTTPS ranges",
+        temporal_support="Not applicable: elevation has no time dimension; tile version is provenance, not observation support.",
         mode="Snapshot; strong ETag and exact tile identity", profile="continuous_raster_static",
         limits="256 native pixels per side; 80 requests / 8 MB bodies / 180 s. No mosaics, resampling, silent tile clipping, or vertical conversion. Requires Rasterio >=1.4. A requested historical tile is not asserted current.",
         citation="[USGS 3DEP](https://www.usgs.gov/3d-elevation-program)"),
     "overture": dict(provider="Overture Maps Foundation", product="Transportation / segment GeoParquet",
         coverage="Release-covered areas; bounded small-area queries", resolution="Native vector segments",
         time="Explicit release, e.g. 2026-08-19.0", access="Release STAC + pruned, conditional GeoParquet ranges",
+        temporal_support="Not applicable: release identity is provenance for static vector features, not an observation interval.",
         mode="Explicit release plus object identities", profile="feature_line",
         limits="5,000 features; 3 partitions; 4 row groups per partition; 400 requests / 40 MB bodies / 300 s. Install cubedynamics[roads] for PyArrow. Native classes/segmentation retained; not routing or completeness certification.",
         citation="[Overture transportation schema](https://docs.overturemaps.org/schema/reference/transportation/segment/) · © Overture Maps Foundation / contributors; ODbL"),
     "osm": dict(provider="OpenStreetMap contributors", product="Mapped highway ways",
         coverage="Small query areas through Overpass", resolution="Native OSM way geometry",
         time="Rolling snapshot at retrieval; timestamp retained", access="Bounded anonymous Overpass request",
+        temporal_support="Not applicable to feature time: retrieval time identifies the mapped snapshot and is not an observation-support coordinate.",
         mode="Rolling; retain exact raw response for exact replay", profile="feature_line",
         limits="5,000 features; 6 requests / 4 MB bodies / 90 s. Ways require a node inside the bbox: long crossing ways may be absent. Public Overpass is not a sustained application backend. No automatic road-class crosswalk.",
         citation="[OpenStreetMap attribution and license](https://www.openstreetmap.org/copyright) · © OpenStreetMap contributors; ODbL"),
     "usgs": dict(provider="US Geological Survey", product="Modern continuous water-data API; discharge parameter 00060",
         coverage="One supported USGS station per request", resolution="Point station; native observation intervals",
         time="Provider-available observations; <=31-day requests", access="Modern OGC JSON API, cursor pagination, seven-day batches",
+        temporal_support="Unknown at this general source level: timestamps, statistic, and native metadata are retained, but the loader does not claim one physical support interval for every series.",
         mode="Rolling values/status; stable key is series ID plus time", profile="station_timeseries",
         limits="10,000 observations; 40 requests / 16 MB bodies / 180 s. Preserve native units/statistic and provisional flags; missing values are not filled. Multiple series require explicit selection. No synthetic fallback.",
         citation="[USGS Water Data APIs](https://api.waterdata.usgs.gov/)"),
@@ -110,6 +114,7 @@ def generate_helpers(table, section, signature, link):
         text = f"# {source}\n"
         for title, key in (("Provider", "provider"), ("Product", "product"), ("Coverage", "coverage"), ("Resolution", "resolution"), ("Temporal coverage", "time"), ("Access method", "access")):
             text += section(title, info[key])
+        text += section("Temporal support", info["temporal_support"] + " See [Temporal alignment](../../concepts/temporal_alignment.md).")
         text += section("What it provides", "; ".join(NOUNS[n]["meaning"] for n in nouns))
         text += section("Available CubeDynamics nouns", ", ".join(link(page, f"library/nouns/{n}.md", n) for n in nouns))
         text += section("Current QA/certification status", "Bounded real acquisition and offline checks passed for retained samples. Broader scientific review and sustained-load testing remain open; endpoint availability is independent. QA profile: `" + info["profile"] + "`. [Evidence and scope](../../data/source_projects/production.md).")

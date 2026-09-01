@@ -96,10 +96,12 @@ def timing_synchrony(
     reference=None,
 ):
     """Summary
-    Measure whether one-to-one matched events happen at similar times.
+    Measure whether one-to-one matched events happen at similar label times.
 
     Grammar contract
     EventResult -> synchrony Dataset with lag and unmatched-event diagnostics.
+    ``event_anchor`` selects start, peak, or end event labels. This is event-time
+    alignment and does not establish equality of source observation windows.
     """
 
     def _op(obj):
@@ -161,10 +163,12 @@ def sync_with(
     state_var: str = "state",
 ):
     """Summary
-    Compare one aligned state cube with another.
+    Compare one state cube with another using coordinate-label lags.
 
     Grammar contract
-    State cube + aligned state cube -> coupling Dataset.
+    State cube + aligned state cube -> coupling Dataset. Positive lags shift
+    the right condition by coordinate periods; they do not shift or harmonize
+    the physical observation support represented by either source.
     """
 
     def _op(obj):

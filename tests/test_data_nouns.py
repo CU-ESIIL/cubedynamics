@@ -134,6 +134,17 @@ def test_climate_nouns_hide_provider_variables_and_preserve_laziness(
     assert result.attrs["schema_fingerprint"].startswith("sha256:")
     assert json.loads(result.attrs["upstream_identity"])["endpoint"]
     assert result.attrs["is_synthetic"] == 0
+    assert result.attrs["temporal_support_type"] == "interval"
+    assert result.attrs["temporal_support_known"] == 1
+    assert result.attrs["temporal_reference_timezone"] == "UTC"
+    expected_offsets = {
+        "prism": ("-12h", "12h", "day_ending"),
+        "gridmet": ("7h", "31h", "calendar_day_starting"),
+    }
+    start_offset, end_offset, convention = expected_offsets[source]
+    assert result.attrs["temporal_support_start_offset"] == start_offset
+    assert result.attrs["temporal_support_end_offset"] == end_offset
+    assert result.attrs["temporal_label_convention"] == convention
     assert json.loads(result.attrs["source_variables"]) == [expected_variable]
     assert json.loads(result.attrs["spatial_query"])["bbox"] == [
         -105.4,

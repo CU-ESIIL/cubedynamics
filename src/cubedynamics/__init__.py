@@ -36,6 +36,13 @@ from __future__ import annotations
 
 from .version import __version__
 from .piping import Pipe, pipe
+from .temporal import (
+    TemporalAlignmentReport,
+    TemporalSupport,
+    compare_temporal_support,
+    observation_intervals,
+    temporal_support,
+)
 from . import data
 from . import grammar
 from . import verbs
@@ -98,6 +105,11 @@ __all__ = [
     "__version__",
     "Pipe",
     "pipe",
+    "TemporalAlignmentReport",
+    "TemporalSupport",
+    "compare_temporal_support",
+    "observation_intervals",
+    "temporal_support",
     "data",
     "grammar",
     "verbs",

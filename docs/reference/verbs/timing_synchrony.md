@@ -2,7 +2,7 @@
 
 # timing_synchrony
 
-Measure whether one-to-one matched events happen at similar times.
+Measure whether one-to-one matched events happen at similar label times.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -29,14 +29,20 @@ v.timing_synchrony(*, event_anchor='start', match_tolerance='7D', score='exponen
 ## Accepts
 
 EventResult -> synchrony Dataset with lag and unmatched-event diagnostics.
+``event_anchor`` selects start, peak, or end event labels. This is event-time
+alignment and does not establish equality of source observation windows.
 
 ## Returns
 
 EventResult -> synchrony Dataset with lag and unmatched-event diagnostics.
+``event_anchor`` selects start, peak, or end event labels. This is event-time
+alignment and does not establish equality of source observation windows.
 
 ## Order / grammar behavior
 
 EventResult -> synchrony Dataset with lag and unmatched-event diagnostics.
+``event_anchor`` selects start, peak, or end event labels. This is event-time
+alignment and does not establish equality of source observation windows.
 
 ## Minimal example
 
@@ -63,6 +69,8 @@ plt.show()
 ## Works with
 
 EventResult -> synchrony Dataset with lag and unmatched-event diagnostics.
+``event_anchor`` selects start, peak, or end event labels. This is event-time
+alignment and does not establish equality of source observation windows.
 
 ## See also
 

@@ -12,6 +12,7 @@ Daily precipitation totals.
 | Units by source | gridmet: default: mm; prism: default: mm |
 | Spatial coverage | Contiguous United States |
 | Temporal resolution | daily total |
+| Temporal support | gridmet: interval, calendar_day_starting; prism: interval, day_ending |
 | Available source flavors | gridmet, prism |
 
 ## Usage
@@ -39,6 +40,10 @@ The same noun does not make these products numerically interchangeable. CubeDyna
 | Variables / statistics | default: pr | default: ppt |
 | Spatial resolution | 4,638.3 m | approximately 4 km |
 | Temporal resolution | daily total | daily total |
+| Temporal support type | interval | interval |
+| Temporal label convention | calendar_day_starting | day_ending |
+| Temporal support start offset | 7h | -12h |
+| Temporal support end offset | 31h | 12h |
 | Coverage | Contiguous United States | Contiguous United States |
 | Time span | 1979-present | 1981-present |
 | Revision behavior | provider-managed daily observations in annual assets | daily observations with provider historical revisions |
@@ -49,9 +54,9 @@ Check units and statistic choice before comparing values; explicitly align spati
 
 ## Returned data
 
-An `xarray.DataArray` named `precipitation`, normally with `time, y, x` dimensions. `time` stores acquisition/observation times; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.
+An `xarray.DataArray` named `precipitation`, normally with `time, y, x` dimensions. `time` stores acquisition/observation labels; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.
 
-Units are source-specific (above), not silently harmonized. Attributes include `scientific_noun`, `source_flavor`, `source_variables`, `source_provider`, `source_product`, `spatial_query`, `temporal_query`, `crs`, `retrieved_at`, `data_state`, and serving/schema provenance. See [provenance helpers](../../api/data.md).
+Units are source-specific (above), not silently harmonized. Attributes include `scientific_noun`, `source_flavor`, `source_variables`, `source_provider`, `source_product`, `spatial_query`, `temporal_query`, `temporal_support_type`, `temporal_label_convention`, support offsets, `crs`, `retrieved_at`, `data_state`, and serving/schema provenance. See [temporal alignment](../../concepts/temporal_alignment.md) and [provenance helpers](../../api/data.md).
 
 ## Minimal reproducible example
 

@@ -54,7 +54,9 @@ def test_static_code_result_interpretation(page, site_base, pytestconfig, width,
             && !!(result.compareDocumentPosition(interpretation) & Node.DOCUMENT_POSITION_FOLLOWING);
         }""")
         if key == "export":
-            expect(section.get_by_role("table")).to_contain_text("Identical (asserted)")
+            table = section.get_by_role("table")
+            expect(table).to_contain_text("Equal (asserted)")
+            expect(table).to_contain_text("portable flag")
             section.locator(".cd-result-caption").scroll_into_view_if_needed()
             readable(section.locator(".cd-result-caption"))
         else:
@@ -79,7 +81,9 @@ def test_native_notebook_code_result_pairs(page, site_base, pytestconfig, width)
         expect(code_cell.locator(".jp-InputArea pre")).to_have_count(1)
         caption = code_cell.locator("xpath=following-sibling::div[1]").locator(f'.cd-result-caption[data-example="{key}"]')
         if key == "export":
-            expect(code_cell.locator(".jp-OutputArea table")).to_contain_text("Identical (asserted)")
+            table = code_cell.locator(".jp-OutputArea table")
+            expect(table).to_contain_text("Equal (asserted)")
+            expect(table).to_contain_text("portable flag")
             caption.scroll_into_view_if_needed()
         else:
             decoded_and_fitted(code_cell.locator(".jp-OutputArea img"), width)

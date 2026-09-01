@@ -68,6 +68,13 @@ The Dataset contains event variables such as `event_active`, `event_id`,
 The catalog is a pandas DataFrame with one row per event. It stays outside
 xarray attrs so large event tables remain visible and inspectable.
 
+`start` and `end` are the coordinate labels of the first and last active
+observations. They are not the physical start and end of those observations'
+support intervals. `v.timing_synchrony(event_anchor="start")` compares event
+start labels; `event_anchor="end"` compares event end labels. This event-time
+question is separate from verifying that the source observations cover the
+same hours. See [Temporal alignment](../concepts/temporal_alignment.md).
+
 ## Observational example
 
 The [real PRISM states-and-events vignette](../vignettes/states_and_events.ipynb)

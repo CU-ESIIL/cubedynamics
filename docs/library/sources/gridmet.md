@@ -79,6 +79,19 @@
 | [vpd](../nouns/vpd.md) | opendap_with_https_fallback |
 | [wind](../nouns/wind.md) | opendap_with_https_fallback |
 
+## Temporal support
+
+| Noun | Type | Label convention | Reference timezone | Start offset | End offset | Known |
+| --- | --- | --- | --- | --- | --- | --- |
+| [humidity](../nouns/humidity.md) | interval | calendar_day_starting | UTC | 7h | 31h | True |
+| [precipitation](../nouns/precipitation.md) | interval | calendar_day_starting | UTC | 7h | 31h | True |
+| [radiation](../nouns/radiation.md) | interval | calendar_day_starting | UTC | 7h | 31h | True |
+| [temperature](../nouns/temperature.md) | interval | calendar_day_starting | UTC | 7h | 31h | True |
+| [vpd](../nouns/vpd.md) | interval | calendar_day_starting | UTC | 7h | 31h | True |
+| [wind](../nouns/wind.md) | interval | calendar_day_starting | UTC | 7h | 31h | True |
+
+Offsets are relative to the midnight UTC calendar-date coordinate. [Interpret labels, support intervals, and events separately](../../concepts/temporal_alignment.md).
+
 ## Available CubeDynamics nouns
 
 [humidity](../nouns/humidity.md), [precipitation](../nouns/precipitation.md), [radiation](../nouns/radiation.md), [temperature](../nouns/temperature.md), [vpd](../nouns/vpd.md), [wind](../nouns/wind.md)

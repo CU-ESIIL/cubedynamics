@@ -26,6 +26,10 @@ Provider-available observations; <=31-day requests
 
 Modern OGC JSON API, cursor pagination, seven-day batches
 
+## Temporal support
+
+Unknown at this general source level: timestamps, statistic, and native metadata are retained, but the loader does not claim one physical support interval for every series. See [Temporal alignment](../../concepts/temporal_alignment.md).
+
 ## What it provides
 
 Observed discharge at an identified streamgage through time.

@@ -12,6 +12,7 @@ Wind velocity at 10 m height.
 | Units by source | gridmet: default: m s-1 |
 | Spatial coverage | Contiguous United States |
 | Temporal resolution | daily |
+| Temporal support | gridmet: interval, calendar_day_starting |
 | Available source flavors | gridmet |
 
 ## Usage
@@ -30,9 +31,9 @@ Import with `from cubedynamics import data`. Keyword-only parameters and default
 
 ## Returned data
 
-An `xarray.DataArray` named `wind`, normally with `time, y, x` dimensions. `time` stores acquisition/observation times; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.
+An `xarray.DataArray` named `wind`, normally with `time, y, x` dimensions. `time` stores acquisition/observation labels; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.
 
-Units are source-specific (above), not silently harmonized. Attributes include `scientific_noun`, `source_flavor`, `source_variables`, `source_provider`, `source_product`, `spatial_query`, `temporal_query`, `crs`, `retrieved_at`, `data_state`, and serving/schema provenance. See [provenance helpers](../../api/data.md).
+Units are source-specific (above), not silently harmonized. Attributes include `scientific_noun`, `source_flavor`, `source_variables`, `source_provider`, `source_product`, `spatial_query`, `temporal_query`, `temporal_support_type`, `temporal_label_convention`, support offsets, `crs`, `retrieved_at`, `data_state`, and serving/schema provenance. See [temporal alignment](../../concepts/temporal_alignment.md) and [provenance helpers](../../api/data.md).
 
 ## Minimal reproducible example
 

@@ -69,6 +69,7 @@ nav:
           - Grammar reference: grammar/index.md
           - Scientific inspectability: concepts/scientific_inspectability.md
           - Semantic grammar: concepts/semantic_grammar.md
+          - Temporal alignment: concepts/temporal_alignment.md
           - Lazy evaluation: grammar/lazy_evaluation.md
           - Workflow composition: grammar/workflow_composition.md
           - Glossary: concepts/glossary.md
@@ -173,6 +174,7 @@ nav:
           - "Wildcard · What Should South Dakota Know?": decision_vignettes/wildcard.md
           - Collection validation: decision_vignettes/validation.md
       - Research stories:
+          - Temporal alignment showcase: examples/temporal_alignment.ipynb
           - Projects built with the grammar: projects/index.md
           - Workflow gallery: workflows/index.md
           - Climate analysis: workflows/climate_analysis.md
@@ -278,6 +280,8 @@ plugins:
   - git-revision-date
   - mkdocs-jupyter:
       execute: true
+      execute_ignore:
+        - "**/examples/temporal_alignment.ipynb"
       include_source: true
       ignore_h1_titles: true
 

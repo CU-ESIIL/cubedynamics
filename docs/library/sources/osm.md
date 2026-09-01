@@ -26,6 +26,10 @@ Rolling snapshot at retrieval; timestamp retained
 
 Bounded anonymous Overpass request
 
+## Temporal support
+
+Not applicable to feature time: retrieval time identifies the mapped snapshot and is not an observation-support coordinate. See [Temporal alignment](../../concepts/temporal_alignment.md).
+
 ## What it provides
 
 Mapped road features with provider-native geometry, identifiers, and classes.

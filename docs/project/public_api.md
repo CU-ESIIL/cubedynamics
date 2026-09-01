@@ -29,9 +29,11 @@ The supported center of the package is:
 - the verb-factory protocol: a configured outer function returns a callable
   that accepts the current value and returns the next one;
 - common cross-project verbs: `v.apply`, `v.mean`, `v.variance`, `v.anomaly`,
-  `v.zscore`, `v.month_filter`, `v.overlap`, `v.flatten_space`, and
-  `v.flatten_cube`. `v.overlap` is deliberately limited to exactly aligned
-  boolean/state rasters; it is not a vector intersection operation.
+  `v.zscore`, `v.month_filter`, `v.align_time`, `v.overlap`, `v.flatten_space`,
+  and `v.flatten_cube`. `v.align_time` records an explicit label or exact-support
+  decision without changing coordinates or values. `v.overlap` is deliberately
+  limited to exactly aligned boolean/state rasters; known different temporal
+  supports require an explicit policy. It is not a vector intersection operation.
 
 Plain callables are valid pipe stages. Projects do not need to register or
 subclass anything to extend the grammar.
@@ -99,7 +101,7 @@ it does not publish or change serving history.
   side effects are documented per verb.
 - Early AOI names (`v.aoi_signature`, `v.compare_aoi_signature`) remain
   available for compatibility.
-- Synchrony grammar verbs include state constructors (`v.threshold_state`, `v.quantile_state`, `v.binary_state`, `v.change_state`), event detection (`v.detect_events`), primitive synchrony operators (`v.occurrence_synchrony`, `v.severity_synchrony`, `v.timing_synchrony`, `v.duration_synchrony`), biological cube helpers (`v.rasterize_observations`, `v.align_cube`), and same-pixel lagged coupling (`v.sync_with`). These are public but intentionally narrow in their first implementation: cross-location coupling, richer null diagnostics, and complex event sequence grammars are future extensions.
+- Synchrony grammar verbs include state constructors (`v.threshold_state`, `v.quantile_state`, `v.binary_state`, `v.change_state`), event detection (`v.detect_events`), primitive synchrony operators (`v.occurrence_synchrony`, `v.severity_synchrony`, `v.timing_synchrony`, `v.duration_synchrony`), temporal-support review (`v.align_time`), biological cube helpers (`v.rasterize_observations`, `v.align_cube`), and same-pixel lagged coupling (`v.sync_with`). Event-label matching and observation-support alignment remain separate. These are public but intentionally narrow in their first implementation: cross-location coupling, richer null diagnostics, and complex event sequence grammars are future extensions.
 - Fire/VASE verbs include `v.fire_plot` for a single event, `v.fire_panel` for compact hull/histogram panels, and `v.fire_vase_panel` for multi-event prescribed-burn VASE panels. Vase-aware helpers (`v.vase`, `v.vase_extract`, `v.vase_mask`) preserve hull metadata on cubes.
 
 Synchrony, biological coupling, tubes, and Fire VASE are domain extensions that

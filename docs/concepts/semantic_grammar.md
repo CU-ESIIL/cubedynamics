@@ -52,8 +52,12 @@ This is semantic metadata, not a new set of runtime container classes.
 
 `SemanticState` also records dimensions, shape, units, CRS, temporal and
 spatial status, time ordering, remaining time variation, source flavor, and
-whether source provenance is present. Inference reads metadata and coordinates;
-it does not compute array values.
+whether source provenance is present. For time-varying objects it separately
+records temporal resolution, whether observations represent instants or
+intervals, whether that support is known, the label convention, timezone, and
+support offsets. A time coordinate can therefore exist even when its physical
+support is unknown. Inference reads metadata and coordinates; it does not
+compute array values.
 
 ## Verb contracts
 
@@ -100,8 +104,12 @@ print(analysis.validate())
   as runnable suggestions.
 - `validate()` returns a structured `ValidationReport` and a readable summary.
   It checks semantic state, dimensions, ordered time, CRS, units, provenance,
-  and order notes using metadata only. `CHECK` asks for human confirmation;
+  temporal-support compatibility, and order notes using metadata only. `CHECK` asks for human confirmation;
   only `ERROR` makes the report unsuccessful.
+
+Cross-source stages add a short temporal-alignment section to `explain()` and
+structured `INFO`, `CHECK`, or `WARNING` checks to `validate()`. See
+[Temporal alignment](temporal_alignment.md).
 
 The immutable `semantic_trace` and current `semantic_state` are public for
 notebooks, documentation, and agent tooling:

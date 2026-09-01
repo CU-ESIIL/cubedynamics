@@ -232,6 +232,46 @@ _SOURCE_LIFECYCLE_DEFAULTS: dict[str, dict[str, Any]] = {
 }
 
 
+# These rules describe the physical interval represented by one source time
+# label.  They are source properties, not guesses made from coordinate spacing.
+# Offsets are relative to the midnight UTC datetime encoded by the source's
+# calendar-date coordinate.
+_TEMPORAL_SUPPORT_DEFAULTS: dict[str, dict[str, Any]] = {
+    "prism": {
+        "temporal_support_type": "interval",
+        "temporal_label_convention": "day_ending",
+        "temporal_reference_timezone": "UTC",
+        "temporal_support_start_offset": "-12h",
+        "temporal_support_end_offset": "12h",
+        "temporal_support_known": True,
+        "temporal_support_evidence": (
+            "https://data.prism.oregonstate.edu/PRISM_datasets.pdf"
+        ),
+    },
+    "gridmet": {
+        "temporal_support_type": "interval",
+        "temporal_label_convention": "calendar_day_starting",
+        "temporal_reference_timezone": "UTC",
+        "temporal_support_start_offset": "7h",
+        "temporal_support_end_offset": "31h",
+        "temporal_support_known": True,
+        "temporal_support_evidence": "https://www.climatologylab.org/gridmet.html",
+    },
+    "sentinel2": {
+        "temporal_support_type": "instant",
+        "temporal_label_convention": "acquisition_instant",
+        "temporal_reference_timezone": "UTC",
+        "temporal_support_start_offset": "0h",
+        "temporal_support_end_offset": "0h",
+        "temporal_support_known": True,
+        "temporal_support_evidence": (
+            "https://documentation.dataspace.copernicus.eu/Data/"
+            "SentinelMissions/Sentinel2.html"
+        ),
+    },
+}
+
+
 def _attach_lifecycle_metadata() -> None:
     """Extend the one catalog in place with reviewed serving metadata."""
 
@@ -239,6 +279,7 @@ def _attach_lifecycle_metadata() -> None:
         for source_flavor, definition in sources_for_noun.items():
             defaults = _SOURCE_LIFECYCLE_DEFAULTS[source_flavor]
             definition.update(deepcopy(defaults))
+            definition.update(deepcopy(_TEMPORAL_SUPPORT_DEFAULTS[source_flavor]))
             definition.update(
                 {
                     "lifecycle_state": "implemented",

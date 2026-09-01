@@ -27,6 +27,7 @@ EXAMPLES = {
     "change_state": 'result = (pipe(cube) | v.change_state(change="absolute", threshold=5, lag=1)).unwrap()\nresult.state.mean("time").plot()\nplt.show()',
     "detect_events": 'result = (pipe(cube) | v.threshold_state(threshold=0, direction="below") | v.detect_events(min_duration=2)).unwrap()\n# Count days belonging to detected events, not just all threshold crossings.\nprint(result.catalog.head())\nresult.dataset["event_active"].sum("time").plot(cbar_kwargs={"label": "Days in cold events"})\nplt.show()',
     "overlap": 'cold = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()\nunusual = (pipe(cube) | v.quantile_state(quantile=0.2, direction="below")).unwrap()\nresult = (pipe(cold) | v.overlap(unusual) | v.mean(dim="time", keep_dim=False)).unwrap()\n# overlap returns a state Dataset; mean turns state into a proportion summary.\nresult["state"].plot(cbar_kwargs={"label": "Fraction of observed days"})\nplt.show()',
+    "align_time": 'other = cube.copy(deep=False)\nresult = (pipe(cube) | v.align_time(other, mode="labels")).unwrap()\n# Labels and values are unchanged; inspect the recorded decision.\nprint(result.attrs["temporal_alignment_support"])\nresult.isel(time=0).plot()\nplt.show()',
     "align_cube": 'target = cube.isel(y=slice(0, None, 2), x=slice(0, None, 2))\nresult = (pipe(cube) | v.align_cube(like=target)).unwrap()\nresult.isel(time=0).plot()\nplt.show()',
     "block_signature": 'result = (pipe(cube) | v.block_signature(block_id="boulder")).unwrap()\nresult["tmax"].squeeze().plot()\nplt.show()',
     "aoi_signature": 'result = (pipe(cube) | v.aoi_signature(unit_id="boulder")).unwrap()\nresult["tmax"].squeeze().plot()\nplt.show()',
@@ -71,9 +72,15 @@ NOTES["threshold_state"] = {
     "order": "Threshold then mean measures condition prevalence; mean then threshold defines a condition from an aggregate. Both are valid and intentionally distinct.",
 }
 NOTES["overlap"] = {
-    "accepts": "Two already aligned condition DataArrays or Datasets. Coordinates must match exactly; no reprojection, resampling, or scientific harmonization is inferred.",
+    "accepts": "Two already aligned condition DataArrays or Datasets. Coordinates must match exactly. Known different observation supports require temporal_alignment='labels' or 'require_exact_support'; no reprojection, resampling, shift, or scientific harmonization is inferred.",
     "returns": "A condition Dataset containing only Boolean state. The state variable is true only where both inputs are true; operand identity and exact-alignment metadata remain inspectable. Overlap does not invent a magnitude or threshold.",
     "order": "Define and align both conditions before overlap. Reduce the returned state variable when the intended result is a frequency or prevalence summary.",
+}
+NOTES["align_time"] = {
+    "workflow": "concepts/temporal_alignment.md",
+    "accepts": "Two xarray objects with time coordinates. mode='labels' records label pairing; mode='require_exact_support' also requires identical known observation-support metadata.",
+    "returns": "The unchanged left xarray object with metadata describing coordinate and observation-support compatibility. No values or coordinates are shifted, resampled, interpolated, aggregated, or truncated.",
+    "order": "Inspect and acknowledge temporal meaning before cross-source composition. Observation-support alignment and event-time matching are separate questions.",
 }
 NOTES["plot"] = {
     "accepts": "A renderable DataArray, Dataset, VirtualCube, or EventResult. Dataset selection prefers state, then event_active, then a sole variable; otherwise pass variable= explicitly.",

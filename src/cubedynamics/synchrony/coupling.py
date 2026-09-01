@@ -6,6 +6,7 @@ import numpy as np
 import xarray as xr
 
 from ..config import TIME_DIM
+from ..temporal import compare_temporal_support
 from .occurrence import occurrence_score
 
 
@@ -25,6 +26,7 @@ def sync_with(
         raise NotImplementedError("sync_with currently supports synchrony='occurrence'")
     if spatial_relation != "same_pixel":
         raise NotImplementedError("sync_with currently supports spatial_relation='same_pixel'")
+    temporal_report = compare_temporal_support(left, right, time_dim=time_dim)
     left_state = _state_array(left, state_var)
     right_state = _state_array(right, state_var)
     left_state, right_state = xr.align(left_state, right_state, join="inner")
@@ -67,6 +69,15 @@ def sync_with(
             "spatial_relation": spatial_relation,
             "state_var": state_var,
             "null_diagnostics": "not_implemented",
+            "temporal_alignment_coordinates": "inner_intersection",
+            "temporal_alignment_support": temporal_report.temporal_support,
+            "temporal_alignment_left_source": temporal_report.left_source or "not declared",
+            "temporal_alignment_right_source": temporal_report.right_source or "not declared",
+            "lag_semantics": (
+                "coordinate-label period shift of the right condition; observation "
+                "support is neither shifted nor harmonized"
+            ),
+            "event_time_alignment": "not_applicable_condition_labels",
         },
     )
     return ds

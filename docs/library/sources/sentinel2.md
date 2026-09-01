@@ -51,6 +51,15 @@
 | [surface_reflectance](../nouns/surface_reflectance.md) | stac_cog |
 | [vegetation_index](../nouns/vegetation_index.md) | stac_cog |
 
+## Temporal support
+
+| Noun | Type | Label convention | Reference timezone | Start offset | End offset | Known |
+| --- | --- | --- | --- | --- | --- | --- |
+| [surface_reflectance](../nouns/surface_reflectance.md) | instant | acquisition_instant | UTC | 0h | 0h | True |
+| [vegetation_index](../nouns/vegetation_index.md) | instant | acquisition_instant | UTC | 0h | 0h | True |
+
+Offsets are relative to the midnight UTC calendar-date coordinate. [Interpret labels, support intervals, and events separately](../../concepts/temporal_alignment.md).
+
 ## Available CubeDynamics nouns
 
 [surface_reflectance](../nouns/surface_reflectance.md), [vegetation_index](../nouns/vegetation_index.md)

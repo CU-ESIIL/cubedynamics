@@ -35,7 +35,7 @@ NOUN_DEFINITIONS = {
 }
 SOURCE_NOTES = {"prism": "datasets/prism.md", "gridmet": "datasets/gridmet.md", "sentinel2": "datasets/sentinel2_ndvi.md"}
 NOUN_SECTIONS = ("Quick facts", "Usage", "Available sources", "Returned data", "Minimal reproducible example", "Quality and provenance", "See also")
-SOURCE_SECTIONS = ("Provider", "Product", "What it provides", "Coverage", "Resolution", "Temporal coverage", "Access method", "Available CubeDynamics nouns", "Current QA/certification status", "Serving revision / provenance information", "Important limitations", "Examples using this source")
+SOURCE_SECTIONS = ("Provider", "Product", "What it provides", "Coverage", "Resolution", "Temporal coverage", "Temporal support", "Access method", "Available CubeDynamics nouns", "Current QA/certification status", "Serving revision / provenance information", "Important limitations", "Examples using this source")
 VERB_SECTIONS = ("Usage", "Arguments", "Accepts", "Returns", "Order / grammar behavior", "Minimal example", "Works with", "See also")
 
 
@@ -182,6 +182,10 @@ def generate():
             ("Units by source", "; ".join(f"{e['source']}: {cell(e['units'])}" for e in entries)),
             ("Spatial coverage", "; ".join(sorted({e['coverage'] for e in entries}))),
             ("Temporal resolution", "; ".join(sorted({e['temporal_resolution'] for e in entries}))),
+            ("Temporal support", "; ".join(
+                f"{e['source']}: {e['temporal_support_type']}, {e['temporal_label_convention']}"
+                for e in entries
+            )),
             ("Available source flavors", sources)]))
         text += section("Usage", f"```python\ndata.{noun}{signature(getattr(data, noun))}\n```\n\nImport with `from cubedynamics import data`. Keyword-only parameters and defaults above come from Python.")
         text += section("Available sources", table(["Source", "Coverage", "Resolution", "Time", "Selection constraint"], [
@@ -194,6 +198,10 @@ def generate():
                     (label, *[e[key] for e in entries]) for label, key in (
                         ("Units", "units"), ("Variables / statistics", "source_variables"),
                         ("Spatial resolution", "spatial_resolution"), ("Temporal resolution", "temporal_resolution"),
+                        ("Temporal support type", "temporal_support_type"),
+                        ("Temporal label convention", "temporal_label_convention"),
+                        ("Temporal support start offset", "temporal_support_start_offset"),
+                        ("Temporal support end offset", "temporal_support_end_offset"),
                         ("Coverage", "coverage"), ("Time span", "temporal_coverage"),
                         ("Revision behavior", "update_cadence"), ("Source mode", "source_mode"),
                         ("Interpretation constraints", "limitations"))]) +
@@ -204,7 +212,7 @@ def generate():
                 text += "\n[See the real-fixture support comparison](../../datasets/which_dataset.md#inspect-the-support-of-a-source-comparison): inspect native grids and units, and why non-overlapping samples cannot establish source agreement.\n"
         dims = "`time, band, y, x`" if noun == "surface_reflectance" else "`time, y, x`"
         output_name = "ndvi" if noun == "vegetation_index" else noun
-        text += section("Returned data", f"An `xarray.DataArray` named `{output_name}`, normally with {dims} dimensions. `time` stores acquisition/observation times; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.\n\nUnits are source-specific (above), not silently harmonized. Attributes include `scientific_noun`, `source_flavor`, `source_variables`, `source_provider`, `source_product`, `spatial_query`, `temporal_query`, `crs`, `retrieved_at`, `data_state`, and serving/schema provenance. See [provenance helpers](../../api/data.md).")
+        text += section("Returned data", f"An `xarray.DataArray` named `{output_name}`, normally with {dims} dimensions. `time` stores acquisition/observation labels; `y` and `x` store grid coordinates in the declared CRS. Inspect the actual dimensions and CRS before combining sources.\n\nUnits are source-specific (above), not silently harmonized. Attributes include `scientific_noun`, `source_flavor`, `source_variables`, `source_provider`, `source_product`, `spatial_query`, `temporal_query`, `temporal_support_type`, `temporal_label_convention`, support offsets, `crs`, `retrieved_at`, `data_state`, and serving/schema provenance. See [temporal alignment](../../concepts/temporal_alignment.md) and [provenance helpers](../../api/data.md).")
         text += section("Minimal reproducible example", "Network example: requires the provider and its optional dependencies. This is a real-data request, not an offline certification. For frozen inputs, use the [reviewed notebooks](../../vignettes/index.md).\n\n```python\n" + noun_example(noun, sources) + "\n```")
         text += section("Quality and provenance", table(["Source", "Lifecycle", "Revision", "Revision status", "Live health", "QA profile"], [(e['source'], e['lifecycle_state'], e['current_serving_revision'], e['revision_status'], e['live_health'], e['qa_profile']) for e in entries]) + "\nRevision validity is not a claim that the live endpoint is available today. [Certification evidence](../../data/phase1_qa.md) distinguishes reviewed fixtures from live checks. Each source's selection constraint above remains part of the interpretation.")
         related = vignette_links(page, noun, reference_path=f"library/nouns/{noun}.md")
@@ -221,6 +229,26 @@ def generate():
         text = f"# {source}\n"
         for title, key in [("Provider", "provider"), ("Product", "product"), ("What it provides", "source_variables"), ("Coverage", "coverage"), ("Resolution", "spatial_resolution"), ("Temporal coverage", "temporal_coverage"), ("Access method", "access_backend")]:
             text += section(title, table(["Noun", title], [(link(page, f"library/nouns/{e['noun']}.md", e['noun']), e[key]) for e in entries]))
+        text += section(
+            "Temporal support",
+            table(
+                ["Noun", "Type", "Label convention", "Reference timezone", "Start offset", "End offset", "Known"],
+                [
+                    (
+                        link(page, f"library/nouns/{e['noun']}.md", e["noun"]),
+                        e["temporal_support_type"],
+                        e["temporal_label_convention"],
+                        e["temporal_reference_timezone"],
+                        e["temporal_support_start_offset"],
+                        e["temporal_support_end_offset"],
+                        str(bool(e["temporal_support_known"])),
+                    )
+                    for e in entries
+                ],
+            )
+            + "\nOffsets are relative to the midnight UTC calendar-date coordinate. "
+            + "[Interpret labels, support intervals, and events separately](../../concepts/temporal_alignment.md).",
+        )
         text += section("Available CubeDynamics nouns", ", ".join(link(page, f"library/nouns/{e['noun']}.md", e['noun']) for e in entries))
         text += section("Current QA/certification status", table(["Noun", "Lifecycle", "Revision status", "Live health", "QA profile"], [(e['noun'], e['lifecycle_state'], e['revision_status'], e['live_health'], e['qa_profile']) for e in entries]) + "\nThese are catalog declarations, not a new live certification. [Inspect evidence and scope](../../data/phase1_qa.md).")
         text += section("Serving revision / provenance information", table(["Noun", "Serving revision", "Source mode", "Identity strategy"], [(e['noun'], e['current_serving_revision'], e['source_mode'], e['upstream_identity_strategy']) for e in entries]) + "\n[Revision and schema helpers](../../api/data.md) preserve the distinction between a scientific revision and endpoint health.")
