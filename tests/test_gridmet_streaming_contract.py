@@ -47,7 +47,7 @@ def test_load_gridmet_cube_streaming_path_preserves_lazy_data(monkeypatch, recwa
     )
 
     assert cube.attrs["source"] == "gridmet_streaming"
-    assert cube.attrs["is_synthetic"] is False
+    assert cube.attrs["is_synthetic"] == 0
     assert cube["tmmx"].chunks is not None
     assert not any("streaming backend unavailable" in str(w.message) for w in recwarn)
 

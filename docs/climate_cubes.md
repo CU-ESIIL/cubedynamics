@@ -20,6 +20,7 @@ daily_temp = cd.load_prism_cube(
     start="1980-01-01",
     end="2020-12-31",
     variable="tmean",
+    freq="D",
 )
 
 # Stream a long-term spatial average without extra code

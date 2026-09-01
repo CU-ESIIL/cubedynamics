@@ -50,3 +50,40 @@ and are not reclassified to make this table look more favorable.
   `FireHull.plot(...)` are the preferred object path; `v.fire_plot` is the
   cube-first high-level convenience path. The older fire-first keywords remain
   compatibility inputs, not the preferred teaching route.
+
+## Implemented resolution
+
+- Result attrs, semantic state, trace, and `explain()` now agree for reductions,
+  anomalies, z-scores, conditions, and overlaps. Condition means expose only a
+  floating `state` proportion; variance units are squared deterministically.
+- `v.plot()` selects canonical condition/event fields and dispatches 3-D cubes,
+  2-D spatial maps, and 1-D temporal lines before returning a notebook object.
+- Exact overlap alignment remains mandatory, with separate temporal, spatial,
+  dimension-name, and harmless-axis-order behavior.
+- Missing Lexcube raises install/restart guidance for `cubedynamics[viz]`.
+- `FireHull.plot()` can inspect geometry colored by event day without inventing
+  climate. Environmental colors require an attached or supplied overlapping
+  cube, and mismatches report both time ranges.
+- `v.fire_plot(cube, fired_event=event)` is regression-tested as the public
+  high-level route; compatibility inputs remain available.
+
+The public `0.1.0rc1` artifact predates these fixes. Release-management must
+assign and review the next candidate version before publication; this triage
+does not overwrite, upload, tag, or republish rc1.
+
+## 2026-09-01 naive-user first-use follow-up
+
+An independent clean-environment run found three additional P0 blockers that
+the broad semantic suite did not exercise:
+
+| Finding | Root cause | Resolution and acceptance boundary |
+| --- | --- | --- |
+| Core wheel import failed on Debian 13/aarch64 with `libexpat.so.1` missing | `cubedynamics.data.sentinel2` eagerly imported Cubo; Cubo imported Rasterio; Rasterio 1.4.4's aarch64 wheel loaded bundled GDAL that retained an unresolved `libexpat.so.1` dependency. | Sentinel/Cubo loading is deferred until the Sentinel source is called. A `python:3.11-slim` x86_64/aarch64 installed-wheel job blocks Cubo/Rasterio/Rioxarray and proves the core public import and first-use path remain usable. This does not certify Sentinel-2 on a system with a broken Rasterio runtime. |
+| Ordinary NetCDF export rejected `is_synthetic=False` | h5netcdf rejects Boolean attributes, while provenance and noun normalization emitted Python/NumPy Boolean metadata. NetCDF also has no native Boolean variable type for semantic state. | Public source metadata uses portable scalar encodings. The explicit output verb applies canonical JSON/scalar attribute encoding and writes Boolean variables as flagged `int8` on a shallow copy. Unsupported opaque objects fail clearly; metadata is never silently dropped. |
+| The first-discovered PRISM example selected monthly semantics | The modern public loader inherited the legacy positional default `time_res="ME"`, while the maintained real NcSS path supports daily requests only; duplicated old getting-started pages omitted `freq`. | Modern keyword calls default to daily and reject other frequencies before provider access. Current examples state `freq="D"`, old first-use URLs are labeled compatibility bridges, and a bounded live script executes the maintained PRISM request in online CI. |
+
+The installed-wheel gate now covers import, noun/source discovery, composition,
+semantic explanation/validation/trace, dimensional plotting, unwrap, direct
+continuous export, and condition-safe export. The checksum-pinned external
+quickstart independently supplies real PRISM retrieval; the online PRISM check
+is availability evidence, not scientific certification.

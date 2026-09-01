@@ -18,6 +18,7 @@ cube = cd.load_prism_cube(
     start="2000-01-01",
     end="2020-12-31",
     variable="ppt",
+    freq="D",
 )
 
 jja_var = (

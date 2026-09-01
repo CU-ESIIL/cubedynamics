@@ -120,6 +120,7 @@ nav:
                   - STAC sources: streaming/stac_sources.md
           - Plans and audits:
               - RC1 validation triage: project/rc1_validation_triage.md
+              - Public documentation generation audit: project/public_docs_generation_audit.md
               - Documentation structure: project/documentation_refactor.md
               - Publication audit and plan: project/publication_plan.md
               - Scientific vocabulary plan: project/data_vocabulary_plan.md

@@ -60,6 +60,7 @@ prism = cd.load_prism_cube(
     start="2000-01-01",
     end="2000-12-31",
     aoi=aoi,
+    freq="D",
 )
 
 ppt_z = pipe(prism["ppt"]) | v.zscore(dim="time")

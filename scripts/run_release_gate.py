@@ -16,7 +16,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 MANDATORY = {
     "build", "twine", "contents", "create-environment", "upgrade-installer", "install-wheel", "pip-check",
-    "package-only", "readme", "candidate-wheel", "install-vignette-extra", "wheel-vignettes",
+    "package-only", "readme", "first-use-wheel", "candidate-wheel", "triage-smoke", "install-vignette-extra", "wheel-vignettes",
     "offline", "streaming", "vignettes", "publication", "source-qa", "decision-qa",
     "visuals", "references", "noun-figures", "streamflow-notebook", "source-projects",
     "docs", "links", "browser", "repository-size", "diff-check", "hero-examples", "source-identity", "external-quickstart",
@@ -24,7 +24,13 @@ MANDATORY = {
 
 
 def sha(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+    path = Path(path)
+    # Cloud-file providers can represent an unchanged empty .gitkeep as a
+    # zero-byte dataless placeholder whose read spuriously times out. Size zero
+    # fully determines the bytes, so hash the empty value without hydration.
+    if path.stat().st_size == 0:
+        return hashlib.sha256(b"").hexdigest()
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def release_inputs():
@@ -32,8 +38,22 @@ def release_inputs():
     names = subprocess.check_output(
         ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT
     ).decode().split("\0")
-    return {name: sha(ROOT / name) if (ROOT / name).is_file() else "deleted"
-            for name in sorted(set(names)) if name and name != "manifests/releases/v0.1.0rc1-candidate.json"}
+    inputs = {}
+    for name in sorted(set(names)):
+        if not name or name == "manifests/releases/v0.1.0rc1-candidate.json":
+            continue
+        path = ROOT / name
+        if not path.is_file():
+            inputs[name] = "deleted"
+            continue
+        try:
+            inputs[name] = sha(path)
+        except OSError as exc:
+            raise RuntimeError(
+                f"Could not hash release input {name!r}; make the file locally "
+                "available and rerun the complete gate"
+            ) from exc
+    return inputs
 
 
 def check_commit(gate):
@@ -157,9 +177,13 @@ def main():
         run("base-resolution", [wheel_python, "-m", "pip", "freeze", "--all"], environment.parent)
         run("package-only", [wheel_python, "-I", checker, "--wheel", wheel, "--sdist", sdist, "--output", output / "package-only.json"], environment.parent)
         run("readme", [wheel_python, "-I", checker, "--wheel", wheel, "--sdist", sdist, "--repo-example", "--output", output / "installed.json"], environment.parent)
+        run("first-use-wheel", [wheel_python, "-I", ROOT / "scripts/check_first_use_wheel.py",
+                                 "--output", output / "first-use-wheel.json"], environment.parent)
         run("external-quickstart", [wheel_python, "-I", ROOT / "scripts/check_external_quickstart.py", "--wheel", wheel,
                                     "--output", output / "external-quickstart.json"], environment.parent)
         run("candidate-wheel", [wheel_python, "-I", ROOT / "scripts/check_candidate_wheel.py"], environment.parent)
+        run("triage-smoke", [wheel_python, "-I", ROOT / "scripts/check_rc1_triage_smoke.py",
+                              "--output", output / "triage-smoke.json"], environment.parent)
         run("install-vignette-extra", [wheel_python, "-m", "pip", "install", str(wheel) + "[vignettes]"], environment.parent)
         run("vignette-resolution", [wheel_python, "-m", "pip", "freeze", "--all"], environment.parent)
         run("wheel-vignettes", [py, "scripts/run_vignettes.py", "--wheel", wheel, "--kernel-python", wheel_python,

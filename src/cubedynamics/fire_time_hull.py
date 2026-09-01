@@ -475,7 +475,13 @@ class FireHull:
         method: str = "nearest",
         **kwargs,
     ) -> go.Figure:
-        """Plot the hull using either attached or supplied environmental data."""
+        """Plot hull geometry, optionally colored by environmental data.
+
+        With no climate arguments, the mesh is colored by elapsed event day so
+        ``FireEventDaily.example().to_hull().plot()`` is a complete geometry
+        inspection path. This does not invent environmental measurements.
+        Supply ``color=``, ``summary=``, or ``cube=`` for climate attribution.
+        """
 
         if summary is None and cube is not None:
             enriched = self.attach_environment(cube, variables=[color] if color else None, method=method)
@@ -497,9 +503,26 @@ class FireHull:
             values = None
 
         if summary is None:
-            raise ValueError(
-                "FireHull.plot requires a HullClimateSummary, an attached environment "
-                "variable, or a cube to sample."
+            if color is not None:
+                available = sorted(self.environment)
+                raise ValueError(
+                    f"FireHull has no attached environment variable {color!r}; "
+                    f"available variables: {available!r}. Attach it first or pass cube=."
+                )
+            geometry_summary = HullClimateSummary(
+                values_inside=np.array([], dtype=float),
+                values_outside=np.array([], dtype=float),
+                per_day_mean=pd.Series(dtype=float),
+            )
+            var_label = kwargs.pop("var_label", "event day")
+            title_prefix = kwargs.pop("title_prefix", "Fire hull geometry")
+            return plot_climate_filled_hull(
+                self,
+                geometry_summary,
+                values=np.asarray(self.t_days_vert, dtype=float),
+                var_label=var_label,
+                title_prefix=title_prefix,
+                **kwargs,
             )
 
         var_label = kwargs.pop("var_label", color or "value")

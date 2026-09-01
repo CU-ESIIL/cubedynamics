@@ -36,6 +36,11 @@ def test_fire_event_daily_example_and_to_hull():
     assert hull.metrics["duration_days"] == 3.0
     assert hull.metrics()["hull_surface_km_day"] > 0
 
+    figure = hull.plot()
+    intensity = np.asarray(figure.data[0].intensity, dtype=float)
+    np.testing.assert_allclose(intensity, hull.t_days_vert)
+    assert figure.data[0].colorbar.title.text == "event day"
+
 
 def test_fire_event_from_fired_and_legacy_builder():
     event = FireEventDaily.example()
@@ -90,6 +95,13 @@ def test_fire_hull_attach_environment_and_plot_smoke():
     fig = enriched.plot(color="vpd")
     intensity = np.asarray(fig.data[0].intensity, dtype=float)
     np.testing.assert_allclose(intensity, field.vertex_values)
+
+
+def test_fire_hull_unknown_environment_color_is_explicit():
+    hull = FireEventDaily.example().to_hull(n_ring_samples=16, n_theta=12)
+
+    with pytest.raises(ValueError, match="no attached environment variable 'vpd'"):
+        hull.plot(color="vpd")
 
 
 def test_fire_hull_attach_environment_supports_documented_climate_variables():

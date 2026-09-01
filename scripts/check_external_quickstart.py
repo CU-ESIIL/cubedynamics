@@ -52,6 +52,8 @@ def main():
         assert cube.attrs["units"] == "degC" and cube.attrs["is_synthetic"] == 0
         expected = (cube - cube.mean("time")).mean(("y", "x"))
         xr.testing.assert_allclose(namespace["spatial_anomaly"], expected)
+        assert namespace["analysis"].validate().ok
+        assert namespace["analysis"].semantic_trace
         assert np.isfinite(expected).all() and len(plots) == (2 if args.live else 1)
         checks["check_installed_wheel"](args.wheel, ROOT)
         result = {"status": "PASS", "installation": installation, "plots": plots,

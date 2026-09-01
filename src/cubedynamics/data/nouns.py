@@ -9,6 +9,7 @@ from typing import Any, Mapping, Sequence
 import xarray as xr
 
 from ..version import __version__
+from ..serialization import sanitize_netcdf_attrs
 from . import gridmet as _gridmet
 from . import prism as _prism
 from . import sentinel2 as _sentinel2
@@ -378,7 +379,7 @@ def _annotate(
                 if noun in {"surface_reflectance", "vegetation_index"}
                 else "climate"
             ),
-            "semantic_temporal": "time" in result.dims,
+            "semantic_temporal": int("time" in result.dims),
             "semantic_dimensions": json.dumps(list(result.dims)),
             "source_flavor": source,
             "source_provider": definition["provider"],
@@ -409,9 +410,9 @@ def _annotate(
             "normalization": normalization,
             "data_state": data_state,
             "access_state": "remote_lazy",
-            "bounded_access": bounded_access,
+            "bounded_access": int(bounded_access),
             "retrieved_at": retrieved_at,
-            "is_synthetic": False,
+            "is_synthetic": 0,
         }
     )
     if original_backend is not None:
@@ -421,6 +422,7 @@ def _annotate(
     if observed_identity.get("processing_baseline") is not None:
         attrs["upstream_version"] = str(observed_identity["processing_baseline"])
     result.attrs = attrs
+    sanitize_netcdf_attrs(result, copy=False)
     # Fingerprinting reads metadata only; it does not materialize lazy values.
     result.attrs["schema_fingerprint"] = schema_fingerprint(result)
     return result

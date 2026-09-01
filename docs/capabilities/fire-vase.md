@@ -53,6 +53,11 @@ hull.attach_environment(cube, variables=["vpd"])
 hull.plot(color="vpd")
 ```
 
+`hull.plot()` without climate renders geometry colored by elapsed event day,
+which is useful for inspecting the event object itself and does not fabricate
+environmental measurements. Use `attach_environment(...)` followed by
+`plot(color=...)` for climate-colored interpretation.
+
 The event and climate time ranges must overlap. A mismatch is rejected with
 both ranges in the error; CubeDynamics does not substitute or extrapolate
 climate values. One Dataset can attach the documented climate variables

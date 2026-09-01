@@ -6,6 +6,8 @@ from typing import Any
 
 import xarray as xr
 
+from ..serialization import sanitize_netcdf_attrs
+
 
 def set_cube_provenance(
     ds_or_da: xr.Dataset | xr.DataArray,
@@ -40,7 +42,7 @@ def set_cube_provenance(
     target.attrs.update(
         {
             "source": source,
-            "is_synthetic": bool(is_synthetic),
+            "is_synthetic": int(bool(is_synthetic)),
             "freq": freq,
             "requested_start": str(requested_start) if requested_start is not None else None,
             "requested_end": str(requested_end) if requested_end is not None else None,
@@ -51,7 +53,7 @@ def set_cube_provenance(
     elif "backend_error" in target.attrs:
         target.attrs.pop("backend_error", None)
 
-    return target
+    return sanitize_netcdf_attrs(target, copy=False)
 
 
 __all__ = ["set_cube_provenance"]

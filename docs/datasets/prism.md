@@ -6,6 +6,9 @@ This page preserves the operational example, reviewed figure and source citation
 
 ## Quickstart
 
+PRISM acquisition is currently daily. Use `freq="D"`; unsupported monthly
+frequencies raise before network access rather than being silently aggregated.
+
 ### Get the stream (CubeDynamics grammar)
 
 ```python

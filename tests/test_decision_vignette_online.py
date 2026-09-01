@@ -28,8 +28,8 @@ def test_public_prism_nouns_return_observations_for_decision_aoi() -> None:
         show_progress=False,
     ).compute()
 
-    assert temperature.attrs["is_synthetic"] is False
-    assert precipitation.attrs["is_synthetic"] is False
+    assert temperature.attrs["is_synthetic"] == 0
+    assert precipitation.attrs["is_synthetic"] == 0
     assert temperature.attrs["scientific_noun"] == "temperature"
     assert precipitation.attrs["scientific_noun"] == "precipitation"
     assert bool(np.isfinite(temperature).all())

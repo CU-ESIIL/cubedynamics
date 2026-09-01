@@ -1,8 +1,10 @@
-# Preparing CubeDynamics v0.1.0rc1
+# Preparing the next CubeDynamics release candidate
 
-**Preparation only; not published.** The independent outside-user test stopped
-correctly: plain PyPI installation had no distribution, and the historical
-GitHub releases had no wheel/sdist assets. A source clone is not a remedy.
+CubeDynamics `0.1.0rc1` is public on PyPI and has completed outside-user
+validation. This checklist is now for a subsequent candidate. Do not overwrite
+or describe a locally rebuilt rc1 wheel as the public rc1 artifact. Update the
+target version and every version-bound release record in a separately reviewed
+release-management change before publishing the next candidate.
 
 ## Non-publishing gate
 

@@ -128,10 +128,12 @@ def test_climate_nouns_hide_provider_variables_and_preserve_laziness(
     assert result.attrs["qa_profile"] == "climate_continuous_daily"
     assert result.attrs["revision_status"] == "VALIDATED"
     assert result.attrs["live_health"] == "STALE"
-    assert result.attrs["bounded_access"] is True
+    # NetCDF-safe public metadata uses integer flags rather than unsupported
+    # Python Boolean attributes; truth semantics remain explicit.
+    assert result.attrs["bounded_access"] == 1
     assert result.attrs["schema_fingerprint"].startswith("sha256:")
     assert json.loads(result.attrs["upstream_identity"])["endpoint"]
-    assert result.attrs["is_synthetic"] is False
+    assert result.attrs["is_synthetic"] == 0
     assert json.loads(result.attrs["source_variables"]) == [expected_variable]
     assert json.loads(result.attrs["spatial_query"])["bbox"] == [
         -105.4,

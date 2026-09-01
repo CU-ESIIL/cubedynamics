@@ -168,6 +168,22 @@ def test_failed_or_incomplete_gate_cannot_be_recorded_ready(tmp_path):
         gate.write_candidate(tmp_path)
 
 
+def test_package_only_smoke_requires_truthful_summary_metadata():
+    import numpy as np
+    import xarray as xr
+    from cubedynamics import pipe, verbs as v
+
+    cube = xr.DataArray(
+        np.arange(12.0).reshape(3, 2, 2),
+        dims=("time", "y", "x"),
+        attrs={"units": "K"},
+    )
+    result = (pipe(cube) | v.mean(over="time", keep_dim=False)).unwrap()
+
+    artifact.verify_mean_semantics(cube, result)
+    assert result.attrs["semantic_kind"] == "summary"
+
+
 def test_source_changes_invalidate_previously_passed_gate(tmp_path):
     (tmp_path / "gate.json").write_text(json.dumps({"status": "PASS",
         "steps": {name: {"exit_code": 0} for name in gate.MANDATORY}, "release_inputs": {}}))

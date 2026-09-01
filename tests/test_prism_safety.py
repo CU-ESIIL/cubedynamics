@@ -38,13 +38,13 @@ def _all_nan_dataset(variable: str = "ppt") -> xr.Dataset:
     return xr.Dataset({variable: data})
 
 
-def test_prism_empty_time_raises_without_synthetic(monkeypatch):
+def test_prism_unsupported_monthly_frequency_raises_before_backend(monkeypatch):
     def _stub_streaming(*args, **kwargs):
         return _empty_time_dataset()
 
     monkeypatch.setattr("cubedynamics.data.prism._open_prism_streaming", _stub_streaming)
 
-    with pytest.raises(RuntimeError, match="empty time.*ME"):
+    with pytest.raises(ValueError, match="daily data only.*freq='D'.*does not silently aggregate"):
         load_prism_cube(
             lat=40.0,
             lon=-105.0,

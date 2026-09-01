@@ -134,7 +134,7 @@ def assert_provenance_attrs(
     if expected_source is not None:
         assert attrs.get("source") == expected_source, f"Expected source={expected_source!r}"
     if expected_is_synthetic is not None:
-        assert attrs.get("is_synthetic") is expected_is_synthetic, (
+        assert bool(attrs.get("is_synthetic")) is expected_is_synthetic, (
             f"Expected is_synthetic={expected_is_synthetic!r}"
         )
 

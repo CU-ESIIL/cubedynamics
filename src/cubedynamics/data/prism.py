@@ -95,7 +95,7 @@ def load_prism_cube(
     end: str | pd.Timestamp | None = None,
     variable: str | Sequence[str] = "ppt",
     variables: Sequence[str] | None = None,
-    time_res: str = "ME",
+    time_res: str | None = None,
     freq: str | None = None,
     chunks: Mapping[Hashable, int] | None = None,
     prefer_streaming: bool = True,
@@ -124,8 +124,11 @@ def load_prism_cube(
         PRISM variable(s) to request. ``variables`` may also be used for
         clarity when passing multiple entries. When a single variable is
         requested through ``variable``, the loader returns an ``xarray.DataArray``.
-    time_res, freq : str, default "ME"
-        Temporal frequency code. ``freq`` overrides ``time_res`` when set.
+    time_res, freq : str, optional
+        Temporal frequency code. ``freq`` overrides the compatibility name
+        ``time_res``. Keyword-style real requests default to daily ``"D"``;
+        current real streaming supports daily data only and does not silently
+        aggregate daily observations to monthly values.
     chunks : mapping, optional
         Custom Dask chunk mapping.
     prefer_streaming : bool, default True
@@ -161,14 +164,14 @@ def load_prism_cube(
         )
         return _load_prism_cube_legacy(
             *legacy_args,
-            time_res=time_res,
+            time_res=time_res or "ME",
             chunks=chunks,
             prefer_streaming=prefer_streaming,
             show_progress=show_progress,
             allow_synthetic=allow_synthetic,
         )
 
-    freq_code = freq or time_res or "ME"
+    freq_code = freq or time_res or "D"
     if start is None or end is None:
         raise ValueError("Both 'start' and 'end' must be provided.")
 
@@ -176,6 +179,12 @@ def load_prism_cube(
     end_ts = pd.to_datetime(end)
     if start_ts > end_ts:
         raise ValueError("'start' must be before 'end'.")
+    if str(freq_code).upper() != "D" and prefer_streaming and not allow_synthetic:
+        raise ValueError(
+            "Real PRISM requests currently support daily data only. Use freq='D' "
+            "(the keyword-API default). CubeDynamics does not silently aggregate "
+            "daily PRISM observations to monthly values."
+        )
 
     if variables is not None:
         if variable != "ppt":
@@ -461,7 +470,7 @@ def _open_prism_streaming(
     start: str,
     end: str,
     aoi: Mapping[str, float],
-    freq: str = "ME",
+    freq: str = "D",
     show_progress: bool = True,
 ) -> xr.Dataset:
     """Build a lazy daily PRISM cube from server-side AOI subsets."""

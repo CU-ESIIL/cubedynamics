@@ -33,12 +33,20 @@ def test_docs_gate_uses_inline_outputs_without_changing_script_backend():
 
 @pytest.mark.parametrize("page", ["README.md", "docs/index.md", "docs/quickstart.md",
                                   "docs/getting_started/install.md", "docs/project/release_0_1_0.md"])
-def test_install_entry_points_disclose_unpublished_rc(page):
+def test_install_entry_points_disclose_published_rc(page):
     text = (ROOT / page).read_text()
     assert "0.1.0rc1" in text
-    assert re.search(r"not (yet )?published", text, re.I)
+    assert re.search(r"(?:is|was|contains) published|published .*0\.1\.0rc1|PyPI contains", text, re.I)
+    assert not re.search(r"0\.1\.0rc1[^\n.]*not (yet )?published", text, re.I)
     if "releases/download/" in text:
         assert re.search(r"[Ff]uture|[Aa]fter.*[Pp]ublication|[Aa]fter.*published", text)
+
+
+def test_next_candidate_cannot_be_described_as_overwriting_public_rc1():
+    text = (ROOT / "RELEASING.md").read_text()
+    assert re.search(r"`?0\.1\.0rc1`? is public on PyPI", text)
+    assert "Do not overwrite" in text
+    assert re.search(r"version.*separately reviewed|separately reviewed.*version", text, re.I | re.S)
 
 
 def test_external_quickstart_exact_code_uses_checked_public_data(monkeypatch):

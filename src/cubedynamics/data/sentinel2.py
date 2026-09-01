@@ -3,15 +3,44 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
-import cubo
 import numpy as np
 import pandas as pd
 import xarray as xr
 
 from ..config import BAND_DIM, DEFAULT_CHUNKS, TIME_DIM, X_DIM, Y_DIM
 from ..indices.vegetation import compute_ndvi_from_s2
+from ..serialization import sanitize_netcdf_attrs
+
+
+# Compatibility injection seam. ``None`` means import the real Cubo package
+# only when a Sentinel loader is invoked; tests and legacy callers may replace
+# this name with a Cubo-like object without triggering the compiled stack.
+cubo: Any | None = None
+
+
+def _import_cubo() -> Any:
+    """Load the optional compiled Sentinel stack only when it is requested.
+
+    Cubo imports Rasterio through Stackstac.  Keeping that chain out of module
+    import means the core grammar and non-Sentinel nouns remain usable when a
+    platform-specific Rasterio wheel cannot load its GDAL runtime dependencies.
+    """
+
+    if cubo is not None:
+        return cubo
+    try:
+        import cubo as imported_cubo
+    except (ImportError, OSError) as exc:
+        raise ImportError(
+            "Sentinel-2 access requires the Cubo/Rasterio integration stack, "
+            "but that stack could not be imported on this platform. Install a "
+            "compatible geospatial runtime and then retry the Sentinel loader; "
+            "the core CubeDynamics grammar and PRISM/gridMET nouns do not "
+            "require importing Rasterio."
+        ) from exc
+    return imported_cubo
 
 
 def _to_dataarray(cube: xr.Dataset | xr.DataArray) -> xr.DataArray:
@@ -76,6 +105,7 @@ def load_s2_cube(
 ) -> xr.DataArray:
     """Stream Sentinel-2 L2A data via cubo and return a dask-backed xarray object."""
 
+    cubo = _import_cubo()
     selected_bands = list(bands) if bands is not None else ["B04", "B08"]
     cube = cubo.create(
         lat=lat,
@@ -109,10 +139,10 @@ def load_s2_cube(
             "spatial_resolution": f"{resolution} m requested output",
             "streaming_protocol": "cubo STAC and cloud-optimized assets",
             "retrieved_at": datetime.now(timezone.utc).isoformat(),
-            "is_synthetic": False,
+            "is_synthetic": 0,
         }
     )
-    return data
+    return sanitize_netcdf_attrs(data, copy=False)
 
 
 def load_s2_ndvi_cube(
@@ -163,4 +193,4 @@ def load_s2_ndvi_cube(
             "units": "1",
         }
     )
-    return ndvi
+    return sanitize_netcdf_attrs(ndvi, copy=False)

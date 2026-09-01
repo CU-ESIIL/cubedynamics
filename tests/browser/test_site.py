@@ -15,15 +15,18 @@ def test_outside_user_installation_journey(page, site_base):
     page.goto(site_base)
     page.get_by_role("link", name="Installation status and release instructions").click()
     expect(page.locator("article h1")).to_have_text("Installation & setup")
-    expect(page.get_by_role("heading", name="Current development state — not published")).to_be_visible()
-    assert "cubedynamics-0.1.0rc1-py3-none-any.whl" in page.locator("article").inner_text()
+    expect(page.get_by_role("heading", name="Public release candidate")).to_be_visible()
+    assert "cubedynamics==0.1.0rc1" in page.locator("article").inner_text()
     page.locator("article").get_by_role("link", name="Quickstart", exact=True).click()
     expect(page.get_by_role("heading", name="First executable example — public reviewed observations")).to_be_visible()
     assert "hashlib.sha256(payload)" in page.locator("article").inner_text()
     page.locator("article").get_by_role("link", name="installation and release instructions").click()
     page.locator("article").get_by_role("link", name="RC release notes").click()
-    expect(page.locator("article h1")).to_have_text("0.1.0rc1 release notes — not published")
-    assert "outside-user acceptance" in page.locator("article").inner_text()
+    expect(page.locator("article h1")).to_have_text("0.1.0rc1 release notes")
+    expect(page.get_by_role("heading", name="Outside-user acceptance findings")).to_be_visible()
+    article = page.locator("article").inner_text()
+    assert "published as 0.1.0rc1" in article
+    assert "subsequent, separately versioned candidate" in article
 
 
 def test_every_built_page(page, site_base, site_path, link_cache, report_page):

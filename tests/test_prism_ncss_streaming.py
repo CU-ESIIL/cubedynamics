@@ -53,7 +53,7 @@ def test_prism_ncss_streaming_defers_daily_subset_requests(monkeypatch) -> None:
     assert calls == [paths[0]]
     assert all(variable.chunks is not None for variable in cube.data_vars.values())
     assert cube.attrs["source"] == "prism_streaming"
-    assert cube.attrs["is_synthetic"] is False
+    assert cube.attrs["is_synthetic"] == 0
     assert cube.attrs["streaming_protocol"] == "NcSS"
 
     computed = cube.isel(time=1).compute()

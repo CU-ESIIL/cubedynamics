@@ -71,7 +71,7 @@ def test_load_prism_cube_explicit_synthetic_fallback(monkeypatch, recwarn):
 
     assert isinstance(ds, xr.Dataset)
     assert "ppt" in ds.data_vars
-    assert ds.attrs["is_synthetic"] is True
+    assert ds.attrs["is_synthetic"] == 1
     assert any(
         "PRISM streaming backend unavailable" in str(w.message) for w in recwarn
     )

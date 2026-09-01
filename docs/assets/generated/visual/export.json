@@ -16,9 +16,14 @@
       "11"
     ],
     [
-      "Values and metadata",
+      "Values",
       "Reference result",
-      "Identical (asserted)"
+      "Equal (asserted)"
+    ],
+    [
+      "Boolean metadata",
+      "False",
+      "0 \u00b7 portable flag"
     ]
   ]
 }

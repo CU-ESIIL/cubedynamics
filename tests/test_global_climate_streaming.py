@@ -42,7 +42,7 @@ def test_stream_global_climate_cube_normalizes_dims_and_keeps_lazy() -> None:
     assert cube["t2m"].chunks is not None
     assert cube.attrs["source"] == "era5_zarr"
     assert cube.attrs["streaming_protocol"] == "xarray"
-    assert cube.attrs["is_synthetic"] is False
+    assert cube.attrs["is_synthetic"] == 0
     np.testing.assert_allclose(cube["x"], [255.0, 260.0])
 
 

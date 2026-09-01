@@ -48,7 +48,9 @@ def test_figures_regenerate_from_displayed_code_without_network(tmp_path, monkey
     builder.check(tmp_path)
     assert len(list(tmp_path.glob("*.png"))) == 7
     assert manifest["results"]["export"]["kind"] == "table"
-    assert "Identical (asserted)" in (tmp_path / "export.json").read_text()
+    export = (tmp_path / "export.json").read_text()
+    assert "Equal (asserted)" in export
+    assert "portable flag" in export
 
 
 def test_analysis_values_match_direct_operations_on_reviewed_observations():
@@ -64,7 +66,9 @@ def test_analysis_values_match_direct_operations_on_reviewed_observations():
     xr.testing.assert_allclose(namespace["regional_anomaly"], expected.mean(("y", "x")))
     np.testing.assert_allclose(namespace["standardized"], expected / window.std("time"), atol=1e-6)
     assert namespace["standardized"].attrs["units"] == "1"
-    xr.testing.assert_identical(namespace["saved"], namespace["restored"])
+    xr.testing.assert_allclose(namespace["saved"], namespace["restored"])
+    assert namespace["restored"].attrs["is_synthetic"] == 0
+    assert namespace["restored"].attrs["cubedynamics_metadata_encoding"] == "netcdf-safe-v1"
     np.testing.assert_array_equal(namespace["cold"].state, original <= 0)
     xr.testing.assert_identical(namespace["cube"], original)
     assert namespace["gridmet"].attrs["units"] == "K"

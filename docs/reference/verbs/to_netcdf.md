@@ -2,7 +2,7 @@
 
 # to_netcdf
 
-Factory for a pipeable ``.to_netcdf`` side-effect operation.
+Factory for a pipeable, metadata-safe NetCDF side-effect operation.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Output and side effects](index.md#output-and-side-effects)
 
@@ -75,4 +75,4 @@ Use only the input types documented by this callable; not every helper accepts e
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/ops/io.py#L8). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/ops/io.py#L10). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

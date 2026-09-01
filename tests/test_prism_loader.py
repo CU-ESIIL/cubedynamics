@@ -65,6 +65,23 @@ def test_load_prism_cube_with_point_aoi(stub_prism_backends):
     aoi = stub_prism_backends["stream"]["aoi"]
     assert aoi["min_lat"] < 40.0 < aoi["max_lat"]
     assert aoi["min_lon"] < -105.25 < aoi["max_lon"]
+    assert stub_prism_backends["stream"]["freq"] == "D"
+
+
+def test_real_monthly_request_fails_before_backend(stub_prism_backends):
+    with pytest.raises(
+        ValueError,
+        match="daily data only.*freq='D'.*does not silently aggregate",
+    ):
+        prism.load_prism_cube(
+            lat=40.0,
+            lon=-105.25,
+            start="2024-01-01",
+            end="2024-01-05",
+            variable="ppt",
+            freq="ME",
+        )
+    assert "stream" not in stub_prism_backends
 
 
 def test_load_prism_cube_with_bbox(stub_prism_backends):

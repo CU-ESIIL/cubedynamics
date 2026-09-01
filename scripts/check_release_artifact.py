@@ -141,6 +141,19 @@ def check_installed_wheel(wheel, repo=ROOT):
             "wheel": artifact_info(wheel), "checked_package_files": len(files)}
 
 
+def verify_mean_semantics(cube, actual):
+    """Verify numerical xarray parity plus CubeDynamics result semantics."""
+
+    import xarray as xr
+
+    expected = cube.mean("time", keep_attrs=True)
+    xr.testing.assert_allclose(actual, expected)
+    require(actual.coords.equals(expected.coords), "Reducer coordinates changed")
+    require(actual.attrs.get("semantic_kind") == "summary", "Reducer semantic kind is stale")
+    require(actual.attrs.get("summary_operation") == "mean", "Reducer summary operation missing")
+    require(actual.attrs.get("units") == cube.attrs.get("units"), "Reducer lost physical units")
+
+
 def smoke():
     import numpy as np
     import xarray as xr
@@ -152,7 +165,7 @@ def smoke():
     wrapped = pipe(cube)
     require(isinstance(wrapped, Pipe) and wrapped.unwrap() is cube, "unwrap changed identity")
     result = wrapped | v.mean(over="time", keep_dim=False)
-    xr.testing.assert_identical(result.unwrap(), cube.mean("time", keep_attrs=True))
+    verify_mean_semantics(cube, result.unwrap())
     require(result.unwrap().dims == ("y", "x"), "Reducer dimensions changed")
     require(len(result.semantic_trace) == 1 and isinstance(result.explain(), str), "Missing semantic trace")
     require(isinstance(result.suggest(), tuple), "Unexpected suggest result")
@@ -170,7 +183,8 @@ def smoke():
     from cubedynamics.data import three_dep, roads, usgs
     require(all(callable(f) for f in (three_dep.elevation, roads.roads, usgs.streamflow)), "Candidate import missing")
     return {"status": "PASS", "dimensions": list(result.unwrap().dims), "numerical_result": result.unwrap().values.tolist(),
-            "attrs_preserved": True, "catalog": catalog, "candidate_imports": "usable, not promoted"}
+            "attrs_preserved_and_relabelled": True, "semantic_kind": result.unwrap().attrs["semantic_kind"],
+            "catalog": catalog, "candidate_imports": "usable, not promoted"}
 
 
 def readme_example(repo, output):
@@ -192,7 +206,11 @@ def readme_example(repo, output):
         plt.show = lambda: None
         exec(compile(code, "README.md/offline", "exec"), namespace)
         expected = namespace["cube"].mean("time", keep_attrs=True)
-        xr.testing.assert_identical(namespace["result"].unwrap(), expected)
+        actual = namespace["result"].unwrap()
+        xr.testing.assert_allclose(actual, expected)
+        require(actual.coords.equals(expected.coords), "README reducer coordinates changed")
+        require(actual.attrs.get("semantic_kind") == "summary", "README result lacks summary semantics")
+        require(actual.attrs.get("summary_operation") == "mean", "README result lacks mean metadata")
         output.mkdir(parents=True, exist_ok=True)
         figure = output / "readme-prism.png"
         plt.gcf().savefig(figure, dpi=130, bbox_inches="tight")

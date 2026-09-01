@@ -12,7 +12,7 @@ hide:
     <p class="cd-kicker"><span></span> Open-source methods for spatiotemporal research</p>
     <h1>CubeDynamics</h1>
     <p class="cd-hero-deck">Source-qualified nouns → semantic verbs → inspectable answers. Make environmental analysis readable without hiding source identity, authored order, or evidence.</p>
-    <p>Preparing 0.1.0rc1 · not yet published. <a href="getting_started/install/">Installation status and release instructions</a>.</p>
+    <p>0.1.0rc1 is published on PyPI · this checkout may contain newer work. <a href="getting_started/install/">Installation status and release instructions</a>.</p>
     <div class="cd-hero-actions">
       <a class="cd-action cd-action--acid" href="learn/">Learn <span aria-hidden="true">→</span></a>
       <a class="cd-action cd-action--ghost" href="vignettes/">Run a vignette <span aria-hidden="true">↗</span></a>

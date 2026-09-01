@@ -5,12 +5,15 @@ No source clone or editable installation is needed for this page.
 
 ## Install
 
-**Current state: 0.1.0rc1 is not published.** Obtain the tested wheel and SHA256
-from the maintainer, or wait for publication. Follow the
-[installation and release instructions](getting_started/install.md) first.
-That page distinguishes supplied local wheels, future GitHub Release assets,
-future PyPI prereleases, and contributor checkouts. Plain PyPI installation
-does not work today.
+CubeDynamics 0.1.0rc1 is published on PyPI. Install that public prerelease in a
+fresh environment:
+
+```bash
+python -m pip install cubedynamics==0.1.0rc1
+```
+
+Follow the [installation and release instructions](getting_started/install.md)
+for supplied candidate wheels, optional extras, and contributor checkouts.
 
 ## First executable example — public reviewed observations
 
@@ -53,11 +56,15 @@ to eagerly load long climate records.
 ```python
 import matplotlib.pyplot as plt
 
-spatial_anomaly = (
+analysis = (
     pipe(temperature)
     | v.anomaly(dim="time")
     | v.mean(dim=("y", "x"), keep_dim=False)
-).unwrap()
+)
+print(analysis.explain())
+print(analysis.validate())
+print(analysis.semantic_trace)
+spatial_anomaly = analysis.unwrap()
 spatial_anomaly.plot()
 plt.title("Boulder · daily departure from January 1–30, 2024 mean")
 plt.ylabel("Temperature departure (°C)")
@@ -88,6 +95,7 @@ live_temperature = data.temperature(
     source="prism", statistic="maximum",
     bbox=[-105.55, 39.85, -105.05, 40.15],
     start="2024-01-01", end="2024-01-03",
+    freq="D",
 )
 (pipe(live_temperature) | v.mean(over="time", keep_dim=False)).unwrap().plot()
 plt.title("PRISM · mean daily maximum · January 1–3, 2024")
@@ -101,6 +109,27 @@ Keep the `Pipe` object before unwrapping when you want to inspect the authored
 statement with `explain()`, `semantic_state`, `semantic_trace`, or `validate()`.
 These metadata tools do not choose the scientific question or certify the
 observations.
+
+## Export safely
+
+Ordinary source, mean, and anomaly results carry NetCDF-safe metadata and can
+use xarray directly:
+
+```python
+spatial_anomaly.to_netcdf("boulder_temperature_anomaly.nc", engine="h5netcdf")
+```
+
+Use the pipe verb for semantic condition/state outputs. NetCDF has no native
+Boolean variable type, so CubeDynamics writes Boolean variables as `int8` with
+flag metadata on a shallow write-only copy. The in-memory condition stays
+Boolean and remains in the pipe.
+
+```python
+cool = pipe(temperature) | v.threshold_state(
+    threshold=5, direction="below", name="cool"
+)
+cool | v.to_netcdf("boulder_cool_state.nc", engine="h5netcdf")
+```
 
 ## Continue
 

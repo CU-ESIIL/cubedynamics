@@ -210,11 +210,13 @@ with TemporaryDirectory() as directory:
     saved = (pipe(regional_anomaly) | v.to_netcdf(str(target), engine="scipy")).unwrap()
     with xr.open_dataarray(target, engine="scipy") as reopened:
         restored = reopened.load()
-    xr.testing.assert_identical(saved, restored)
+    xr.testing.assert_allclose(saved, restored)
+    assert restored.attrs["is_synthetic"] == 0
+    assert restored.attrs["cubedynamics_metadata_encoding"] == "netcdf-safe-v1"
 output_table = pd.DataFrame({
-    "Check": ["Dimensions", "Observations", "Values and metadata"],
-    "Before": [str(saved.dims), str(saved.size), "Reference result"],
-    "After reopening": [str(restored.dims), str(restored.size), "Identical (asserted)"],
+    "Check": ["Dimensions", "Observations", "Values", "Boolean metadata"],
+    "Before": [str(saved.dims), str(saved.size), "Reference result", "False"],
+    "After reopening": [str(restored.dims), str(restored.size), "Equal (asserted)", "0 · portable flag"],
 })
 
 display(output_table)
@@ -226,11 +228,12 @@ display(output_table)
 | --- | --- | --- |
 | Dimensions | ('time',) | ('time',) |
 | Observations | 11 | 11 |
-| Values and metadata | Reference result | Identical (asserted) |
+| Values | Reference result | Equal (asserted) |
+| Boolean metadata | False | 0 · portable flag |
 
 </div>
 
-<p class="cd-result-caption">The PRISM regional-anomaly result is written with to_netcdf() and reopened. An identity assertion checks values, coordinates, names and attributes; the temporary example file is then removed.</p>
+<p class="cd-result-caption">The PRISM regional-anomaly result is written with to_netcdf() and reopened. Numerical equality is asserted while Boolean provenance is intentionally encoded as a portable integer flag; the temporary example file is then removed.</p>
 
 <p class="cd-interpretation"><strong>What changed?</strong> Export is an explicit side effect. The compact table is more useful here than another identical curve: it reports the tested round trip.</p>
 

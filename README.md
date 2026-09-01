@@ -26,8 +26,8 @@ matrix covers 3.9–3.12. These are repository metadata and CI targets, not a cl
 that an installed PyPI release contains every change on `main`.
 
 For the first public alpha release candidate, see the [0.1 support contract](docs/project/api_support_0_1.md),
-[release-note draft](docs/project/release_0_1_0.md), and [non-publishing release checklist](RELEASING.md).
-The candidate artifact targets `0.1.0rc1`; it is not a published release or tag.
+[release notes](docs/project/release_0_1_0.md), and [non-publishing release checklist](RELEASING.md).
+PyPI contains `0.1.0rc1`; changes on `main` may be newer than that artifact.
 
 ## Start here
 
@@ -44,23 +44,16 @@ separates architecture, CI, source maintenance, and audits from user reference.
 
 ## Install
 
-**Current state: preparing the first public release candidate; not published.**
-There is no installable CubeDynamics distribution on PyPI or in the existing
-GitHub Releases. Do not substitute a source clone for outside-user acceptance
-testing. A reviewer can install a maintainer-supplied, checksum-verified
-`cubedynamics-0.1.0rc1-py3-none-any.whl` directly with pip today.
-
-**After the v0.1.0rc1 GitHub Release is published**, the external install command
-will be (this URL is not available yet):
+The public prerelease is available from PyPI:
 
 ```bash
-python -m pip install "https://github.com/CU-ESIIL/cubedynamics/releases/download/v0.1.0rc1/cubedynamics-0.1.0rc1-py3-none-any.whl"
+python -m pip install cubedynamics==0.1.0rc1
 ```
 
-After a separate PyPI publication, `python -m pip install cubedynamics==0.1.0rc1`
-will install the same version. Plain `pip install cubedynamics` is reserved for
-the future final release. See the [installation guide](docs/getting_started/install.md)
-and [package-only quickstart](docs/quickstart.md); neither requires a clone.
+Pin the version because it is a prerelease. Plain `pip install cubedynamics`
+does not necessarily select a prerelease. See the
+[installation guide](docs/getting_started/install.md) and
+[package-only quickstart](docs/quickstart.md); neither requires a clone.
 
 ### Developer checkout (not the release-candidate install)
 
@@ -170,6 +163,7 @@ cube = data.temperature(
     source="prism", statistic="maximum",
     bbox=[-105.55, 39.85, -105.05, 40.15],
     start="2024-01-01", end="2024-01-03",
+    freq="D",
 )
 (pipe(cube) | v.mean(over="time", keep_dim=False)).unwrap().plot(cmap="magma")
 plt.show()
@@ -192,6 +186,18 @@ NcSS subsets; gridMET can use OPeNDAP with an optional compatible engine, but
 falls back to fetching annual HTTPS files. A long record can still be expensive.
 Source QA separates a serving revision's scientific validity from live endpoint
 health. See the [source reference](https://cu-esiil.github.io/cubedynamics/library/sources/).
+
+PRISM requests currently support daily observations. The noun API defaults to
+daily access, and maintained examples state `freq="D"` explicitly; unsupported
+monthly requests fail rather than silently changing temporal meaning. Core
+imports do not require the optional Sentinel-2/Rasterio compiled stack. If that
+stack is unavailable, its source-specific loader reports the dependency when
+called instead of preventing use of the grammar and climate nouns.
+
+Raw noun outputs and continuous summaries use NetCDF-safe scalar metadata, so
+ordinary `xarray.to_netcdf(...)` works. For condition/state Datasets, use
+`v.to_netcdf(...)`: it encodes Boolean variables as flagged `int8` in a
+write-only copy and leaves the in-memory semantic object unchanged.
 
 ## Built-in vocabulary and your own verbs
 

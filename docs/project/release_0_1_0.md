@@ -1,30 +1,52 @@
-# 0.1.0rc1 release notes — not published
+# 0.1.0rc1 release notes
 
-**First public alpha / early scientific software release. Not yet published.**
-This is the **first release candidate**, intended for outside-user acceptance
-testing. The package version is actually `0.1.0rc1`; it is not a relabeled
-`0.1.0` wheel. No GitHub Release, PyPI upload, DOI, or source promotion has
-occurred in this preparation task.
+**First public alpha / early scientific software release candidate.** PyPI
+published `0.1.0rc1` on August 31, 2026. The package version is actually
+`0.1.0rc1`; it is not a relabeled `0.1.0` wheel. Publication did not assign a
+DOI or promote candidate data sources.
 
 ## Installation and acceptance testing
 
-**Current state: not published.** Install only a maintainer-supplied tested
-wheel with its SHA256, or wait for public assets. After GitHub publication:
+Install the public prerelease with an explicit pin:
 
 ```bash
-python -m pip install "https://github.com/CU-ESIIL/cubedynamics/releases/download/v0.1.0rc1/cubedynamics-0.1.0rc1-py3-none-any.whl"
+python -m pip install cubedynamics==0.1.0rc1
 ```
 
-That URL is future/post-publication, not currently available. After separate
-PyPI publication, use `python -m pip install cubedynamics==0.1.0rc1`.
 See [installation](../getting_started/install.md) for fresh environments,
 checksums, and the distinction from a future final release. The
 [quickstart](../quickstart.md) needs no source checkout.
 
 Please report problems in [GitHub Issues](https://github.com/CU-ESIIL/cubedynamics/issues)
-with the wheel SHA256, Python/platform, `pip check`, package version/import
+with the installed version, Python/platform, `pip check`, package import
 path, minimal code and full traceback. Do not include credentials. A failed
 public install is a release blocker, not permission to substitute a clone.
+
+## Outside-user acceptance findings
+
+Post-publication testing installed `0.1.0rc1` from PyPI in an external Jupyter
+environment and exercised live PRISM data. The public artifact installed and
+the main workflow ran, but the test exposed semantic inconsistencies in
+condition reductions, variance units, overlap representation, plotting of
+semantic results, and fire-workflow routing. The repository's
+[RC1 validation triage](rc1_validation_triage.md) separates those defects from
+intentional exact-alignment guardrails, optional Lexcube availability, invalid
+random chains, and genuine fire/climate date mismatches. The corrections are
+for a subsequent, separately versioned candidate; they do not alter the bytes
+already published as `0.1.0rc1`.
+
+A second naive-user pass found three first-use blockers in the published rc1:
+an eager optional Sentinel-2/Rasterio import could make the entire package
+unimportable on Debian/aarch64 when Rasterio's GDAL dependency could not find
+`libexpat.so.1`; Boolean provenance metadata was not accepted by h5netcdf; and
+the first PRISM path inherited a monthly default despite daily-only real
+streaming. The checkout defers the optional compiled stack, applies a
+deterministic NetCDF serialization policy, and makes maintained PRISM examples
+explicitly daily. Clean Debian-slim installed-wheel checks, first-use API
+acceptance, and a separate bounded online PRISM execution are required for the
+next candidate. See the [triage](rc1_validation_triage.md) and
+[documentation generation audit](public_docs_generation_audit.md). These fixes
+also postdate the immutable public rc1 artifact.
 
 ## Ready for documented use
 
@@ -38,8 +60,9 @@ public install is a release blocker, not permission to substitute a clone.
   figures and interpretation. Fixtures belong to the checkout, not the wheel.
 - Source schema, QA, revision and certification architecture that separates
   endpoint availability from scientific suitability.
-- Wheel/sdist inspection, an isolated installed-wheel smoke and README test,
-  and a release notebook mode that verifies exact wheel identity in each kernel.
+- Wheel/sdist inspection, isolated installed-wheel first-use and README tests,
+  clean Debian-slim import checks on x86_64 and aarch64, and a release notebook
+  mode that verifies exact wheel identity in each kernel.
 
 The [0.1 API contract](api_support_0_1.md) names the stable subset. This is not a
 promise that every exported callable or metadata report is permanently frozen.

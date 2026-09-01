@@ -34,6 +34,10 @@ jobs:
         run: |
           pytest -m "(integration or online) and not browser" --maxfail=1 -q
 
+      - name: Run the documented bounded PRISM first-use request
+        run: |
+          python scripts/check_first_prism_example.py --output artifacts/source_qa/first-prism-example
+
       - name: Write live source certification evidence
         if: always()
         env:

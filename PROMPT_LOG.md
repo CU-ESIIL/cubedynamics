@@ -4,6 +4,26 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-01 — Naive outside-user first-use acceptance follow-up
+
+- Continued the existing RC1 hardening pass using the independent
+  `CU-ESIIL/cubedynamics_test_user` naive-user report as first-use evidence;
+  retained the completed semantic, plotting, overlap, Fire, and release-gate
+  work as the broad-functional acceptance baseline.
+- New P0 blockers to reproduce and resolve: a clean `python:3.11-slim`
+  Debian/aarch64 installed-wheel import reaching Rasterio through an eager
+  data/Sentinel-2/Cubo import and failing on `libexpat.so.1`; ordinary NetCDF
+  export rejecting Boolean CubeDynamics metadata; and a first-discovered PRISM
+  example/default selecting monthly semantics while real streaming supports
+  daily requests.
+- Required outcome: identify causes rather than document workarounds, keep
+  optional compiled integrations from blocking the core grammar where
+  practical, adopt deterministic NetCDF-safe metadata, make the first PRISM
+  path copy-and-run, classify current versus legacy public pages, and add a
+  separate installed-wheel first-use gate alongside the existing broad gate.
+- Do not publish, tag, push, invent live-source evidence, or treat the bounded
+  naive report as exhaustive functional coverage.
+
 ## 2026-08-31 — Comprehensive RC1 validation triage and next-RC gate
 
 - Read the supplied 12-page `cubedynamics_codex_rc1_triage_fix_prompt.pdf` and
@@ -24,6 +44,20 @@ secrets, credentials, private tokens, or unrelated transcript text.
   plot`, with cube-first `v.fire_plot` as the high-level convenience API.
 - Do not publish, tag, push, or describe offline fixture checks as live source
   certification. Record exact gates and remaining caveats after implementation.
+- Implemented state-only overlap, state-only condition-frequency reduction,
+  deterministic variance units, anomaly/z-score result metadata, dimensional
+  plotting for canonical semantic objects, accurate alignment diagnostics,
+  optional Lexcube guidance, modern cube-first Fire routing, geometry-only
+  FireHull inspection, and overlapping six-variable environmental attribution.
+- Added a maintained black-box smoke covering the requested semantic and Fire
+  sequences and wired it into the non-publishing release gate. Updated the gate
+  checker so numerical xarray parity is tested alongside (not instead of)
+  truthful CubeDynamics result metadata.
+- Verified through PyPI's official JSON API that `0.1.0rc1` is public; corrected
+  the maintained install, quickstart, release-note, and release-process pages.
+  The checkout remains versioned rc1 during this engineering pass. A reviewed
+  next-candidate version bump is still a release-management action, and no
+  package upload, tag, push, or release creation is authorized here.
 
 ## 2026-08-31 — Align summary, condition, overlap, and plotting semantics
 

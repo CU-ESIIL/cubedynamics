@@ -106,6 +106,7 @@ jobs:
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install dist/cubedynamics-0.1.0rc1-py3-none-any.whl
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip check
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0rc1-py3-none-any.whl --sdist dist/cubedynamics-0.1.0rc1.tar.gz --repo-example --output artifacts/release/installed.json
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_first_use_wheel.py --output artifacts/release/first-use-wheel.json
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_candidate_wheel.py
 
       - name: Run supported notebooks against the wheel
@@ -119,6 +120,43 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-wheel-${{ matrix.python-version }}
+          path: artifacts/release/
+
+  clean-linux-wheel-import:
+    name: Clean slim wheel import / ${{ matrix.architecture }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - architecture: x86_64
+            runner: ubuntu-latest
+          - architecture: aarch64
+            runner: ubuntu-24.04-arm
+    container: python:3.11-slim
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build and install the wheel in Debian slim
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build
+          python -m venv /tmp/cubedynamics-wheel
+          /tmp/cubedynamics-wheel/bin/python -m pip install dist/cubedynamics-0.1.0rc1-py3-none-any.whl
+          /tmp/cubedynamics-wheel/bin/python -m pip check
+
+      - name: Exercise core import and first-use path outside the checkout
+        working-directory: /tmp
+        run: |
+          /tmp/cubedynamics-wheel/bin/python -I "$GITHUB_WORKSPACE/scripts/check_first_use_wheel.py" --output "$GITHUB_WORKSPACE/artifacts/release/clean-slim-first-use.json"
+
+      - name: Preserve clean-container evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-slim-wheel-${{ matrix.architecture }}
           path: artifacts/release/
 
   docs:

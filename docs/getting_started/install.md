@@ -1,22 +1,20 @@
 # Installation & setup
 
-## Current development state — not published
+## Public release candidate
 
-CubeDynamics is preparing its first public release candidate, **0.1.0rc1**.
-No CubeDynamics wheel/sdist is currently published on PyPI or attached to the
-existing GitHub Releases. A new user cannot yet install a public release.
-Do not interpret a green source checkout or a GitHub source ZIP as a tested
-package release. Python **3.9–3.12** remains the supported test matrix.
+CubeDynamics **0.1.0rc1** is published on PyPI. It is an alpha prerelease, not
+a final stable release. Do not interpret a green source checkout as evidence
+that the public artifact contains later changes. Python **3.9–3.12** remains
+the supported test matrix.
 
-For pre-publication acceptance testing, a maintainer must provide the exact
-tested wheel and its SHA256. In a fresh folder outside any source checkout:
+For reproducible acceptance testing, pin the public version in a fresh folder
+outside any source checkout:
 
 ```bash
 python3.11 -m venv cube-env
 source cube-env/bin/activate
 python -m pip install --upgrade pip
-# First compare this file with the maintainer's SHA256 record.
-python -m pip install ./cubedynamics-0.1.0rc1-py3-none-any.whl
+python -m pip install cubedynamics==0.1.0rc1
 python -m pip check
 ```
 
@@ -25,26 +23,21 @@ declared dependencies; neither Git nor an editable installation is needed.
 If you have not received an artifact, wait for publication rather than
 silently switching to a source clone.
 
-## Release candidate install — after GitHub publication
+## Artifact-specific install
 
-**Future command, unavailable until the v0.1.0rc1 release is published.**
-In the fresh environment above, install the wheel asset directly:
+When reproducing a maintainer-supplied candidate artifact rather than the
+public rc1, compare its SHA256 record and install that exact local wheel:
 
 ```bash
-python -m pip install "https://github.com/CU-ESIIL/cubedynamics/releases/download/v0.1.0rc1/cubedynamics-0.1.0rc1-py3-none-any.whl"
+python -m pip install ./cubedynamics-0.1.0rc1-py3-none-any.whl
 python -m pip check
 ```
 
-The [GitHub Releases page](https://github.com/CU-ESIIL/cubedynamics/releases)
-will expose the wheel, `cubedynamics-0.1.0rc1.tar.gz`, and `SHA256SUMS`.
-For an explicit checksum check, download those assets and use
-`shasum -a 256 -c SHA256SUMS` (macOS) or `sha256sum -c SHA256SUMS` (Linux)
-before installing the local wheel. The sdist is for users who need to build;
-the wheel is the primary outside-user path.
+The local wheel path is for an explicitly supplied artifact; do not silently
+substitute a source clone. The PyPI release page exposes hashes for its public
+wheel and sdist.
 
-## PyPI prerelease — after separate PyPI publication
-
-**Future commands; PyPI publication has not occurred.** Once uploaded:
+## PyPI prerelease
 
 ```bash
 python -m pip install cubedynamics==0.1.0rc1
@@ -57,10 +50,11 @@ The [PyPA prerelease specification](https://packaging.python.org/en/latest/speci
 explains selection. Package-name availability and trusted publishing must be
 confirmed by the maintainer; a missing public project is not a reservation.
 
-## Final release — future only
+## Final release
 
-After a final release is published, `python -m pip install cubedynamics`
-will be the ordinary stable-release command. It does not work today.
+After a final stable release is published, `python -m pip install cubedynamics`
+will be the ordinary stable-release command. Until then, pin or opt into a
+prerelease explicitly.
 
 ## Verify and start an analysis
 
