@@ -27,14 +27,23 @@ v.quantile_state(*, quantile, direction, rolling_window=None, climatology=None, 
 ## Accepts
 
 Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+Laziness and chunking
+Exact pooled quantiles stay lazy. Dask-backed inputs may be rechunked to one
+chunk along the reduction dimension while retaining their spatial chunks.
 
 ## Returns
 
 Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+Laziness and chunking
+Exact pooled quantiles stay lazy. Dask-backed inputs may be rechunked to one
+chunk along the reduction dimension while retaining their spatial chunks.
 
 ## Order / grammar behavior
 
 Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+Laziness and chunking
+Exact pooled quantiles stay lazy. Dask-backed inputs may be rechunked to one
+chunk along the reduction dimension while retaining their spatial chunks.
 
 ## Minimal example
 
@@ -60,6 +69,9 @@ plt.show()
 ## Works with
 
 Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+Laziness and chunking
+Exact pooled quantiles stay lazy. Dask-backed inputs may be rechunked to one
+chunk along the reduction dimension while retaining their spatial chunks.
 
 ## See also
 

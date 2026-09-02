@@ -13,6 +13,11 @@ import subprocess
 import sys
 import tempfile
 
+try:
+    from release_metadata import ReleaseIdentity, release_identity
+except ModuleNotFoundError:  # Imported as scripts.run_release_gate in tests.
+    from scripts.release_metadata import ReleaseIdentity, release_identity
+
 ROOT = Path(__file__).resolve().parents[1]
 MANDATORY = {
     "build", "twine", "contents", "create-environment", "upgrade-installer", "install-wheel", "pip-check",
@@ -33,14 +38,15 @@ def sha(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def release_inputs():
+def release_inputs(identity=None):
     # Bind docs, tests, workflows and fixtures too, not only packaged Python.
+    identity = identity or release_identity(ROOT)
     names = subprocess.check_output(
         ["git", "ls-files", "--cached", "--others", "--exclude-standard", "-z"], cwd=ROOT
     ).decode().split("\0")
     inputs = {}
     for name in sorted(set(names)):
-        if not name or name == "manifests/releases/v0.1.0rc1-candidate.json":
+        if not name or name == identity.candidate_manifest:
             continue
         path = ROOT / name
         if not path.is_file():
@@ -73,14 +79,19 @@ def step_environment(base, name):
     return result
 
 
-def write_candidate(output):
+def write_candidate(output, identity=None):
     from source_lifecycle_evidence import release_manifest
     from check_release_artifact import artifact_info
     gate = json.loads((output / "gate.json").read_text())
     steps = gate["steps"]
     if gate["status"] != "PASS" or not MANDATORY <= steps.keys() or any(v["exit_code"] != 0 for v in steps.values()):
         raise RuntimeError("Every mandatory release gate must pass before recording a ready candidate")
-    if not gate["release_inputs"] or gate["release_inputs"] != release_inputs():
+    identity = identity or (
+        ReleaseIdentity(**gate["release_identity"])
+        if "release_identity" in gate
+        else release_identity(ROOT)
+    )
+    if not gate["release_inputs"] or gate["release_inputs"] != release_inputs(identity):
         raise RuntimeError("Release inputs changed since validation; rerun the complete gate")
     check_commit(gate)
     installed = json.loads((output / "installed.json").read_text())
@@ -89,7 +100,7 @@ def write_candidate(output):
     sdist = ROOT / "dist" / installed["sdist"]["filename"]
     if artifact_info(wheel) != installed["wheel"] or artifact_info(sdist) != installed["sdist"]:
         raise RuntimeError("Distribution changed after the installed-wheel test")
-    destination = ROOT / "manifests/releases/v0.1.0rc1-candidate.json"
+    destination = ROOT / identity.candidate_manifest
     result = release_manifest(destination, reports=[output / "offline.xml", output / "streaming.xml", output / "browser.xml"],
                               qa_roots=[output / "source_qa", output / "decision_qa"])
     if {r["notebook"] for r in notebooks} != set(result["supported_notebooks"]):
@@ -97,10 +108,16 @@ def write_candidate(output):
     if any(r["installed_wheel"]["wheel"]["sha256"] != installed["wheel"]["sha256"] for r in notebooks):
         raise RuntimeError("Notebooks used different wheels")
     result.update(
-        target_version="0.1.0rc1", maturity="first release candidate; not published",
+        package=identity.package, version=identity.version, tag=identity.tag,
+        expected_tag=identity.expected_tag, commit_sha=gate["git_sha"],
+        target_version=identity.version,
+        maturity=("prerelease candidate; not published" if identity.prerelease else "stable candidate; not published"),
         readiness="LOCAL GATE PASS; publication requires reviewed commit and matrix evidence",
-        artifact_version="0.1.0rc1",
-        rc_label_note="Real prerelease version; no tag or publication performed.",
+        artifact_version=identity.version,
+        release_label_note=(
+            "PEP 440 prerelease candidate; no publication performed."
+            if identity.prerelease else "PEP 440 stable candidate; no publication performed."
+        ),
         tested_git_sha=gate["git_sha"], tested_tree_sha=gate["git_tree"],
         artifacts={"wheel": installed["wheel"], "sdist": installed["sdist"]},
         tested_python_versions=sorted({gate["python"], installed["installation"]["python"]}),
@@ -113,7 +130,7 @@ def write_candidate(output):
         decision_qa_status=json.loads((output / "decision_qa/result.json").read_text())["status"],
         package_only=installed["package_only"], canonical_example=installed["readme_example"],
         wheel_vignettes=[{"notebook": r["notebook"], "plots": r["plots"]} for r in notebooks],
-        release_gate={"path": str((output / "gate.json").relative_to(ROOT)), "sha256": sha(output / "gate.json"),
+        release_gate={"status": "PASS", "path": str((output / "gate.json").relative_to(ROOT)), "sha256": sha(output / "gate.json"),
                       "steps": {k: v["exit_code"] for k, v in steps.items()}},
         known_caveats=["Prepared source snapshot is not a public tag or release.",
                       "Provider availability and scientific suitability are separate from offline fixture QA.",
@@ -127,12 +144,16 @@ def write_candidate(output):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=ROOT / "artifacts/release-0.1.0rc1")
+    parser.add_argument("--output", type=Path)
+    parser.add_argument("--ref", default=os.environ.get("GITHUB_REF", ""))
     parser.add_argument("--record-only", action="store_true", help="Refresh curated manifest from already passed, unchanged artifact evidence")
     args = parser.parse_args()
+    identity = release_identity(ROOT, ref=args.ref)
+    if args.output is None:
+        args.output = ROOT / identity.output_dir
     output = args.output.resolve()
     if args.record_only:
-        write_candidate(output)
+        write_candidate(output, identity)
         return
     output.mkdir(parents=True, exist_ok=True)
     environment = Path(tempfile.mkdtemp(prefix="cubedynamics-wheel-")) / "venv"
@@ -144,7 +165,8 @@ def main():
             "git_sha": subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
             "git_tree": subprocess.check_output(["git", "rev-parse", "HEAD^{tree}"], cwd=ROOT, text=True).strip(),
             "started": datetime.now(timezone.utc).isoformat(), "environment": str(environment),
-            "release_inputs": release_inputs(), "steps": {}}
+            "release_identity": identity.as_dict(),
+            "release_inputs": release_inputs(identity), "steps": {}}
     def save():
         (output / "gate.json").write_text(json.dumps(gate, indent=2) + "\n")
     def run(name, command, cwd=ROOT):
@@ -160,10 +182,10 @@ def main():
         print(f"PASS {name}", flush=True)
     save()
     try:
-        run("source-identity", [py, "scripts/check_release_source.py"])
+        run("source-identity", [py, "scripts/check_release_source.py", "--ref", args.ref])
         run("build", [py, "-m", "build"])
-        wheel = ROOT / "dist/cubedynamics-0.1.0rc1-py3-none-any.whl"
-        sdist = ROOT / "dist/cubedynamics-0.1.0rc1.tar.gz"
+        wheel = ROOT / "dist" / identity.wheel_filename
+        sdist = ROOT / "dist" / identity.sdist_filename
         run("twine", [py, "-m", "twine", "check", wheel, sdist])
         (ROOT / "dist/SHA256SUMS").write_text("".join(f"{sha(p)}  {p.name}\n" for p in (wheel, sdist)))
         checker = ROOT / "scripts/check_release_artifact.py"
@@ -205,12 +227,12 @@ def main():
                         "--tracing", "retain-on-failure", "--output", output / "browser", "--junitxml", output / "browser.xml", "-q"])
         run("repository-size", [py, "scripts/check_repository_size.py", "--mode", "tracked"])
         run("diff-check", ["git", "diff", "--check"])
-        if gate["release_inputs"] != release_inputs():
+        if gate["release_inputs"] != release_inputs(identity):
             raise RuntimeError("Release inputs changed during validation")
         check_commit(gate)
         gate["status"] = "PASS"
         save()
-        write_candidate(output)
+        write_candidate(output, identity)
     except Exception:
         gate["status"] = "FAIL"
         save()

@@ -20,7 +20,7 @@ interchangeable, a trace is not complete workflow provenance, and validation
 does not choose or certify the scientific question. See the
 [scientific framing](docs/concepts/scientific_inspectability.md).
 
-The checkout currently declares **version 0.1.0rc1, alpha**, with Python **3.9+**
+The checkout currently declares **version 0.1.0rc2, alpha**, with Python **3.9+**
 support. Development and documentation CI use Python 3.11; the offline test
 matrix covers 3.9–3.12. These are repository metadata and CI targets, not a claim
 that an installed PyPI release contains every change on `main`.

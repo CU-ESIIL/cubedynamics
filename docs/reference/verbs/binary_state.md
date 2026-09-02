@@ -68,4 +68,4 @@ Boolean cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/states.py#L73). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/states.py#L77). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

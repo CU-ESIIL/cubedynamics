@@ -148,7 +148,12 @@ def quantile_state(
     name: str | None = None,
     time_dim: str = TIME_DIM,
 ) -> xr.Dataset:
-    """Build a state cube from global, rolling, or supplied quantile thresholds."""
+    """Build a state cube from global, rolling, or supplied quantile thresholds.
+
+    Exact pooled quantiles remain lazy for Dask-backed inputs. For compatibility
+    with supported xarray versions, the reduction dimension is represented as
+    one chunk; chunks on every remaining dimension are preserved.
+    """
 
     if not 0.0 <= quantile <= 1.0:
         raise ValueError("quantile must be between 0 and 1")
@@ -171,7 +176,14 @@ def quantile_state(
             "estimated independently at each remaining coordinate"
         )
     else:
-        threshold = da.quantile(quantile, dim=time_dim)
+        quantile_source = da
+        if da.chunks is not None and len(da.chunksizes[time_dim]) > 1:
+            # Exact quantiles need all selected observations for each remaining
+            # spatial chunk. Older supported xarray releases require this core
+            # dimension to be a single Dask chunk; this changes the graph, not
+            # materialization, and leaves all non-reduction chunks untouched.
+            quantile_source = da.chunk({time_dim: -1})
+        threshold = quantile_source.quantile(quantile, dim=time_dim)
         method = "quantile"
         selected_months = da.attrs.get("selected_calendar_months")
         month_note = f"; selected calendar months {selected_months}" if selected_months else ""

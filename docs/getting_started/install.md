@@ -102,9 +102,11 @@ candidate adapters, known limitations, and problem reporting.
 
 ## Testing current `main` in a notebook
 
-`main` intentionally still declares `0.1.0rc1` until a release-management
-decision changes the version. The version string alone therefore cannot tell
-you whether a notebook imported the published RC or later source.
+The current checkout declares `0.1.0rc2`, while PyPI still contains the
+published `0.1.0rc1` until a separately authorized publication succeeds. A
+version string identifies the candidate, but `version_info()` is still the
+reliable way to distinguish an installed distribution from a development
+checkout and to record the exact source revision.
 
 Use a dedicated kernel and pin the exact commit under review:
 

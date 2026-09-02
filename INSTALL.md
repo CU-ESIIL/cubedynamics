@@ -66,10 +66,10 @@ pip install --no-deps "git+https://github.com/CU-ESIIL/cubedynamics.git@main"
 
 Notes:
 - The `--no-deps` flag keeps `numpy`, `dask`, `rasterio`, and other heavy dependencies managed by conda-forge.
-- Once tagged releases are available on PyPI, you can instead run:
+- To use the current public release from PyPI instead, run:
 
 ```bash
-pip install --no-deps cubedynamics
+pip install --no-deps cubedynamics==0.1.0rc1
 ```
 
 ## 5. Verify the install

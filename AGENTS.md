@@ -1,12 +1,14 @@
 # AGENTS.md — CubeDynamics Repository Operating Guide
 
 This guide describes the current checkout, not a guarantee that every feature
-is in the installed PyPI release. Last synchronized: **2026-08-28**.
+is in the installed PyPI release. Last synchronized: **2026-09-02**.
 
 ## 1) Project identity and scope
 
-- Package: `cubedynamics`, formerly `climate_cube_math`. Version sources are
-  `pyproject.toml` and `src/cubedynamics/version.py`; both currently say `0.1.0rc1`.
+- Package: `cubedynamics`, formerly `climate_cube_math`. The canonical release
+  version is in `pyproject.toml`; `src/cubedynamics/version.py`
+  mirrors it for runtime imports, and release checks require both to say
+  `0.1.0rc2`.
   Packaging declares alpha status and Python `>=3.9`.
 - Core: `pipe(cube) | verb() | verb()`, a small composable grammar over labeled
   spatiotemporal objects. xarray/NumPy provide array semantics; Dask supports
@@ -50,7 +52,7 @@ working-tree changes.
   callable/factory protocol. Plain callables can compose without registration.
 - `cubedynamics.version_info()` reports the imported path, artifact kind, and
   Git/VCS identity when available. The semantic version alone does not
-  distinguish post-RC main from the published RC while both declare rc1.
+  distinguish a development checkout from the published RC artifact.
 - `cubedynamics.grammar` holds semantic states, contracts, order rules, and
   report types. `Pipe.explain()`, `suggest()`, `validate()`, `semantic_state`,
   and `semantic_trace` must remain metadata-only and must not rewrite workflows.
@@ -229,6 +231,9 @@ old URLs. Do not add tabs or redesign navigation as a side effect of API work.
 - Release support and maturity are documented in `docs/project/api_support_0_1.md`,
   `docs/project/release_0_1_0.md`, and `docs/project/dependency_audit_0_1.md`.
   `RELEASING.md` and `scripts/run_release_gate.py` define the non-publishing gate.
+  `scripts/release_metadata.py` derives tag, artifact, evidence, and manifest
+  names from the committed project version; `scripts/verify_release_bundle.py`
+  binds publication to the exact same-run tested bytes.
   `scripts/check_release_artifact.py` rejects checkout imports and checks exact
   installed wheel bytes. `run_vignettes.py --wheel ... --kernel-python ...`
   pins each kernel to an external environment and audits imports before/after.
@@ -375,7 +380,9 @@ Use `tools/debug_viewer_pipeline.py` and viewer/plotting tests for diagnosis.
 - Keep README, generators, navigation, examples, and actual exports consistent.
   `tests/test_repository_guides.py` checks the README catalog/version/examples
   and local guide links against the checkout.
-- `publish.yml` can publish on `v*` tags or manual dispatch. Publishing, pushing,
+- `publish.yml` verifies `v*` tag pushes without publishing. A separate manual
+  dispatch on an existing matching tag can publish its same-run tested bundle
+  to GitHub or PyPI only with explicit authorization. Publishing, pushing,
   release metadata/DOI changes, and manuscript submission require their own
   requested scope; a documentation update does not authorize them.
 - When uncertain, prefer minimal composable changes and a focused regression

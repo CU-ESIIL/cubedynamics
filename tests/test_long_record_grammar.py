@@ -280,6 +280,32 @@ def test_twenty_year_small_domain_state_workflow_is_lazy_until_events() -> None:
     assert elapsed < 20
 
 
+def test_quantile_state_rechunks_only_time_and_remains_lazy(monkeypatch) -> None:
+    values = da.arange(24, chunks=6).reshape((6, 2, 2)).rechunk((3, 1, 1))
+    cube = xr.DataArray(
+        values,
+        dims=("time", "y", "x"),
+        coords={"time": pd.date_range("2020-01-01", periods=6), "y": [0, 1], "x": [0, 1]},
+        name="temperature",
+    )
+    observed_chunks = {}
+    original_quantile = xr.DataArray.quantile
+
+    def record_quantile(self, q, dim=None, **kwargs):
+        if dim == "time":
+            observed_chunks.update(self.chunksizes)
+        return original_quantile(self, q, dim=dim, **kwargs)
+
+    monkeypatch.setattr(xr.DataArray, "quantile", record_quantile)
+    result = (pipe(cube) | v.quantile_state(quantile=0.5, direction="above")).unwrap()
+
+    assert observed_chunks == {"time": (6,), "y": (1, 1), "x": (1, 1)}
+    assert result.state.chunks is not None
+    assert result.state.chunksizes["time"] == cube.chunksizes["time"]
+    expected = cube.compute().quantile(0.5, dim="time").drop_vars("quantile")
+    xr.testing.assert_allclose(result.threshold.isel(time=0, drop=True).compute(), expected)
+
+
 def test_runtime_version_info_identifies_current_checkout() -> None:
     info = cd.version_info()
     assert info.version == cd.__version__

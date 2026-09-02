@@ -35,6 +35,13 @@ quantile, day-of-year climatology, monthly climatology, or detrended
 percentile. `explain()` prints the reference population, including months
 retained by `month_filter`.
 
+An exact pooled quantile needs every selected time observation for each
+remaining spatial chunk. With Dask inputs, `quantile_state` therefore keeps the
+operation lazy but may rechunk the selected time dimension to one chunk for
+compatibility across supported xarray versions. Spatial chunks are retained.
+Bound the temporal domain deliberately when that exact reduction would exceed
+available worker memory.
+
 ## Where computation happens
 
 `month_filter`, threshold/quantile state creation, and `overlap` preserve Dask

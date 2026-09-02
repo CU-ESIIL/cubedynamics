@@ -4,6 +4,36 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-02 — Reusable release workflow and 0.1.0rc2 preparation
+
+- Prepare `0.1.0rc2` from reviewed main `54e469d6f8c62609a7d111161e82da2c674bad54`
+  without changing scientific behavior, tagging, publishing, creating a GitHub
+  release, or pushing. Preserve RC1 reports and manifests as historical facts.
+- Make the release identity derive from the committed project version and an
+  exact `v*` tag, with explicit rejection of dirty sources, branch publication,
+  tag/package mismatch, artifact-name mismatch, manifest mismatch, and changed
+  bytes. The package version must be committed before tagging; no workflow may
+  rewrite it from the tag.
+- Keep tag pushes verification-only. A separately authorized dispatch may
+  publish to GitHub or PyPI only after rerunning the full gate and Python matrix
+  for the selected tag and carrying the exact same-run wheel, sdist, checksum,
+  and manifest bundle into the publication job. PyPI continues to use Trusted
+  Publisher OIDC and immutable releases; no token or password is introduced.
+- Generalize active gate outputs, distribution filenames, candidate manifests,
+  prerelease detection, and maintainer documentation so later RC and stable
+  versions require a version edit and tag, not YAML surgery.
+- A Python 3.9 matrix run exposed older-xarray handling of exact Dask quantiles.
+  Keep `quantile_state` lazy while making its exact reduction explicit: gather
+  the selected time axis into one chunk, preserve all spatial chunks, document
+  the memory boundary, and cover the supported-version behavior directly.
+- Post-fix validation: 24 long-record tests passed under both the normal Python
+  3.11 environment and the locked Python 3.9 dependency set. The complete
+  offline suite passed 895 tests with 5 skips on Python 3.11 and 894 tests with
+  10 skips on Python 3.9. Eight visual results and 78 generated references pass
+  freshness checks; tracked-size and diff checks pass. The earlier local full
+  gate passed before this compatibility fix and is therefore superseded; run a
+  fresh non-publishing gate on the final unchanged snapshot before tagging.
+
 ## 2026-09-01 — Long-record event grammar and notebook identity hardening
 
 - Treat the new two-year and proposed twenty-year notebook findings as evidence

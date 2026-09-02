@@ -90,30 +90,43 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: pip
 
-      - name: Build distribution artifacts
+      - name: Prepare build tools and derive release identity
+        id: release
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[test,vignettes]"
+          python scripts/release_metadata.py --commit "$GITHUB_SHA" --github-output "$GITHUB_OUTPUT"
+
+      - name: Build distribution artifacts
+        env:
+          WHEEL: ${{ steps.release.outputs.wheel_filename }}
+          SDIST: ${{ steps.release.outputs.sdist_filename }}
+        run: |
           python -m build
           python -m twine check dist/*
-          python scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0rc1-py3-none-any.whl --sdist dist/cubedynamics-0.1.0rc1.tar.gz --inspect-only --output artifacts/release/distributions.json
+          python scripts/check_release_artifact.py --wheel "dist/$WHEEL" --sdist "dist/$SDIST" --inspect-only --output artifacts/release/distributions.json
 
       - name: Install built wheel in clean environment
+        env:
+          WHEEL: ${{ steps.release.outputs.wheel_filename }}
+          SDIST: ${{ steps.release.outputs.sdist_filename }}
         run: |
           python -m venv "$RUNNER_TEMP/cubedynamics-wheel"
           # venv seeds its own pip; older bundled versions can omit wheel hashes.
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install --upgrade pip
-          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install dist/cubedynamics-0.1.0rc1-py3-none-any.whl
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install "dist/$WHEEL"
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip check
-          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0rc1-py3-none-any.whl --sdist dist/cubedynamics-0.1.0rc1.tar.gz --repo-example --output artifacts/release/installed.json
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_release_artifact.py --wheel "dist/$WHEEL" --sdist "dist/$SDIST" --repo-example --output artifacts/release/installed.json
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_first_use_wheel.py --output artifacts/release/first-use-wheel.json
           "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -I scripts/check_candidate_wheel.py
 
       - name: Run supported notebooks against the wheel
         if: matrix.python-version == '3.11'
+        env:
+          WHEEL: ${{ steps.release.outputs.wheel_filename }}
         run: |
-          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install 'dist/cubedynamics-0.1.0rc1-py3-none-any.whl[vignettes]'
-          python scripts/run_vignettes.py --wheel dist/cubedynamics-0.1.0rc1-py3-none-any.whl --kernel-python "$RUNNER_TEMP/cubedynamics-wheel/bin/python" --output-dir artifacts/release/wheel-notebooks
+          "$RUNNER_TEMP/cubedynamics-wheel/bin/python" -m pip install "dist/$WHEEL[vignettes]"
+          python scripts/run_vignettes.py --wheel "dist/$WHEEL" --kernel-python "$RUNNER_TEMP/cubedynamics-wheel/bin/python" --output-dir artifacts/release/wheel-notebooks
 
       - name: Preserve release evidence
         if: always()
@@ -139,12 +152,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build and install the wheel in Debian slim
+      - name: Prepare slim build identity
+        id: release
         run: |
           python -m pip install --upgrade pip build
+          python scripts/release_metadata.py --commit "$GITHUB_SHA" --github-output "$GITHUB_OUTPUT"
+
+      - name: Build and install the wheel in Debian slim
+        run: |
           python -m build
           python -m venv /tmp/cubedynamics-wheel
-          /tmp/cubedynamics-wheel/bin/python -m pip install dist/cubedynamics-0.1.0rc1-py3-none-any.whl
+          /tmp/cubedynamics-wheel/bin/python -m pip install "dist/${{ steps.release.outputs.wheel_filename }}"
           /tmp/cubedynamics-wheel/bin/python -m pip check
 
       - name: Exercise core import and first-use path outside the checkout

@@ -1,6 +1,17 @@
 # Changelog
 
-## 0.1.0rc1 — prepared, not yet released
+## 0.1.0rc2 — prepared, not yet released
+
+- Generalized release identity, artifact names, candidate manifests, and the
+  verification-only tag workflow so later prerelease and stable versions do
+  not require version-specific YAML edits.
+- Bound explicit GitHub and PyPI publication to a version- and commit-specific
+  bundle whose wheel, sdist, checksums, and passing gate manifest are verified
+  immediately before the public write.
+- Preserved the scientific behavior and the historical RC1 evidence; this is a
+  release-process hardening candidate, not a new scientific feature release.
+
+## 0.1.0rc1 — released 2026-08-31
 
 - Corrected contradictory installation claims identified by an independent
   outside-user test. Public wheel/PyPI commands are explicitly post-publication.
@@ -10,7 +21,7 @@
 - Kept VirtualCube's legacy annual tile aliases working with pandas 3 without
   changing calendar boundaries, eager/lazy behavior, or source selection.
 
-- First public alpha target; [release notes and limitations](project/release_0_1_0.md).
+- First public alpha; [release notes and limitations](project/release_0_1_0.md).
 - Preserved the core grammar, eight catalog nouns and candidate-source boundary.
 - Excluded repository/internal tests from wheel and sdist; retained viewer
   templates, serving history and the deprecated compatibility namespace.

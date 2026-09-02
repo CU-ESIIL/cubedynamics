@@ -205,7 +205,7 @@ cloud environments.
 
 # Getting started with CubeDynamics
 
-**Historical reference. Current state: 0.1.0rc1 is not published.**
+**Historical reference. Current state: 0.1.0rc1 is published.**
 Follow [current installation instructions](../getting_started/install.md).
 
 **In plain English:**  

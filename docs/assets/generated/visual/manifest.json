@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "46c9ab81152ecf13f64310a211f9db3f65b3ec3f",
+    "git_sha": "54e469d6f8c62609a7d111161e82da2c674bad54",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -589,7 +589,7 @@
     "src/cubedynamics/synchrony/occurrence.py": "721e5b2a27d6327a82503d60220ba29a397012ddb6a6ed4cd9115f744fbeccb4",
     "src/cubedynamics/synchrony/severity.py": "a3396ffa5d368cb7815872cf257201aed6493323b22b2d3fb26a5d6246e126a3",
     "src/cubedynamics/synchrony/spatial.py": "763c8a0e0bfc3463b0c52c118af160c34108f30201f85887eac50e473b2f7150",
-    "src/cubedynamics/synchrony/states.py": "dfcdbbebbca625865858eaf9c02cb07b64abdff38169ecb8c943ce3c64b9331d",
+    "src/cubedynamics/synchrony/states.py": "e72b200d226b2d9917fcfa896a3a7da1955018b6b851829280eda0bcfe6c728c",
     "src/cubedynamics/synchrony/timing.py": "52b5b0cacc812c588b71673dab1333b8b762dbeba2300bfd4f8fef1942e56013",
     "src/cubedynamics/temporal.py": "6ed1a95238bff0c7b2a8edfc235ef46c57e4bc0c499f1084dfbd1eae3cb43376",
     "src/cubedynamics/tests/__init__.py": "de7357ae8bf46b85a389f500ca549335f423aab5f59122a653a4bf88574901bb",
@@ -625,12 +625,12 @@
     "src/cubedynamics/verbs/models.py": "1b7308169df32ba6357019a15dab46b6d2dc636b8ad0e08a4ba92e0dbe1644f9",
     "src/cubedynamics/verbs/plot.py": "70941f809f6d675d41a953fbc46968b2cda9d99ad48bad08f8cc7ef3aa2c361b",
     "src/cubedynamics/verbs/plot_mean.py": "551bed3b922028207d6bfad6f5f31cef6036222c3469dbae029724f1cd6ee50e",
-    "src/cubedynamics/verbs/states.py": "47b06f52f096147a8bc21eaf641872ee35270994c0dff38a1a20d5c17993f40a",
+    "src/cubedynamics/verbs/states.py": "761d4e51caf2e9c28e5a3bbb3a407e1118d30573cfe10bef0402c1b1e20b96c9",
     "src/cubedynamics/verbs/stats.py": "ac3810f376f75f1eb39ead02835c7d533f181dad01ec125aa83dc2a438eb89f1",
     "src/cubedynamics/verbs/synchrony.py": "1f12f497a80ae487d0ffa78eac78d79beca7373a839811cdc202baa84bcd2da4",
     "src/cubedynamics/verbs/tubes.py": "148c26bf82aa8a8e71f65586bae2f417f83314cef0cb3c07f0ac9436f6282fa4",
     "src/cubedynamics/verbs/vase.py": "b9b7a1580b6774dec533daa7438f4dc54ecf8707f4f265f7809b4bba6d2d11cf",
-    "src/cubedynamics/version.py": "5aff1387d57ebdb1b6b9713a8d9567f37c2f8e767e9a01be65a30cbb967b8296",
+    "src/cubedynamics/version.py": "97357ffef9886ad3b32cd4a29eb12921995ad0110ea9e8a53ce4cccbe9d4fe2a",
     "src/cubedynamics/viewers/__init__.py": "5a53d090c36d3c8b4303204da667226b996c3bc23bbb2342732e7486d68deadd",
     "src/cubedynamics/viewers/cube_viewer.py": "8505d96f14e8c0fc196776d0cce9d8859179404ff10e2e805074c118526f1306",
     "src/cubedynamics/viewers/simple_plot.py": "7dc6c90d34cba1b600c31f4c122ac85da2f46844d6b016b881aa1b93426e1ab9",

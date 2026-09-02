@@ -1,14 +1,18 @@
 name: Prepare or publish a release
 
-# Tags run verification only. Public writes require a separately authorized,
-# explicit workflow dispatch, selecting the matching existing v* tag.
+# Tag pushes verify only. Public writes require a separate dispatch that names
+# an existing tag and explicitly chooses GitHub or PyPI.
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
     inputs:
+      release_tag:
+        description: "Existing v* tag to verify or publish"
+        required: true
+        type: string
       destination:
-        description: "Explicitly authorized publication destination (verify performs no public writes)"
+        description: "Explicit destination (verify performs no public writes)"
         required: true
         default: verify
         type: choice
@@ -21,8 +25,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      release_tag: ${{ steps.release.outputs.release_tag }}
+      release_version: ${{ steps.release.outputs.release_version }}
+      wheel_filename: ${{ steps.release.outputs.wheel_filename }}
+      sdist_filename: ${{ steps.release.outputs.sdist_filename }}
+      candidate_manifest: ${{ steps.release.outputs.candidate_manifest }}
+      output_dir: ${{ steps.release.outputs.output_dir }}
+      artifact_name: ${{ steps.release.outputs.artifact_name }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
+      commit_sha: ${{ steps.release.outputs.commit_sha }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.release_tag || github.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -31,25 +48,57 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -e ".[dev,browser]"
           python -m playwright install --with-deps chromium
-      - name: Full non-publishing gate on this exact commit
-        run: python scripts/run_release_gate.py --output artifacts/release-0.1.0rc1
+      - name: Derive and verify release identity
+        id: release
+        env:
+          DISPATCH_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            RELEASE_REF="refs/tags/$DISPATCH_TAG"
+          else
+            RELEASE_REF="$GITHUB_REF"
+          fi
+          python scripts/release_metadata.py \
+            --ref "$RELEASE_REF" \
+            --commit "$(git rev-parse HEAD)" \
+            --require-tag \
+            --github-output "$GITHUB_OUTPUT"
+          python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
+      - name: Full non-publishing gate on this exact tagged commit
+        env:
+          RELEASE_REF: refs/tags/${{ steps.release.outputs.release_tag }}
+        run: python scripts/run_release_gate.py --ref "$RELEASE_REF" --output "${{ steps.release.outputs.output_dir }}"
+      - name: Assemble and verify the exact tested bundle
+        env:
+          RELEASE_REF: refs/tags/${{ steps.release.outputs.release_tag }}
+          WHEEL: ${{ steps.release.outputs.wheel_filename }}
+          SDIST: ${{ steps.release.outputs.sdist_filename }}
+          MANIFEST: ${{ steps.release.outputs.candidate_manifest }}
+        run: |
+          mkdir release-bundle
+          cp "dist/$WHEEL" "release-bundle/$WHEEL"
+          cp "dist/$SDIST" "release-bundle/$SDIST"
+          cp dist/SHA256SUMS release-bundle/SHA256SUMS
+          cp "$MANIFEST" "release-bundle/$(basename "$MANIFEST")"
+          python scripts/verify_release_bundle.py \
+            --directory release-bundle \
+            --ref "$RELEASE_REF" \
+            --commit "$(git rev-parse HEAD)" \
+            --require-tag
       - name: Preserve exact tested artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: python-package-distributions
+          name: ${{ steps.release.outputs.artifact_name }}
           if-no-files-found: error
-          path: |
-            dist/cubedynamics-0.1.0rc1-py3-none-any.whl
-            dist/cubedynamics-0.1.0rc1.tar.gz
-            dist/SHA256SUMS
+          path: release-bundle/
       - name: Preserve evidence even on failure
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: release-gate-evidence
+          name: release-gate-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
-            artifacts/release-0.1.0rc1/
-            manifests/releases/v0.1.0rc1-candidate.json
+            artifacts/release-*/
+            manifests/releases/v*-candidate.json
 
   compatibility:
     needs: build
@@ -61,58 +110,98 @@ jobs:
         python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.build.outputs.commit_sha }}
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
-          path: dist/
-      - name: Check exact artifact hashes
-        working-directory: dist
-        run: sha256sum -c SHA256SUMS
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: release-bundle/
+      - name: Verify exact same-run release bundle
+        env:
+          RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
+        run: |
+          python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
+          python scripts/verify_release_bundle.py \
+            --directory release-bundle \
+            --ref "$RELEASE_REF" \
+            --commit "${{ needs.build.outputs.commit_sha }}" \
+            --require-tag
       - name: Offline contracts for this Python
         run: |
           python -m pip install -e ".[dev]"
           python -m pytest -m "not integration and not online" --maxfail=1 --disable-warnings -q
       - name: Verify exact wheel in a new external environment
+        env:
+          WHEEL: ${{ needs.build.outputs.wheel_filename }}
+          SDIST: ${{ needs.build.outputs.sdist_filename }}
+          MANIFEST: ${{ needs.build.outputs.candidate_manifest }}
         run: |
           python -m venv "$RUNNER_TEMP/cubedynamics-release"
           "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install --upgrade pip
-          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install dist/cubedynamics-0.1.0rc1-py3-none-any.whl
+          "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install "release-bundle/$WHEEL"
           "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip check
-          "$RUNNER_TEMP/cubedynamics-release/bin/python" -I scripts/check_release_artifact.py --wheel dist/cubedynamics-0.1.0rc1-py3-none-any.whl --sdist dist/cubedynamics-0.1.0rc1.tar.gz --repo-example --output artifacts/release/installed.json
+          "$RUNNER_TEMP/cubedynamics-release/bin/python" -I scripts/check_release_artifact.py \
+            --wheel "release-bundle/$WHEEL" \
+            --sdist "release-bundle/$SDIST" \
+            --repo-example \
+            --output artifacts/release/installed.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: installed-wheel-${{ matrix.python-version }}
+          name: installed-wheel-${{ needs.build.outputs.release_version }}-${{ matrix.python-version }}-${{ needs.build.outputs.commit_sha }}
           path: artifacts/release/
 
   github-release:
     needs: [build, compatibility]
     if: github.event_name == 'workflow_dispatch' && inputs.destination == 'github'
     runs-on: ubuntu-latest
-    # Job-scoped asset-upload capability; no repository settings are changed.
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.build.outputs.commit_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
-          path: dist/
-      - name: Refuse a branch or mismatched tag
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: release-bundle/
+      - name: Refuse a branch, mismatched tag, or unverified bytes
+        env:
+          RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
         run: |
-          test "$GITHUB_REF" = "refs/tags/v0.1.0rc1"
-          python scripts/check_release_source.py
-      - name: Verify before uploading
-        working-directory: dist
-        run: sha256sum -c SHA256SUMS
-      - name: Create the explicitly authorized prerelease with tested assets
+          python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
+          python scripts/verify_release_bundle.py \
+            --directory release-bundle \
+            --ref "$RELEASE_REF" \
+            --commit "${{ needs.build.outputs.commit_sha }}" \
+            --require-tag
+      - name: Create the explicitly authorized release with tested assets
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.build.outputs.release_tag }}
+          RELEASE_VERSION: ${{ needs.build.outputs.release_version }}
+          PRERELEASE: ${{ needs.build.outputs.prerelease }}
+          WHEEL: ${{ needs.build.outputs.wheel_filename }}
+          SDIST: ${{ needs.build.outputs.sdist_filename }}
         run: |
-          gh release create v0.1.0rc1 --verify-tag --prerelease --title "CubeDynamics 0.1.0rc1" --notes "First release candidate for outside-user acceptance testing. Install the attached wheel; verify SHA256SUMS. Support and limitations: https://cu-esiil.github.io/cubedynamics/project/release_0_1_0/" dist/cubedynamics-0.1.0rc1-py3-none-any.whl dist/cubedynamics-0.1.0rc1.tar.gz dist/SHA256SUMS
+          args=(release create "$RELEASE_TAG" --verify-tag --title "CubeDynamics $RELEASE_VERSION")
+          if [[ "$PRERELEASE" == "true" ]]; then
+            args+=(--prerelease)
+          fi
+          args+=(--notes "Tested CubeDynamics release artifacts. Verify SHA256SUMS before installation. Support: https://cu-esiil.github.io/cubedynamics/project/release_0_1_0/")
+          gh "${args[@]}" \
+            "release-bundle/$WHEEL" \
+            "release-bundle/$SDIST" \
+            release-bundle/SHA256SUMS \
+            "release-bundle/$(basename "$MANIFEST")"
 
   publish:
     needs: [build, compatibility]
@@ -125,21 +214,35 @@ jobs:
       name: pypi
     steps:
       - uses: actions/checkout@v4
-      - name: Refuse a branch or mismatched tag
-        run: |
-          test "$GITHUB_REF" = "refs/tags/v0.1.0rc1"
-          python scripts/check_release_source.py
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.build.outputs.commit_sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - uses: actions/download-artifact@v4
         with:
-          name: python-package-distributions
-          path: dist/
-      - name: Verify exact tested hashes and isolate distributions
+          name: ${{ needs.build.outputs.artifact_name }}
+          path: release-bundle/
+      - name: Refuse a branch, mismatched tag, or unverified bytes
+        env:
+          RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
         run: |
-          cd dist
-          sha256sum -c SHA256SUMS
+          python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
+          python scripts/verify_release_bundle.py \
+            --directory release-bundle \
+            --ref "$RELEASE_REF" \
+            --commit "${{ needs.build.outputs.commit_sha }}" \
+            --require-tag
+      - name: Isolate only the verified distributions
+        env:
+          WHEEL: ${{ needs.build.outputs.wheel_filename }}
+          SDIST: ${{ needs.build.outputs.sdist_filename }}
+        run: |
           mkdir upload
-          cp cubedynamics-0.1.0rc1-py3-none-any.whl cubedynamics-0.1.0rc1.tar.gz upload/
+          cp "release-bundle/$WHEEL" "upload/$WHEEL"
+          cp "release-bundle/$SDIST" "upload/$SDIST"
       - name: Publish distributions to PyPI after separate authorization
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          packages-dir: dist/upload/
+          packages-dir: upload/

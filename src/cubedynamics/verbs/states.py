@@ -54,6 +54,10 @@ def quantile_state(
 
     Grammar contract
     Raw cube -> Dataset with ``state``, ``magnitude``, and ``threshold``.
+
+    Laziness and chunking
+    Exact pooled quantiles stay lazy. Dask-backed inputs may be rechunked to one
+    chunk along the reduction dimension while retaining their spatial chunks.
     """
 
     def _op(obj):

@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 from email.parser import BytesParser
 import hashlib
+import importlib.util
 import importlib.metadata as metadata
 import json
 from pathlib import Path, PurePosixPath
@@ -18,6 +19,23 @@ import sys
 import tarfile
 import warnings
 import zipfile
+
+
+def _load_project_version():
+    """Load the sibling helper even when Python ``-I`` removes script paths."""
+
+    helper = Path(__file__).resolve().with_name("release_metadata.py")
+    spec = importlib.util.spec_from_file_location("_cubedynamics_release_metadata", helper)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Could not load release metadata helper: {helper}")
+    module = importlib.util.module_from_spec(spec)
+    # dataclasses resolves the defining module through sys.modules.
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module.project_version
+
+
+project_version = _load_project_version()
 
 ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = {
@@ -53,7 +71,8 @@ def check_members(names):
         require(not name.endswith((".ipynb", ".nc", ".tif", ".pdf", ".pyc")), f"Unexpected package data: {name}")
 
 
-def inspect_distributions(wheel, sdist=None):
+def inspect_distributions(wheel, sdist=None, *, expected_version=None):
+    expected_version = expected_version or project_version(ROOT)
     with zipfile.ZipFile(wheel) as archive:
         names = {n for n in archive.namelist() if not n.endswith("/")}
         check_members(names)
@@ -61,7 +80,10 @@ def inspect_distributions(wheel, sdist=None):
         meta_names = [n for n in names if n.endswith(".dist-info/METADATA")]
         require(len(meta_names) == 1, "Expected one wheel METADATA record")
         info = BytesParser().parsebytes(archive.read(meta_names[0]))
-        require(info["Name"] == "cubedynamics" and info["Version"] == "0.1.0rc1", "Unexpected release name/version")
+        require(
+            info["Name"] == "cubedynamics" and info["Version"] == expected_version,
+            f"Unexpected release name/version; expected cubedynamics=={expected_version}",
+        )
         package_files = {n: hashlib.sha256(archive.read(n)).hexdigest() for n in names
                          if n.startswith(("cubedynamics/", "climate_cube_math/"))}
     result = {"wheel": artifact_info(wheel), "version": info["Version"], "wheel_members": sorted(names),
@@ -106,11 +128,12 @@ def archive_sha256(info):
     return value.lower()
 
 
-def check_installed_wheel(wheel, repo=ROOT):
+def check_installed_wheel(wheel, repo=ROOT, *, expected_version=None):
     """Reject editable/wrong artifacts and verify loaded code plus package data."""
     import cubedynamics
     import cubedynamics.verbs
     repo = Path(repo).resolve()
+    expected_version = expected_version or project_version(repo)
     wheel = Path(wheel).resolve()
     dist = metadata.distribution("cubedynamics")
     installed = Path(dist.locate_file("")).resolve()
@@ -135,7 +158,10 @@ def check_installed_wheel(wheel, repo=ROOT):
                 path = Path(location).resolve()
                 require(path.is_relative_to(installed) and not path.is_relative_to(repo), f"Source checkout leaked into kernel: {path}")
                 require(path.relative_to(installed).as_posix() in files, f"Unpackaged module loaded: {name}")
-    require(cubedynamics.__version__ == dist.version == "0.1.0rc1", "Runtime/installed metadata version mismatch")
+    require(
+        cubedynamics.__version__ == dist.version == expected_version,
+        "Runtime/installed metadata version mismatch",
+    )
     runtime = cubedynamics.version_info()
     require(runtime.version == dist.version, "Runtime provenance version differs from distribution")
     require(runtime.artifact_kind == "published or built distribution", "Wheel runtime was misclassified as development source")
@@ -160,7 +186,7 @@ def verify_mean_semantics(cube, actual):
     require(actual.attrs.get("units") == cube.attrs.get("units"), "Reducer lost physical units")
 
 
-def smoke():
+def smoke(*, expected_version=None):
     import numpy as np
     import xarray as xr
     from cubedynamics import Pipe, data, pipe, verbs as v
@@ -180,7 +206,12 @@ def smoke():
     with warnings.catch_warnings(record=True) as notices:
         warnings.simplefilter("always")
         import climate_cube_math as legacy
-    require(legacy.pipe is pipe and legacy.__version__ == "0.1.0rc1", "Compatibility import differs")
+    installed_version = metadata.version("cubedynamics")
+    expected_version = expected_version or installed_version
+    require(
+        legacy.pipe is pipe and legacy.__version__ == installed_version == expected_version,
+        "Compatibility import differs",
+    )
     require(any(issubclass(n.category, DeprecationWarning) for n in notices), "Compatibility warning missing")
     catalog = data.list_sources()
     require(len(catalog) == 8, "Catalog noun count changed")
@@ -238,13 +269,18 @@ def main():
     parser.add_argument("--repo", type=Path, default=ROOT)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    result = inspect_distributions(args.wheel, args.sdist)
+    expected_version = project_version(args.repo)
+    result = inspect_distributions(
+        args.wheel, args.sdist, expected_version=expected_version
+    )
     if not args.inspect_only:
-        result["installation"] = check_installed_wheel(args.wheel, args.repo)
-        result["package_only"] = smoke()
+        result["installation"] = check_installed_wheel(
+            args.wheel, args.repo, expected_version=expected_version
+        )
+        result["package_only"] = smoke(expected_version=expected_version)
         if args.repo_example:
             result["readme_example"] = readme_example(args.repo.resolve(), args.output.parent)
-        check_installed_wheel(args.wheel, args.repo)
+        check_installed_wheel(args.wheel, args.repo, expected_version=expected_version)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     print(f"PASS release artifact: {args.output}")

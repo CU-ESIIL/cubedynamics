@@ -3,9 +3,9 @@
 ## Which CubeDynamics code is this kernel actually running?
 
 A package version identifies a release line. It does not prove which files an
-already-running notebook imported. During release hardening, `main` can retain
-the same semantic version as the latest public candidate while containing later
-commits.
+already-running notebook imported. During release hardening, a checkout may
+declare a newer, unpublished candidate or may contain later commits within the
+same release line.
 
 ```python
 import cubedynamics as cd
@@ -36,5 +36,5 @@ that option can replace unrelated dependency versions. Prefer the dedicated,
 commit-pinned kernel in [Installation](install.md#testing-current-main-in-a-notebook).
 
 Every maintained vignette begins by printing `cd.version_info()`. That makes a
-rendered lesson auditable without confusing `0.1.0rc1` from PyPI with post-RC
-source that intentionally retains the same version string.
+rendered lesson auditable and distinguishes the public `0.1.0rc1` wheel from an
+installed candidate, a VCS installation, or a development checkout.
