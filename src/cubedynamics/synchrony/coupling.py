@@ -74,11 +74,35 @@ def sync_with(
             "temporal_alignment_left_source": temporal_report.left_source or "not declared",
             "temporal_alignment_right_source": temporal_report.right_source or "not declared",
             "lag_semantics": (
-                "coordinate-label period shift of the right condition; observation "
-                "support is neither shifted nor harmonized"
+                "coordinate-label period shift: at lag +k, compare left(t) with right(t+k); "
+                "observation support is neither shifted nor harmonized"
             ),
+            "positive_lag_meaning": "the right-hand condition occurs later than the left-hand condition",
+            "negative_lag_meaning": "the right-hand condition occurs earlier than the left-hand condition",
             "event_time_alignment": "not_applicable_condition_labels",
         },
+    )
+    ds["lag"].attrs.update(
+        {
+            "long_name": "Right-hand condition lag relative to left-hand condition",
+            "positive_direction": "right occurs later",
+            "negative_direction": "right occurs earlier",
+        }
+    )
+    ds["coupling_score"].attrs.update(
+        {"units": "1", "long_name": "Jaccard occurrence coupling", "valid_range": "0 to 1"}
+    )
+    ds["joint_event_count"].attrs.update(
+        {"units": "count", "long_name": "Joint active observation count"}
+    )
+    ds["valid_sample_count"].attrs.update(
+        {"units": "count", "long_name": "Valid paired observation count"}
+    )
+    ds["best_lag"].attrs.update(
+        {
+            "long_name": "Lag with maximum occurrence coupling",
+            "positive_direction": "right occurs later",
+        }
     )
     return ds
 

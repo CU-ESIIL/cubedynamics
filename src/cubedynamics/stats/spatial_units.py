@@ -233,9 +233,13 @@ def compare_aoi_signatures(
     mean_differences = []
     rmses = []
     counts = []
+    left_units = []
+    right_units = []
     for name in selected:
         left_var = left_ds[name]
         right_var = right_ds[name]
+        left_units.append(str(left_var.attrs.get("units") or left_var.attrs.get("semantic_units") or "unknown"))
+        right_units.append(str(right_var.attrs.get("units") or right_var.attrs.get("semantic_units") or "unknown"))
         mask = np.isfinite(left_var) & np.isfinite(right_var)
         diff = left_var - right_var
         correlations.append(_pearson_corr(left_var, right_var, resolved_time))
@@ -261,6 +265,38 @@ def compare_aoi_signatures(
             "join": join,
         },
     )
+    result = result.assign_coords(
+        {
+            "left_units": ("variable", left_units),
+            "right_units": ("variable", right_units),
+        }
+    )
+    compatible_units = [
+        left if left == right and left != "unknown" else "incompatible_or_unknown"
+        for left, right in zip(left_units, right_units)
+    ]
+    result = result.assign_coords(source_units=("variable", compatible_units))
+    shared = set(compatible_units)
+    physical_units = next(iter(shared)) if len(shared) == 1 else "varies_by_variable"
+    result["pearson_r"].attrs = {
+        "units": "1",
+        "long_name": "Pearson correlation coefficient",
+        "valid_range": "-1 to 1",
+    }
+    result["mean_difference"].attrs = {
+        "units": physical_units,
+        "long_name": "Mean left-minus-right difference",
+        "units_coordinate": "source_units",
+    }
+    result["rmse"].attrs = {
+        "units": physical_units,
+        "long_name": "Root mean square difference",
+        "units_coordinate": "source_units",
+    }
+    result["n"].attrs = {
+        "units": "count",
+        "long_name": "Paired finite observation count",
+    }
     return result
 
 

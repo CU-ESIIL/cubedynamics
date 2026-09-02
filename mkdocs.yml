@@ -26,6 +26,7 @@ nav:
       - Learning path and setup: learn/index.md
       - Quickstart: quickstart.md
       - Installation: getting_started/install.md
+      - Runtime identity: getting_started/runtime_identity.md
       - 1. Nouns: learn/nouns.md
       - 2. Verbs: learn/verbs.md
       - 3. Pipes: learn/pipes.md
@@ -70,6 +71,8 @@ nav:
           - Scientific inspectability: concepts/scientific_inspectability.md
           - Semantic grammar: concepts/semantic_grammar.md
           - Temporal alignment: concepts/temporal_alignment.md
+          - Local events and regional episodes: concepts/events_and_episodes.md
+          - Long-record analysis: concepts/long_record_analysis.md
           - Lazy evaluation: grammar/lazy_evaluation.md
           - Workflow composition: grammar/workflow_composition.md
           - Glossary: concepts/glossary.md
@@ -129,6 +132,8 @@ nav:
               - Project scope: project/scope.md
               - Fire / VASE status audit: developer/fire_vase_status.md
               - Synchrony roadmap: project/synchrony_roadmap.md
+              - Long-record findings triage: project/long_record_validation_triage.md
+              - Event life-history design: project/event_life_history_design.md
               - Validation:
                   - Overview: validation/index.md
                   - Real data: validation/data.md

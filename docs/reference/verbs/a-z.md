@@ -18,10 +18,12 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [collect_blocks](collect_blocks.md) | Grammar verb / pipe stage | implemented | collect compatible block signatures |
 | [compare_aoi_signature](compare_aoi_signature.md) | Grammar verb / pipe stage | compatibility | Compare one AOI signature with another over shared time. |
 | [compare_blocks](compare_blocks.md) | Grammar verb / pipe stage | implemented | compare collected spatial-block signatures |
+| [consolidate_events](consolidate_events.md) | Grammar verb / pipe stage | implemented | consolidate local-cell event instances into regional space-time episodes |
 | [correlation_cube](correlation_cube.md) | Reserved / planned API | placeholder | Factory placeholder for a future correlation cube operation. |
 | [detect_events](detect_events.md) | Grammar verb / pipe stage | implemented | group consecutive true periods into events |
 | [diagnostic_panel](diagnostic_panel.md) | Grammar verb / pipe stage | implemented | render a diagnostic panel |
 | [duration_synchrony](duration_synchrony.md) | Grammar verb / pipe stage | implemented | compare the duration of detected events |
+| [event_metrics](event_metrics.md) | Grammar verb / pipe stage | implemented | summarize events or episodes by an explicit calendar period |
 | [exceedance](exceedance.md) | Grammar verb / pipe stage | compatibility | Alias for :func:threshold_state. |
 | [extract](extract.md) | Grammar verb / pipe stage | implemented | attach fire-hull climate summaries to a cube |
 | [fire_derivative](fire_derivative.md) | Visualization helper (direct call) | implemented | derive a configured fire-event product |

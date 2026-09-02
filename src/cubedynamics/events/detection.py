@@ -40,6 +40,7 @@ def detect_events(
     active = np.asarray(ordered_state.values).astype(bool)
     mag = np.asarray(ordered_mag.values, dtype=float)
     times = np.asarray(ordered_state[time_dim].values)
+    expected_step = _expected_time_step(times)
     shape = active.shape
 
     event_active = np.zeros(shape, dtype=bool)
@@ -58,7 +59,12 @@ def detect_events(
     next_event_id = 1
     for y_idx in range(shape[1]):
         for x_idx in range(shape[2]):
-            runs = _find_runs(active[:, y_idx, x_idx], max_gap=max_gap)
+            runs = _find_runs(
+                active[:, y_idx, x_idx],
+                max_gap=max_gap,
+                times=times,
+                expected_step=expected_step,
+            )
             previous_end_idx: int | None = None
             kept_index = 0
             for start_idx, end_idx in runs:
@@ -143,7 +149,11 @@ def detect_events(
             "magnitude_var": magnitude_var,
             "min_duration": min_duration,
             "max_gap": max_gap,
+            "event_coordinate_cadence": str(expected_step) if expected_step is not None else "not inferred",
             "event_count": len(records),
+            "event_scope": "local_cell",
+            "event_row_meaning": "one contiguous event instance at one spatial grid cell",
+            "event_spatial_identity_fields": "y_index,x_index",
             "event_time_basis": "observation_coordinate_labels",
             "event_time_fields": "start,end",
             "event_time_support_note": (
@@ -153,10 +163,21 @@ def detect_events(
         }
     )
     catalog = pd.DataFrame.from_records(records)
-    return EventResult(dataset=ds, catalog=catalog)
+    return EventResult(
+        dataset=ds,
+        catalog=catalog,
+        event_scope="local_cell",
+        spatial_identity_fields=("y_index", "x_index"),
+    )
 
 
-def _find_runs(active: np.ndarray, *, max_gap: int) -> list[tuple[int, int]]:
+def _find_runs(
+    active: np.ndarray,
+    *,
+    max_gap: int,
+    times: np.ndarray | None = None,
+    expected_step: np.timedelta64 | None = None,
+) -> list[tuple[int, int]]:
     true_idx = np.flatnonzero(active)
     if true_idx.size == 0:
         return []
@@ -165,7 +186,12 @@ def _find_runs(active: np.ndarray, *, max_gap: int) -> list[tuple[int, int]]:
     prev = int(true_idx[0])
     for idx in true_idx[1:]:
         idx = int(idx)
-        if idx - prev - 1 <= max_gap:
+        index_gap_ok = idx - prev - 1 <= max_gap
+        coordinate_gap_ok = True
+        if times is not None and expected_step is not None:
+            allowed = expected_step * (idx - prev)
+            coordinate_gap_ok = times[idx] - times[prev] <= allowed
+        if index_gap_ok and coordinate_gap_ok:
             prev = idx
             continue
         runs.append((start, prev))
@@ -173,6 +199,18 @@ def _find_runs(active: np.ndarray, *, max_gap: int) -> list[tuple[int, int]]:
         prev = idx
     runs.append((start, prev))
     return runs
+
+
+def _expected_time_step(times: np.ndarray) -> np.timedelta64 | None:
+    if times.size < 2 or getattr(times.dtype, "kind", None) != "M":
+        return None
+    diffs = np.diff(times.astype("datetime64[ns]"))
+    positive = diffs[diffs > np.timedelta64(0, "ns")]
+    if not positive.size:
+        return None
+    # The median retains the ordinary cadence while seasonal/dropout gaps are
+    # treated as discontinuities rather than silently bridged events.
+    return np.median(positive).astype("timedelta64[ns]")
 
 
 def _coord_value(ds: xr.Dataset, dim: str, idx: int) -> object:

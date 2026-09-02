@@ -26,6 +26,7 @@ def timing_synchrony(
     """Measure whether matched events begin, peak, or end at similar times."""
 
     result = _as_event_result(events)
+    _require_local_scope(result, "timing_synchrony")
     pairs = build_spatial_pairs(
         result.dataset,
         mode="reference" if spatial_mode == "center" else spatial_mode,
@@ -66,6 +67,8 @@ def timing_synchrony(
             "score": score,
             "timescale": str(timescale),
             "spatial_mode": spatial_mode,
+            "event_scope": result.event_scope,
+            "event_row_meaning": result.row_meaning,
         }
     )
     return out
@@ -86,6 +89,7 @@ def duration_synchrony(
     """Compare how long matched events persist."""
 
     result = _as_event_result(events)
+    _require_local_scope(result, "duration_synchrony")
     if match_on not in {"overlap", "start", "end"}:
         raise ValueError("match_on must be 'overlap', 'start', or 'end'")
     anchor = "start" if match_on == "overlap" else match_on
@@ -128,6 +132,8 @@ def duration_synchrony(
             "method": method,
             "spatial_mode": spatial_mode,
             "min_matched_events": min_matched_events,
+            "event_scope": result.event_scope,
+            "event_row_meaning": result.row_meaning,
         }
     )
     return out
@@ -241,6 +247,15 @@ def _as_event_result(events: EventResult | xr.Dataset) -> EventResult:
     if isinstance(events, EventResult):
         return events
     raise TypeError("timing_synchrony and duration_synchrony require EventResult from detect_events")
+
+
+def _require_local_scope(events: EventResult, caller: str) -> None:
+    if events.event_scope != "local_cell":
+        raise ValueError(
+            f"{caller} compares spatially identified local-cell events; received "
+            f"event_scope={events.event_scope!r}. Regional episode relationships "
+            "require an explicit episode-level comparison design."
+        )
 
 
 def _event_window_end(events: EventResult) -> object:

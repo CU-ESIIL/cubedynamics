@@ -50,6 +50,26 @@ def test_partial_tail_spearman_noise_symmetry() -> None:
     assert np.isfinite(right)
 
 
+def test_partial_tail_spearman_independent_signals_stay_in_declared_range() -> None:
+    rng = np.random.default_rng(12)
+    x = rng.normal(size=500)
+    y = rng.normal(size=500)
+    bottom, top, difference = partial_tail_spearman(x, y, b=0.4, min_t=20)
+    assert -1 <= bottom <= 1
+    assert -1 <= top <= 1
+    assert -2 <= difference <= 2
+
+
+def test_partial_tail_spearman_perfect_and_opposed_signals() -> None:
+    x = np.arange(100, dtype=float)
+    aligned = partial_tail_spearman(x, x, b=0.5, min_t=10)
+    opposed = partial_tail_spearman(x, -x, b=0.5, min_t=10)
+    assert aligned[:2] == (1.0, 1.0)
+    # Opposed series do not jointly occupy matching tails, so the metric is
+    # undefined rather than a probability or a forced negative coefficient.
+    assert all(np.isnan(value) for value in opposed)
+
+
 def test_rolling_tail_dep_vs_center_returns_separate_climate_tail_cubes() -> None:
     time = np.datetime64("2024-01-01") + np.arange(12).astype("timedelta64[D]")
     y = np.arange(3)
@@ -91,6 +111,8 @@ def test_rolling_tail_dep_vs_center_returns_separate_climate_tail_cubes() -> Non
     assert bottom_tail.attrs["reference_pixel_x"] == 1
     assert bottom_tail.attrs["tail_b"] == 0.5
     assert bottom_tail.attrs["split_method"] == "per_series_quantile"
+    assert bottom_tail.attrs["valid_range"] == "-1 to 1"
+    assert diff_tail.attrs["valid_range"] == "-2 to 2"
 
     np.testing.assert_allclose(
         diff_tail.values,

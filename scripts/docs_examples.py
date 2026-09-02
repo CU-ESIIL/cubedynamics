@@ -25,7 +25,9 @@ EXAMPLES = {
     "quantile_state": 'result = (pipe(cube) | v.quantile_state(quantile=0.2, direction="below")).unwrap()\nresult.state.mean("time").plot()\nplt.show()',
     "binary_state": 'result = (pipe(cube < 0) | v.binary_state()).unwrap()\nresult.state.mean("time").plot()\nplt.show()',
     "change_state": 'result = (pipe(cube) | v.change_state(change="absolute", threshold=5, lag=1)).unwrap()\nresult.state.mean("time").plot()\nplt.show()',
-    "detect_events": 'result = (pipe(cube) | v.threshold_state(threshold=0, direction="below") | v.detect_events(min_duration=2)).unwrap()\n# Count days belonging to detected events, not just all threshold crossings.\nprint(result.catalog.head())\nresult.dataset["event_active"].sum("time").plot(cbar_kwargs={"label": "Days in cold events"})\nplt.show()',
+    "detect_events": 'result = (pipe(cube) | v.threshold_state(threshold=0, direction="below") | v.detect_events(min_duration=2)).unwrap()\n# One row is one local-cell run, not one independent regional cold episode.\nprint(result.explain())\nresult.dataset["event_active"].sum("time").plot(cbar_kwargs={"label": "Days in local cold events"})\nplt.show()',
+    "consolidate_events": 'local = (pipe(cube) | v.threshold_state(threshold=0, direction="below") | v.detect_events(min_duration=2)).unwrap()\nresult = (pipe(local) | v.consolidate_events(spatial_relation="neighbors", max_gap="1D")).unwrap()\nprint(result.explain())\nresult.catalog.plot.scatter(x="start", y="participating_cell_count")\nplt.show()',
+    "event_metrics": 'local = (pipe(cube) | v.threshold_state(threshold=0, direction="below") | v.detect_events(min_duration=2)).unwrap()\nresult = (pipe(local) | v.event_metrics(period="all", metrics=("event_count", "mean_duration", "max_duration"))).unwrap()\nresult[["event_count", "max_duration"]].to_dataframe().plot.bar()\nplt.show()',
     "overlap": 'cold = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()\nunusual = (pipe(cube) | v.quantile_state(quantile=0.2, direction="below")).unwrap()\nresult = (pipe(cold) | v.overlap(unusual) | v.mean(dim="time", keep_dim=False)).unwrap()\n# overlap returns a state Dataset; mean turns state into a proportion summary.\nresult["state"].plot(cbar_kwargs={"label": "Fraction of observed days"})\nplt.show()',
     "align_time": 'other = cube.copy(deep=False)\nresult = (pipe(cube) | v.align_time(other, mode="labels")).unwrap()\n# Labels and values are unchanged; inspect the recorded decision.\nprint(result.attrs["temporal_alignment_support"])\nresult.isel(time=0).plot()\nplt.show()',
     "align_cube": 'target = cube.isel(y=slice(0, None, 2), x=slice(0, None, 2))\nresult = (pipe(cube) | v.align_cube(like=target)).unwrap()\nresult.isel(time=0).plot()\nplt.show()',
@@ -33,7 +35,7 @@ EXAMPLES = {
     "aoi_signature": 'result = (pipe(cube) | v.aoi_signature(unit_id="boulder")).unwrap()\nresult["tmax"].squeeze().plot()\nplt.show()',
     "collect_blocks": 'west = (pipe(cube.isel(x=slice(0, 12))) | v.block_signature(block_id="west")).unwrap()\neast = (pipe(cube.isel(x=slice(12, None))) | v.block_signature(block_id="east")).unwrap()\nresult = (pipe(west) | v.collect_blocks(east)).unwrap()\nresult["tmax"].plot.line(x="time", hue="block")\nplt.show()',
     "compare_blocks": 'west = (pipe(cube.isel(x=slice(0, 12))) | v.block_signature(block_id="west")).unwrap()\neast = (pipe(cube.isel(x=slice(12, None))) | v.block_signature(block_id="east")).unwrap()\nblocks = (pipe(west) | v.collect_blocks(east)).unwrap()\nresult = (pipe(blocks) | v.compare_blocks()).unwrap()\nprint(result)\nblocks["tmax"].plot.line(x="time", hue="block")\nplt.show()',
-    "rolling_tail_dep_vs_center": 'result = (pipe(cube) | v.rolling_tail_dep_vs_center(window=7)).unwrap()\nresult.isel(time=-1).plot()\nplt.show()',
+    "rolling_tail_dep_vs_center": 'result = (pipe(cube) | v.rolling_tail_dep_vs_center(window=7)).unwrap()\n# Signed upper-tail variance minus full-window variance; negative values are valid.\nresult.isel(time=-1).plot(cbar_kwargs={"label": result.attrs.get("units", "variance contrast")})\nplt.show()',
     "rolling_median_split_synchrony": 'result = (pipe(cube) | v.rolling_median_split_synchrony(window_days=14, min_t=3)).unwrap()\nresult["bottom_minus_top"].isel(time_window_end=-1).plot()\nplt.show()',
     "diagnostic_panel": 'figure = v.diagnostic_panel(cube, title="Observed PRISM temperature")\nplt.show()',
     "plot": 'condition = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()\nresult = pipe(condition) | v.plot(variable="state", title="Observed freezing condition")\n# In Jupyter, display the pipe to interact with its attached HTML viewer.\nfrom IPython.display import display\ndisplay(result)',
@@ -63,6 +65,31 @@ for _name in ("landsat8_mpc", "landsat_vis_ndvi", "landsat_ndvi_plot"):
     NOTES[_name] = {"workflow": "examples/landsat8_mpc.md", "example": "Use the [Landsat MPC workflow](../../examples/landsat8_mpc.md) with its optional dependencies and live STAC access. This legacy source helper is not a registered scientific noun.", "accepts": "Location, dates and Landsat-specific options forwarded to the source helper."}
 for _name in ("occurrence_synchrony", "severity_synchrony", "timing_synchrony", "duration_synchrony", "sync_with"):
     NOTES[_name] = {"workflow": "vignettes/states_and_events.ipynb"}
+NOTES["detect_events"] = {
+    "workflow": "concepts/events_and_episodes.md",
+    "returns": "An EventResult with event_scope='local_cell'. One catalog row is one contiguous run at one spatial cell, not one regional episode.",
+    "order": "Define a time-varying condition first. Event detection materializes the condition cube to construct the catalog and respects gaps in the actual time coordinate.",
+}
+NOTES["consolidate_events"] = {
+    "workflow": "concepts/events_and_episodes.md",
+    "accepts": "A local-cell EventResult plus explicit temporal-gap and spatial-connectivity criteria.",
+    "returns": "An EventResult with event_scope='regional_episode', episode summaries, source event IDs, and the complete consolidation rule.",
+    "order": "Detect local events before consolidation. Matching dates alone never merge spatially unrelated rows.",
+}
+NOTES["event_metrics"] = {
+    "workflow": "concepts/events_and_episodes.md",
+    "accepts": "A local-cell or regional-episode EventResult and a bounded metric list.",
+    "returns": "An ordinary xarray Dataset grouped by year, month, or all events, with scope-aware counts and metric-level units.",
+    "order": "Choose event scope before interpreting counts. Local event-days accumulate across cells; regional episode-days do not.",
+}
+NOTES["sync_with"] = {
+    "workflow": "concepts/long_record_analysis.md",
+    "order": "+5D compares left(t) with right(t+5D), so the right-hand condition occurs later. Negative lags mean it occurs earlier. Physical observation support is not shifted.",
+}
+NOTES["rolling_tail_dep_vs_center"] = {
+    "workflow": "concepts/rolling_stats.md",
+    "returns": "A signed upper-tail variance minus full-window variance contrast in squared source units. It is not a probability; negative values are valid and the range is unbounded.",
+}
 NOTES["ndvi_from_s2"] = {"workflow": "recipes/s2_ndvi_zcube.md", "accepts": "A Sentinel-2 cube containing the specified NIR and red bands, not an already-derived NDVI cube.", "example": "The [Sentinel-2 NDVI recipe](../../recipes/s2_ndvi_zcube.md) loads observed bands and applies this transform. Check scaling and cloud limitations in the [source reference](../../library/sources/sentinel2.md)."}
 NOTES["tubes"] = {"workflow": "viz/suitability_tubes.md"}
 NOTES["rasterize_observations"] = {"workflow": "howto/biological_cubes_and_coupling.md"}

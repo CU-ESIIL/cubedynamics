@@ -28,7 +28,7 @@ Consult the input parameters and implementation notes below. This namespace also
 
 ## Returns
 
-The public docstring does not specify a return contract. Do not assume a pipe-ready return; consult the linked implementation.
+A signed upper-tail variance minus full-window variance contrast in squared source units. It is not a probability; negative values are valid and the range is unbounded.
 
 ## Order / grammar behavior
 
@@ -51,7 +51,8 @@ with xr.open_dataset(path, engine="scipy") as observed:
 assert cube.attrs["units"] == "degC"
 
 result = (pipe(cube) | v.rolling_tail_dep_vs_center(window=7)).unwrap()
-result.isel(time=-1).plot()
+# Signed upper-tail variance minus full-window variance; negative values are valid.
+result.isel(time=-1).plot(cbar_kwargs={"label": result.attrs.get("units", "variance contrast")})
 plt.show()
 ```
 
@@ -61,6 +62,7 @@ Use only the input types documented by this callable; not every helper accepts e
 
 ## See also
 
+- [Related workflow](../../concepts/rolling_stats.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
 - [Verbs by purpose](index.md)
@@ -70,4 +72,4 @@ Use only the input types documented by this callable; not every helper accepts e
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L639). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L642). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

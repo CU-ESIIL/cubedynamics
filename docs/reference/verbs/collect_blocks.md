@@ -71,4 +71,4 @@ Use only the input types documented by this callable; not every helper accepts e
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L950). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L995). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

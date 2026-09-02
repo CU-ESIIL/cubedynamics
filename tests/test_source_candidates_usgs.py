@@ -164,7 +164,11 @@ def test_streamflow_notebook_is_generated_offline_and_each_step_plots():
     assert metadata["network"] is False
     assert metadata["minimum_plot_outputs"] == 3
     assert metadata["data_fixture"] == "tests/fixtures/real_data/usgs_streamflow"
-    analysis = [cell for cell in notebook["cells"] if cell["cell_type"] == "code"]
+    analysis = [
+        cell for cell in notebook["cells"]
+        if cell["cell_type"] == "code"
+        and "visual_example" in cell.get("metadata", {})
+    ]
     assert len(analysis) == 3
     for cell in analysis:
         assert cell["metadata"]["visual_example"]["kind"] == "figure"

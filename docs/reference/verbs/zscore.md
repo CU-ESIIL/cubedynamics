@@ -74,4 +74,4 @@ An xarray DataArray or Dataset with the dimensions required by the selected oper
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L570). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L573). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

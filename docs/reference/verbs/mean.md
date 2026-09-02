@@ -80,4 +80,4 @@ summary Dataset containing only its reduced ``state`` proportion. The
 condition definition remains in Dataset metadata; auxiliary magnitude and
 threshold arrays are not averaged implicitly.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L293). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/stats.py#L296). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

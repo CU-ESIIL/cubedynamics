@@ -1,9 +1,9 @@
 {
   "inputs": {
-    "scripts/build_source_vignettes.py": "6920be1770c3ea5e09f3a5f863de179369a8f048e1db2a01552b29a19823cfaa",
+    "scripts/build_source_vignettes.py": "d6bcc71753db46ffc50c94743fa1c00e57fdeb09e65d7742fd1fb6584bb93282",
     "scripts/build_streamflow_vignette.py": "51a3c0143f467a0a8a99fa4638e2cf48ae2c712ed4561c841ff011739095fb46",
     "scripts/source_lesson_content.py": "9bbb0c437c8f498dac01916526c52c355c25226d653d16bae7475a0476c5c7f5",
-    "scripts/vignette_shell.py": "d36e7c404bc1536b226fbb81bdd149b29265a619b5bb2ea6c717cfb41f1630e5",
+    "scripts/vignette_shell.py": "c662c48329f94e5779bfe001046524a4b5d15375f8eebf06ac9fdf28325ac4c6",
     "tests/fixtures/real_data/source_lessons/elevation.nc": "708b1e76b8baeb58f416d44009c517bb6a4b078faae4bb39e0495c72baf16ea8",
     "tests/fixtures/real_data/source_lessons/elevation.provenance.json": "2ee200447b437a474620dc037d6e96e8c3318ce39ea7058201742dc403b15777",
     "tests/fixtures/real_data/source_lessons/roads.provenance.json": "bda382fc1b463a1e5d5cad46f43542834e9862aa0a9de8c438a7f78843a24439",

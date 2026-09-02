@@ -30,6 +30,22 @@ def with_shell(notebook, relative_path):
     else:
         equivalents = {"Question": "Question", "Grammar / pipeline": "Pipe", "Plain-language interpretation": "Analysis story", "Analysis": "Analysis story", "Result": "What the figure tells us"}
     metadata["documentation_sections"] = {**equivalents, "Data used": "Data used", "Reproduce": "Reproduce", "See also": "See also"}
+    identity_code = '''# Record the exact code imported by this notebook kernel.
+import cubedynamics as cd
+
+print(cd.version_info())
+'''
+    notebook["cells"].insert(
+        1,
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "id": hashlib.sha256((relative_path + identity_code).encode()).hexdigest()[:12],
+            "metadata": {"tags": ["runtime-identity"]},
+            "outputs": [],
+            "source": identity_code.splitlines(keepends=True),
+        },
+    )
     text = f'''## Data used
 
 | Field | Frozen analysis input |
@@ -58,6 +74,8 @@ No network is needed after installation. Open the downloaded notebook in
 Jupyter and run all cells to see the same figures. The website executes these
 cells during its strict build. [Environment setup](../learn/index.md#shared-setup)
 and the [vignette contract](../vignettes/structure.md) explain the workflow.
+The first code cell prints `cd.version_info()` so a rendered result can be tied
+to a package path and, for development checkouts, a Git commit.
 
 ## See also
 

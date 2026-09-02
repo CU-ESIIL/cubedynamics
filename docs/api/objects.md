@@ -29,7 +29,27 @@ quantile constructors additionally expose scientifically defined `magnitude`
 and `threshold` variables; logical `overlap` contains only `state` and operand
 metadata. [detect_events](../reference/verbs/detect_events.md) turns a temporal
 condition into an event result with a dataset and catalog. See the
-[state/event analysis](../vignettes/states_and_events.ipynb).
+[state/event analysis](../vignettes/states_and_events.ipynb). Its
+`event_scope` states whether one row is a local-cell instance or consolidated
+regional episode; catalog length is not scientifically interpretable without
+that scope. [consolidate_events](../reference/verbs/consolidate_events.md) and
+[event_metrics](../reference/verbs/event_metrics.md) preserve it.
+
+::: cubedynamics.events.EventResult
+    options:
+      members: [unwrap, explain, event_scope, spatial_identity_fields]
+      show_docstring_examples: false
+
+## Runtime identity
+
+`version_info()` distinguishes an installed artifact from a VCS installation
+or development checkout even when both intentionally retain the same semantic
+version.
+
+::: cubedynamics.runtime.RuntimeInfo
+    options:
+      members: [as_dict, development]
+      show_docstring_examples: false
 
 ## Fire geometry
 

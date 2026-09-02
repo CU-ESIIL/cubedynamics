@@ -285,7 +285,10 @@ def month_filter(months: Iterable[int]):
             month_values = cube["time"].dt.month
         except (AttributeError, TypeError, ValueError) as exc:
             raise ValueError("month_filter: 'time' coordinate must be datetime-like.") from exc
-        return cube.where(month_values.isin(months), drop=True)
+        result = cube.where(month_values.isin(months), drop=True)
+        result.attrs.update(cube.attrs)
+        result.attrs["selected_calendar_months"] = ",".join(str(month) for month in months)
+        return result
 
     return _op
 
@@ -683,6 +686,25 @@ def rolling_tail_dep_vs_center(
         if isinstance(result, xr.DataArray) and obj.name:
             result = result.rename(f"{obj.name}_tail_dep_vs_center")
 
+        source_units = getattr(obj, "attrs", {}).get("semantic_units") or getattr(obj, "attrs", {}).get("units")
+        squared_units = _variance_units(source_units)
+        attrs = dict(getattr(result, "attrs", {}))
+        attrs.update(
+            {
+                "analysis": "rolling_upper_tail_variance_contrast",
+                "metric_definition": "upper-tail variance minus full-window variance",
+                "interpretation": "negative values mean upper-tail variance is smaller than full-window variance",
+                "valid_range": "unbounded real numbers",
+                "window_observations": window,
+                "minimum_observations": min_periods,
+                "tail_quantile": tail_quantile,
+                "output_time_semantics": "input coordinate labels the inclusive rolling-window end",
+            }
+        )
+        if squared_units:
+            attrs.update({"units": squared_units, "semantic_units": squared_units})
+        result.attrs = attrs
+
         return result
 
     return _op
@@ -805,14 +827,18 @@ def rolling_median_split_synchrony(
             {
                 "long_name": "Below-quantile Spearman synchrony vs center",
                 "source_variable": lower_name,
-                "units": "unitless",
+                "units": "1",
+                "description": "Spearman correlation for dates where the pixel and center reference are both in their lower rolling-quantile sets",
+                "valid_range": "-1 to 1",
             }
         )
         top.attrs.update(
             {
                 "long_name": "Above-quantile Spearman synchrony vs center",
                 "source_variable": upper_name,
-                "units": "unitless",
+                "units": "1",
+                "description": "Spearman correlation for dates where the pixel and center reference are both in their upper rolling-quantile sets",
+                "valid_range": "-1 to 1",
             }
         )
         difference.attrs.update(
@@ -821,7 +847,8 @@ def rolling_median_split_synchrony(
                 "bottom_variable": lower_name,
                 "top_variable": upper_name,
                 "valid_range": (-2.0, 2.0),
-                "units": "unitless",
+                "units": "1",
+                "description": "Lower-set synchrony minus upper-set synchrony",
             }
         )
         result = xr.Dataset(
@@ -838,8 +865,26 @@ def rolling_median_split_synchrony(
                 "min_time_points_per_set": min_t,
                 "split_quantile": split_quantile,
                 "reference": "center_pixel",
+                "reference_pixel_y_index": int(bottom.attrs.get("reference_pixel_y", -1)),
+                "reference_pixel_x_index": int(bottom.attrs.get("reference_pixel_x", -1)),
                 "output_stride": output_stride,
+                "split_definition": (
+                    "each pixel and the center reference use their own rolling-window "
+                    f"quantiles; lower uses <= {split_quantile}, upper uses > {1.0 - split_quantile}"
+                ),
+                "window_definition": f"inclusive trailing {window_days}-day coordinate-label window",
+                "output_time_semantics": "time_window_end is the inclusive end label of each evaluated rolling window",
+                "edge_behavior": (
+                    "windows with fewer than min_t total or tail observations are omitted or NaN; "
+                    "output_stride selects evaluated end labels"
+                ),
+                "semantic_name": "rolling median-split synchrony",
+                "semantic_kind": "relationship",
+                "semantic_units": "1",
             }
+        )
+        result["time_window_end"].attrs.update(
+            {"long_name": "Inclusive rolling-window end coordinate label"}
         )
         return result
 

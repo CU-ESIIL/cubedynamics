@@ -26,20 +26,22 @@ v.sync_with(other, *, synchrony='occurrence', spatial_relation='same_pixel', lag
 ## Accepts
 
 State cube + aligned state cube -> coupling Dataset. Positive lags shift
-the right condition by coordinate periods; they do not shift or harmonize
-the physical observation support represented by either source.
+the comparison so ``+5D`` means left at ``t`` is compared with right at
+``t+5D``: the right-hand condition occurs five days later. Negative lags
+mean the right-hand condition occurs earlier. Lags do not shift or
+harmonize the physical observation support represented by either source.
 
 ## Returns
 
 State cube + aligned state cube -> coupling Dataset. Positive lags shift
-the right condition by coordinate periods; they do not shift or harmonize
-the physical observation support represented by either source.
+the comparison so ``+5D`` means left at ``t`` is compared with right at
+``t+5D``: the right-hand condition occurs five days later. Negative lags
+mean the right-hand condition occurs earlier. Lags do not shift or
+harmonize the physical observation support represented by either source.
 
 ## Order / grammar behavior
 
-State cube + aligned state cube -> coupling Dataset. Positive lags shift
-the right condition by coordinate periods; they do not shift or harmonize
-the physical observation support represented by either source.
++5D compares left(t) with right(t+5D), so the right-hand condition occurs later. Negative lags mean it occurs earlier. Physical observation support is not shifted.
 
 ## Minimal example
 
@@ -67,12 +69,14 @@ plt.show()
 ## Works with
 
 State cube + aligned state cube -> coupling Dataset. Positive lags shift
-the right condition by coordinate periods; they do not shift or harmonize
-the physical observation support represented by either source.
+the comparison so ``+5D`` means left at ``t`` is compared with right at
+``t+5D``: the right-hand condition occurs five days later. Negative lags
+mean the right-hand condition occurs earlier. Lags do not shift or
+harmonize the physical observation support represented by either source.
 
 ## See also
 
-- [Related workflow](../../vignettes/states_and_events.ipynb)
+- [Related workflow](../../concepts/long_record_analysis.md)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
 - [Verbs by purpose](index.md)

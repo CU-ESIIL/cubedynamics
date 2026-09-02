@@ -11,7 +11,7 @@ from cubedynamics.grammar import get_verb_spec
 
 CATEGORIES = {
     "Transform": "anomaly zscore mean variance apply flatten_space flatten_cube month_filter ndvi_from_s2".split(),
-    "State and events": "threshold_state quantile_state binary_state change_state detect_events".split(),
+    "State and events": "threshold_state quantile_state binary_state change_state detect_events consolidate_events event_metrics".split(),
     "Synchrony and comparison": "occurrence_synchrony timing_synchrony duration_synchrony severity_synchrony sync_with overlap compare_blocks rolling_median_split_synchrony rolling_tail_dep_vs_center".split(),
     "Spatial and alignment": "align_time align_cube rasterize_observations block_signature collect_blocks extract vase_extract vase_mask".split(),
     "Visualization": "plot plot_mean vase tubes fire_plot fire_panel fire_vase_panel fire_derivative climate_hist diagnostic_panel landsat_ndvi_plot".split(),

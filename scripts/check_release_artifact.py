@@ -136,9 +136,15 @@ def check_installed_wheel(wheel, repo=ROOT):
                 require(path.is_relative_to(installed) and not path.is_relative_to(repo), f"Source checkout leaked into kernel: {path}")
                 require(path.relative_to(installed).as_posix() in files, f"Unpackaged module loaded: {name}")
     require(cubedynamics.__version__ == dist.version == "0.1.0rc1", "Runtime/installed metadata version mismatch")
+    runtime = cubedynamics.version_info()
+    require(runtime.version == dist.version, "Runtime provenance version differs from distribution")
+    require(runtime.artifact_kind == "published or built distribution", "Wheel runtime was misclassified as development source")
+    require(runtime.git_sha is None, "Built wheel should not claim an unrecorded checkout Git SHA")
+    require(Path(runtime.package_location).resolve().is_relative_to(installed), "Runtime provenance points outside installed distribution")
     return {"version": dist.version, "module": str(Path(cubedynamics.__file__).resolve()),
             "python": sys.version.split()[0], "executable": sys.executable,
-            "wheel": artifact_info(wheel), "checked_package_files": len(files)}
+            "wheel": artifact_info(wheel), "checked_package_files": len(files),
+            "runtime_identity": runtime.as_dict()}
 
 
 def verify_mean_semantics(cube, actual):

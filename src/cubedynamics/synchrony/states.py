@@ -158,6 +158,7 @@ def quantile_state(
     if climatology is not None:
         threshold = climatology.broadcast_like(da)
         method = "climatology_quantile"
+        reference_population = "supplied climatology field broadcast to the observation coordinates"
     elif rolling_window is not None:
         if rolling_window < 1:
             raise ValueError("rolling_window must be at least 1")
@@ -165,9 +166,19 @@ def quantile_state(
         rolled = da.rolling({time_dim: rolling_window}, min_periods=1).construct(window_dim)
         threshold = rolled.quantile(quantile, dim=window_dim)
         method = "rolling_quantile"
+        reference_population = (
+            f"each trailing {rolling_window}-observation window along {time_dim!r}, "
+            "estimated independently at each remaining coordinate"
+        )
     else:
         threshold = da.quantile(quantile, dim=time_dim)
         method = "quantile"
+        selected_months = da.attrs.get("selected_calendar_months")
+        month_note = f"; selected calendar months {selected_months}" if selected_months else ""
+        reference_population = (
+            f"all {da.sizes[time_dim]} selected observations pooled across "
+            f"{time_dim!r}{month_note}, estimated independently at each remaining coordinate"
+        )
 
     if "quantile" in threshold.coords:
         threshold = threshold.drop_vars("quantile")
@@ -182,6 +193,7 @@ def quantile_state(
             "quantile": float(quantile),
             "rolling_window": rolling_window,
             "time_dim": time_dim,
+            "quantile_reference_population": reference_population,
         },
     )
 

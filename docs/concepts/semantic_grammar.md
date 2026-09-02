@@ -134,6 +134,12 @@ a temporal `condition`, not raw continuous temperature measurements:
 detect_events() groups consecutive true periods into events. The current
 object is a continuous field ... so there is not yet a condition to group.
 A common pattern is: observations → threshold_state(...) → detect_events().
+
+Detected events declare `event_scope="local_cell"`: one row is one contiguous
+run at one spatial cell. Regional episodes are a separate authored transition
+through `consolidate_events(...)`, whose spatial relation and temporal gap are
+part of the scientific statement. `event_metrics(...)` retains that scope so a
+local-cell count cannot silently become a regional episode count.
 ```
 
 A retained length-one `time` dimension after `mean(over="time")` does not fool

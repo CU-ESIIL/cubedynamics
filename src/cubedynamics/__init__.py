@@ -35,6 +35,7 @@ Documentation inventory:
 from __future__ import annotations
 
 from .version import __version__
+from .runtime import RuntimeInfo, version_info
 from .piping import Pipe, pipe
 from .temporal import (
     TemporalAlignmentReport,
@@ -103,6 +104,8 @@ from .ops import (
 
 __all__ = [
     "__version__",
+    "RuntimeInfo",
+    "version_info",
     "Pipe",
     "pipe",
     "TemporalAlignmentReport",

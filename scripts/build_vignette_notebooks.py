@@ -550,12 +550,26 @@ severe_cold = (
 
 events = (pipe(severe_cold) | v.detect_events(min_duration=2)).unwrap()
 
+# One row is one persistent event at one PRISM cell, not one regional cold wave.
+assert events.event_scope == "local_cell"
+
+regional_episodes = (
+    pipe(events)
+    | v.consolidate_events(spatial_relation="neighbors", max_gap="1D")
+).unwrap()
+
+event_summary = (
+    pipe(regional_episodes)
+    | v.event_metrics(period="all", metrics=("event_count", "mean_duration", "max_duration"))
+).unwrap()
+
 synchrony = (
     pipe(severe_cold)
     | v.occurrence_synchrony(spatial_mode="reference", reference="center")
 ).unwrap()
 
 assert len(events.catalog) > 0
+assert regional_episodes.event_scope == "regional_episode"
 """),
         markdown("## Figure · Follow the evidence from values to events"),
         code("""
@@ -578,9 +592,12 @@ plt.show()
         markdown("""
 ## What the figure tells us
 
-The threshold isolates the observed mid-January outbreak. Duration filtering
-distinguishes persistence, while synchrony shows where its timing matched the
-region's center.
+The threshold isolates the observed mid-January outbreak. `events.catalog`
+counts local cell instances; it is not a count of independent regional cold
+waves. `consolidate_events` makes the temporal-gap and spatial-neighbor choices
+explicit before producing regional episodes. Duration filtering distinguishes
+persistence, while synchrony shows where local timing matched the region's
+center.
 
 ## Try the next variation
 

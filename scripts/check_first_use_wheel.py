@@ -42,7 +42,7 @@ assert callable(data.temperature) and callable(pipe) and callable(verbs.mean)
             + completed.stderr
         )
 
-    from cubedynamics import data, pipe, verbs as v
+    from cubedynamics import data, pipe, verbs as v, version_info
 
     import numpy as np
     import pandas as pd
@@ -116,6 +116,7 @@ assert callable(data.temperature) and callable(pipe) and callable(verbs.mean)
         "plot_kind": figure.kind,
         "unwrap_type": type(analysis.unwrap()).__name__,
         "exports": [direct_path.name, safe_path.name],
+        "runtime_identity": version_info().as_dict(),
     }
 
 

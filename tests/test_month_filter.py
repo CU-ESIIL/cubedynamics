@@ -35,6 +35,7 @@ def test_supported_filter_direct_pipe_and_lazy(cube, as_dataset):
     assert isinstance((direct.temperature if as_dataset else direct).data, da.Array)
     xr.testing.assert_identical(direct, piped)
     expected = value.where(value.time.dt.month == 2, drop=True)
+    expected.attrs["selected_calendar_months"] = "2"
     xr.testing.assert_identical(direct, expected)
     assert direct.sizes["time"] == 29
 

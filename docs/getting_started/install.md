@@ -63,7 +63,7 @@ import cubedynamics
 from cubedynamics import data, pipe, verbs as v
 
 print(cubedynamics.__version__)  # 0.1.0rc1
-print(cubedynamics.__file__)     # your environment's site-packages
+print(cubedynamics.version_info())
 print(data.describe("temperature", "prism"))
 help(v.mean)
 ```
@@ -99,3 +99,45 @@ or an acceptable fallback for the outside-user package acceptance test.
 
 Read the [RC release notes](../project/release_0_1_0.md) for support boundaries,
 candidate adapters, known limitations, and problem reporting.
+
+## Testing current `main` in a notebook
+
+`main` intentionally still declares `0.1.0rc1` until a release-management
+decision changes the version. The version string alone therefore cannot tell
+you whether a notebook imported the published RC or later source.
+
+Use a dedicated kernel and pin the exact commit under review:
+
+```bash
+python3.11 -m venv .venv-cubedynamics-main
+source .venv-cubedynamics-main/bin/activate
+python -m pip install --upgrade pip
+python -m pip install \
+  "cubedynamics @ git+https://github.com/CU-ESIIL/cubedynamics.git@<full-commit-sha>"
+python -m pip install ipykernel
+python -m ipykernel install --user \
+  --name cubedynamics-main --display-name "CubeDynamics main"
+```
+
+Select **CubeDynamics main** in Jupyter and verify the running process:
+
+```python
+import cubedynamics as cd
+print(cd.version_info())
+```
+
+The output includes the version, imported package path, artifact kind, and Git
+commit when VCS metadata is available. A kernel that imported CubeDynamics
+before installation must be restarted: Python does not replace already loaded
+modules merely because `%pip` finished.
+
+Do not use `--ignore-installed` to force this workflow. It can replace unrelated
+packages and leave environments such as NumPy/Zarr internally inconsistent. If
+an existing dedicated CubeDynamics environment already has reviewed compatible
+dependencies, `%pip install --no-deps --upgrade "cubedynamics @
+git+https://github.com/CU-ESIIL/cubedynamics.git@<full-commit-sha>"` updates only
+CubeDynamics; restart the kernel immediately afterward. A fresh dedicated
+environment is the safer default.
+
+See [Runtime identity in notebooks](runtime_identity.md) for interpreting each
+field and distinguishing a public artifact from development source.

@@ -58,9 +58,9 @@ def test_rolling_median_split_synchrony_supports_direct_and_pipe_calls() -> None
     ]
     assert direct["bottom_synchrony"].attrs["source_variable"] == "tmin"
     assert direct["top_synchrony"].attrs["source_variable"] == "tmax"
-    assert direct["bottom_synchrony"].attrs["units"] == "unitless"
-    assert direct["top_synchrony"].attrs["units"] == "unitless"
-    assert direct["bottom_minus_top"].attrs["units"] == "unitless"
+    assert direct["bottom_synchrony"].attrs["units"] == "1"
+    assert direct["top_synchrony"].attrs["units"] == "1"
+    assert direct["bottom_minus_top"].attrs["units"] == "1"
     assert direct.attrs["reference"] == "center_pixel"
 
 

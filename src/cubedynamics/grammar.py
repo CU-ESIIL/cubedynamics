@@ -64,6 +64,11 @@ class SemanticState:
     temporal_alignment_coordinates: str | None = None
     temporal_alignment_support: str | None = None
     temporal_alignment_note: str | None = None
+    event_scope: str | None = None
+    event_row_meaning: str | None = None
+    quantile_reference_population: str | None = None
+    lag_semantics: str | None = None
+    positive_lag_meaning: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -92,6 +97,11 @@ class SemanticState:
             "temporal_alignment_coordinates": self.temporal_alignment_coordinates,
             "temporal_alignment_support": self.temporal_alignment_support,
             "temporal_alignment_note": self.temporal_alignment_note,
+            "event_scope": self.event_scope,
+            "event_row_meaning": self.event_row_meaning,
+            "quantile_reference_population": self.quantile_reference_population,
+            "lag_semantics": self.lag_semantics,
+            "positive_lag_meaning": self.positive_lag_meaning,
         }
 
 
@@ -288,6 +298,24 @@ _VERB_SPECS: dict[str, VerbSpec] = {
         "detect_events", "group consecutive true periods into events", ("condition",), "event",
         requires=("time", "ordered_time", "time_variation"), preserves=("spatial coordinates", "provenance"),
         examples=("v.detect_events(min_duration=2)",), category="semantic",
+    ),
+    "consolidate_events": _spec(
+        "consolidate_events",
+        "consolidate local-cell event instances into regional space-time episodes",
+        ("event",),
+        "event",
+        preserves=("source event scope", "event timing", "provenance"),
+        examples=("v.consolidate_events(spatial_relation='neighbors', max_gap='2D')",),
+        category="semantic",
+    ),
+    "event_metrics": _spec(
+        "event_metrics",
+        "summarize events or episodes by an explicit calendar period",
+        ("event",),
+        "summary",
+        preserves=("event scope", "metric units", "provenance"),
+        examples=("v.event_metrics(period='year')",),
+        category="semantic",
     ),
     "overlap": _spec(
         "overlap", "identify coincident truth in two exactly aligned conditions", ("condition",),
@@ -595,7 +623,14 @@ def infer_semantic_state(value: Any) -> SemanticState:
 
     if hasattr(value, "dataset") and hasattr(value, "catalog"):
         base = infer_semantic_state(value.dataset)
-        return replace(base, semantic_name="detected events", semantic_kind="event", category="event")
+        return replace(
+            base,
+            semantic_name="regional episodes" if value.event_scope == "regional_episode" else "detected events",
+            semantic_kind="event",
+            category="event",
+            event_scope=getattr(value, "event_scope", None),
+            event_row_meaning=getattr(value, "row_meaning", None),
+        )
 
     attrs = getattr(value, "attrs", {}) or {}
     dims_obj = getattr(value, "dims", ())
@@ -634,6 +669,14 @@ def infer_semantic_state(value: Any) -> SemanticState:
         int(sizes[time_dim]) > 1 if time_dim is not None and time_dim in sizes else None
     )
     units = attrs.get("semantic_units") or attrs.get("units")
+    if units is None:
+        variable_units = {
+            str(var.attrs.get("semantic_units") or var.attrs.get("units"))
+            for var in getattr(value, "data_vars", {}).values()
+            if var.attrs.get("semantic_units") or var.attrs.get("units")
+        }
+        if len(variable_units) == 1:
+            units = variable_units.pop()
     if units is None and kind == "condition":
         units = "boolean"
     crs = attrs.get("crs") or attrs.get("spatial_ref")
@@ -667,6 +710,11 @@ def infer_semantic_state(value: Any) -> SemanticState:
         temporal_alignment_coordinates=(str(attrs["temporal_alignment_coordinates"]) if attrs.get("temporal_alignment_coordinates") is not None else None),
         temporal_alignment_support=(str(attrs["temporal_alignment_support"]) if attrs.get("temporal_alignment_support") is not None else None),
         temporal_alignment_note=(str(attrs["temporal_alignment_note"]) if attrs.get("temporal_alignment_note") is not None else None),
+        event_scope=(str(attrs["event_scope"]) if attrs.get("event_scope") is not None else None),
+        event_row_meaning=(str(attrs["event_row_meaning"]) if attrs.get("event_row_meaning") is not None else None),
+        quantile_reference_population=(str(attrs["quantile_reference_population"]) if attrs.get("quantile_reference_population") is not None else None),
+        lag_semantics=(str(attrs["lag_semantics"]) if attrs.get("lag_semantics") is not None else None),
+        positive_lag_meaning=(str(attrs["positive_lag_meaning"]) if attrs.get("positive_lag_meaning") is not None else None),
     )
 
 
@@ -777,7 +825,23 @@ def transition_state(
     if name == "align_time":
         return replace(after, semantic_kind=before.semantic_kind, category=before.category)
     if name == "detect_events":
-        return replace(after, semantic_kind="event", category="event")
+        return replace(
+            after,
+            semantic_kind="event",
+            category="event",
+            event_scope="local_cell",
+            event_row_meaning="one contiguous event instance at one spatial grid cell",
+        )
+    if name == "consolidate_events":
+        return replace(
+            after,
+            semantic_kind="event",
+            category="event",
+            event_scope="regional_episode",
+            event_row_meaning="one consolidated regional spatiotemporal episode",
+        )
+    if name == "event_metrics":
+        return replace(after, semantic_kind="summary", category="event_summary")
     if name in {"anomaly", "zscore", "month_filter"}:
         units = "standard deviations" if name == "zscore" else after.units or before.units
         return replace(after, semantic_kind="continuous_field", units=units)
@@ -837,6 +901,19 @@ def explain_pipeline(initial: SemanticState, trace: Iterable[TraceStep]) -> str:
             )
         elif current.temporal_support_known is False:
             lines.append("- Temporal support: not verified")
+    if current.event_scope:
+        lines.append(f"- Event scope: {current.event_scope}")
+        if current.event_row_meaning:
+            lines.append(f"- One event row means {current.event_row_meaning}.")
+    if current.quantile_reference_population:
+        lines.append(
+            "- Quantile reference population: "
+            + current.quantile_reference_population
+        )
+    if current.lag_semantics:
+        lines.append(f"- Lag semantics: {current.lag_semantics}")
+        if current.positive_lag_meaning:
+            lines.append(f"- Positive lag: {current.positive_lag_meaning}")
     alignment_states = [
         step.output_state for step in steps if step.output_state.temporal_alignment_support
     ]
@@ -868,7 +945,7 @@ def suggest_next(state: SemanticState) -> tuple[Suggestion, ...]:
         "observation": ("anomaly", "threshold_state", "mean", "plot"),
         "categorical_field": ("binary_state", "plot"),
         "condition": ("detect_events", "overlap", "occurrence_synchrony", "mean", "plot"),
-        "event": ("timing_synchrony", "duration_synchrony", "severity_synchrony"),
+        "event": ("consolidate_events", "event_metrics", "timing_synchrony", "duration_synchrony"),
         "summary": ("threshold_state", "plot"),
         "relationship": (),
         "feature": (),
@@ -926,6 +1003,24 @@ def validate_pipeline(initial: SemanticState, trace: Iterable[TraceStep]) -> Val
         checks.append(ValidationCheck("INFO", "provenance", "Source provenance metadata is present."))
     else:
         checks.append(ValidationCheck("CHECK", "provenance", "Source provenance metadata is not declared."))
+    if current.semantic_kind == "event":
+        if current.event_scope:
+            checks.append(
+                ValidationCheck(
+                    "INFO",
+                    "event_scope",
+                    f"Event catalog scope is {current.event_scope}; one row means "
+                    f"{current.event_row_meaning or 'one event instance'}.",
+                )
+            )
+        else:
+            checks.append(
+                ValidationCheck(
+                    "WARNING",
+                    "event_scope_unknown",
+                    "Event scope is not declared; catalog counts cannot be interpreted safely.",
+                )
+            )
     for step in steps:
         for message in step.messages:
             checks.append(ValidationCheck(message.severity, message.code, message.text))
@@ -1031,9 +1126,22 @@ def _describe_step(step: TraceStep) -> str:
     if step.verb in {"threshold_state", "exceedance"}:
         return f"Define a condition for values {p.get('direction', 'relative to')} {p.get('threshold', 'the threshold')}."
     if step.verb == "quantile_state":
-        return f"Define a condition using quantile {p.get('quantile', 'the selected quantile')}."
+        population = step.output_state.quantile_reference_population
+        detail = f" Reference population: {population}." if population else ""
+        return (
+            f"Define a condition using quantile {p.get('quantile', 'the selected quantile')}."
+            + detail
+        )
     if step.verb == "detect_events":
         return f"Group consecutive true periods into events (minimum duration {p.get('min_duration', 1)})."
+    if step.verb == "consolidate_events":
+        return (
+            "Consolidate local-cell instances into regional episodes using "
+            f"{p.get('spatial_relation', 'neighbors')} and maximum gap "
+            f"{p.get('max_gap', '0D')}."
+        )
+    if step.verb == "event_metrics":
+        return f"Summarize events by {p.get('period', 'year')}."
     if step.verb in {"mean", "variance"}:
         action = "Average" if step.verb == "mean" else "Measure variation in"
         return f"{action} values over {p.get('over', p.get('dim', 'time'))}."

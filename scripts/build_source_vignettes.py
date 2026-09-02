@@ -71,6 +71,18 @@ def check_evidence_inputs(recorded):
         raise SystemExit("Stale noun figure inputs:\n- " + "\n- ".join(details))
 
 
+def visual_code_cell(notebook, key):
+    """Return a specifically tagged figure cell, independent of shell cells."""
+    matches = [
+        cell for cell in notebook["cells"]
+        if cell["cell_type"] == "code"
+        and cell.get("metadata", {}).get("visual_example", {}).get("key") == key
+    ]
+    if len(matches) != 1:
+        raise ValueError(f"Expected one visual code cell for {key!r}; found {len(matches)}")
+    return matches[0]
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
@@ -104,7 +116,7 @@ def main():
                 plt.close("all")
                 outputs[image.name] = hashlib.sha256(image.read_bytes()).hexdigest()
         from build_streamflow_vignette import build
-        first = next(c for c in build()["cells"] if c["cell_type"] == "code")
+        first = visual_code_cell(build(), "raw-discharge")
         exec(compile("".join(first["source"]), "streamflow-step-1", "exec"), {})
         image = ASSETS / "streamflow-1.png"
         plt.gcf().savefig(image, dpi=130, bbox_inches="tight")

@@ -3,6 +3,11 @@
 Synchrony starts by turning raw values into explicit states. This keeps the
 rule for defining an event separate from the operator used to compare events.
 
+`v.detect_events()` produces **local-cell event instances**. Each catalog row
+is one contiguous run at one spatial cell, not an independent regional
+episode. Use [Local events and regional episodes](../concepts/events_and_episodes.md)
+for explicit space-time consolidation and scope-aware period metrics.
+
 ## State Cube Contract
 
 Every state constructor returns an `xarray.Dataset` with:

@@ -45,3 +45,18 @@ bottom_tail, top_tail, diff_tail = rolling_tail_dep_vs_center(
 For temperature analyses, compare below-median synchrony from `tmin` with
 above-median synchrony from `tmax` to distinguish coordinated cold conditions
 from coordinated hot conditions.
+
+The lower-level helper returns Spearman correlations in `[-1, 1]` and their
+signed lower-minus-upper difference in `[-2, 2]`. Negative values are valid.
+
+The pipe verb `v.rolling_tail_dep_vs_center(...)` is a retained historical
+name for a different signed statistic: **upper-tail variance minus full-window
+variance**. It is not a probability or a `[0, 1]` dependence coefficient.
+Negative values mean variability inside the selected upper tail is smaller
+than variability across the full window. Its units are squared source units
+and its valid range is the unbounded real line.
+
+`v.rolling_median_split_synchrony(...)` returns `bottom_synchrony`,
+`top_synchrony`, and `bottom_minus_top`. Result attrs record the per-series
+split rule, center-pixel reference, inclusive trailing window, evaluated end
+labels, stride, and incomplete-edge behavior.

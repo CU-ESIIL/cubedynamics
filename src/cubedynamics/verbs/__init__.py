@@ -74,7 +74,7 @@ from .stats import (
     zscore,
 )
 from .biology import align_cube, rasterize_observations
-from .events import detect_events
+from .events import consolidate_events, detect_events, event_metrics
 from .states import (
     binary_state,
     change_state,
@@ -775,6 +775,9 @@ __all__ = [
     "collect_blocks",
     "compare_blocks",
     "compare_aoi_signature",
+    "consolidate_events",
+    "detect_events",
+    "event_metrics",
     "mean",
     "month_filter",
     "flatten_space",

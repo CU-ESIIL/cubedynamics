@@ -43,6 +43,7 @@ def test_public_symbols_available():
         assert hasattr(cd, name), f"Expected cubedynamics to expose {name}"
 
     assert hasattr(cd, "pipe")
+    assert callable(cd.version_info)
     assert hasattr(cd, "data")
     for noun in (
         "temperature",
@@ -67,6 +68,8 @@ def test_public_symbols_available():
     assert hasattr(cd.verbs, "quantile_state")
     assert hasattr(cd.verbs, "binary_state")
     assert hasattr(cd.verbs, "detect_events")
+    assert hasattr(cd.verbs, "consolidate_events")
+    assert hasattr(cd.verbs, "event_metrics")
     assert hasattr(cd.verbs, "occurrence_synchrony")
     assert hasattr(cd.verbs, "severity_synchrony")
     assert hasattr(cd.verbs, "timing_synchrony")

@@ -4,6 +4,53 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-01 — Long-record event grammar and notebook identity hardening
+
+- Treat the new two-year and proposed twenty-year notebook findings as evidence
+  to reproduce against current `main`, not as proof that an older imported
+  `0.1.0rc1` wheel still describes the checkout. Classify every finding before
+  changing runtime behavior and preserve the completed RC1 and temporal-support
+  work.
+- Make notebook runtime identity inspectable without bumping the release
+  version or recommending dependency-breaking `--ignore-installed` installs.
+  Make local-cell event instances unambiguous, add an explicit and
+  user-controlled transition to regional episodes, and provide a bounded event
+  metrics vocabulary without turning the package into a general reporting
+  system.
+- Correct confirmed metadata defects in block-signature explanations and
+  mixed-unit block comparison outputs. Clarify pooled multi-year quantiles,
+  positive/negative lag direction, rolling median-split outputs, and the valid
+  interpretation of the legacy rolling tail-variance contrast.
+- Add deterministic long-record, Dask-laziness, event-consolidation, unit,
+  runtime-provenance, and documentation regressions. Document trajectories,
+  trend, change-point, event classification, and specialized plotting as
+  deliberate grammar gaps when a scientifically defensible bounded API is not
+  implemented in this pass.
+- Do not publish, tag, push, silently harmonize sources, or weaken spatial,
+  temporal-support, xarray, or condition-state contracts.
+- Implemented public `version_info()`, explicit local-cell and regional-episode
+  event scopes, `v.consolidate_events(...)`, and `v.event_metrics(...)`.
+  Consolidation uses user-declared temporal and spatial connectivity; event
+  metrics retain the source scope. Fixed seasonal-gap event contiguity,
+  metric-specific comparison units, quantile reference-population metadata,
+  lag direction metadata, and rolling synchrony/tail interpretation. Event
+  life-history alignment, period signatures, trends, change points,
+  classification, and specialized event plots remain documented design work.
+- Added runtime identity to every supported vignette, safe dedicated-kernel
+  installation guidance, local-versus-regional event teaching material, a
+  long-record conceptual page, generated verb references, and a classified
+  triage record. The live multi-year gridMET check was not run locally because
+  no OPeNDAP engine was installed; the available fallback would retrieve whole
+  annual files and was not a bounded check. No substitute data were used.
+- Pre-snapshot validation: 45 focused temporal/long-record tests passed; the
+  complete offline suite passed 881 tests with 5 skips; all 12 supported
+  vignettes executed with required figures; five publication modules, source
+  QA, and decision QA passed; 78 references, eight visual results, seven noun
+  figures, and source notebooks passed freshness checks; strict MkDocs,
+  built-site links, 387 Chromium tests, tracked-size policy, and diff checks
+  passed. A clean installed-wheel/full release gate is run separately against
+  the unchanged prepared snapshot; no publication action is authorized here.
+
 ## 2026-09-01 — Make temporal alignment scientifically explicit
 
 - Treat coordinate-label equality, observation temporal-support equality, and

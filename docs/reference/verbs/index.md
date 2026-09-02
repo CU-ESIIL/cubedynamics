@@ -28,7 +28,9 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | --- | --- | --- |
 | [binary_state](binary_state.md) | Grammar verb / pipe stage | normalize a binary mask into the state-cube contract |
 | [change_state](change_state.md) | Grammar verb / pipe stage | define a condition from lagged change |
+| [consolidate_events](consolidate_events.md) | Grammar verb / pipe stage | consolidate local-cell event instances into regional space-time episodes |
 | [detect_events](detect_events.md) | Grammar verb / pipe stage | group consecutive true periods into events |
+| [event_metrics](event_metrics.md) | Grammar verb / pipe stage | summarize events or episodes by an explicit calendar period |
 | [quantile_state](quantile_state.md) | Grammar verb / pipe stage | define a condition relative to an empirical quantile |
 | [threshold_state](threshold_state.md) | Grammar verb / pipe stage | turn continuous values or a summary into a named true/false condition |
 

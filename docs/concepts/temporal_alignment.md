@@ -25,6 +25,11 @@ correlations.
 > **Alignment is part of the scientific question. Equal timestamps do not
 > guarantee equal observations in time.**
 
+For condition lag coupling, `+5D` means compare the left condition at `t` with
+the right condition at `t+5D`; the right-hand condition occurs later. Negative
+lags mean the right-hand condition occurs earlier. These are coordinate-label
+comparisons, not observation-support shifts or event-anchor differences.
+
 ## Three separate questions
 
 1. **Coordinate alignment:** Are the xarray time labels exactly equal?
@@ -150,4 +155,3 @@ loads maximum temperature and precipitation for the same South Dakota dates,
 inspects the declared intervals, and makes the label-pairing decision explicit.
 It requires network access because noun loaders never substitute synthetic
 observations.
-

@@ -48,6 +48,9 @@ working-tree changes.
 - Preferred imports: `from cubedynamics import data, pipe, verbs as v`.
 - Core pipe classes/functions: `cubedynamics.piping.Pipe`, `pipe`, and the
   callable/factory protocol. Plain callables can compose without registration.
+- `cubedynamics.version_info()` reports the imported path, artifact kind, and
+  Git/VCS identity when available. The semantic version alone does not
+  distinguish post-RC main from the published RC while both declare rc1.
 - `cubedynamics.grammar` holds semantic states, contracts, order rules, and
   report types. `Pipe.explain()`, `suggest()`, `validate()`, `semantic_state`,
   and `semantic_trace` must remain metadata-only and must not rewrite workflows.
@@ -74,6 +77,11 @@ The verb namespace includes different calling conventions:
   `ops.transforms.month_filter` (also re-exported through `ops` and the old
   top-level shortcut) warns and forwards to it; do not wire the public verb
   back through the deprecated shim.
+- `v.detect_events` returns local-cell event instances. `v.consolidate_events`
+  performs an explicit space-time transition to regional episodes, and
+  `v.event_metrics` summarizes either scope without treating local rows as
+  independent regional episodes. Detection materializes event catalogs;
+  state construction and overlap remain lazy where their xarray inputs are.
 
 Inspect implementations and `scripts/reference_classification.py`; consult the
 generated conceptual browser and secondary A–Z inventory under
@@ -186,6 +194,9 @@ hash-bound figure reviews offline. Do not auto-approve newly generated figures.
   narrative/reproducibility sections. Update builders instead of losing edits
   on regeneration. The runner enforces required static PNG/SVG output counts
   and uses an inline backend without modifying notebook sources.
+- Maintained notebooks print `cubedynamics.version_info()` near the top. Do not
+  recommend `--ignore-installed` for notebook development; use a dedicated,
+  commit-pinned kernel and restart it after installation.
 
 ## 7) Website and generated documentation ownership
 

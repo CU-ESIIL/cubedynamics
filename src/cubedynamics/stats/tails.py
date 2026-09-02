@@ -169,4 +169,30 @@ def rolling_tail_dep_vs_center(
     bottom_cube.attrs["long_name"] = "Below-median Spearman synchrony vs center"
     top_cube.attrs["long_name"] = "Above-median Spearman synchrony vs center"
     diff_cube.attrs["long_name"] = "Below minus above median Spearman synchrony"
+    for cube, definition, valid_range in (
+        (
+            bottom_cube,
+            "Spearman correlation where pixel and reference both occupy their lower quantile sets",
+            "-1 to 1",
+        ),
+        (
+            top_cube,
+            "Spearman correlation where pixel and reference both occupy their upper quantile sets",
+            "-1 to 1",
+        ),
+        (
+            diff_cube,
+            "lower-set Spearman correlation minus upper-set Spearman correlation",
+            "-2 to 2",
+        ),
+    ):
+        cube.attrs.update(
+            {
+                "metric_definition": definition,
+                "units": "1",
+                "valid_range": valid_range,
+                "negative_values": "valid negative association or signed lower-minus-upper contrast",
+                "output_time_semantics": f"{end_dim} is the inclusive rolling-window end coordinate label",
+            }
+        )
     return bottom_cube, top_cube, diff_cube

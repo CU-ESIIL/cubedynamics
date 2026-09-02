@@ -167,8 +167,10 @@ def sync_with(
 
     Grammar contract
     State cube + aligned state cube -> coupling Dataset. Positive lags shift
-    the right condition by coordinate periods; they do not shift or harmonize
-    the physical observation support represented by either source.
+    the comparison so ``+5D`` means left at ``t`` is compared with right at
+    ``t+5D``: the right-hand condition occurs five days later. Negative lags
+    mean the right-hand condition occurs earlier. Lags do not shift or
+    harmonize the physical observation support represented by either source.
     """
 
     def _op(obj):

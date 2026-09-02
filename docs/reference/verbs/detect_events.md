@@ -28,11 +28,11 @@ State Dataset -> EventResult containing event cube variables and a catalog.
 
 ## Returns
 
-State Dataset -> EventResult containing event cube variables and a catalog.
+An EventResult with event_scope='local_cell'. One catalog row is one contiguous run at one spatial cell, not one regional episode.
 
 ## Order / grammar behavior
 
-State Dataset -> EventResult containing event cube variables and a catalog.
+Define a time-varying condition first. Event detection materializes the condition cube to construct the catalog and respects gaps in the actual time coordinate.
 
 ## Minimal example
 
@@ -51,9 +51,9 @@ with xr.open_dataset(path, engine="scipy") as observed:
 assert cube.attrs["units"] == "degC"
 
 result = (pipe(cube) | v.threshold_state(threshold=0, direction="below") | v.detect_events(min_duration=2)).unwrap()
-# Count days belonging to detected events, not just all threshold crossings.
-print(result.catalog.head())
-result.dataset["event_active"].sum("time").plot(cbar_kwargs={"label": "Days in cold events"})
+# One row is one local-cell run, not one independent regional cold episode.
+print(result.explain())
+result.dataset["event_active"].sum("time").plot(cbar_kwargs={"label": "Days in local cold events"})
 plt.show()
 ```
 
@@ -63,6 +63,7 @@ State Dataset -> EventResult containing event cube variables and a catalog.
 
 ## See also
 
+- [Related workflow](../../concepts/events_and_episodes.md)
 - [06 · From cold observations to event evidence](../../vignettes/states_and_events.ipynb)
 - [Learn: verbs](../../learn/verbs.md)
 - [Noun library](../../library/index.md)
@@ -73,4 +74,4 @@ State Dataset -> EventResult containing event cube variables and a catalog.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/events.py#L8). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/events.py#L10). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
