@@ -4,6 +4,24 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-02 — Fix post-download release source validation
+
+- The `v0.1.0rc2` tag-triggered build gate passed, but all compatibility jobs
+  downloaded `release-bundle/` into the checkout before running the strict
+  clean-source guard. Treat this as workflow ordering, not a dirty release
+  commit; do not weaken `check_release_source.py` or move the existing tag.
+- Require every artifact-consuming job to validate the exact tagged checkout
+  before downloading workflow artifacts, then verify the same-run bundle after
+  download. Apply the ordering to compatibility, GitHub-release, and PyPI jobs
+  and add structural regressions for the sequence.
+- Keep package version `0.1.0rc2`, make no scientific changes, and recommend a
+  new `0.1.0rc3` candidate after the workflow-only fix rather than rewriting
+  RC2 history.
+- Validation: release metadata resolved `0.1.0rc2`; 77 focused release tests
+  passed; parsed workflow structure confirmed source guard before download and
+  bundle verification after download in all three consuming jobs; diff checks
+  passed. No publication action or tag mutation was performed.
+
 ## 2026-09-02 — Reusable release workflow and 0.1.0rc2 preparation
 
 - Prepare `0.1.0rc2` from reviewed main `54e469d6f8c62609a7d111161e82da2c674bad54`

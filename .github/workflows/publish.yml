@@ -116,6 +116,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Validate exact tagged source before creating workflow artifacts
+        env:
+          RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
+        run: python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
       - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact_name }}
@@ -124,7 +128,6 @@ jobs:
         env:
           RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
         run: |
-          python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
           python scripts/verify_release_bundle.py \
             --directory release-bundle \
             --ref "$RELEASE_REF" \
@@ -138,7 +141,6 @@ jobs:
         env:
           WHEEL: ${{ needs.build.outputs.wheel_filename }}
           SDIST: ${{ needs.build.outputs.sdist_filename }}
-          MANIFEST: ${{ needs.build.outputs.candidate_manifest }}
         run: |
           python -m venv "$RUNNER_TEMP/cubedynamics-release"
           "$RUNNER_TEMP/cubedynamics-release/bin/python" -m pip install --upgrade pip
@@ -169,6 +171,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Validate exact tagged source before creating workflow artifacts
+        env:
+          RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
+        run: python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
       - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact_name }}
@@ -177,7 +183,6 @@ jobs:
         env:
           RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
         run: |
-          python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
           python scripts/verify_release_bundle.py \
             --directory release-bundle \
             --ref "$RELEASE_REF" \
@@ -191,6 +196,7 @@ jobs:
           PRERELEASE: ${{ needs.build.outputs.prerelease }}
           WHEEL: ${{ needs.build.outputs.wheel_filename }}
           SDIST: ${{ needs.build.outputs.sdist_filename }}
+          MANIFEST: ${{ needs.build.outputs.candidate_manifest }}
         run: |
           args=(release create "$RELEASE_TAG" --verify-tag --title "CubeDynamics $RELEASE_VERSION")
           if [[ "$PRERELEASE" == "true" ]]; then
@@ -220,6 +226,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+      - name: Validate exact tagged source before creating workflow artifacts
+        env:
+          RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
+        run: python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
       - uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build.outputs.artifact_name }}
@@ -228,7 +238,6 @@ jobs:
         env:
           RELEASE_REF: refs/tags/${{ needs.build.outputs.release_tag }}
         run: |
-          python scripts/check_release_source.py --ref "$RELEASE_REF" --require-tag
           python scripts/verify_release_bundle.py \
             --directory release-bundle \
             --ref "$RELEASE_REF" \

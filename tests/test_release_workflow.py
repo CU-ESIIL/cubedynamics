@@ -18,6 +18,43 @@ from scripts.verify_release_bundle import verify_bundle
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def release_workflow() -> dict:
+    import yaml
+
+    return yaml.safe_load((ROOT / ".github/workflows/publish.yml").read_text())
+
+
+@pytest.mark.parametrize("job_name", ["compatibility", "github-release", "publish"])
+def test_clean_source_is_checked_before_artifact_download(job_name: str) -> None:
+    """Workflow-created bundles must not invalidate the strict source guard."""
+
+    steps = release_workflow()["jobs"][job_name]["steps"]
+    source_checks = [
+        index
+        for index, step in enumerate(steps)
+        if "check_release_source.py" in step.get("run", "")
+    ]
+    downloads = [
+        index
+        for index, step in enumerate(steps)
+        if step.get("uses", "").startswith("actions/download-artifact@")
+    ]
+    bundle_checks = [
+        index
+        for index, step in enumerate(steps)
+        if "verify_release_bundle.py" in step.get("run", "")
+    ]
+
+    assert len(source_checks) == len(downloads) == len(bundle_checks) == 1
+    assert source_checks[0] < downloads[0] < bundle_checks[0]
+
+
+def test_github_release_defines_the_verified_manifest_asset() -> None:
+    steps = release_workflow()["jobs"]["github-release"]["steps"]
+    release = next(step for step in steps if "gh \"${args[@]}\"" in step.get("run", ""))
+    assert release["env"]["MANIFEST"] == "${{ needs.build.outputs.candidate_manifest }}"
+
+
 def write_project(root: Path, version: str, runtime: str | None = None) -> None:
     root.mkdir(parents=True, exist_ok=True)
     (root / "pyproject.toml").write_text(
