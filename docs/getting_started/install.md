@@ -102,7 +102,7 @@ candidate adapters, known limitations, and problem reporting.
 
 ## Testing current `main` in a notebook
 
-The current checkout declares `0.1.0rc2`, while PyPI still contains the
+The current checkout declares `0.1.0rc3`, while PyPI still contains the
 published `0.1.0rc1` until a separately authorized publication succeeds. A
 version string identifies the candidate, but `version_info()` is still the
 reliable way to distinguish an installed distribution from a development

@@ -18,9 +18,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def test_rc_version_is_consistent_in_development_lockfile_and_citations():
     lock = (ROOT / "uv.lock").read_text()
-    assert 'name = "cubedynamics"\nversion = "0.1.0rc2"' in lock
+    assert 'name = "cubedynamics"\nversion = "0.1.0rc3"' in lock
     for path in ("CITATION.cff", "docs/CITATION.cff"):
-        assert yaml.safe_load((ROOT / path).read_text())["version"] == "0.1.0rc2"
+        assert yaml.safe_load((ROOT / path).read_text())["version"] == "0.1.0rc3"
 
 
 def test_docs_gate_uses_inline_outputs_without_changing_script_backend():

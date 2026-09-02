@@ -24,7 +24,7 @@ def test_release_versions_citation_and_maturity_are_consistent():
     from cubedynamics import __version__
     root_citation = yaml.safe_load((ROOT / "CITATION.cff").read_text())
     assert root_citation == yaml.safe_load((ROOT / "docs/CITATION.cff").read_text())
-    assert declared == __version__ == root_citation["version"] == "0.1.0rc2"
+    assert declared == __version__ == root_citation["version"] == "0.1.0rc3"
     assert "Development Status :: 3 - Alpha" in pyproject
     assert "doi" not in root_citation
     assert 'exclude = ["cubedynamics.tests", "cubedynamics.tests.*"]' in pyproject

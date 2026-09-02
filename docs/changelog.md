@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.1.0rc2 — prepared, not yet released
+## 0.1.0rc3 — prepared, not yet released
+
+- Carries the release-workflow ordering fix that validates an exact tagged
+  checkout before same-run artifacts are downloaded into it.
+- Preserves the strict clean-source guard and the scientific behavior tested in
+  the earlier release candidates.
+
+## 0.1.0rc2 — tagged 2026-09-02; superseded before publication
 
 - Generalized release identity, artifact names, candidate manifests, and the
   verification-only tag workflow so later prerelease and stable versions do

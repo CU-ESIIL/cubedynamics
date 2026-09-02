@@ -4,6 +4,19 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-02 — Prepare 0.1.0rc3 without publication
+
+- Advance the active release identity from `0.1.0rc2` to `0.1.0rc3` on reviewed
+  main `68379efad9f3c63a4d5b419f815e10dae655e413`, preserving RC1/RC2 history,
+  scientific behavior, and the existing `v0.1.0rc2` tag.
+- Update the canonical project version, runtime and lockfile mirrors, active
+  citation records, maintainer/user release documentation, generated visual
+  evidence manifest, and release-version assertions. Do not tag, create a
+  GitHub Release, dispatch publication, or upload to PyPI.
+- Validation: release metadata resolved `0.1.0rc3`; 77 focused release tests and
+  9 repository-guide/link tests passed; 78 reference pages and 8 visual results
+  passed freshness checks; diff checks passed before the full release gate.
+
 ## 2026-09-02 — Fix post-download release source validation
 
 - The `v0.1.0rc2` tag-triggered build gate passed, but all compatibility jobs

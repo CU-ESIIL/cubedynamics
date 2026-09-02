@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: Tuff
     given-names: Ty
-version: 0.1.0rc2
+version: 0.1.0rc3
 repository-code: "https://github.com/CU-ESIIL/cubedynamics"
 url: "https://cu-esiil.github.io/cubedynamics/"
 keywords:
@@ -19,5 +19,5 @@ abstract: |
   CubeDynamics is an early scientific Python software release centered on
   pipe(value) | verb() composition over labeled spatiotemporal objects.
   It includes documented source loaders, provenance and QA interfaces,
-  visualization, and project-specific vocabularies. Version 0.1.0rc2 is alpha;
+  visualization, and project-specific vocabularies. Version 0.1.0rc3 is alpha;
   source suitability and operational maturity are documented separately.

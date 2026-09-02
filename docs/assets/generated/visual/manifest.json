@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "54e469d6f8c62609a7d111161e82da2c674bad54",
+    "git_sha": "68379efad9f3c63a4d5b419f815e10dae655e413",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -630,7 +630,7 @@
     "src/cubedynamics/verbs/synchrony.py": "1f12f497a80ae487d0ffa78eac78d79beca7373a839811cdc202baa84bcd2da4",
     "src/cubedynamics/verbs/tubes.py": "148c26bf82aa8a8e71f65586bae2f417f83314cef0cb3c07f0ac9436f6282fa4",
     "src/cubedynamics/verbs/vase.py": "b9b7a1580b6774dec533daa7438f4dc54ecf8707f4f265f7809b4bba6d2d11cf",
-    "src/cubedynamics/version.py": "97357ffef9886ad3b32cd4a29eb12921995ad0110ea9e8a53ce4cccbe9d4fe2a",
+    "src/cubedynamics/version.py": "faf89d0110fe8dd8137ff8a73c6a21439a3b39573474741982f565e418a3d103",
     "src/cubedynamics/viewers/__init__.py": "5a53d090c36d3c8b4303204da667226b996c3bc23bbb2342732e7486d68deadd",
     "src/cubedynamics/viewers/cube_viewer.py": "8505d96f14e8c0fc196776d0cce9d8859179404ff10e2e805074c118526f1306",
     "src/cubedynamics/viewers/simple_plot.py": "7dc6c90d34cba1b600c31f4c122ac85da2f46844d6b016b881aa1b93426e1ab9",

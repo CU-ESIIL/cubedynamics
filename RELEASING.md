@@ -1,7 +1,7 @@
 # Preparing and publishing a CubeDynamics release
 
 CubeDynamics `0.1.0rc1` is public on PyPI. The current release candidate is
-`0.1.0rc2`; it must not be described as public until publication is separately
+`0.1.0rc3`; it must not be described as public until publication is separately
 authorized and confirmed. PyPI files are immutable, so every new candidate or
 stable release needs a new committed version and matching tag.
 
@@ -25,7 +25,7 @@ historical; do not bulk-replace old version strings.
 ## Maintainer sequence
 
 After scientific and documentation changes are reviewed, update the canonical
-version and its active mirrors. For `0.1.0rc2`:
+version and its active mirrors. For `0.1.0rc3`:
 
 ```bash
 python scripts/release_metadata.py
@@ -52,8 +52,8 @@ whose artifact hashes are checked after installed-wheel validation.
 When the reviewed release commit and CI are green, create and push the tag:
 
 ```bash
-git tag -a v0.1.0rc2 -m "CubeDynamics 0.1.0rc2"
-git push origin v0.1.0rc2
+git tag -a v0.1.0rc3 -m "CubeDynamics 0.1.0rc3"
+git push origin v0.1.0rc3
 ```
 
 The tag push automatically runs the complete non-publishing gate and the Python
@@ -65,7 +65,7 @@ PyPI.
 After the tag-triggered verification is green and publication is authorized:
 
 1. Open **Actions → Prepare or publish a release → Run workflow**.
-2. Enter the existing tag, for example `v0.1.0rc2`.
+2. Enter the existing tag, for example `v0.1.0rc3`.
 3. Choose `destination=github` or, under separate authorization,
    `destination=pypi`. The default `verify` performs no public write.
 
@@ -98,7 +98,7 @@ into a temporary local Git repository:
 
 ```bash
 python scripts/prepare_release_snapshot.py \
-  --output artifacts/release-0.1.0rc2/snapshot.json
+  --output artifacts/release-0.1.0rc3/snapshot.json
 ```
 
 Run the gate in the reported snapshot with a Python 3.11 development/browser
