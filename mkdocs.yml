@@ -156,6 +156,10 @@ nav:
 
   - Vignettes:
       - Learning gallery: vignettes/index.md
+      - EDS seminar:
+          - Seminar notebooks: vignettes/eds_seminar/index.md
+          - Participant notebook: vignettes/eds_seminar/participant.ipynb
+          - Complete worked notebook: vignettes/eds_seminar/answers.ipynb
       - Core lessons:
           - "01 · From an array to a scientific cube": vignettes/cube_from_arrays.ipynb
           - "02 · From observations to a comparable signal": vignettes/cube_from_tidy_table.ipynb
@@ -287,6 +291,7 @@ plugins:
       execute: true
       execute_ignore:
         - "**/examples/temporal_alignment.ipynb"
+        - "**/vignettes/eds_seminar/*.ipynb"
       include_source: true
       ignore_h1_titles: true
 

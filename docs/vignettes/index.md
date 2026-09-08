@@ -9,6 +9,14 @@ Interpretation → Evidence. Each vignette treats the pipe as an executable
 scientific statement and makes its assumptions and boundaries visible. For a
 short introduction to the grammar, start with [Learn](../learn/index.md).
 
+## EDS seminar
+
+Follow the live beta-testing session with the
+[participant notebook](eds_seminar/participant.ipynb), or scroll through the
+[complete worked notebook](eds_seminar/answers.ipynb) with saved figures. The
+[seminar page](eds_seminar/index.md) provides direct downloads and explains the
+network requirements and exact rc3 revision.
+
 ## Executable real-data notebooks
 
 These eight notebooks use the same reviewed PRISM extract. Each tells a

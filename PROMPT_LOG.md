@@ -3884,3 +3884,31 @@ secrets, credentials, private tokens, or unrelated transcript text.
   claim; the historical release manifest is unchanged. Linux Python 3.9/3.10
   CI jobs still need to rerun after these changes are committed/pushed; no
   commit, push, tag, deployment or publication performed here.
+
+## 2026-09-08 — Add EDS seminar supershowcase notebooks
+
+- Used the user-supplied rc3 SUPERSHOWCASE notebook as the canonical seminar
+  source. Added Vignettes → EDS seminar navigation, a landing page with direct
+  downloads, a clean participant copy and an otherwise identical executed
+  copy. The 63-cell notebook covers four stories: Working Lands, a Boulder cold
+  snap, multivariate gridMET weather and Sentinel-2 remote sensing. It includes
+  states, temporal-alignment guardrails, events, synchrony, source comparison,
+  static figures and CubeDynamics HTML-viewer probes.
+- Replaced the unavailable PyPI rc3 install with a Git URL pinned to public
+  commit f777eb07d3ada8bd407b027f560727c90f6d3731, also tagged v0.1.0rc3.
+  Seminar metadata records the exact revision and declares network=true and
+  supported_vignette=false. MkDocs renders saved outputs but does not rerun the
+  live provider calls during ordinary site builds.
+- Executed the complete notebook with an isolated wheel of the exact rc3 source
+  and live PRISM/gridMET/Sentinel-2 access: 26 code cells completed, 17 PNG
+  figures and 39 HTML outputs were saved, and there were zero uncaught errors.
+  The deliberate temporal-support guardrail remains visible; every optional
+  section recorded PASS in the final run summary. The saved results are a
+  seminar snapshot, not offline certification or a claim about continuing
+  provider health.
+- Validation: 89 focused documentation/seminar tests, strict MkDocs build,
+  built-site internal file/anchor checks, tracked repository-size policy, diff
+  checks and in-app browser inspection cover the EDS subsection, both download
+  targets and decoded saved figures. All five new files remain below the 10 MiB
+  limit. No commit, push, deployment, release publication or runtime API change
+  was performed.
