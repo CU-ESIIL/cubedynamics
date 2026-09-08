@@ -3887,10 +3887,10 @@ secrets, credentials, private tokens, or unrelated transcript text.
 
 ## 2026-09-08 — Add EDS seminar supershowcase notebooks
 
-- Used the user-supplied rc3 SUPERSHOWCASE notebook as the canonical seminar
+- Used the user-supplied rc3 SUPERSHOWCASE BEST notebook as the canonical seminar
   source. Added Vignettes → EDS seminar navigation, a landing page with direct
   downloads, a clean participant copy and an otherwise identical executed
-  copy. The 63-cell notebook covers four stories: Working Lands, a Boulder cold
+  copy. The 72-cell notebook covers four stories: Working Lands, a Boulder cold
   snap, multivariate gridMET weather and Sentinel-2 remote sensing. It includes
   states, temporal-alignment guardrails, events, synchrony, source comparison,
   static figures and CubeDynamics HTML-viewer probes.
@@ -3900,15 +3900,23 @@ secrets, credentials, private tokens, or unrelated transcript text.
   supported_vignette=false. MkDocs renders saved outputs but does not rerun the
   live provider calls during ordinary site builds.
 - Executed the complete notebook with an isolated wheel of the exact rc3 source
-  and live PRISM/gridMET/Sentinel-2 access: 26 code cells completed, 17 PNG
-  figures and 39 HTML outputs were saved, and there were zero uncaught errors.
+  and live PRISM/gridMET/Sentinel-2 access: 27 code cells completed, 17 PNG
+  figures and 32 HTML outputs were saved, and there were zero uncaught errors.
+  Six interactive cube-viewer documents were embedded into their notebook
+  outputs so they remain portable on the built website.
   The deliberate temporal-support guardrail remains visible; every optional
   section recorded PASS in the final run summary. The saved results are a
   seminar snapshot, not offline certification or a claim about continuing
   provider health.
-- Validation: 89 focused documentation/seminar tests, strict MkDocs build,
+- Added the user-supplied 43-page PDF export unchanged for attendees without
+  Python. Its SHA-256 is
+  50b1d63da2e0adff87ff3fdb71b20a4273c6b5675b679d8bdc6680c6e82329ab;
+  visual review covered all pages, with spot checks of scientific figures,
+  tables and the final summary. A few long setup/CSS lines are clipped in the
+  supplied printout, but the narrative and scientific results remain readable.
+- Validation: 91 focused documentation/seminar tests, strict MkDocs build,
   built-site internal file/anchor checks, tracked repository-size policy, diff
-  checks and in-app browser inspection cover the EDS subsection, both download
-  targets and decoded saved figures. All five new files remain below the 10 MiB
-  limit. No commit, push, deployment, release publication or runtime API change
-  was performed.
+  checks and in-app browser inspection cover the EDS subsection, all three
+  download targets, 17 decoded saved figures and six inline viewers. Every
+  seminar file remains below the 10 MiB limit. No commit, push, deployment,
+  release publication or runtime API change was performed for this update.

@@ -14,8 +14,9 @@ short introduction to the grammar, start with [Learn](../learn/index.md).
 Follow the live beta-testing session with the
 [participant notebook](eds_seminar/participant.ipynb), or scroll through the
 [complete worked notebook](eds_seminar/answers.ipynb) with saved figures. The
-[seminar page](eds_seminar/index.md) provides direct downloads and explains the
-network requirements and exact rc3 revision.
+[seminar page](eds_seminar/index.md) also provides a PDF of the completed run
+for attendees without Python, plus the network requirements and exact rc3
+revision.
 
 ## Executable real-data notebooks
 
