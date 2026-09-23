@@ -376,6 +376,36 @@ _VERB_SPECS.update(
             _FIELD_KINDS, "relationship", requires=("time", "time_variation"), category="semantic",
             examples=("v.rolling_median_split_synchrony(window=30)",),
         ),
+        "local_synchrony_stack": _spec(
+            "local_synchrony_stack", "build moving-center synchrony landscapes and focal stacks",
+            _FIELD_KINDS, "relationship", requires=("time", "time_variation", "spatial"),
+            category="semantic", examples=("v.local_synchrony_stack(window_days=90)",),
+        ),
+        "reduce_synchrony_stack": _spec(
+            "reduce_synchrony_stack", "summarize unreduced focal synchrony stacks",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.reduce_synchrony_stack(metric='delta_s')",),
+        ),
+        "synchrony_landscape_similarity": _spec(
+            "synchrony_landscape_similarity", "compare adjacent synchrony landscapes as panels",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.synchrony_landscape_similarity()",),
+        ),
+        "panel_change_diagnostics": _spec(
+            "panel_change_diagnostics", "compare synchrony landscapes along complementary axes",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.panel_change_diagnostics()",),
+        ),
+        "stack_radius_diagnostics": _spec(
+            "stack_radius_diagnostics", "trace focal stack summaries across nested support radii",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.stack_radius_diagnostics()",),
+        ),
+        "stack_structure_diagnostics": _spec(
+            "stack_structure_diagnostics", "describe distance, direction, and candidate stack structure",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.stack_structure_diagnostics(metric='delta_s')",),
+        ),
         "rolling_tail_dep_vs_center": _spec(
             "rolling_tail_dep_vs_center", "compare rolling tail behavior with the center",
             _FIELD_KINDS, "relationship", requires=("time", "time_variation"), category="semantic",

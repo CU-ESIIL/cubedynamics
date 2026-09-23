@@ -36,20 +36,26 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [landsat8_mpc](landsat8_mpc.md) | Grammar verb / pipe stage | implemented | load Landsat observations through the MPC integration |
 | [landsat_ndvi_plot](landsat_ndvi_plot.md) | Visualization helper (direct call) | implemented | render a Landsat NDVI view |
 | [landsat_vis_ndvi](landsat_vis_ndvi.md) | Direct helper function | implemented | prepare a visualization-friendly Landsat NDVI cube |
+| [local_synchrony_stack](local_synchrony_stack.md) | Grammar verb / pipe stage | implemented | build moving-center synchrony landscapes and focal stacks |
 | [mean](mean.md) | Grammar verb / pipe stage | implemented | average values over a named dimension |
 | [month_filter](month_filter.md) | Grammar verb / pipe stage | implemented | retain observations from selected calendar months |
 | [ndvi_from_s2](ndvi_from_s2.md) | Grammar verb / pipe stage | implemented | derive NDVI from Sentinel-2 red and near-infrared bands |
 | [occurrence_synchrony](occurrence_synchrony.md) | Grammar verb / pipe stage | implemented | compare co-occurrence among state cubes |
 | [overlap](overlap.md) | Grammar verb / pipe stage | implemented | identify coincident truth in two exactly aligned conditions |
+| [panel_change_diagnostics](panel_change_diagnostics.md) | Grammar verb / pipe stage | implemented | compare synchrony landscapes along complementary axes |
 | [plot](plot.md) | Grammar verb / pipe stage | implemented | render a cube, spatial map, or temporal line view |
 | [plot_mean](plot_mean.md) | Grammar verb / pipe stage | implemented | render a spatial-mean time series |
 | [quantile_state](quantile_state.md) | Grammar verb / pipe stage | implemented | define a condition relative to an empirical quantile |
 | [rasterize_observations](rasterize_observations.md) | Direct helper function | implemented | place feature observations onto a reference cube grid |
+| [reduce_synchrony_stack](reduce_synchrony_stack.md) | Grammar verb / pipe stage | implemented | summarize unreduced focal synchrony stacks |
 | [rolling_median_split_synchrony](rolling_median_split_synchrony.md) | Grammar verb / pipe stage | implemented | measure rolling median-split synchrony |
 | [rolling_tail_dep_vs_center](rolling_tail_dep_vs_center.md) | Grammar verb / pipe stage | implemented | compare rolling tail behavior with the center |
 | [severity_synchrony](severity_synchrony.md) | Grammar verb / pipe stage | implemented | compare condition magnitude where states co-occur |
 | [show_cube_lexcube](show_cube_lexcube.md) | Grammar verb / pipe stage | implemented | render a cube while preserving it in the pipe |
+| [stack_radius_diagnostics](stack_radius_diagnostics.md) | Grammar verb / pipe stage | implemented | trace focal stack summaries across nested support radii |
+| [stack_structure_diagnostics](stack_structure_diagnostics.md) | Grammar verb / pipe stage | implemented | describe distance, direction, and candidate stack structure |
 | [sync_with](sync_with.md) | Grammar verb / pipe stage | implemented | compare an input cube with another aligned temporal cube |
+| [synchrony_landscape_similarity](synchrony_landscape_similarity.md) | Grammar verb / pipe stage | implemented | compare adjacent synchrony landscapes as panels |
 | [threshold_state](threshold_state.md) | Grammar verb / pipe stage | implemented | turn continuous values or a summary into a named true/false condition |
 | [timing_synchrony](timing_synchrony.md) | Grammar verb / pipe stage | implemented | compare the timing of detected events |
 | [to_netcdf](to_netcdf.md) | Grammar verb / pipe stage | implemented | write an explicit NetCDF output |

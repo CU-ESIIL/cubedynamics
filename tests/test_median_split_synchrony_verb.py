@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import dask.array as da
 import numpy as np
 import pytest
 import xarray as xr
+from scipy.stats import rankdata
 
 from cubedynamics import pipe, verbs as v
+from cubedynamics.utils.reference import center_pixel_indices
 
 
 def _temperature_dataset(*, dask_backed: bool = False) -> xr.Dataset:
@@ -136,3 +140,44 @@ def test_rolling_median_split_synchrony_rejects_invalid_stride() -> None:
 def test_rolling_median_split_synchrony_requires_dataset_variable_names() -> None:
     with pytest.raises(ValueError, match="require lower_var and upper_var"):
         v.rolling_median_split_synchrony()(_temperature_dataset())
+
+
+def test_real_prism_pair_manual_tail_masks_match_center_recipe() -> None:
+    """The visual walkthrough's manual pair audit matches the public verb."""
+
+    path = Path(__file__).parent / "fixtures" / "real_data" / "prism_boulder_january_2024.nc"
+    with xr.open_dataset(path, engine="scipy") as source:
+        observed = source[["tmin", "tmax"]].load()
+
+    center_y, center_x = center_pixel_indices(observed["tmin"])
+    # Preserve the walkthrough focal and center values in a tiny 3 x 3 cube;
+    # the center utility still chooses the original center series at (1, 1).
+    subset = observed.isel(y=[15, center_y, 0], x=[0, center_x, 23])
+    result = v.rolling_median_split_synchrony(
+        lower_var="tmin",
+        upper_var="tmax",
+        window_days=90,
+        min_t=10,
+        split_quantile=0.5,
+        output_times=[subset.time.values[-1]],
+    )(subset).compute()
+
+    def manual(left: np.ndarray, right: np.ndarray, *, upper: bool) -> float:
+        valid = np.isfinite(left) & np.isfinite(right)
+        left = left[valid]
+        right = right[valid]
+        if upper:
+            mask = (left > np.quantile(left, 0.5)) & (right > np.quantile(right, 0.5))
+        else:
+            mask = (left <= np.quantile(left, 0.5)) & (right <= np.quantile(right, 0.5))
+        return float(np.corrcoef(rankdata(left[mask]), rankdata(right[mask]))[0, 1])
+
+    cold_manual = manual(subset.tmin[:, 0, 0].values, subset.tmin[:, 1, 1].values, upper=False)
+    warm_manual = manual(subset.tmax[:, 0, 0].values, subset.tmax[:, 1, 1].values, upper=True)
+    cold_package = float(result.bottom_synchrony.isel(time_window_end=0, y=0, x=0))
+    warm_package = float(result.top_synchrony.isel(time_window_end=0, y=0, x=0))
+    difference = float(result.bottom_minus_top.isel(time_window_end=0, y=0, x=0))
+
+    np.testing.assert_allclose(cold_manual, cold_package, atol=1e-7, rtol=0)
+    np.testing.assert_allclose(warm_manual, warm_package, atol=1e-7, rtol=0)
+    np.testing.assert_allclose(difference, cold_package - warm_package, atol=1e-7, rtol=0)

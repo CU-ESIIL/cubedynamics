@@ -37,6 +37,12 @@ EXAMPLES = {
     "compare_blocks": 'west = (pipe(cube.isel(x=slice(0, 12))) | v.block_signature(block_id="west")).unwrap()\neast = (pipe(cube.isel(x=slice(12, None))) | v.block_signature(block_id="east")).unwrap()\nblocks = (pipe(west) | v.collect_blocks(east)).unwrap()\nresult = (pipe(blocks) | v.compare_blocks()).unwrap()\nprint(result)\nblocks["tmax"].plot.line(x="time", hue="block")\nplt.show()',
     "rolling_tail_dep_vs_center": 'result = (pipe(cube) | v.rolling_tail_dep_vs_center(window=7)).unwrap()\n# Signed upper-tail variance minus full-window variance; negative values are valid.\nresult.isel(time=-1).plot(cbar_kwargs={"label": result.attrs.get("units", "variance contrast")})\nplt.show()',
     "rolling_median_split_synchrony": 'result = (pipe(cube) | v.rolling_median_split_synchrony(window_days=14, min_t=3)).unwrap()\nresult["bottom_minus_top"].isel(time_window_end=-1).plot()\nplt.show()',
+    "local_synchrony_stack": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nresult = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(2), center_x_indices=range(2))).unwrap()\n# One center landscape; selecting a focal pixel across center shows its stack.\nresult["delta_s"].isel(center=0).plot()\nplt.show()',
+    "reduce_synchrony_stack": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nstack = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(2), center_x_indices=range(2))).unwrap()\nsummary = (pipe(stack) | v.reduce_synchrony_stack(metric="delta_s")).unwrap()\nsummary["iqr"].plot(cbar_kwargs={"label": "Stack IQR"})\nplt.show()',
+    "synchrony_landscape_similarity": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nstack = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(2), center_x_indices=range(2))).unwrap()\nchange = (pipe(stack) | v.synchrony_landscape_similarity(metric="delta_s", min_overlap=3)).unwrap()\nchange["mean_adjacent_landscape_change"].plot()\nplt.show()',
+    "panel_change_diagnostics": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nstack = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(4), center_x_indices=range(4))).unwrap()\nresult = (pipe(stack) | v.panel_change_diagnostics(deadband=0.02)).unwrap()\nresult[["delta_spearman", "delta_rmse", "delta_sign_disagreement"]].to_dataframe().plot.scatter(x="delta_rmse", y="delta_spearman")\nplt.show()',
+    "stack_radius_diagnostics": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nstack = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(4), center_x_indices=range(4))).unwrap()\nresult = (pipe(stack) | v.stack_radius_diagnostics(radii_km=(0, 10, 20, 40), stable_min_centers=3)).unwrap()\nresult["delta_iqr"].isel(y=1, x=1).plot.line(x="radius_km")\nplt.show()',
+    "stack_structure_diagnostics": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nstack = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(4), center_x_indices=range(4))).unwrap()\nresult = (pipe(stack) | v.stack_structure_diagnostics(metric="delta_s", distance_bin_edges_km=(0, 20, 40, 80), minimum_group_size=3)).unwrap()\nresult["direction_eta_squared"].plot(cbar_kwargs={"label": "Directional eta squared"})\nplt.show()',
     "diagnostic_panel": 'figure = v.diagnostic_panel(cube, title="Observed PRISM temperature")\nplt.show()',
     "plot": 'condition = (pipe(cube) | v.threshold_state(threshold=0, direction="below")).unwrap()\nresult = pipe(condition) | v.plot(variable="state", title="Observed freezing condition")\n# In Jupyter, display the pipe to interact with its attached HTML viewer.\nfrom IPython.display import display\ndisplay(result)',
 }
@@ -118,4 +124,22 @@ NOTES["show_cube_lexcube"] = {
     "accepts": "A 3-D DataArray with exactly (time, y, x) dimensions. Lexcube is an optional notebook widget, not the canonical website viewer.",
     "returns": "A pass-through stage that displays a Lexcube widget and leaves the input cube in the pipe.",
     "order": "Install the optional dependency with `python -m pip install \"cubedynamics[viz]\"`, restart the notebook kernel, and call this only while the cube still has time, y, and x dimensions.",
+}
+NOTES["panel_change_diagnostics"] = {
+    "accepts": "A Dataset produced by `v.local_synchrony_stack(...)`, retaining cold, warm, Delta, center-index, distance, and direction fields.",
+    "returns": "A summary Dataset with one row per adjacent-center comparison and separate cold, warm, and Delta magnitude, rank, sign, distribution, gradient, valid-count, range, and near-tie diagnostics.",
+    "order": "Build the unreduced stack first. Interpret Spearman with dynamic-range and near-tie context; this verb intentionally does not create one universal panel-change scalar.",
+    "workflow": "design/synchrony_stack_phase15.md",
+}
+NOTES["stack_radius_diagnostics"] = {
+    "accepts": "A Dataset produced by `v.local_synchrony_stack(...)`, including center-to-focal distances.",
+    "returns": "Nested-radius cold, warm, and Delta counts, moments, robust quantiles, step/derivative fields, and explicitly experimental stable-radius maps.",
+    "order": "Build the unreduced stack first. Requested radii must be increasing and cannot create support outside the source stack; stable-radius fields retain their full experimental rule in metadata.",
+    "workflow": "design/synchrony_stack_phase15.md",
+}
+NOTES["stack_structure_diagnostics"] = {
+    "accepts": "A Dataset produced by `v.local_synchrony_stack(...)` and one selected stack metric: cold_synchrony, warm_synchrony, or delta_s.",
+    "returns": "Distance-bin, direction-bin, residual-spread, three-bandwidth KDE-mode, deterministic two-group, and center-geography coherence diagnostics.",
+    "order": "Build the unreduced stack first. KDE modes and forced two-group fields are experimental candidate screens, not climate-regime classifications; always inspect group membership on center geography.",
+    "workflow": "design/synchrony_stack_phase15.md",
 }

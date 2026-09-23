@@ -77,6 +77,52 @@ def partial_tail_spearman(
     return (bottom, top, diff)
 
 
+def one_tail_spearman(
+    x: np.ndarray,
+    y: np.ndarray,
+    *,
+    tail: str,
+    b: float = 0.5,
+    min_t: int = 5,
+) -> tuple[float, int]:
+    """Return one validated tail correlation and its joint observation count.
+
+    This is the single-tail form of :func:`partial_tail_spearman`. It preserves
+    the same paired missing-value filter, per-series quantiles, inequalities,
+    average ranks for ties, and ``min_t`` rule while avoiding calculation of a
+    tail a caller does not need.
+    """
+
+    if tail not in {"lower", "upper"}:
+        raise ValueError("tail must be 'lower' or 'upper'")
+    if not 0.0 < b <= 0.5:
+        raise ValueError("b must be greater than 0 and no greater than 0.5")
+    mask = ~(np.isnan(x) | np.isnan(y))
+    x_valid = x[mask]
+    y_valid = y[mask]
+    if x_valid.size < min_t:
+        return (float("nan"), 0)
+    if tail == "lower":
+        selected = (x_valid <= np.quantile(x_valid, b)) & (
+            y_valid <= np.quantile(y_valid, b)
+        )
+    else:
+        selected = (x_valid > np.quantile(x_valid, 1.0 - b)) & (
+            y_valid > np.quantile(y_valid, 1.0 - b)
+        )
+    count = int(np.count_nonzero(selected))
+    if count < min_t:
+        return (float("nan"), count)
+    u = _rank_1d(x_valid[selected])
+    v = _rank_1d(y_valid[selected])
+    u_centered = u - u.mean()
+    v_centered = v - v.mean()
+    denom = np.sqrt(np.sum(u_centered**2) * np.sum(v_centered**2))
+    if denom <= 0 or np.isnan(denom):
+        return (float("nan"), count)
+    return (float(np.sum(u_centered * v_centered) / denom), count)
+
+
 def rolling_tail_dep_vs_center(
     zcube: xr.DataArray,
     window_days: int = 90,

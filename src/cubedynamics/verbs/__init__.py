@@ -84,9 +84,15 @@ from .states import (
 )
 from .synchrony import (
     duration_synchrony,
+    local_synchrony_stack,
     occurrence_synchrony,
+    panel_change_diagnostics,
+    reduce_synchrony_stack,
     severity_synchrony,
     sync_with,
+    synchrony_landscape_similarity,
+    stack_radius_diagnostics,
+    stack_structure_diagnostics,
     timing_synchrony,
 )
 
@@ -783,11 +789,17 @@ __all__ = [
     "flatten_space",
     "flatten_cube",
     "rolling_median_split_synchrony",
+    "local_synchrony_stack",
+    "panel_change_diagnostics",
+    "reduce_synchrony_stack",
+    "stack_radius_diagnostics",
+    "stack_structure_diagnostics",
     "rolling_tail_dep_vs_center",
     "variance",
     "correlation_cube",
     "diagnostic_panel",
     "to_netcdf",
+    "synchrony_landscape_similarity",
     "zscore",
     "ndvi_from_s2",
     "landsat8_mpc",

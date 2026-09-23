@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cubedynamics.org/schemas/synchrony_signature_phase15.schema.json",
+  "title": "Experimental Phase 1.5 SynchronySignature",
+  "description": "Candidate per-focal-pixel representation inferred from one observed 20 by 20 PRISM winter experiment. Spatial partitioning and stable radius are explicitly experimental.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "focal_id",
+    "cold_magnitude",
+    "warm_magnitude",
+    "delta_asymmetry",
+    "stack_heterogeneity",
+    "radius_sensitivity",
+    "directional_structure",
+    "spatial_partitioning",
+    "source_analysis_fingerprint"
+  ],
+  "properties": {
+    "focal_id": {
+      "type": "string",
+      "description": "Stable identifier for the focal grid cell."
+    },
+    "cold_magnitude": {
+      "$ref": "#/$defs/medianIqr"
+    },
+    "warm_magnitude": {
+      "$ref": "#/$defs/medianIqr"
+    },
+    "delta_asymmetry": {
+      "$ref": "#/$defs/medianIqr"
+    },
+    "stack_heterogeneity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["delta_iqr", "delta_standard_deviation", "status"],
+      "properties": {
+        "delta_iqr": {"type": ["number", "null"]},
+        "delta_standard_deviation": {"type": ["number", "null"]},
+        "status": {"const": "robust_and_ready"}
+      }
+    },
+    "radius_sensitivity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["median_radius_range", "iqr_radius_range", "status"],
+      "properties": {
+        "median_radius_range": {"type": ["number", "null"]},
+        "iqr_radius_range": {"type": ["number", "null"]},
+        "experimental_median_stable_radius_km": {"type": ["number", "null"]},
+        "experimental_iqr_stable_radius_km": {"type": ["number", "null"]},
+        "status": {"const": "useful_but_experimental"}
+      }
+    },
+    "directional_structure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction_eta_squared", "status"],
+      "properties": {
+        "direction_eta_squared": {"type": ["number", "null"]},
+        "status": {"const": "keep_as_diagnostic"}
+      }
+    },
+    "spatial_partitioning": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kde_multimodal_bandwidth_consensus",
+        "two_group_neighbor_agreement_excess",
+        "two_group_component_coverage",
+        "status"
+      ],
+      "properties": {
+        "kde_multimodal_bandwidth_consensus": {"type": ["boolean", "null"]},
+        "two_group_neighbor_agreement_excess": {"type": ["number", "null"]},
+        "two_group_component_coverage": {"type": ["number", "null"]},
+        "status": {"const": "experimental"}
+      }
+    },
+    "source_analysis_fingerprint": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  },
+  "$defs": {
+    "medianIqr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["median", "iqr", "status"],
+      "properties": {
+        "median": {"type": ["number", "null"]},
+        "iqr": {"type": ["number", "null"]},
+        "status": {"const": "robust_and_ready"}
+      }
+    }
+  }
+}

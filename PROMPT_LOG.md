@@ -4,6 +4,37 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-22 — Interpret the Phase 1 spatial synchrony stack (Phase 1.5)
+
+- Reuse the exact observed-PRISM 20 by 20 Phase 1 checkpoint (fingerprint
+  `sha256:4b4a3c30fbd5ccb2a4f8b5cefc2ca2b127e7bf31d646b27091b354b447df9acb`)
+  without recomputing climate correlations or running the 100 by 100/national
+  workflows. Preserve pair synchrony, center landscapes, focal stacks, panel
+  comparison, reduced maps, and separate cold/warm/Delta meanings.
+- Add complementary panel-change diagnostics, nested-radius summaries, and
+  descriptive distance/direction/modality/geographic-coherence diagnostics.
+  KDE mode counts now require review across 0.75, 1.0, and 1.25 times Scott's
+  bandwidth; forced groups and stable-radius fields remain experimental and
+  never establish climate regimes.
+- Real-data finding: the minimum adjacent Delta Spearman is about 0.088 because
+  narrow ranges and dense near-ties make ranks unstable, while RMSE is 0.080,
+  normalized RMSE is 0.429, sign disagreement is 0.535, and the change is
+  primarily cold-driven. The Phase 1 high-IQR stack is broad, directionally
+  organized, and bandwidth-stable unimodal rather than a validated transition.
+  Experimental median/IQR stable radii span 15-80/15-100 km, so one fixed
+  scientific radius is not supported by this block.
+- Deliver machine-readable panel, radius, structure, typology, signature, and
+  decision artifacts; 20 teaching/typology figures; a proposed evidence-ranked
+  signature schema; reproduction instructions; and a 28-page visually checked
+  PDF. Decision: GO WITH CHANGES for a bounded 100 by 100 benchmark using
+  nested 25/50/75/100 km rings and retained multidimensional diagnostics, not
+  for national computation or regime classification.
+- Validation: 26 focused synchrony/public-API tests and 92 generated-reference,
+  documentation-link, and guide tests passed. The complete offline suite passed
+  932 tests with 5 skips; 84 generated references and eight visual results are
+  current; strict MkDocs, built-site links, schema/compile checks, tracked-size
+  policy, diff checks, and visual inspection of all 28 rendered PDF pages passed.
+
 ## 2026-09-02 — Prepare 0.1.0rc3 without publication
 
 - Advance the active release identity from `0.1.0rc2` to `0.1.0rc3` on reviewed
@@ -3920,3 +3951,89 @@ secrets, credentials, private tokens, or unrelated transcript text.
   download targets, 17 decoded saved figures and six inline viewers. Every
   seminar file remains below the 10 MiB limit. No commit, push, deployment,
   release publication or runtime API change was performed for this update.
+
+## 2026-09-22 — Center-pixel climate synchrony visual walkthrough
+
+- Added `examples/center_pixel_synchrony_walkthrough.py`, a reproducible
+  ten-page static figure/PDF builder for the existing center-reference
+  `rolling_median_split_synchrony` recipe. It calls the public verb, the shared
+  center-pixel utility and spatial pair machinery; no synchrony implementation
+  was duplicated or changed.
+- The pair audit uses an explicitly acquired, observed PRISM `tmin`/`tmax`
+  cube for `[-105.75, 39.50, -104.75, 40.50]`, 2023-11-01 through 2024-01-30,
+  with synthetic fallback disabled. Spatial maps and time summaries reuse the
+  existing observed full-record 1981-2025 PRISM synchrony artifact with
+  90-day windows, `output_stride=30`, `min_t=10` and split quantile 0.5.
+- Center selection is `(y=12, x=12)`, latitude 40.0, longitude -105.25. The
+  demonstration focal cell is `(y=15, x=0)`, latitude 39.875, longitude
+  -105.75, 44.8378 km from the center. Manual average-rank Spearman checks
+  match package output to `1e-7`: cold 0.588180125 (40 joint observations),
+  warm 0.857692301 (39 joint observations), difference -0.269512177.
+- Recorded the implementation's inclusive window-label behavior: a
+  `window_days=90` slice runs from `end - 90 days` through `end`, so complete
+  daily data contribute 91 labels. Also avoided the stale per-batch
+  `requested_start`/`requested_end` attributes on the concatenated historical
+  artifact by using its top-level manifest for the 1981-2025 record bounds.
+- Output under `artifacts/center-pixel-synchrony-walkthrough/` includes the
+  final PDF, ten high-resolution page PNGs, observed pair input, pair masks,
+  one synchrony snapshot, distance diagnostics, regional summaries,
+  provenance and regeneration guidance. Artifacts remain ignored evidence,
+  not package inputs.
+- Added `examples/center_pixel_delta_s_map.py` and a standalone PNG/NetCDF
+  export for the 2024-01-30 window. Every 25 x 25 map cell is the public verb's
+  `bottom_synchrony - top_synchrony` result versus the common center; the
+  color scale is symmetric around zero and the center/focal cells are marked.
+- Validation: 16 focused synchrony/tail tests passed; PDF metadata confirms ten
+  unencrypted landscape pages; every rendered page was visually inspected at
+  120 dpi after the final build; `git diff --check` passed. No synthetic data,
+  runtime scientific edits, source promotion, commit, push or publication.
+
+## 2026-09-22 — Spatial synchrony stacks phase one
+
+- Added a bounded moving-center spatial framework around the validated
+  median-split statistic. `v.local_synchrony_stack()` returns the primary
+  `center x y x` science object with cold synchrony, warm synchrony, Delta S,
+  joint-tail counts, distance, bearing, distance band and direction. Canonical
+  undirected pairs (including self-pairs) are computed once and gathered into
+  both endpoint stacks. `stack_edges()` exposes the lossless edge form as a
+  storage/network utility rather than the primary interpretation.
+- Added `v.reduce_synchrony_stack()` for coverage, count, mean, median,
+  standard deviation, IQR, MAD, extrema, quantiles, exponential-distance and
+  near-field summaries plus distance-band and compass-direction diagnostics.
+  Added `v.synchrony_landscape_similarity()` for adjacent-panel Spearman
+  similarity Q and `1-Q` landscape change; metadata states explicitly that Q
+  is not pixel-pair synchrony S.
+- The optimized single-tail kernel reuses the exact paired validity,
+  per-series quantile, lower `<=` / upper `>`, average-rank tie and `min_t`
+  semantics. Symmetry tests cover missing values, ties and insufficient
+  tails. Radius-limited work is pruned before calculation. Kilometer metadata
+  requires an explicit geographic CRS/coordinate contract and never guesses
+  from plausible numeric ranges.
+- Added fingerprint-bound atomic NetCDF checkpoints for bounded work and a
+  design for center tiles, finite-radius halos, canonical pair de-duplication,
+  coarse scheduler batches and production Zarr groups. Incompatible resume is
+  rejected. The implementation and design deliberately stop before a CONUS
+  run.
+- Ran one observed PRISM 91-label winter window over a 20 x 20 block: 400
+  center landscapes, 160,000 directed stack slots and 80,200 canonical pairs.
+  Runtime was 71.024 seconds at 1,129 pairs/second on one process, with 23.2 MB
+  tracemalloc peak and a 5.0 MB in-memory xarray result. Center-map equivalence
+  is exact (maximum absolute error 0.0 for cold, warm and Delta S). The audited
+  44.8378 km focal pair remains cold 0.588180125, warm 0.857692301 and Delta S
+  -0.269512177.
+- Evidence under `artifacts/synchrony-stack-phase1/` includes the checkpoint,
+  reductions, panel-similarity data, four focal-stack plots, contrasting center
+  landscapes, a map-to-stack PNG/GIF, benchmark/resource JSON and documented
+  caveats. The visually reviewed nine-page report is
+  `output/pdf/cubedynamics_synchrony_stack_phase1_report.pdf`. Its recommendation
+  is a second bounded 50/100 km and 100 x 100 parallel/Zarr benchmark; dense
+  national all-pairs work is a no-go.
+- Added the design note, reproducible example, public grammar metadata,
+  generated callable references and focused tests. Validation: 130 targeted
+  synchrony, spatial, public-API and documentation tests passed; generated
+  references and the hash-bound visual-documentation manifest are current;
+  the full offline suite passed (920 passed, 5 skipped, 407 deselected). Strict
+  MkDocs, built-site internal links, tracked repository-size policy and diff
+  checks passed. All report pages were rendered and visually inspected, and
+  the final PDF has no clipping or overlap. No source promotion, full-CONUS
+  run, commit, push or publication was performed.

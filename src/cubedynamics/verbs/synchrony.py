@@ -3,10 +3,160 @@
 from __future__ import annotations
 
 from ..synchrony.coupling import sync_with as _sync_with
+from ..synchrony.diagnostics import panel_change_diagnostics as _panel_change_diagnostics
+from ..synchrony.diagnostics import stack_radius_diagnostics as _stack_radius_diagnostics
+from ..synchrony.diagnostics import stack_structure_diagnostics as _stack_structure_diagnostics
 from ..synchrony.occurrence import occurrence_synchrony as _occurrence_synchrony
 from ..synchrony.severity import severity_synchrony as _severity_synchrony
+from ..synchrony.stacks import local_synchrony_stack as _local_synchrony_stack
+from ..synchrony.stacks import reduce_synchrony_stack as _reduce_synchrony_stack
+from ..synchrony.stacks import (
+    synchrony_landscape_similarity as _synchrony_landscape_similarity,
+)
 from ..synchrony.timing import duration_synchrony as _duration_synchrony
 from ..synchrony.timing import timing_synchrony as _timing_synchrony
+
+
+def panel_change_diagnostics(
+    *, adjacency: int = 4, deadband: float = 0.02, near_tie_epsilon: float = 0.005
+):
+    """Compare adjacent cold, warm, and Delta synchrony landscapes.
+
+    Returns complementary magnitude, rank, sign, distributional, and spatial
+    gradient metrics. No universal panel-change scalar is constructed.
+    """
+
+    def _op(obj):
+        return _panel_change_diagnostics(
+            obj,
+            adjacency=adjacency,
+            deadband=deadband,
+            near_tie_epsilon=near_tie_epsilon,
+        )
+
+    return _op
+
+
+def stack_radius_diagnostics(
+    *, radii_km=None, stable_tolerance: float = 0.02, stable_min_centers: int = 25
+):
+    """Describe how focal stack summaries change across nested support radii."""
+
+    def _op(obj):
+        return _stack_radius_diagnostics(
+            obj,
+            radii_km=radii_km,
+            stable_tolerance=stable_tolerance,
+            stable_min_centers=stable_min_centers,
+        )
+
+    return _op
+
+
+def stack_structure_diagnostics(
+    *, metric: str = "delta_s", distance_bin_edges_km=None, minimum_group_size: int = 20
+):
+    """Describe distance, direction, modality, and spatial group coherence.
+
+    KDE modes and two-group fields are experimental diagnostics. They do not
+    classify climate regimes and must be interpreted with center-geography maps.
+    """
+
+    def _op(obj):
+        return _stack_structure_diagnostics(
+            obj,
+            metric=metric,
+            distance_bin_edges_km=distance_bin_edges_km,
+            minimum_group_size=minimum_group_size,
+        )
+
+    return _op
+
+
+def local_synchrony_stack(
+    *,
+    lower_var: str | None = None,
+    upper_var: str | None = None,
+    window_days: int = 90,
+    window_end=None,
+    min_t: int = 5,
+    split_quantile: float = 0.5,
+    time_dim: str = "time",
+    center_y_indices=None,
+    center_x_indices=None,
+    max_radius_km: float | None = None,
+    distance_bands_km=(25.0, 50.0, 100.0, 250.0),
+    pair_batch_size: int = 4096,
+):
+    """Build unreduced moving-center synchrony stacks.
+
+    Grammar contract
+    ----------------
+    Climate cube -> relationship stack with dimensions ``center, y, x``.
+    Cold synchrony uses the lower tail of ``lower_var``; warm synchrony uses
+    the upper tail of ``upper_var``. The output contains the full stack plus
+    distance, bearing, direction, and joint-count diagnostics.
+
+    Notes
+    -----
+    One bounded rolling window is materialized. Apply this verb to a center
+    tile plus halo; do not request a dense national center-by-focal matrix.
+    """
+
+    def _op(obj):
+        return _local_synchrony_stack(
+            obj,
+            lower_var=lower_var,
+            upper_var=upper_var,
+            window_days=window_days,
+            window_end=window_end,
+            min_t=min_t,
+            split_quantile=split_quantile,
+            time_dim=time_dim,
+            center_y_indices=center_y_indices,
+            center_x_indices=center_x_indices,
+            max_radius_km=max_radius_km,
+            distance_bands_km=distance_bands_km,
+            pair_batch_size=pair_batch_size,
+        )
+
+    return _op
+
+
+def reduce_synchrony_stack(
+    *,
+    metric: str = "delta_s",
+    near_field_km: float = 50.0,
+    distance_decay_km: float = 100.0,
+):
+    """Reduce a stack to distribution, coverage, distance, and direction maps."""
+
+    def _op(obj):
+        return _reduce_synchrony_stack(
+            obj,
+            metric=metric,
+            near_field_km=near_field_km,
+            distance_decay_km=distance_decay_km,
+        )
+
+    return _op
+
+
+def synchrony_landscape_similarity(
+    *, metric: str = "delta_s", adjacency: int = 4, min_overlap: int = 5
+):
+    """Compare adjacent centers' full landscapes using panel similarity Q.
+
+    ``Q(A, B)`` is a Spearman comparison of two panels and is scientifically
+    distinct from the pixel-pair synchrony value ``S(A, B)``.
+    """
+
+    def _op(obj):
+        return _synchrony_landscape_similarity(
+            obj, metric=metric, adjacency=adjacency, min_overlap=min_overlap
+        )
+
+    return _op
 
 
 def occurrence_synchrony(
@@ -188,8 +338,14 @@ def sync_with(
 
 __all__ = [
     "duration_synchrony",
+    "local_synchrony_stack",
     "occurrence_synchrony",
+    "panel_change_diagnostics",
+    "reduce_synchrony_stack",
     "severity_synchrony",
+    "stack_radius_diagnostics",
+    "stack_structure_diagnostics",
     "sync_with",
+    "synchrony_landscape_similarity",
     "timing_synchrony",
 ]
