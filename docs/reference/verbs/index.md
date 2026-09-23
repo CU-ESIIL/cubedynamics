@@ -40,6 +40,8 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | --- | --- | --- |
 | [compare_blocks](compare_blocks.md) | Grammar verb / pipe stage | compare collected spatial-block signatures |
 | [duration_synchrony](duration_synchrony.md) | Grammar verb / pipe stage | compare the duration of detected events |
+| [landscape_change_signature](landscape_change_signature.md) | Grammar verb / pipe stage | compare neighboring center landscapes along distinct axes |
+| [local_synchrony_pairs](local_synchrony_pairs.md) | Grammar verb / pipe stage | calculate bounded canonical climate-tail synchrony pairs |
 | [local_synchrony_stack](local_synchrony_stack.md) | Grammar verb / pipe stage | build moving-center synchrony landscapes and focal stacks |
 | [occurrence_synchrony](occurrence_synchrony.md) | Grammar verb / pipe stage | compare co-occurrence among state cubes |
 | [overlap](overlap.md) | Grammar verb / pipe stage | identify coincident truth in two exactly aligned conditions |
@@ -52,6 +54,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | [stack_structure_diagnostics](stack_structure_diagnostics.md) | Grammar verb / pipe stage | describe distance, direction, and candidate stack structure |
 | [sync_with](sync_with.md) | Grammar verb / pipe stage | compare an input cube with another aligned temporal cube |
 | [synchrony_landscape_similarity](synchrony_landscape_similarity.md) | Grammar verb / pipe stage | compare adjacent synchrony landscapes as panels |
+| [synchrony_signature](synchrony_signature.md) | Grammar verb / pipe stage | reduce local pairs across nested spatial support radii |
 | [timing_synchrony](timing_synchrony.md) | Grammar verb / pipe stage | compare the timing of detected events |
 
 ## Spatial and alignment

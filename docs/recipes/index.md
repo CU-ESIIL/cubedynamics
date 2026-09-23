@@ -12,6 +12,7 @@ are not claims of a newly computed result.
 | [Cube math primitives](cube_math_primitives.md) | Temporal differences, smoothing and spatial aggregation |
 | [FIRED event VASE and climate](fire_event_vase_hull.md) | Event geometry, climate attribution and rendering |
 | [Spatial synchrony blocks](spatial_synchrony_units.md) | Group and compare AOI signatures; long-record workflow |
+| [Local climate-tail synchrony signatures](spatial_synchrony_signature.md) | Sparse local pairs, nested support, output halos, and landscape change |
 | [Sentinel-2 center correlation](s2_corr_center.md) | Advanced satellite method |
 | [Sentinel-2 tail dependence](s2_tail_dep_manual.md) | Advanced satellite tuning |
 

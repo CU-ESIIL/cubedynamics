@@ -62,6 +62,10 @@ def test_load_prism_cube_with_point_aoi(stub_prism_backends):
 
     assert isinstance(da, xr.DataArray)
     assert da.name == "ppt"
+    assert da.y.attrs["standard_name"] == "latitude"
+    assert da.y.attrs["units"] == "degrees_north"
+    assert da.x.attrs["standard_name"] == "longitude"
+    assert da.x.attrs["units"] == "degrees_east"
     aoi = stub_prism_backends["stream"]["aoi"]
     assert aoi["min_lat"] < 40.0 < aoi["max_lat"]
     assert aoi["min_lon"] < -105.25 < aoi["max_lon"]

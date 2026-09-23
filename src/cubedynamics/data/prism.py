@@ -920,6 +920,12 @@ def _finalize_prism_cube(
         source = "synthetic"
 
     ds = _apply_prism_variable_metadata(ds, variables)
+    ds[Y_DIM].attrs.update(
+        {"standard_name": "latitude", "long_name": "latitude", "units": "degrees_north"}
+    )
+    ds[X_DIM].attrs.update(
+        {"standard_name": "longitude", "long_name": "longitude", "units": "degrees_east"}
+    )
 
     provenance_error = backend_error if source != "prism_streaming" else None
     return set_cube_provenance(

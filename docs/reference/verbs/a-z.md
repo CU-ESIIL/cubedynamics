@@ -36,6 +36,8 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [landsat8_mpc](landsat8_mpc.md) | Grammar verb / pipe stage | implemented | load Landsat observations through the MPC integration |
 | [landsat_ndvi_plot](landsat_ndvi_plot.md) | Visualization helper (direct call) | implemented | render a Landsat NDVI view |
 | [landsat_vis_ndvi](landsat_vis_ndvi.md) | Direct helper function | implemented | prepare a visualization-friendly Landsat NDVI cube |
+| [landscape_change_signature](landscape_change_signature.md) | Grammar verb / pipe stage | implemented | compare neighboring center landscapes along distinct axes |
+| [local_synchrony_pairs](local_synchrony_pairs.md) | Grammar verb / pipe stage | implemented | calculate bounded canonical climate-tail synchrony pairs |
 | [local_synchrony_stack](local_synchrony_stack.md) | Grammar verb / pipe stage | implemented | build moving-center synchrony landscapes and focal stacks |
 | [mean](mean.md) | Grammar verb / pipe stage | implemented | average values over a named dimension |
 | [month_filter](month_filter.md) | Grammar verb / pipe stage | implemented | retain observations from selected calendar months |
@@ -56,6 +58,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [stack_structure_diagnostics](stack_structure_diagnostics.md) | Grammar verb / pipe stage | implemented | describe distance, direction, and candidate stack structure |
 | [sync_with](sync_with.md) | Grammar verb / pipe stage | implemented | compare an input cube with another aligned temporal cube |
 | [synchrony_landscape_similarity](synchrony_landscape_similarity.md) | Grammar verb / pipe stage | implemented | compare adjacent synchrony landscapes as panels |
+| [synchrony_signature](synchrony_signature.md) | Grammar verb / pipe stage | implemented | reduce local pairs across nested spatial support radii |
 | [threshold_state](threshold_state.md) | Grammar verb / pipe stage | implemented | turn continuous values or a summary into a named true/false condition |
 | [timing_synchrony](timing_synchrony.md) | Grammar verb / pipe stage | implemented | compare the timing of detected events |
 | [to_netcdf](to_netcdf.md) | Grammar verb / pipe stage | implemented | write an explicit NetCDF output |

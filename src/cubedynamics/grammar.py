@@ -381,6 +381,31 @@ _VERB_SPECS.update(
             _FIELD_KINDS, "relationship", requires=("time", "time_variation", "spatial"),
             category="semantic", examples=("v.local_synchrony_stack(window_days=90)",),
         ),
+        "local_synchrony_pairs": _spec(
+            "local_synchrony_pairs", "calculate bounded canonical climate-tail synchrony pairs",
+            _FIELD_KINDS, "relationship", requires=("time", "time_variation", "spatial"),
+            category="semantic", examples=("v.local_synchrony_pairs(max_radius_km=100)",),
+        ),
+        "synchrony_signature": _spec(
+            "synchrony_signature", "baseline-compress local pairs across nested radii",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.synchrony_signature(radii_km=(25, 50, 75, 100))",),
+        ),
+        "local_synchrony_surface": _spec(
+            "local_synchrony_surface", "recover a focal S_p(dx,dy) surface",
+            ("relationship",), "field", requires=("spatial",), category="semantic",
+            examples=("v.local_synchrony_surface(focal_y_index=10, focal_x_index=10)",),
+        ),
+        "synchrony_surface_diagnostics": _spec(
+            "synchrony_surface_diagnostics", "evaluate candidate local-surface descriptors",
+            _FIELD_KINDS, "summary", requires=("spatial",), category="semantic",
+            examples=("v.synchrony_surface_diagnostics(radial_bin_width_km=5)",),
+        ),
+        "landscape_change_signature": _spec(
+            "landscape_change_signature", "compare neighboring center landscapes along distinct axes",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.landscape_change_signature(metric='delta_s')",),
+        ),
         "reduce_synchrony_stack": _spec(
             "reduce_synchrony_stack", "summarize unreduced focal synchrony stacks",
             ("relationship",), "summary", requires=("spatial",), category="semantic",

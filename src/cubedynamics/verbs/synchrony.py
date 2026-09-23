@@ -7,14 +7,137 @@ from ..synchrony.diagnostics import panel_change_diagnostics as _panel_change_di
 from ..synchrony.diagnostics import stack_radius_diagnostics as _stack_radius_diagnostics
 from ..synchrony.diagnostics import stack_structure_diagnostics as _stack_structure_diagnostics
 from ..synchrony.occurrence import occurrence_synchrony as _occurrence_synchrony
+from ..synchrony.production import landscape_change_signature as _landscape_change_signature
+from ..synchrony.production import local_synchrony_pairs as _local_synchrony_pairs
+from ..synchrony.production import synchrony_signature as _synchrony_signature
 from ..synchrony.severity import severity_synchrony as _severity_synchrony
 from ..synchrony.stacks import local_synchrony_stack as _local_synchrony_stack
 from ..synchrony.stacks import reduce_synchrony_stack as _reduce_synchrony_stack
 from ..synchrony.stacks import (
     synchrony_landscape_similarity as _synchrony_landscape_similarity,
 )
+from ..synchrony.surfaces import local_synchrony_surface as _local_synchrony_surface
+from ..synchrony.surfaces import synchrony_surface_diagnostics as _synchrony_surface_diagnostics
 from ..synchrony.timing import duration_synchrony as _duration_synchrony
 from ..synchrony.timing import timing_synchrony as _timing_synchrony
+
+
+def local_synchrony_pairs(
+    *,
+    lower_var: str | None = None,
+    upper_var: str | None = None,
+    output_mask=None,
+    max_radius_km: float = 100.0,
+    window_days: int = 90,
+    window_end=None,
+    min_t: int = 10,
+    split_quantile: float = 0.5,
+    time_dim: str = "time",
+    pair_batch_size: int = 16384,
+):
+    """Build a bounded canonical local-pair table for signature reduction.
+
+    Grammar contract
+    ----------------
+    Climate cube -> sparse local relationship Dataset. Pair values preserve the
+    validated cold/warm tail-Spearman semantics and are computed once per
+    canonical edge within the bounded input domain.
+    """
+
+    def _op(obj):
+        return _local_synchrony_pairs(
+            obj,
+            lower_var=lower_var,
+            upper_var=upper_var,
+            output_mask=output_mask,
+            max_radius_km=max_radius_km,
+            window_days=window_days,
+            window_end=window_end,
+            min_t=min_t,
+            split_quantile=split_quantile,
+            time_dim=time_dim,
+            pair_batch_size=pair_batch_size,
+        )
+
+    return _op
+
+
+def synchrony_signature(
+    *, radii_km=(25.0, 50.0, 75.0, 100.0), include_directional: bool = True
+):
+    """Reduce local pairs to a nested-radius baseline compression.
+
+    This diagnostic is retained for comparison. It does not define the local
+    synchrony surface or infer a characteristic synchrony scale.
+    """
+
+    def _op(obj):
+        return _synchrony_signature(
+            obj, radii_km=radii_km, include_directional=include_directional
+        )
+
+    return _op
+
+
+def local_synchrony_surface(
+    *,
+    focal_y_index: int | None = None,
+    focal_x_index: int | None = None,
+    focal_index: int | None = None,
+):
+    """Recover one complete focal ``S_p(dx, dy)`` surface from sparse pairs."""
+
+    def _op(obj):
+        return _local_synchrony_surface(
+            obj,
+            focal_y_index=focal_y_index,
+            focal_x_index=focal_x_index,
+            focal_index=focal_index,
+        )
+
+    return _op
+
+
+def synchrony_surface_diagnostics(
+    *,
+    metric: str = "delta_s",
+    radial_bin_width_km: float = 5.0,
+    angular_bin_width_degrees: float = 15.0,
+    min_count: int = 3,
+):
+    """Evaluate candidate radial, directional, and low-order 2-D descriptors."""
+
+    def _op(obj):
+        return _synchrony_surface_diagnostics(
+            obj,
+            metric=metric,
+            radial_bin_width_km=radial_bin_width_km,
+            angular_bin_width_degrees=angular_bin_width_degrees,
+            min_count=min_count,
+        )
+
+    return _op
+
+
+def landscape_change_signature(
+    *,
+    metric: str = "delta_s",
+    deadband: float = 0.02,
+    near_tie_epsilon: float = 0.005,
+    min_overlap: int = 25,
+):
+    """Compare neighboring center landscapes along separate change axes."""
+
+    def _op(obj):
+        return _landscape_change_signature(
+            obj,
+            metric=metric,
+            deadband=deadband,
+            near_tie_epsilon=near_tie_epsilon,
+            min_overlap=min_overlap,
+        )
+
+    return _op
 
 
 def panel_change_diagnostics(
@@ -338,6 +461,8 @@ def sync_with(
 
 __all__ = [
     "duration_synchrony",
+    "landscape_change_signature",
+    "local_synchrony_pairs",
     "local_synchrony_stack",
     "occurrence_synchrony",
     "panel_change_diagnostics",
@@ -347,5 +472,6 @@ __all__ = [
     "stack_structure_diagnostics",
     "sync_with",
     "synchrony_landscape_similarity",
+    "synchrony_signature",
     "timing_synchrony",
 ]
