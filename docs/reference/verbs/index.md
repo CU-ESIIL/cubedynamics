@@ -43,6 +43,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | [landscape_change_signature](landscape_change_signature.md) | Grammar verb / pipe stage | compare neighboring center landscapes along distinct axes |
 | [local_synchrony_pairs](local_synchrony_pairs.md) | Grammar verb / pipe stage | calculate bounded canonical climate-tail synchrony pairs |
 | [local_synchrony_stack](local_synchrony_stack.md) | Grammar verb / pipe stage | build moving-center synchrony landscapes and focal stacks |
+| [local_synchrony_surface](local_synchrony_surface.md) | Grammar verb / pipe stage | recover a focal S_p(dx,dy) surface |
 | [occurrence_synchrony](occurrence_synchrony.md) | Grammar verb / pipe stage | compare co-occurrence among state cubes |
 | [overlap](overlap.md) | Grammar verb / pipe stage | identify coincident truth in two exactly aligned conditions |
 | [panel_change_diagnostics](panel_change_diagnostics.md) | Grammar verb / pipe stage | compare synchrony landscapes along complementary axes |
@@ -54,7 +55,8 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | [stack_structure_diagnostics](stack_structure_diagnostics.md) | Grammar verb / pipe stage | describe distance, direction, and candidate stack structure |
 | [sync_with](sync_with.md) | Grammar verb / pipe stage | compare an input cube with another aligned temporal cube |
 | [synchrony_landscape_similarity](synchrony_landscape_similarity.md) | Grammar verb / pipe stage | compare adjacent synchrony landscapes as panels |
-| [synchrony_signature](synchrony_signature.md) | Grammar verb / pipe stage | reduce local pairs across nested spatial support radii |
+| [synchrony_signature](synchrony_signature.md) | Grammar verb / pipe stage | baseline-compress local pairs across nested radii |
+| [synchrony_surface_diagnostics](synchrony_surface_diagnostics.md) | Grammar verb / pipe stage | evaluate candidate local-surface descriptors |
 | [timing_synchrony](timing_synchrony.md) | Grammar verb / pipe stage | compare the timing of detected events |
 
 ## Spatial and alignment

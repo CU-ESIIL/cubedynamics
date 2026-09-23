@@ -34,11 +34,11 @@ A daily latitude/longitude climate Dataset containing the selected lower- and up
 
 ## Returns
 
-A bounded sparse relationship Dataset with one canonical undirected pair, cold and warm tail-Spearman values, pairwise Delta, distance, bearing, and joint-tail counts.
+A bounded sparse relationship Dataset with one canonical undirected pair, cold and warm tail-Spearman values, pairwise Delta, signed displacement, distance, bearing, and joint-tail counts.
 
 ## Order / grammar behavior
 
-Apply before synchrony_signature or landscape_change_signature. Supply the output tile plus its full maximum-radius climate halo.
+Apply before local_synchrony_surface, baseline synchrony_signature, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo.
 
 ## Minimal example
 
@@ -78,4 +78,4 @@ A daily latitude/longitude climate Dataset containing the selected lower- and up
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L23). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L25). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

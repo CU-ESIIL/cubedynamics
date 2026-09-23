@@ -398,7 +398,7 @@ _VERB_SPECS.update(
         ),
         "synchrony_surface_diagnostics": _spec(
             "synchrony_surface_diagnostics", "evaluate candidate local-surface descriptors",
-            _FIELD_KINDS, "summary", requires=("spatial",), category="semantic",
+            (*_FIELD_KINDS, "field"), "summary", category="semantic",
             examples=("v.synchrony_surface_diagnostics(radial_bin_width_km=5)",),
         ),
         "landscape_change_signature": _spec(

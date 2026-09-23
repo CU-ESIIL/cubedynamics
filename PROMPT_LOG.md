@@ -4037,3 +4037,55 @@ secrets, credentials, private tokens, or unrelated transcript text.
   checks passed. All report pages were rendered and visually inspected, and
   the final PDF has no clipping or overlap. No source promotion, full-CONUS
   run, commit, push or publication was performed.
+
+## 2026-09-23 — Revised Phase 2 local synchrony surfaces
+
+- Corrected the Phase 2 scientific hierarchy: the primary object is now the
+  focal two-dimensional surface `S_p(dx,dy)`. Distance and direction are
+  coordinates; 100 km is an observation radius, not an inferred synchrony
+  scale. Nested 25/50/75/100 km reductions remain exact but are explicitly a
+  Phase 1 compatibility/compression baseline. Landscape change remains a
+  separate comparison of complete center landscapes.
+- Extended canonical sparse pairs with signed kilometer and grid-index
+  displacement. Added `v.local_synchrony_surface()` for exact endpoint-oriented
+  reconstruction and `v.synchrony_surface_diagnostics()` for fine radial and
+  radially adjusted angular profiles, harmonic orientation, half-plane
+  contrast, characteristic-scale censoring and low-order 2-D reconstruction.
+  The diagnostics are candidate fields, not a finalized signature schema.
+  Statewide baseline summaries now also include Delta MAD.
+- The real 100 x 100 PRISM surface gate passed at zero maximum error for 25
+  independent Phase 1 kernel checks, eager/chunked surface values, signed
+  displacement and 180-degree bearing reversal, and independently haloed
+  tile-seam reconstruction. The refreshed statewide run covers 16,235 Colorado
+  focal pixels in 28 full-halo tiles, 24,922,476 pair calculations, 248.1 s
+  wall time and 1.21 GB peak RSS. It used the existing observed 2023-11-01 to
+  2024-01-30 PRISM snapshot; synthetic fallback was never enabled.
+- Retained 64 reproducibly sampled complete cold/warm/Delta surfaces spanning
+  random, geographic, heterogeneity, landscape-gradient, directional,
+  interior, state-border and tile-boundary strata. Each contains 1,835 to 1,933
+  valid pairs. Median/IQR and nested-radius Delta reconstructions have median
+  normalized RMSE 1.01 and 1.02; fine radial profiles 0.98; radial plus
+  directional support 0.74; the seven-parameter low-order 2-D basis 0.81; and
+  eight-component held-out PCA 0.82. PCA split-half subspace stability is 0.31,
+  so the empirical basis remains experimental. A 10% missing-pair sensitivity
+  screen reached the same representation decision.
+- The experimental scale screen returned 45 candidate plateaus, 16 multiscale
+  surfaces and 3 right-censored/unresolved surfaces. These are diagnostics,
+  not accepted characteristic scales. New anisotropy, half-plane and residual
+  complexity displays are sample diagnostics rather than statewide climate
+  classifications. The Phase 3 recommendation is selected seasonal Colorado
+  windows to test temporal stability before CONUS or historical scaling.
+- Rebuilt `output/pdf/colorado_synchrony_atlas_phase2.pdf` as a 25-page revised
+  atlas centered on full Cartesian/polar surfaces, radial/angular projections,
+  information loss, basis experiments, statewide magnitude/heterogeneity,
+  separate landscape change, validation and the provisional signature. All 25
+  final pages were rendered at 105 dpi and visually inspected; PDF metadata
+  reports 25 unencrypted landscape-letter pages and SHA-256
+  `aca4534aaa7a9c5efc551a1ead4393bac300896c144123e7dc7e8572e1489079`.
+- Validation: 38 targeted synchrony/PRISM/public-API tests passed; executable
+  generated references were repaired for the new offset-coordinate surface;
+  the full offline suite passed with 951 passed, 5 skipped and 418 deselected.
+  Generated visual/reference manifests, strict MkDocs, built-site internal
+  links, the 1,212-file tracked repository-size policy and `git diff --check`
+  passed. No source promotion, temporal/CONUS run, push or publication was
+  performed after the user's `colorado sync scaling run` commit.

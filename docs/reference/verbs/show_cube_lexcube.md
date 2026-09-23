@@ -56,4 +56,4 @@ Reducers such as :func:`mean`, :func:`variance`, :func:`anomaly`, and
 :func:`zscore` keep the cube Lexcube-ready when ``keep_dim=True``. Dask
 backing is preserved and only a light viewer object is created.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/__init__.py#L169). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/__init__.py#L171). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

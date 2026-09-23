@@ -2,7 +2,7 @@
 
 # synchrony_signature
 
-Reduce bounded local pairs to an exact nested-radius signature.
+Reduce local pairs to a nested-radius baseline compression.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -26,11 +26,11 @@ A sparse pair Dataset produced by v.local_synchrony_pairs(...).
 
 ## Returns
 
-An ordinary xarray Dataset of exact nested-radius cold median, warm median, pairwise-Delta median/IQR, counts, coverage, and compact directional diagnostics.
+A baseline compression Dataset of exact nested-radius cold median, warm median, pairwise-Delta median/IQR, counts, coverage, and compact directional diagnostics.
 
 ## Order / grammar behavior
 
-Reduce pairs only after the maximum requested radius is present. Cumulative medians and IQRs are evaluated from the retained pairs, not reconstructed from ring medians.
+Use as a compression baseline, not as the local scientific object or an inferred synchrony scale. Cumulative statistics are evaluated from retained pairs.
 
 ## Minimal example
 
@@ -72,4 +72,4 @@ A sparse pair Dataset produced by v.local_synchrony_pairs(...).
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L63). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L65). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

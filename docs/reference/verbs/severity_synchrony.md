@@ -79,4 +79,4 @@ State cube -> synchrony Dataset with joint-observation diagnostics.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L274). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L320). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

@@ -73,4 +73,4 @@ A Dataset produced by `v.local_synchrony_stack(...)`, retaining cold, warm, Delt
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L97). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L143). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
