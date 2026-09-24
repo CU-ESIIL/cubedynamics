@@ -40,6 +40,8 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | --- | --- | --- |
 | [compare_blocks](compare_blocks.md) | Grammar verb / pipe stage | compare collected spatial-block signatures |
 | [duration_synchrony](duration_synchrony.md) | Grammar verb / pipe stage | compare the duration of detected events |
+| [empirical_synchrony_decay](empirical_synchrony_decay.md) | Grammar verb / pipe stage | characterize empirical synchrony decay without a hard horizon |
+| [empirical_synchrony_range](empirical_synchrony_range.md) | Grammar verb / pipe stage | estimate kernel-agnostic local synchrony ranges and adaptive reductions |
 | [landscape_change_signature](landscape_change_signature.md) | Grammar verb / pipe stage | compare neighboring center landscapes along distinct axes |
 | [local_synchrony_pairs](local_synchrony_pairs.md) | Grammar verb / pipe stage | calculate bounded canonical climate-tail synchrony pairs |
 | [local_synchrony_stack](local_synchrony_stack.md) | Grammar verb / pipe stage | build moving-center synchrony landscapes and focal stacks |

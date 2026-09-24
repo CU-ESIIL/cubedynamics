@@ -6,10 +6,12 @@ from ..synchrony.coupling import sync_with as _sync_with
 from ..synchrony.diagnostics import panel_change_diagnostics as _panel_change_diagnostics
 from ..synchrony.diagnostics import stack_radius_diagnostics as _stack_radius_diagnostics
 from ..synchrony.diagnostics import stack_structure_diagnostics as _stack_structure_diagnostics
+from ..synchrony.decay import empirical_synchrony_decay as _empirical_synchrony_decay
 from ..synchrony.occurrence import occurrence_synchrony as _occurrence_synchrony
 from ..synchrony.production import landscape_change_signature as _landscape_change_signature
 from ..synchrony.production import local_synchrony_pairs as _local_synchrony_pairs
 from ..synchrony.production import synchrony_signature as _synchrony_signature
+from ..synchrony.ranges import empirical_synchrony_range as _empirical_synchrony_range
 from ..synchrony.severity import severity_synchrony as _severity_synchrony
 from ..synchrony.stacks import local_synchrony_stack as _local_synchrony_stack
 from ..synchrony.stacks import reduce_synchrony_stack as _reduce_synchrony_stack
@@ -27,6 +29,7 @@ def local_synchrony_pairs(
     lower_var: str | None = None,
     upper_var: str | None = None,
     output_mask=None,
+    computation_mask=None,
     max_radius_km: float = 100.0,
     window_days: int = 90,
     window_end=None,
@@ -34,6 +37,8 @@ def local_synchrony_pairs(
     split_quantile: float = 0.5,
     time_dim: str = "time",
     pair_batch_size: int = 16384,
+    distance_sampling=None,
+    sampling_seed: int = 0,
 ):
     """Build a bounded canonical local-pair table for signature reduction.
 
@@ -41,7 +46,11 @@ def local_synchrony_pairs(
     ----------------
     Climate cube -> sparse local relationship Dataset. Pair values preserve the
     validated cold/warm tail-Spearman semantics and are computed once per
-    canonical edge within the bounded input domain.
+    canonical edge within the bounded input domain. ``computation_mask`` can
+    exclude unsupported spatial nodes independently of the focal
+    ``output_mask``. ``distance_sampling`` may cap uniformly sampled pairs in
+    successive physical-distance strata before the temporal kernel executes;
+    retained pairs carry their design inclusion probability.
     """
 
     def _op(obj):
@@ -50,6 +59,7 @@ def local_synchrony_pairs(
             lower_var=lower_var,
             upper_var=upper_var,
             output_mask=output_mask,
+            computation_mask=computation_mask,
             max_radius_km=max_radius_km,
             window_days=window_days,
             window_end=window_end,
@@ -57,6 +67,8 @@ def local_synchrony_pairs(
             split_quantile=split_quantile,
             time_dim=time_dim,
             pair_batch_size=pair_batch_size,
+            distance_sampling=distance_sampling,
+            sampling_seed=sampling_seed,
         )
 
     return _op
@@ -74,6 +86,139 @@ def synchrony_signature(
     def _op(obj):
         return _synchrony_signature(
             obj, radii_km=radii_km, include_directional=include_directional
+        )
+
+    return _op
+
+
+def empirical_synchrony_range(
+    *,
+    bin_width_km: float = 20.0,
+    min_annulus_count: int = 30,
+    background_shell_count: int = 4,
+    background_method: str = "outer_annuli",
+    persistence_bins: int = 3,
+    annular_abs_tolerance: float = 0.03,
+    cumulative_abs_tolerance: float = 0.01,
+    min_profile_range: float = 0.04,
+    censor_fraction: float = 0.80,
+    fixed_radius_km: float = 100.0,
+):
+    """Estimate empirical cold/warm ranges and adaptive reductions.
+
+    Grammar contract
+    ----------------
+    Sparse local relationship Dataset -> range/adaptive summary Dataset. The
+    input discovery radius is search support, not a fitted scale. The reducer
+    uses empirical annuli and cumulative medians, applies no parametric kernel
+    or distance weighting, and reports boundary-limited results as unresolved.
+
+    Parameters
+    ----------
+    bin_width_km : float
+        Width of empirical physical-distance annuli.
+    min_annulus_count : int
+        Minimum finite pair relationships required to summarize an annulus.
+    background_shell_count : int
+        Number of outer supported annuli used by the robust background rules.
+    background_method : str
+        Selected empirical background: ``outer_annuli``,
+        ``smoothed_outer_annuli``, or ``distant_pairs``.
+    persistence_bins : int
+        Consecutive supported annuli required before declaring convergence.
+    annular_abs_tolerance : float
+        Minimum absolute tolerance around the empirical background.
+    cumulative_abs_tolerance : float
+        Maximum allowed change between successive cumulative medians.
+    min_profile_range : float
+        Smaller supported profile ranges are classified as flat/unidentified.
+    censor_fraction : float
+        Candidate ranges at or beyond this fraction of discovery support are
+        reported as unresolved.
+    fixed_radius_km : float
+        Physical radius of the fixed-control reduction retained in the output.
+
+    Returns
+    -------
+    callable
+        Pipe stage returning a summary Dataset with empirical curves,
+        cold/warm/common range estimates and statuses, fixed controls, and
+        unweighted adaptive reductions.
+
+    Notes
+    -----
+    ``R_common`` is the maximum of cold and warm ranges only when both resolve.
+    Primary adaptive Delta uses the same neighbors for both tails. Discovery
+    support, range, and kernel weighting are distinct; this verb applies no
+    parametric kernel and no distance weights.
+    """
+
+    def _op(obj):
+        return _empirical_synchrony_range(
+            obj,
+            bin_width_km=bin_width_km,
+            min_annulus_count=min_annulus_count,
+            background_shell_count=background_shell_count,
+            background_method=background_method,
+            persistence_bins=persistence_bins,
+            annular_abs_tolerance=annular_abs_tolerance,
+            cumulative_abs_tolerance=cumulative_abs_tolerance,
+            min_profile_range=min_profile_range,
+            censor_fraction=censor_fraction,
+            fixed_radius_km=fixed_radius_km,
+        )
+
+    return _op
+
+
+def empirical_synchrony_decay(
+    *,
+    discovery_radius_km: float | None = None,
+    bin_width_km: float = 20.0,
+    min_annulus_count: int = 30,
+    background_shell_count: int = 4,
+    background_method: str = "outer_annuli",
+    local_shell_count: int = 2,
+    crossing_persistence_bins: int = 2,
+    min_local_excess: float = 0.04,
+    initial_window_km: float = 100.0,
+):
+    """Characterize empirical cold and warm synchrony decay.
+
+    Grammar contract
+    ----------------
+    Sparse local relationship Dataset -> focal spatial-decay summary Dataset.
+    The reducer reuses saved pair values, retains non-monotonic annular curves,
+    and applies no parametric kernel or distance weighting.
+
+    Returns
+    -------
+    callable
+        Pipe stage returning fractional-decay distances, effective synchrony
+        length, robust initial and multiscale slopes, 100 km diagnostics, and
+        cold-minus-warm contrasts where both component metrics are valid.
+
+    Notes
+    -----
+    ``d50`` is the distance at which half the locally elevated synchrony above
+    the empirical background has been lost. Effective length is an integrated
+    curve property, not a hard cutoff. Initial slope is background-free. None
+    of these metrics is a dispersal distance, kernel bandwidth, or adaptive
+    neighborhood rule.
+    """
+
+    def _op(obj):
+        return _empirical_synchrony_decay(
+            obj,
+            discovery_radius_km=discovery_radius_km,
+            bin_width_km=bin_width_km,
+            min_annulus_count=min_annulus_count,
+            background_shell_count=background_shell_count,
+            background_method=background_method,
+            local_shell_count=local_shell_count,
+            crossing_persistence_bins=crossing_persistence_bins,
+            min_local_excess=min_local_excess,
+            initial_window_km=initial_window_km,
         )
 
     return _op
@@ -461,6 +606,7 @@ def sync_with(
 
 __all__ = [
     "duration_synchrony",
+    "empirical_synchrony_decay",
     "landscape_change_signature",
     "local_synchrony_pairs",
     "local_synchrony_stack",

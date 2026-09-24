@@ -41,6 +41,8 @@ EXAMPLES = {
     "local_synchrony_surface": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nsurface = (pipe(pairs) | v.local_synchrony_surface(focal_y_index=5, focal_x_index=5)).unwrap()\nsurface["delta_s"].plot(x="offset_x_index", y="offset_y_index")\nplt.show()',
     "synchrony_surface_diagnostics": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nsurface = (pipe(pairs) | v.local_synchrony_surface(focal_y_index=5, focal_x_index=5)).unwrap()\nresult = (pipe(surface) | v.synchrony_surface_diagnostics(radial_bin_width_km=5, angular_bin_width_degrees=30, min_count=2)).unwrap()\nresult["radial_profile"].plot(x="radius_km")\nplt.show()',
     "synchrony_signature": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.synchrony_signature(radii_km=(10, 20, 30))).unwrap()\nresult["delta_median"].isel(time_window_end=0).plot(col="radius_km")\nplt.show()',
+    "empirical_synchrony_range": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.empirical_synchrony_range(bin_width_km=5, min_annulus_count=2, background_shell_count=2, persistence_bins=2, fixed_radius_km=20)).unwrap()\nprint(result[["cold_range_km", "warm_range_km", "common_range_km", "common_range_status"]])',
+    "empirical_synchrony_decay": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.empirical_synchrony_decay(bin_width_km=5, min_annulus_count=2, background_shell_count=2, min_local_excess=0.01, initial_window_km=20)).unwrap()\nprint(result[["cold_d50_km", "warm_d50_km", "cold_effective_length_km", "warm_beta_initial_per_100km"]])',
     "landscape_change_signature": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.landscape_change_signature(metric="delta_s", min_overlap=3)).unwrap()\nresult["normalized_rmse"].plot(col="orientation")\nplt.show()',
     "local_synchrony_stack": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nresult = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(2), center_x_indices=range(2))).unwrap()\n# One center landscape; selecting a focal pixel across center shows its stack.\nresult["delta_s"].isel(center=0).plot()\nplt.show()',
     "reduce_synchrony_stack": 'small = cube.isel(y=slice(0, 4), x=slice(0, 4))\ntemperature = xr.Dataset({"tmin": small, "tmax": small})\nstack = (pipe(temperature) | v.local_synchrony_stack(lower_var="tmin", upper_var="tmax", window_days=14, min_t=3, center_y_indices=range(2), center_x_indices=range(2))).unwrap()\nsummary = (pipe(stack) | v.reduce_synchrony_stack(metric="delta_s")).unwrap()\nsummary["iqr"].plot(cbar_kwargs={"label": "Stack IQR"})\nplt.show()',
@@ -149,9 +151,9 @@ NOTES["stack_structure_diagnostics"] = {
     "workflow": "design/synchrony_stack_phase15.md",
 }
 NOTES["local_synchrony_pairs"] = {
-    "accepts": "A daily latitude/longitude climate Dataset containing the selected lower- and upper-tail variables plus an optional spatial output mask.",
+    "accepts": "A daily latitude/longitude climate Dataset containing the selected lower- and upper-tail variables, an optional focal output mask, and an optional computation mask for eligible pair endpoints.",
     "returns": "A bounded sparse relationship Dataset with one canonical undirected pair, cold and warm tail-Spearman values, pairwise Delta, signed displacement, distance, bearing, and joint-tail counts.",
-    "order": "Apply before local_synchrony_surface, baseline synchrony_signature, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo.",
+    "order": "Apply before local_synchrony_surface, baseline synchrony_signature, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo. The output mask must be a subset of the computation mask; use the latter to exclude ocean or nodata cells without dropping eligible border neighbors.",
     "workflow": "recipes/spatial_synchrony_signature.md",
 }
 NOTES["local_synchrony_surface"] = {
@@ -171,6 +173,18 @@ NOTES["synchrony_signature"] = {
     "returns": "A baseline compression Dataset of exact nested-radius cold median, warm median, pairwise-Delta median/IQR, counts, coverage, and compact directional diagnostics.",
     "order": "Use as a compression baseline, not as the local scientific object or an inferred synchrony scale. Cumulative statistics are evaluated from retained pairs.",
     "workflow": "recipes/spatial_synchrony_signature.md",
+}
+NOTES["empirical_synchrony_range"] = {
+    "accepts": "A sparse pair Dataset produced by v.local_synchrony_pairs(...) with a discovery radius larger than the fixed control radius.",
+    "returns": "Annular and cumulative empirical responses, three distant-background candidates, cold/warm/common range estimates and statuses, the unchanged fixed-radius control, and unweighted adaptive reductions.",
+    "order": "Build one sufficiently large discovery pair table first, then reuse it for fixed and adaptive reductions. A discovery limit is not a range; unresolved or boundary-limited estimates remain missing.",
+    "workflow": "synchrony/empirical_synchrony_range.md",
+}
+NOTES["empirical_synchrony_decay"] = {
+    "accepts": "A sparse pair Dataset produced by v.local_synchrony_pairs(...); saved pair checkpoints can be reused directly.",
+    "returns": "Non-monotonic annular curves, d25/d50/d75 and censoring statuses, effective synchrony length with boundary diagnostics, background-free robust slopes, 100 km interpretation, and separate cold/warm contrasts.",
+    "order": "Use after pair construction to characterize decay, not to select an adaptive radius. Keep d50, effective length, beta, and Delta_S scientifically distinct.",
+    "workflow": "synchrony/empirical_synchrony_decay.md",
 }
 NOTES["landscape_change_signature"] = {
     "accepts": "A sparse pair Dataset that retains enough neighboring center landscapes for the requested overlap threshold.",

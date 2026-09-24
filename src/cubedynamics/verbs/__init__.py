@@ -84,6 +84,8 @@ from .states import (
 )
 from .synchrony import (
     duration_synchrony,
+    empirical_synchrony_decay,
+    empirical_synchrony_range,
     landscape_change_signature,
     local_synchrony_pairs,
     local_synchrony_surface,
@@ -788,6 +790,8 @@ __all__ = [
     "compare_aoi_signature",
     "consolidate_events",
     "detect_events",
+    "empirical_synchrony_decay",
+    "empirical_synchrony_range",
     "event_metrics",
     "mean",
     "month_filter",

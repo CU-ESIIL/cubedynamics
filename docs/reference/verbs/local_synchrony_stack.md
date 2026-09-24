@@ -94,4 +94,4 @@ distance, bearing, direction, and joint-count diagnostics.
 One bounded rolling window is materialized. Apply this verb to a center
 tile plus halo; do not request a dense national center-by-focal matrix.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L199). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L338). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

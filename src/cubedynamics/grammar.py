@@ -391,6 +391,18 @@ _VERB_SPECS.update(
             ("relationship",), "summary", requires=("spatial",), category="semantic",
             examples=("v.synchrony_signature(radii_km=(25, 50, 75, 100))",),
         ),
+        "empirical_synchrony_range": _spec(
+            "empirical_synchrony_range",
+            "estimate kernel-agnostic local synchrony ranges and adaptive reductions",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.empirical_synchrony_range(bin_width_km=20)",),
+        ),
+        "empirical_synchrony_decay": _spec(
+            "empirical_synchrony_decay",
+            "characterize empirical synchrony decay without a hard horizon",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.empirical_synchrony_decay(bin_width_km=20)",),
+        ),
         "local_synchrony_surface": _spec(
             "local_synchrony_surface", "recover a focal S_p(dx,dy) surface",
             ("relationship",), "field", requires=("spatial",), category="semantic",

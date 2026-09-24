@@ -12,7 +12,7 @@ from cubedynamics.grammar import get_verb_spec
 CATEGORIES = {
     "Transform": "anomaly zscore mean variance apply flatten_space flatten_cube month_filter ndvi_from_s2".split(),
     "State and events": "threshold_state quantile_state binary_state change_state detect_events consolidate_events event_metrics".split(),
-    "Synchrony and comparison": "occurrence_synchrony timing_synchrony duration_synchrony severity_synchrony sync_with overlap compare_blocks rolling_median_split_synchrony rolling_tail_dep_vs_center local_synchrony_pairs local_synchrony_surface synchrony_surface_diagnostics synchrony_signature landscape_change_signature local_synchrony_stack reduce_synchrony_stack synchrony_landscape_similarity panel_change_diagnostics stack_radius_diagnostics stack_structure_diagnostics".split(),
+    "Synchrony and comparison": "occurrence_synchrony timing_synchrony duration_synchrony severity_synchrony sync_with overlap compare_blocks rolling_median_split_synchrony rolling_tail_dep_vs_center local_synchrony_pairs local_synchrony_surface synchrony_surface_diagnostics synchrony_signature empirical_synchrony_range empirical_synchrony_decay landscape_change_signature local_synchrony_stack reduce_synchrony_stack synchrony_landscape_similarity panel_change_diagnostics stack_radius_diagnostics stack_structure_diagnostics".split(),
     "Spatial and alignment": "align_time align_cube rasterize_observations block_signature collect_blocks extract vase_extract vase_mask".split(),
     "Visualization": "plot plot_mean vase tubes fire_plot fire_panel fire_vase_panel fire_derivative climate_hist diagnostic_panel landsat_ndvi_plot".split(),
     "Output and side effects": ["to_netcdf", "show_cube_lexcube"],

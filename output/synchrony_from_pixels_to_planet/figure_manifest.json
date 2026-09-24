@@ -1,0 +1,423 @@
+{
+  "analysis": "synchrony_from_pixels_to_planet_pedagogy",
+  "figures": {
+    "1": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair",
+        "stack.window_start",
+        "stack.window_end"
+      ],
+      "source_line": "PRISM AN daily; 2023-11-01 to 2024-01-30",
+      "title": "When do two places experience climate together?"
+    },
+    "10": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "stack.surface_count"
+      ],
+      "source_line": "Two adjacent real PRISM focal-center surfaces",
+      "title": "Move the center one pixel"
+    },
+    "11": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "stack.surface_count"
+      ],
+      "source_line": "Two real PRISM surfaces shown as transparent relational layers",
+      "title": "The two surfaces overlap"
+    },
+    "12": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "stack.surface_count"
+      ],
+      "source_line": "Four adjacent real PRISM focal-center surfaces",
+      "title": "Move again"
+    },
+    "13": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual 5 x 5 stack using a real surface as visual texture",
+      "title": "Fill a small grid of centers"
+    },
+    "14": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "stack.surface_count",
+        "stack.cells_per_surface",
+        "stack.directed_views",
+        "stack.canonical_pairs"
+      ],
+      "source_line": "Real 20 x 20 stack counts; stack planes visually sampled",
+      "title": "The 20 x 20 thought experiment"
+    },
+    "15": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual relationship column through one absolute cell",
+      "title": "What each stack element means"
+    },
+    "16": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair.center"
+      ],
+      "source_line": "Real PRISM surface shown in focal-relative coordinates",
+      "title": "Relative view"
+    },
+    "17": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual fixed geographic ridge viewed from moving centers",
+      "title": "Move the center"
+    },
+    "18": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "alignment.pearson_relative",
+        "alignment.pearson_absolute",
+        "alignment.gradient_relative",
+        "alignment.gradient_absolute"
+      ],
+      "source_line": "Real 40 km Delta alignment medians from the bounded feasibility experiment",
+      "title": "Absolute view"
+    },
+    "19": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual transparent alignment using real surface texture",
+      "title": "The central insight"
+    },
+    "2": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair.tmin_medians",
+        "pair.tmax_medians",
+        "stack.split_quantile"
+      ],
+      "source_line": "Current one_tail_spearman semantics; pair-valid 0.5 quantiles",
+      "title": "What counts as cold or warm?"
+    },
+    "20": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual textbook convolution geometry",
+      "title": "Ordinary convolution"
+    },
+    "21": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual relational sliding-window analogy",
+      "title": "Our relational version"
+    },
+    "22": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual boundary of the convolution analogy",
+      "title": "Why this is not a CNN"
+    },
+    "23": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual notation for the already-introduced relational object",
+      "title": "We have too much information"
+    },
+    "24": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "representations.median_only"
+      ],
+      "source_line": "Real PRISM 20 x 20 stack and held-out reconstruction benchmark",
+      "title": "The tempting easy solution"
+    },
+    "25": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "representations.fine_radial_profile",
+        "pair.center"
+      ],
+      "source_line": "Real PRISM focal surface and representation benchmark",
+      "title": "Radial reduction"
+    },
+    "26": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "representations.median_only",
+        "representations.fine_radial_profile",
+        "representations.radial_plus_directional",
+        "representation_surface_count"
+      ],
+      "source_line": "Real PRISM representation benchmark; 64 interior surfaces",
+      "title": "Radial + directional"
+    },
+    "27": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual align-first workflow using real PRISM surface texture",
+      "title": "The overlap idea"
+    },
+    "28": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "alignment.pearson_relative",
+        "alignment.pearson_absolute",
+        "alignment.gradient_relative",
+        "alignment.gradient_absolute"
+      ],
+      "source_line": "Bounded 20 x 20 real-PRISM feasibility experiment",
+      "title": "What the feasibility experiment found"
+    },
+    "29": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "stack.surface_count",
+        "stack.canonical_pairs",
+        "stack.window_days"
+      ],
+      "source_line": "Real 20 x 20 Front Range stack",
+      "title": "Local block"
+    },
+    "3": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair.cold",
+        "pair.cold_n"
+      ],
+      "source_line": "PRISM pair recomputed with cubedynamics.stats.tails.one_tail_spearman",
+      "title": "Cold synchrony"
+    },
+    "30": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "sources.colorado"
+      ],
+      "source_line": "Existing Colorado synchrony signature; shown as context, not final overlap product",
+      "title": "Colorado"
+    },
+    "31": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual CONUS grid; no empirical CONUS synchrony result is shown",
+      "title": "CONUS"
+    },
+    "32": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual scalable flow consistent with CubeDynamics tiling/halo architecture",
+      "title": "The computational picture"
+    },
+    "33": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual candidate map meanings; no final operator selected",
+      "title": "What would the final map mean?"
+    },
+    "34": {
+      "data_class": "SYNTHETIC",
+      "empirical_keys": [
+        "stack.split_quantile",
+        "stack.window_days"
+      ],
+      "source_line": "Synthetic contrasting climate distributions; threshold semantics are current CubeDynamics",
+      "title": "What does hot mean?"
+    },
+    "35": {
+      "data_class": "SYNTHETIC",
+      "empirical_keys": [],
+      "source_line": "Synthetic climate histories illustrating local-relative thresholds",
+      "title": "Relative extremes are a feature"
+    },
+    "36": {
+      "data_class": "SYNTHETIC",
+      "empirical_keys": [],
+      "source_line": "Synthetic absolute/relative contrast",
+      "title": "But relativity creates a new problem"
+    },
+    "37": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual nested variance scales",
+      "title": "Local versus global variance"
+    },
+    "38": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual normalization strategy menu",
+      "title": "The normalization question"
+    },
+    "39": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual reference-frame dependence",
+      "title": "The answer depends on the reference frame"
+    },
+    "4": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair.warm",
+        "pair.warm_n"
+      ],
+      "source_line": "PRISM pair recomputed with cubedynamics.stats.tails.one_tail_spearman",
+      "title": "Warm synchrony"
+    },
+    "40": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "windows"
+      ],
+      "source_line": "Real PRISM 20/40/60 km observation-window sensitivity",
+      "title": "We should not search for one magic radius"
+    },
+    "41": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual canonical pair layer",
+      "title": "Keep relationships first"
+    },
+    "42": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual multiscale reuse of canonical relationships",
+      "title": "Then ask questions at multiple scales"
+    },
+    "43": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual multiscale fields; no empirical result",
+      "title": "A multiscale synchrony map"
+    },
+    "44": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual two-axis representation",
+      "title": "Relative + absolute"
+    },
+    "45": {
+      "data_class": "REAL GHCN",
+      "empirical_keys": [
+        "stations.count",
+        "stations.pair_count"
+      ],
+      "source_line": "NOAA/NCEI GHCN-Daily station branch; Colorado outline for context",
+      "title": "PRISM is a gridded model"
+    },
+    "46": {
+      "data_class": "REAL GHCN",
+      "empirical_keys": [
+        "stations.example_pair",
+        "sources.station_pairs"
+      ],
+      "source_line": "One real GHCN-Daily station pair from the frozen feasibility branch",
+      "title": "Build the same relationships from stations"
+    },
+    "47": {
+      "data_class": "REAL GHCN",
+      "empirical_keys": [
+        "stations.cold_r",
+        "stations.warm_r",
+        "stations.delta_r",
+        "stations.contribution_status",
+        "stations.pair_count",
+        "stations.count"
+      ],
+      "source_line": "30 GHCN stations, 35 shared-station edges; all PRISM contribution statuses UNKNOWN",
+      "title": "Current preliminary result"
+    },
+    "48": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual future station-validation role, informed by current limitations",
+      "title": "Why stations matter"
+    },
+    "49": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual complete pipeline",
+      "title": "The entire method on one page"
+    },
+    "5": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair.cold",
+        "pair.warm",
+        "pair.delta"
+      ],
+      "source_line": "Delta S is cold-tail minus warm-tail Spearman synchrony",
+      "title": "Delta synchrony"
+    },
+    "50": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Evidence/open-decision synthesis grounded in current repository artifacts",
+      "title": "What we know versus what we are deciding"
+    },
+    "51": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Structured scientific discussion prompt",
+      "title": "Question 1"
+    },
+    "52": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Structured scientific discussion prompt",
+      "title": "Question 2"
+    },
+    "53": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Structured scientific discussion prompt",
+      "title": "Question 3"
+    },
+    "54": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Structured scientific discussion prompt",
+      "title": "Question 4"
+    },
+    "55": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Structured scientific discussion prompt",
+      "title": "Question 5"
+    },
+    "6": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual grid; same pair meaning as pages 1-5",
+      "title": "One center, one neighbor"
+    },
+    "7": {
+      "data_class": "CONCEPTUAL",
+      "empirical_keys": [],
+      "source_line": "Conceptual neighborhood; pair semantics unchanged",
+      "title": "One center, many neighbors"
+    },
+    "8": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair.center",
+        "pair.delta"
+      ],
+      "source_line": "Real 20 x 20 PRISM local synchrony stack",
+      "title": "The local synchrony surface"
+    },
+    "9": {
+      "data_class": "REAL PRISM",
+      "empirical_keys": [
+        "pair.center",
+        "sources.cube",
+        "sources.stack"
+      ],
+      "source_line": "Real PRISM final-day TMIN versus real center-reference Delta surface",
+      "title": "Why this is not an ordinary climate map"
+    }
+  },
+  "page_count": 55,
+  "pdf": {
+    "bytes": 8198059,
+    "path": "output/pdf/synchrony_from_pixels_to_planet.pdf",
+    "sha256": "56c574ad6023eac57a20c15cc2c3db1266e37528a2be50016fbf2be220807955"
+  }
+}

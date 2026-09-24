@@ -4,6 +4,321 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-24 — Empirical synchrony-decay follow-up
+
+- Preserved the finite-horizon Experiment 1 and added Experiment 2, which asks
+  what empirical decay properties are identifiable without treating them as
+  hard neighborhood boundaries. No previous R*, censoring, sensitivity,
+  fixed-radius, pair, or report artifact was removed or rewritten.
+- Added `cubedynamics.synchrony.decay` and the public
+  `v.empirical_synchrony_decay(...)` verb. It retains non-monotonic annular
+  median/IQR/count and cumulative curves; robustly estimates d25/d50/d75;
+  integrates positive normalized excess synchrony into effective length L;
+  estimates background-free Theil-Sen initial, near, middle, and far slopes;
+  interprets the fraction of excess lost by 100 km; and forms cold-minus-warm
+  contrasts only when both component metrics are valid. It fits no parametric
+  kernel, applies no distance weights, and does not use any metric as an
+  adaptive-radius rule.
+- Reused and SHA-validated the existing Colorado and five representative pair
+  checkpoints: 1,178,015 Colorado nonself relationships and 1,373,584 total
+  nonself relationships. The follow-up made zero pair-kernel calls, performed
+  no network or PRISM streaming, and completed its retained-pair analysis in
+  about nine seconds. No full Colorado or CONUS computation was launched.
+- At the primary 500 km / 20 km setting, d50 resolved independently for cold
+  and warm at all 25 Colorado sites and all five representative sites, compared
+  with one resolved common Colorado R* and zero of five representative common
+  R* values. Cold d50 passed its component gates, but warm d50 stabilized from
+  400 to 500 km at only 52% of Colorado sites; the combined d50 decision is
+  **HOLD**. Effective length is **HOLD** because discovery stability was only
+  12% for cold and 16% for warm. Initial beta is **HOLD** because cold bin-width
+  stability was 40%, despite 100% discovery stability and exact background
+  independence.
+- The median fraction of local excess lost by 100 km was 0.35 for cold and 0.25
+  for warm. Near-field decay was steeper than far-field decay at 84% of cold
+  sites and 56% of warm sites, supporting multiscale local-plus-broad-tail
+  structure. Median cold-minus-warm contrasts were -46.53 km for d50,
+  -34.72 km for L, and -0.072 per 100 km for beta; L remains boundary-sensitive,
+  so its paired contrast is diagnostic rather than map-ready.
+- Machine-readable evidence is under `artifacts/empirical-synchrony-decay/`:
+  25-site and five-site tables, long discovery/bin/background sensitivity
+  tables, checkpoint reuse manifest, predeclared gates, candidate decisions,
+  correlations, all 15 final decision answers, figures, audit, performance,
+  reproduction instructions, and a working-tree diff summary.
+- Delivered the 30-page walkthrough at
+  `output/pdf/empirical_synchrony_decay_pilot_walkthrough.pdf`. All pages were
+  rendered with Poppler and visually inspected, with dense pages cross-checked
+  through the second Poppler renderer. PDF text, metadata, encryption, image
+  inventory, and checksum were verified before delivery. SHA-256:
+  `e013da8cea3f8a7f8566106cc65e88ef29399464a2df82b600a2917b0d287811`.
+- Validation: 30 focused decay/range/semantic/API tests passed; 99 generated-
+  reference and documentation tests passed; generated visual/reference caches
+  were rebuilt; the complete offline suite passed with 995 passed, 5 skipped,
+  and 421 deselected. Strict MkDocs, repository-size, Python compilation,
+  reference freshness, and `git diff --check` also passed.
+
+## 2026-09-24 — Empirical local synchrony-range gate
+
+- Added a kernel-agnostic empirical range reducer and public
+  `v.empirical_synchrony_range(...)` verb. The implementation bins physical
+  distance, compares annular and cumulative medians with a nonzero empirical
+  background, requires a persistent approach, estimates cold and warm ranges
+  separately, and forms `R_common = max(R_cold, R_warm)` only when both resolve.
+  Right-censored, flat, and insufficient cases remain explicit missing results;
+  the discovery radius is never substituted as an estimate.
+- Preserved the validated semantics and control: cold is joint lower-tail TMIN
+  using inclusive pair-valid medians, warm is joint upper-tail TMAX using strict
+  `>`, and `Delta_S = S_cold - S_warm`. The adaptive experiment changes only
+  unweighted neighbor inclusion and reuses the exact pair table and robust
+  median collapse; it adds no stacking, second convolution, parametric kernel,
+  distance weighting, or dispersal interpretation.
+- Ran the predeclared real-PRISM gate on five representative CONUS pixels and
+  25 spatially balanced Colorado pilot sites using discovery limits of 200,
+  300, 400, and 500 km; 10, 20, and 40 km bins; three background definitions;
+  directional sectors; and restartable pair checkpoints. Manual annular-count,
+  reduction, and fixed-control reproductions passed.
+- Gate result: **HOLD**. At the primary 500 km / 20 km setting, 0 of 5
+  representative pixels and 1 of 25 Colorado sites resolved a common range;
+  96% of Colorado common results were censored or unresolved, and 0 of 25 were
+  stable from 400 to 500 km. Cold and warm each resolved at 9 of 25 sites, but
+  often at different locations. Scalar isotropy was not established. Therefore
+  no full Colorado or CONUS adaptive-range production run was performed.
+- The bounded Colorado pair table contained 1,178,015 nonself relationships;
+  its kernel took 10.02 seconds and the complete pilot took 45.13 seconds.
+  Planning bounds are 0.382-0.765 billion pairs for full Colorado and
+  11.35-22.69 billion for CONUS. Evidence is under
+  `artifacts/empirical-synchrony-range/`, including NetCDF, CSV, JSON,
+  provenance, performance, sensitivity, anisotropy, method specification,
+  implementation audit, figures, and reproduction instructions.
+- Delivered the 30-page visual walkthrough at
+  `output/pdf/empirical_synchrony_range_pilot_walkthrough.pdf`. All pages were
+  rendered with Poppler and visually inspected; required text, metadata,
+  encryption state, and image inventory were checked. SHA-256:
+  `5341712bedc1683996107c207370019125909067e0ab98cb70b0dd7994fbce88`.
+- Validation: 28 focused synchrony/API tests passed; 98 generated-reference and
+  documentation tests passed; generated visual/reference caches were rebuilt;
+  the full offline suite passed with 988 passed, 5 skipped, and 419 deselected;
+  strict MkDocs build, repository-size policy, Python compilation, reference
+  freshness, PDF checks, and `git diff --check` passed.
+
+## 2026-09-24 — Forensic hot/cold/Delta semantics audit
+
+- Traced the retained CONUS PRISM workflow from TMIN/TMAX acquisition through
+  pair-valid quantiles, lower/upper joint-tail Spearman, pairwise
+  `cold_synchrony - warm_synchrony`, nonself neighborhood reduction, NetCDF,
+  GeoTIFF, national plotting, and report generation. No production algorithm,
+  sign, raster, map, report, or historical output was changed.
+- Recomputed five real pairs from raw observations and average ranks; cold and
+  warm stored correlations agree with independent SciPy Spearman calculations
+  to at most `2.22e-16`, and every stored Delta equals cold minus warm exactly.
+  Three known-answer cases passed through `local_synchrony_pairs`: positive
+  Delta means cold stronger, negative Delta means warm stronger, and equal
+  tails produce zero.
+- Recomputed all 1,846 incident nonself relationships for a western focal cell.
+  Its median pairwise Delta is `-0.8753483866`, matching the national NetCDF
+  exactly and its float32 GeoTIFF within `2.56e-09`; the current `RdBu` plotting
+  path renders it red, correctly meaning stronger warm synchrony.
+- Verdict: **F. MULTIPLE INCONSISTENCIES EXIST**, confined to representation.
+  The standalone CONUS Delta colorbar omits semantic endpoint labels, and ten
+  historical cold-minus-warm/bottom-minus-top displays use `RdBu_r`, opposite
+  the newer blue-positive/cold and red-negative/warm convention. A separate
+  proposed remediation plan records affected files/outputs and was not run.
+- Added nine focused semantic regression tests covering tail routing, Delta
+  algebra and interpretation, collapse, raster sign/tags, and the current
+  CONUS color contract. Validation: 32 focused tests passed; the complete
+  offline suite passed with 980 passed, 5 skipped, and 419 deselected; Python
+  compilation and `git diff --check` passed. Audit evidence is under
+  `artifacts/hot-cold-delta-semantics-audit/`.
+- Delivered a clean 12-page landscape report at
+  `output/pdf/hot_cold_delta_semantics_audit_report.pdf`. It presents the
+  verdict, truth table, call graph, observed tail and real-pair checks,
+  production-path synthetic controls, focal-pixel collapse, semantic CONUS
+  map, one-pixel provenance, western spot checks, consistency inventory, and
+  the unexecuted remediation boundary. The final PDF is unencrypted, all 12
+  pages were rendered and visually inspected, required text was extracted,
+  and its SHA-256 is
+  `8ba8537658a16eacabff122443bfb679ac03b090f30a9a10252044c89f8d2a3c`.
+- Rebuilt the user's original CONUS walkthrough as the separate corrected
+  19-page edition
+  `output/pdf/conus_nonstacked_synchrony_walkthrough_corrected.pdf`; the
+  original PDF remains unchanged. The revised walkthrough fixes the illustrative
+  warm-tail rule from `>=` to the production rule `>`, distinguishes lower-tail
+  TMIN from upper-tail TMAX, labels red as negative/warm-stronger and blue as
+  positive/cold-stronger, and distinguishes median pairwise Delta from a
+  difference of marginal medians. It also adds the audited truth table and
+  updates the offline-suite record to 980 passed, 5 skipped, and 419
+  deselected. All pages were rendered and visually inspected; PDF text and
+  encryption checks, 13 focused tests, Python compilation, and diff checks
+  passed. SHA-256:
+  `a8f3bb6688cae7e44fa7e359b18bf0f30868096f8e67647246d935afd12bd276`.
+- Added `output/pdf/conus_synchrony_maps_high_resolution.pdf`, a three-page
+  map-only companion with one 24 x 13.5 inch CONUS map per page: lower-tail
+  TMIN synchrony, upper-tail TMAX synchrony, and median pairwise Delta. The
+  cold and warm maps share one percentile display scale for direct comparison;
+  the Delta map explicitly labels red as negative/warm-stronger and blue as
+  positive/cold-stronger. Map layers are embedded at 400 ppi (6,471 x 3,521
+  pixels) while titles, axes, outlines, and labels remain vector content. All
+  three pages were rendered and visually inspected; metadata, extracted text,
+  dimensions, image resolution, encryption, compilation, and diff checks
+  passed. SHA-256:
+  `ae100d02c79d58e250bcf45a021c6705ff45bf2f228bd3be0b790c7b71ae1dc2`.
+
+## 2026-09-24 — Expand the non-stacked Colorado baseline to CONUS
+
+- Extend the exact Colorado immediate-reduction method to all 481,630 complete
+  native PRISM CONUS cells for 2023-11-01 through 2024-01-30. Preserve the
+  per-pixel median split, joint-tail Spearman statistic, self-pair exclusion,
+  nested 25/50/75/100 km radii, pairwise Delta reduction, tiling, and restartable
+  checkpoints. The 100 km national result required 555 tiles and 688,233,788
+  non-self pair calculations; all primary output cells are finite.
+- Add an explicit computation mask to the production pair and tiled baseline
+  paths. Pair endpoints are now limited to eligible product cells while the
+  focal output mask remains independently selectable; output outside the
+  computation mask is rejected. This prevents ocean/nodata cells from affecting
+  shared-tail support selection and makes national partitions scientifically
+  and computationally equivalent to one full-domain run.
+- Produce a full NetCDF, 15 EPSG:4326 GeoTIFFs, restartable tile checkpoints,
+  two national figures, summary/QC/findings/performance/provenance records, and
+  a concise report. Statewide medians are 0.911 cold, 0.928 warm, and -0.017
+  pairwise Delta; 70.5% of focal cells have negative Delta. The CONUS input and
+  every retained nested-radius Colorado field reproduce exactly (maximum
+  absolute error 0.0 at tolerance 1e-12).
+- Validate observational agreement with a spatially balanced network of 1,500
+  quality-controlled NOAA/NCEI GHCN-Daily stations. For 3,721 station edges no
+  longer than 100 km, station-versus-nearest-PRISM-pixel Spearman agreement is
+  0.642 cold, 0.429 warm, and 0.491 Delta. For 1,387 station-neighborhood
+  reductions versus the final raster it is 0.708, 0.464, and 0.586, with
+  5-degree spatial-block bootstrap intervals retained. This is observational
+  agreement, not an independent holdout: PRISM station membership is not
+  available, pair edges share stations, and the station graph is sparse.
+- Focused production/baseline/CONUS tests passed (25 tests); the complete
+  offline suite passed with 971 passed, 5 skipped, and 419 deselected. The
+  generated reference check passed for 89 pages; eight visual results and the
+  tracked-size policy for 1,215 files passed. National figures and the station
+  network, pair, and collapsed-map figures were visually inspected. Python
+  compilation and `git diff --check` also passed.
+- Deliver an 18-page landscape-letter team walkthrough that illustrates each
+  stage from PRISM acquisition and eligibility masking through pair statistics,
+  immediate reduction, checkpointed national execution, nested-radius QC,
+  exact Colorado reproduction, GHCN daily and pair agreement, spatial-block
+  uncertainty, interpretation limits, and reproduction. Nine new explanatory
+  figures supplement the retained scientific outputs. The final PDF
+  (`sha256:210cc932e43cb51029bf919829ed5c3a5734b10d8bd03027e741df8adbb2f74b`)
+  was rendered at 110 dpi and all 18 pages were visually inspected after two
+  layout-repair passes; metadata, page count, key text extraction, compilation,
+  and `git diff --check` passed.
+
+## 2026-09-23 — Simple non-stacked Colorado synchrony baseline
+
+- Reuse the observed-PRISM Phase 2 snapshot for 2023-11-01 through 2024-01-30
+  and the current one-tail Spearman kernel, canonical pairs, Colorado mask,
+  100 km halo, tiling, and checkpoint semantics. Repository inspection resolves
+  “100 × 100” as the established computation gate, not the production
+  neighborhood: production uses an exact focal grid-cell center and an
+  irregular great-circle footprint with 100 km radius (approximately 55.5 by
+  43.2 pixels across its 200 km diameter at Colorado's mean latitude).
+- Add an internal exact non-stacked reducer that excludes every self-pair,
+  computes cold/warm/pairwise-Delta median, mean, standard deviation, IQR, MAD,
+  extrema and percentiles, separately preserves median(cold − warm) and
+  median(cold) − median(warm), and discards each tile's pair table after writing
+  its summaries. No stack, surface alignment, overlap consensus, public verb,
+  second convolution, or existing API change was introduced.
+- Both real-data engineering gates passed with zero tiled-versus-untiled and
+  zero direct-surface reduction error: a complete-halo 25 by 25 focal gate
+  (625 pixels) and the established 100 by 100 computation / central 50 by 50
+  output gate (2,500 pixels). Self exclusion, restart, halo behavior, pair
+  counts, and exact reductions are covered by focused tests.
+- Complete all 16,235 Colorado focal pixels in 28 restartable tiles using
+  24,906,241 nonself pair calculations with tile recomputation. The durable
+  checkpoint span was 246.9 seconds; summed pair-kernel and exact-reduction
+  stages were 220.7 and 14.0 seconds. No network bytes, failures, or retries
+  were recorded. All primary cells are finite; valid pair fraction is 1.0.
+- Statewide medians are 0.832 cold, 0.920 warm, and -0.083 pairwise Delta
+  (cold minus warm); 97.6% of Delta cells are negative. Pairwise Delta versus
+  difference-of-medians has rank correlation 0.985, median absolute gap 0.0062,
+  and 95th-percentile absolute gap 0.0337. Median local IQR is 0.145 cold,
+  0.065 warm, and 0.113 Delta. Support-count associations are weak; no seam,
+  checkerboard, repeated-block, missing-cell, or political-border artifact was
+  found. Nested Delta rank correlation with 100 km is 0.632/0.859/0.972 at
+  25/50/75 km.
+- Deliver the full NetCDF, 15 EPSG:4326 GeoTIFFs, 28 tile checkpoints, gate/QC/
+  performance/provenance records, summary table, five figures, documented
+  reproduction, and a visually inspected nine-page PDF. Validation: 17 focused
+  baseline and production tests passed; the complete offline suite passed with
+  961 passed and 5 skipped; 8 visual results and 89 reference pages are current;
+  compilation, artifact audit, PDF render inspection, tracked-size policy, and
+  `git diff --check` passed.
+
+## 2026-09-23 — Synchrony from two pixels to a planet teaching deck
+
+- Built a 55-page visual-first discussion PDF that starts with one real PRISM
+  pair, teaches current cold/warm joint-tail Spearman semantics and the
+  cold-minus-warm Delta sign convention, then develops one focal surface,
+  moving centers, the overlapping stack, relative versus absolute coordinates,
+  the convolution analogy, candidate reductions, and Colorado-to-CONUS/global
+  scaling. Cold is blue, warm is red, and positive Delta is blue throughout.
+- Used the existing 20 by 20 Front Range stack, statewide Colorado signature,
+  relational-convolution feasibility tables, and GHCN branch. The teaching pair
+  is recomputed with `one_tail_spearman` and asserted against the stack. Current
+  alignment, reconstruction, window-sensitivity, and station values are loaded
+  from artifact tables at build time; conceptual, synthetic, real PRISM, and
+  real GHCN pages are labeled explicitly.
+- Kept the scientific uncertainty visible: CONUS/global and multiscale views
+  are conceptual; no CNN, final overlap operator, characteristic radius,
+  climate-boundary map, global normalization, or independent station validation
+  is claimed. The final five pages structure group decisions about pixel meaning,
+  global hot/cold definitions, local variance, product families, and evidence.
+- Delivered `output/pdf/synchrony_from_pixels_to_planet.pdf` (55 landscape-letter
+  pages; SHA-256
+  `56c574ad6023eac57a20c15cc2c3db1266e37528a2be50016fbf2be220807955`),
+  55 generated page figures, a 55-page speaker guide, one-page glossary,
+  unresolved-decision list, regeneration README, empirical-value/source-hash
+  manifest, page provenance manifest, the report builder, and focused tests.
+- Validation: seven focused pedagogy/feasibility tests passed; Python compilation
+  and PDF metadata checks passed; all 55 final PDF pages were rendered at 100 dpi
+  and visually inspected in six contact sheets, with repaired clipping and no
+  remaining layout defects. No network acquisition, public API change, source
+  promotion, commit, push, or publication was performed.
+
+## 2026-09-23 — Relational-convolution feasibility experiment
+
+- Reuse the exact 400-center by 20 by 20 real PRISM Front Range checkpoint for
+  2023-11-01 through 2024-01-30. Preserve 160,000 directed endpoint views,
+  80,200 canonical pair identities, cold/warm/Delta values, counts, relative
+  displacement and absolute geography. Keep all second-stage work experimental;
+  do not change the validated statistic, add a public verb, classify boundaries,
+  select a universal radius, or run statewide/CONUS production.
+- Build explicit absolute-location and translated-edge support objects, compare
+  neighboring surfaces in relative versus geographic coordinates, retain
+  overlap coherence/gradient/surface-change/transition as separate diagnostics,
+  and test ten pair-symmetric known-answer fields against spatial smoothing.
+  At 40 km, real median Delta Pearson correlation increased from 0.71 to 0.94
+  and gradient similarity from 0.18 to 0.93 after geographic alignment. The
+  candidate map rank correlations were 0.89 and 0.95 across 20/40 and 40/60 km;
+  these are window-stability results, not inferred scales.
+- Independent real-surface median and nested-radius reconstructions had median
+  normalized RMSE 1.05 and 1.06; fine radial 1.01; radial plus directional 0.68;
+  eight-component held-out SVD 0.55. No autoencoder was justified. Synthetic
+  transitions localized sharply while distance-only, nonmonotonic, anisotropic,
+  spatially varying-distance, and noise controls remained diffuse; the sharp
+  transition was not recovered by smoothing the independent median map.
+- Retrieve a bounded NOAA/NCEI GHCN-Daily candidate network with quality flags
+  and observation metadata. Of 60 candidates, 54 met at least 70% TMIN/TMAX
+  completeness; retain 30 stations and 35 dependent edges within 150 km.
+  Station-versus-PRISM pair correlations were 0.84 cold, 0.03 warm and 0.68
+  Delta (rank 0.87, 0.30 and 0.62). All PRISM contribution statuses remain
+  `UNKNOWN`; no edge-level independence or withheld-station claim is made.
+- Deliver the design note, reproducible analysis/retrieval/report scripts,
+  complete surface and support artifacts, station manifests/QC/pair tables,
+  decision table, findings/reproduction notes and a visually inspected 31-page
+  PDF (`sha256:a2fa8d16e67c0201eee0106f5f115ca96451894063a7913958d39e943025a741`).
+  Recommendation: retain canonical pairs and prototype an internal reversible
+  relative/absolute surface-collection layer; require seasonal robustness plus
+  leave-one-station-out/spatial-block validation before API promotion.
+- Validation: 30 focused synchrony/experimental tests passed; the complete
+  offline suite passed with 955 passed, 5 skipped and 418 deselected. Strict
+  MkDocs, built-site links, the 1,215-file tracked repository-size policy,
+  Python compilation, PDF metadata/rendering and `git diff --check` passed.
+
 ## 2026-09-22 — Interpret the Phase 1 spatial synchrony stack (Phase 1.5)
 
 - Reuse the exact observed-PRISM 20 by 20 Phase 1 checkpoint (fingerprint

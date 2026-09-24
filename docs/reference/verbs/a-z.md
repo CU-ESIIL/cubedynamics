@@ -23,6 +23,8 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [detect_events](detect_events.md) | Grammar verb / pipe stage | implemented | group consecutive true periods into events |
 | [diagnostic_panel](diagnostic_panel.md) | Grammar verb / pipe stage | implemented | render a diagnostic panel |
 | [duration_synchrony](duration_synchrony.md) | Grammar verb / pipe stage | implemented | compare the duration of detected events |
+| [empirical_synchrony_decay](empirical_synchrony_decay.md) | Grammar verb / pipe stage | implemented | characterize empirical synchrony decay without a hard horizon |
+| [empirical_synchrony_range](empirical_synchrony_range.md) | Grammar verb / pipe stage | implemented | estimate kernel-agnostic local synchrony ranges and adaptive reductions |
 | [event_metrics](event_metrics.md) | Grammar verb / pipe stage | implemented | summarize events or episodes by an explicit calendar period |
 | [exceedance](exceedance.md) | Grammar verb / pipe stage | compatibility | Alias for :func:threshold_state. |
 | [extract](extract.md) | Grammar verb / pipe stage | implemented | attach fire-hull climate summaries to a cube |

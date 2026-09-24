@@ -75,4 +75,4 @@ One Dataset produced by v.local_synchrony_surface(...).
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L101). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L240). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

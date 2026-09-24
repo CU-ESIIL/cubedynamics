@@ -1,0 +1,130 @@
+{
+  "alignment": {
+    "gradient_absolute": 0.9252424173097002,
+    "gradient_relative": 0.17911610482970855,
+    "pearson_absolute": 0.9388605423078801,
+    "pearson_relative": 0.7074199744789851,
+    "radius_km": 40
+  },
+  "pair": {
+    "center": 210,
+    "center_grid": [
+      10,
+      10
+    ],
+    "center_lat": 40.0,
+    "center_lon": -105.333333,
+    "cold": 0.7505197505197505,
+    "cold_n": 38,
+    "comparison": 193,
+    "comparison_grid": [
+      9,
+      13
+    ],
+    "comparison_lat": 40.041667,
+    "comparison_lon": -105.208333,
+    "delta": -0.1991988235890675,
+    "distance_km": 11.608929634094238,
+    "tmax_medians": [
+      8.542499542236328,
+      9.856100082397461
+    ],
+    "tmin_medians": [
+      -3.027400016784668,
+      -3.8274998664855957
+    ],
+    "warm": 0.949718574108818,
+    "warm_n": 40
+  },
+  "representation_surface_count": 64,
+  "representations": {
+    "fine_radial_profile": 1.0125697528490534,
+    "median_iqr_mad": 1.049004147017703,
+    "median_only": 1.049004147017703,
+    "nested_radii": 1.056484417313795,
+    "pca_svd": 0.5470575086740328,
+    "radial_plus_directional": 0.679773994506673
+  },
+  "sources": {
+    "colorado": {
+      "path": "artifacts/synchrony-stack-phase2/colorado_synchrony_signature.nc",
+      "sha256": "ff684e66a899f95b5e080a28c068bc48a58c2c81a9cc0fe4a498f3f193b809d1"
+    },
+    "cube": {
+      "path": "artifacts/synchrony-stack-phase2/prism_colorado_plus_100km_20231101_20240130.nc",
+      "sha256": "f96d6e4fc15db7ab8795248a2c9767bf4cf57755b7a2cf5be98c8999f8581d2f"
+    },
+    "representations": {
+      "path": "artifacts/relational-convolution-feasibility/baseline_representation_comparison.csv",
+      "sha256": "9a043dea568d954e464f2493967011c903c48384988e16b8c3856952641816ff"
+    },
+    "similarity": {
+      "path": "artifacts/relational-convolution-feasibility/relative_vs_absolute_similarity.csv",
+      "sha256": "b7f06a08e92fdc54d60d0d8534402427c7e742e2e6cc2b93f58e5e3a2f97e223"
+    },
+    "stack": {
+      "path": "artifacts/synchrony-stack-phase1/prism_20x20_synchrony_stack.nc",
+      "sha256": "cd27f19600655a1093bf27823dd9db357802b9b0039f3cdee1a415dc1b9d473c"
+    },
+    "station_pairs": {
+      "path": "artifacts/relational-convolution-feasibility/station_prism_pair_synchrony.csv",
+      "sha256": "409d6ae9c87ef4d348d8c9397747d01122a7ad78c6698e5c07b14451746fbe9a"
+    },
+    "station_provenance": {
+      "path": "artifacts/relational-convolution-feasibility/station_qc_provenance.json",
+      "sha256": "0981542b81b79edfd8656240c93699318d427b1ed3621c796cca9e08d0d1df68"
+    },
+    "windows": {
+      "path": "artifacts/relational-convolution-feasibility/observation_window_sensitivity.csv",
+      "sha256": "55e02b0ed0c901896e2ce318b8607e7cd90a38330664274732a2fad438e0fc16"
+    }
+  },
+  "stack": {
+    "canonical_pairs": 80200,
+    "cells_per_surface": 400,
+    "directed_views": 160000,
+    "grid_x": 20,
+    "grid_y": 20,
+    "minimum_tail_count": 10,
+    "split_quantile": 0.5,
+    "surface_count": 400,
+    "window_days": 90,
+    "window_end": "2024-01-30",
+    "window_start": "2023-11-01"
+  },
+  "stations": {
+    "cold_r": 0.8442562732180607,
+    "contribution_status": "UNKNOWN for all selected stations",
+    "count": 30,
+    "delta_r": 0.6771249494225384,
+    "example_pair": {
+      "cold": -0.1631637026431939,
+      "delta": -0.9451981895220288,
+      "station_i": "USC00050263",
+      "station_j": "USC00052631",
+      "warm": 0.782034486878835
+    },
+    "pair_count": 35,
+    "warm_r": 0.02792360368552782
+  },
+  "windows": [
+    {
+      "left_radius_km": 20.0,
+      "metric": "delta_s",
+      "normalized_rmse": 0.4726835575907423,
+      "pearson": 0.8899904469724903,
+      "right_radius_km": 40.0,
+      "shared_edge_count": 380,
+      "spearman": 0.8930693134265036
+    },
+    {
+      "left_radius_km": 40.0,
+      "metric": "delta_s",
+      "normalized_rmse": 0.3626746331959121,
+      "pearson": 0.9504565417725992,
+      "right_radius_km": 60.0,
+      "shared_edge_count": 380,
+      "spearman": 0.9455287815449954
+    }
+  ]
+}

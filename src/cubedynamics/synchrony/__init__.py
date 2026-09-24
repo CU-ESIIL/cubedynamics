@@ -1,5 +1,11 @@
 """Synchrony primitives for state and event cubes."""
 
+from .adaptive import (
+    BREAK_STATUS,
+    VALID_BREAK_CODES,
+    adaptive_synchrony_experiment,
+    empirical_break_curve,
+)
 from .coupling import sync_with
 from .diagnostics import (
     compare_panels,
@@ -7,6 +13,7 @@ from .diagnostics import (
     stack_radius_diagnostics,
     stack_structure_diagnostics,
 )
+from .decay import DECAY_STATUS, empirical_decay_curve, empirical_synchrony_decay
 from .occurrence import occurrence_synchrony
 from .production import (
     expand_spatial_domain,
@@ -18,6 +25,12 @@ from .production import (
     tiled_landscape_change_signature,
     tiled_synchrony_signature,
     write_signature_checkpoint,
+)
+from .ranges import (
+    RANGE_STATUS,
+    empirical_range_curve,
+    empirical_synchrony_range,
+    tiled_empirical_synchrony_range,
 )
 from .severity import severity_synchrony
 from .spatial import build_spatial_pairs
@@ -40,12 +53,20 @@ from .states import binary_state, change_state, quantile_state, threshold_state
 from .timing import duration_synchrony, timing_synchrony
 
 __all__ = [
+    "adaptive_synchrony_experiment",
     "binary_state",
     "angular_profile",
     "build_spatial_pairs",
     "change_state",
     "compare_panels",
     "duration_synchrony",
+    "BREAK_STATUS",
+    "DECAY_STATUS",
+    "empirical_decay_curve",
+    "empirical_break_curve",
+    "empirical_synchrony_decay",
+    "empirical_range_curve",
+    "empirical_synchrony_range",
     "expand_spatial_domain",
     "landscape_change_signature",
     "load_signature_checkpoint",
@@ -71,7 +92,10 @@ __all__ = [
     "tiled_landscape_change_signature",
     "tiled_synchrony_signature",
     "threshold_state",
+    "tiled_empirical_synchrony_range",
     "timing_synchrony",
+    "VALID_BREAK_CODES",
+    "RANGE_STATUS",
     "write_stack_checkpoint",
     "write_signature_checkpoint",
 ]

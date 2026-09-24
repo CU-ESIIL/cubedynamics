@@ -54,4 +54,4 @@ Location, dates and Landsat-specific options forwarded to the source helper.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/__init__.py#L155). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/__init__.py#L157). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

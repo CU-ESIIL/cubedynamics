@@ -35,7 +35,7 @@ from .stacks import (
 )
 
 
-PAIR_SCHEMA_VERSION = "3"
+PAIR_SCHEMA_VERSION = "5"
 SIGNATURE_SCHEMA_VERSION = "2"
 EARTH_RADIUS_KM = 6371.0088
 _DIRECTION_LABELS = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
@@ -108,6 +108,7 @@ def local_synchrony_pairs(
     lower_var: str | None = None,
     upper_var: str | None = None,
     output_mask: xr.DataArray | np.ndarray | None = None,
+    computation_mask: xr.DataArray | np.ndarray | None = None,
     max_radius_km: float = 100.0,
     window_days: int = 90,
     window_end: object | None = None,
@@ -115,13 +116,20 @@ def local_synchrony_pairs(
     split_quantile: float = 0.5,
     time_dim: str = TIME_DIM,
     pair_batch_size: int = 16384,
+    distance_sampling: Sequence[tuple[float, int | None]] | None = None,
+    sampling_seed: int = 0,
 ) -> xr.Dataset:
     """Calculate unique local cold/warm/Delta pairs for a bounded cube.
 
     Only pairs within ``max_radius_km`` and incident to at least one requested
-    output pixel are retained. Pair thresholds are precomputed only when every
-    pixel has identical valid-time support; otherwise exact pairwise filtering
-    and thresholds are used.
+    output pixel are retained. ``computation_mask`` may independently exclude
+    nodata/ocean cells from eligible pair endpoints; ``output_mask`` must be a
+    subset of it. ``distance_sampling`` optionally caps the number of retained
+    relationships per focal pixel in successive physical-distance strata before
+    the temporal kernel runs. ``None`` caps retain a dense stratum. Every
+    retained pair records its design inclusion probability. Pair thresholds are
+    precomputed only when every eligible pixel has identical valid-time support;
+    otherwise exact pairwise filtering and thresholds are used.
     """
 
     if max_radius_km <= 0:
@@ -134,6 +142,9 @@ def local_synchrony_pairs(
         raise ValueError("split_quantile must be greater than 0 and no greater than 0.5")
     if pair_batch_size < 1:
         raise ValueError("pair_batch_size must be at least 1")
+    sampling_plan = _normalize_distance_sampling(distance_sampling, max_radius_km)
+    if sampling_seed < 0:
+        raise ValueError("sampling_seed must be non-negative")
 
     started = time.perf_counter()
     lower, upper, lower_name, upper_name = _select_inputs(obj, lower_var, upper_var)
@@ -155,7 +166,11 @@ def local_synchrony_pairs(
     _is_lat_lon(lower, y_dim, x_dim, y_values, x_values)
     y_size, x_size = y_values.size, x_values.size
     mask = _normalize_output_mask(output_mask, lower, y_dim, x_dim)
+    computation = _normalize_output_mask(computation_mask, lower, y_dim, x_dim)
+    if np.any(mask & ~computation):
+        raise ValueError("output_mask must be a subset of computation_mask")
     output_flat = mask.reshape(-1)
+    computation_flat = computation.reshape(-1)
     if not np.any(output_flat):
         raise ValueError("output_mask selects no pixels")
 
@@ -163,11 +178,18 @@ def local_synchrony_pairs(
     lat, lon = np.meshgrid(y_values, x_values, indexing="ij")
     xyz = _unit_sphere_xyz(lat.reshape(-1), lon.reshape(-1))
     chord = 2.0 * np.sin((max_radius_km / EARTH_RADIUS_KM) / 2.0)
-    nonself = cKDTree(xyz).query_pairs(chord, output_type="ndarray")
-    if nonself.size:
-        nonself = nonself[
-            output_flat[nonself[:, 0]] | output_flat[nonself[:, 1]]
-        ]
+    if np.count_nonzero(output_flat) * 4 < np.count_nonzero(computation_flat):
+        nonself = _sparse_output_pairs(xyz, chord, output_flat, computation_flat)
+        pair_enumeration = "focal query-ball union for sparse output mask"
+    else:
+        nonself = cKDTree(xyz).query_pairs(chord, output_type="ndarray")
+        if nonself.size:
+            nonself = nonself[
+                computation_flat[nonself[:, 0]]
+                & computation_flat[nonself[:, 1]]
+                & (output_flat[nonself[:, 0]] | output_flat[nonself[:, 1]])
+            ]
+        pair_enumeration = "canonical all-pairs radius query"
     self_indices = np.flatnonzero(output_flat)
     self_pairs = np.column_stack((self_indices, self_indices))
     pairs = np.vstack((self_pairs, nonself)).astype(np.int64, copy=False)
@@ -175,6 +197,24 @@ def local_synchrony_pairs(
     pairs = pairs[order]
     pair_left, pair_right = pairs[:, 0], pairs[:, 1]
     distance, bearing = _pair_geometry(pair_left, pair_right, lat.reshape(-1), lon.reshape(-1))
+    candidate_nonself_pair_count = int(np.count_nonzero(pair_left != pair_right))
+    sampling_probability = np.ones(pair_left.size, dtype=np.float64)
+    sampling_stratum = np.full(pair_left.size, -1, dtype=np.int16)
+    if sampling_plan is not None:
+        retained, sampling_probability, sampling_stratum = _sample_distance_strata(
+            pair_left,
+            pair_right,
+            distance,
+            output_flat,
+            sampling_plan,
+            seed=int(sampling_seed),
+        )
+        pair_left = pair_left[retained]
+        pair_right = pair_right[retained]
+        distance = distance[retained]
+        bearing = bearing[retained]
+        sampling_probability = sampling_probability[retained]
+        sampling_stratum = sampling_stratum[retained]
     bearing_radians = np.deg2rad(np.nan_to_num(bearing, nan=0.0))
     dx_km = distance * np.sin(bearing_radians)
     dy_km = distance * np.cos(bearing_radians)
@@ -186,10 +226,10 @@ def local_synchrony_pairs(
     materialize_seconds = time.perf_counter() - materialize_started
 
     lower_thresholds, lower_states, lower_strategy = _precomputed_tail_state(
-        lower_values, tail="lower", quantile=split_quantile
+        lower_values, tail="lower", quantile=split_quantile, active=computation_flat
     )
     upper_thresholds, upper_states, upper_strategy = _precomputed_tail_state(
-        upper_values, tail="upper", quantile=split_quantile
+        upper_values, tail="upper", quantile=split_quantile, active=computation_flat
     )
     cold = np.full(pair_left.size, np.nan, dtype=np.float64)
     warm = np.full(pair_left.size, np.nan, dtype=np.float64)
@@ -242,7 +282,10 @@ def local_synchrony_pairs(
             "dx_index": ("pair", (right_x - left_x).astype(np.int32)),
             "dy_index": ("pair", (right_y - left_y).astype(np.int32)),
             "direction_code": ("pair", direction),
+            "sampling_probability": ("pair", sampling_probability.astype(np.float32)),
+            "sampling_stratum": ("pair", sampling_stratum),
             "output_mask": ((y_dim, x_dim), mask),
+            "computation_mask": ((y_dim, x_dim), computation),
         },
         coords={
             "pair": np.arange(pair_left.size, dtype=np.int64),
@@ -267,6 +310,17 @@ def local_synchrony_pairs(
         }
     )
     result["distance_km"].attrs.update({"units": "km", "geometry": "great_circle"})
+    result["sampling_probability"].attrs.update(
+        {
+            "units": "1",
+            "definition": "design inclusion probability; inverse is the pair expansion weight",
+        }
+    )
+    result["sampling_stratum"].attrs.update(
+        {
+            "definition": "zero-based distance-sampling stratum; -1 identifies self-pairs",
+        }
+    )
     result["bearing_degrees"].attrs.update(
         {"units": "degrees", "definition": "forward bearing from canonical source to target"}
     )
@@ -300,9 +354,12 @@ def local_synchrony_pairs(
         "min_t": min_t,
         "split_quantile": split_quantile,
         "max_radius_km": max_radius_km,
+        "distance_sampling": sampling_plan,
+        "sampling_seed": int(sampling_seed),
         "y_hash": sha256(y_values.tobytes()).hexdigest(),
         "x_hash": sha256(x_values.tobytes()).hexdigest(),
         "output_mask_hash": sha256(mask.tobytes()).hexdigest(),
+        "computation_mask_hash": sha256(computation.tobytes()).hexdigest(),
     }
     fingerprint = sha256(
         json.dumps(fingerprint_payload, sort_keys=True, separators=(",", ":")).encode()
@@ -339,11 +396,37 @@ def local_synchrony_pairs(
             "pair_symmetry": "canonical undirected pair calculated once within bounded input",
             "unique_pair_count": int(pair_left.size),
             "nonself_pair_count": int(np.count_nonzero(pair_left != pair_right)),
+            "candidate_nonself_pair_count": candidate_nonself_pair_count,
+            "retained_nonself_pair_fraction": (
+                float(np.count_nonzero(pair_left != pair_right) / candidate_nonself_pair_count)
+                if candidate_nonself_pair_count
+                else np.nan
+            ),
             "output_pixel_count": int(np.count_nonzero(mask)),
-            "computation_pixel_count": int(mask.size),
+            "computation_pixel_count": int(np.count_nonzero(computation)),
+            "computation_mask_policy": (
+                "explicit eligible spatial nodes" if computation_mask is not None
+                else "all rectangular-grid nodes"
+            ),
             "cold_threshold_strategy": lower_strategy,
             "warm_threshold_strategy": upper_strategy,
             "spearman_kernel": "batched exact average-rank Pearson on pairwise joint-tail values",
+            "pair_enumeration": pair_enumeration,
+            "distance_sampling_design": (
+                "dense all eligible pairs"
+                if sampling_plan is None
+                else json.dumps(
+                    [
+                        {"upper_km": upper, "max_pairs_per_focal": cap}
+                        for upper, cap in sampling_plan
+                    ],
+                    separators=(",", ":"),
+                )
+            ),
+            "distance_sampling_seed": int(sampling_seed),
+            "sampling_weight_interpretation": (
+                "inverse inclusion probability estimates the complete focal relationship population"
+            ),
             "pair_batch_size": int(pair_batch_size),
             "geometry_seconds": float(geometry_seconds),
             "input_materialization_seconds": float(materialize_seconds),
@@ -1162,6 +1245,102 @@ def _normalize_output_mask(
     return array
 
 
+def _normalize_distance_sampling(
+    value: Sequence[tuple[float, int | None]] | None,
+    max_radius_km: float,
+) -> tuple[tuple[float, int | None], ...] | None:
+    if value is None:
+        return None
+    plan = tuple(
+        (float(upper), None if cap is None else int(cap)) for upper, cap in value
+    )
+    if not plan:
+        raise ValueError("distance_sampling must contain at least one stratum")
+    upper = np.asarray([item[0] for item in plan], dtype=float)
+    if np.any(~np.isfinite(upper)) or np.any(upper <= 0) or np.any(np.diff(upper) <= 0):
+        raise ValueError("distance_sampling upper bounds must be finite, positive, and increasing")
+    if upper[-1] + 1e-7 < max_radius_km:
+        raise ValueError("distance_sampling must cover max_radius_km")
+    if any(cap is not None and cap < 1 for _, cap in plan):
+        raise ValueError("distance_sampling caps must be positive integers or None")
+    return plan
+
+
+def _sparse_output_pairs(
+    xyz: np.ndarray,
+    chord: float,
+    output: np.ndarray,
+    computation: np.ndarray,
+) -> np.ndarray:
+    """Enumerate only edges incident to a sparse focal mask."""
+
+    tree = cKDTree(xyz)
+    pieces: list[np.ndarray] = []
+    for focal in np.flatnonzero(output):
+        neighbors = np.asarray(tree.query_ball_point(xyz[focal], chord), dtype=np.int64)
+        neighbors = neighbors[(neighbors != focal) & computation[neighbors]]
+        if not neighbors.size:
+            continue
+        left = np.minimum(focal, neighbors)
+        right = np.maximum(focal, neighbors)
+        pieces.append(np.column_stack((left, right)))
+    if not pieces:
+        return np.empty((0, 2), dtype=np.int64)
+    return np.unique(np.vstack(pieces), axis=0)
+
+
+def _sample_distance_strata(
+    left: np.ndarray,
+    right: np.ndarray,
+    distance: np.ndarray,
+    output: np.ndarray,
+    plan: tuple[tuple[float, int | None], ...],
+    *,
+    seed: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Select uniform-within-stratum incident pairs before kernel evaluation."""
+
+    retained = left == right
+    probability_not_selected = np.ones(left.size, dtype=np.float64)
+    probability_not_selected[retained] = 0.0
+    stratum = np.full(left.size, -1, dtype=np.int16)
+    lower_bound = 0.0
+    for code, (upper_bound, cap) in enumerate(plan):
+        in_band = (
+            (left != right)
+            & (distance > lower_bound - 1e-7)
+            & (distance <= upper_bound + 1e-7)
+        )
+        stratum[in_band] = code
+        lower_bound = upper_bound
+    if np.any((left != right) & (stratum < 0)):
+        raise ValueError("distance_sampling does not assign every retained-distance candidate")
+
+    for focal in np.flatnonzero(output):
+        incident = (left == focal) | (right == focal)
+        for code, (_, cap) in enumerate(plan):
+            candidates = np.flatnonzero(incident & (stratum == code))
+            count = int(candidates.size)
+            if not count:
+                continue
+            selected_count = count if cap is None else min(count, cap)
+            inclusion = selected_count / count
+            probability_not_selected[candidates] *= 1.0 - inclusion
+            if selected_count == count:
+                retained[candidates] = True
+            else:
+                generator = np.random.default_rng(
+                    np.random.SeedSequence([int(seed), int(focal), int(code)])
+                )
+                chosen = generator.choice(candidates, size=selected_count, replace=False)
+                retained[chosen] = True
+
+    probability = 1.0 - probability_not_selected
+    if np.any(retained & (probability <= 0)):
+        raise RuntimeError("retained sampled pair has zero inclusion probability")
+    return retained, probability, stratum
+
+
 def _unit_sphere_xyz(latitude: np.ndarray, longitude: np.ndarray) -> np.ndarray:
     lat = np.deg2rad(latitude)
     lon = np.deg2rad(longitude)
@@ -1204,13 +1383,24 @@ def _precomputed_tail_state(
     *,
     tail: str,
     quantile: float,
+    active: np.ndarray | None = None,
 ) -> tuple[np.ndarray | None, np.ndarray | None, str]:
     valid = np.isfinite(values)
-    if not np.all(valid == valid[0]):
+    selected = np.ones(values.shape[0], dtype=bool) if active is None else np.asarray(active, dtype=bool)
+    if selected.shape != (values.shape[0],):
+        raise ValueError("active tail-state mask must select flattened spatial pixels")
+    active_valid = valid[selected]
+    if not active_valid.size or not np.all(active_valid == active_valid[0]):
         return None, None, "pairwise exact thresholds because valid-time masks differ"
     q = quantile if tail == "lower" else 1.0 - quantile
-    thresholds = np.nanquantile(values, q, axis=1)
-    states = valid & (values <= thresholds[:, None] if tail == "lower" else values > thresholds[:, None])
+    thresholds = np.full(values.shape[0], np.nan, dtype=float)
+    thresholds[selected] = np.nanquantile(values[selected], q, axis=1)
+    states = np.zeros(values.shape, dtype=bool)
+    states[selected] = active_valid & (
+        values[selected] <= thresholds[selected, None]
+        if tail == "lower"
+        else values[selected] > thresholds[selected, None]
+    )
     return thresholds, states, "precomputed exact per-pixel threshold/state on shared valid-time support"
 
 

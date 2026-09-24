@@ -10,7 +10,7 @@ Build a bounded canonical local-pair table for signature reduction.
 
 ```python
 from cubedynamics import verbs as v
-v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, max_radius_km=100.0, window_days=90, window_end=None, min_t=10, split_quantile=0.5, time_dim='time', pair_batch_size=16384)
+v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, computation_mask=None, max_radius_km=100.0, window_days=90, window_end=None, min_t=10, split_quantile=0.5, time_dim='time', pair_batch_size=16384)
 ```
 
 ## Arguments
@@ -20,6 +20,7 @@ v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, max
 | lower_var | See implementation docstring below; no parameter-specific description supplied. | None |
 | upper_var | See implementation docstring below; no parameter-specific description supplied. | None |
 | output_mask | See implementation docstring below; no parameter-specific description supplied. | None |
+| computation_mask | See implementation docstring below; no parameter-specific description supplied. | None |
 | max_radius_km | See implementation docstring below; no parameter-specific description supplied. | 100.0 |
 | window_days | See implementation docstring below; no parameter-specific description supplied. | 90 |
 | window_end | See implementation docstring below; no parameter-specific description supplied. | None |
@@ -30,7 +31,7 @@ v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, max
 
 ## Accepts
 
-A daily latitude/longitude climate Dataset containing the selected lower- and upper-tail variables plus an optional spatial output mask.
+A daily latitude/longitude climate Dataset containing the selected lower- and upper-tail variables, an optional focal output mask, and an optional computation mask for eligible pair endpoints.
 
 ## Returns
 
@@ -38,7 +39,7 @@ A bounded sparse relationship Dataset with one canonical undirected pair, cold a
 
 ## Order / grammar behavior
 
-Apply before local_synchrony_surface, baseline synchrony_signature, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo.
+Apply before local_synchrony_surface, baseline synchrony_signature, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo. The output mask must be a subset of the computation mask; use the latter to exclude ocean or nodata cells without dropping eligible border neighbors.
 
 ## Minimal example
 
@@ -64,7 +65,7 @@ print(pairs[["cold_synchrony", "warm_synchrony", "delta_s"]])
 
 ## Works with
 
-A daily latitude/longitude climate Dataset containing the selected lower- and upper-tail variables plus an optional spatial output mask.
+A daily latitude/longitude climate Dataset containing the selected lower- and upper-tail variables, an optional focal output mask, and an optional computation mask for eligible pair endpoints.
 
 ## See also
 
@@ -78,4 +79,4 @@ A daily latitude/longitude climate Dataset containing the selected lower- and up
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L25). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L27). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
