@@ -1,6 +1,6 @@
 # Rolling climate synchrony vs center pixel
 
-This recipe measures whether unusually cold and unusually hot conditions occur
+This recipe measures whether unusually cold and unusually warm conditions occur
 synchronously across a region. It compares every PRISM grid cell with the
 center cell in rolling windows, splitting each cell and the reference at their
 own window medians before calculating synchrony.
@@ -10,7 +10,7 @@ Steps:
 1. Load daily PRISM minimum- and maximum-temperature cubes.
 2. Compute below-median synchrony from minimum temperature.
 3. Compute above-median synchrony from maximum temperature.
-4. View the cold-minus-hot difference as a cube.
+4. View the cold-minus-warm difference as a cube.
 5. Plot spatially summarized synchrony through time.
 
 ```python
@@ -37,23 +37,23 @@ sync = (pipe(temperature) | v.rolling_median_split_synchrony(
 )).unwrap()
 
 cold_sync = sync["bottom_synchrony"]
-hot_sync = sync["top_synchrony"]
-cold_minus_hot = sync["bottom_minus_top"]
+warm_sync = sync["top_synchrony"]
+cold_minus_warm = sync["bottom_minus_top"]
 
 # Interactive cube: positive values indicate stronger cold synchrony.
-diff_viewer = (pipe(cold_minus_hot.clip(-2, 2)) | v.plot(
+diff_viewer = (pipe(cold_minus_warm.clip(-2, 2)) | v.plot(
     title="PRISM temperature synchrony: cold minus warm",
-    cmap="RdBu_r",
+    cmap="RdBu",
     clim=(-2, 2),
 )).unwrap()
 
 # Flat plot: regional median cold, warm, and difference synchrony.
 ax = plot_tail_dependence_over_time(
     cold_sync,
-    hot_sync,
-    cold_minus_hot,
+    warm_sync,
+    cold_minus_warm,
     title="Median PRISM temperature synchrony (rolling 90 days)",
-    labels=("below-median tmin", "above-median tmax", "cold - hot"),
+    labels=("below-median tmin", "above-median tmax", "cold - warm"),
 )
 ```
 
@@ -61,7 +61,8 @@ ax = plot_tail_dependence_over_time(
 
 The interactive cube below shows the same idea as a compact demonstration:
 positive values mean below-median/cold synchrony is stronger, while negative
-values mean above-median/warm synchrony is stronger.
+values mean above-median/warm synchrony is stronger. The live diverging palette
+is red for negative/warm-stronger and blue for positive/cold-stronger.
 
 <div class="interactive-embed">
   <iframe
@@ -91,7 +92,7 @@ cp artifacts/median-split-demo/median_split_synchrony_diagnostic.png \
 This demo uses deterministic synthetic PRISM-like `tmin` and `tmax` cubes, so it
 is fast and offline. It also writes
 `median_split_synchrony_diagnostic.png`, a static diagnostic panel with flat
-cube faces, cold/hot/difference synchrony traces, a variance map, and a value
+cube faces, cold/warm/difference synchrony traces, a variance map, and a value
 distribution. The longer PRISM command below recreates the real-data version of
 the workflow.
 
@@ -100,7 +101,7 @@ the workflow.
 When you want to compare more than one synchrony cube, stack the cubes on a
 named dimension such as `block`, `scenario`, or `region`, then facet the cube
 viewer. The panel below shows three synthetic climate blocks rendered with a
-shared cold-minus-hot color scale.
+shared cold-minus-warm color scale.
 
 <div class="interactive-embed">
   <iframe
@@ -153,11 +154,11 @@ plot = CubePlot(
     time_dim="time_window_end",
     thin_time_factor=1,
     fill_scale=ScaleFillContinuous(
-        cmap="RdBu_r",
+        cmap="RdBu",
         palette="diverging",
         limits=(-2, 2),
         center=0,
-        name="cold - hot synchrony",
+        name="cold - warm synchrony · red: warm stronger · blue: cold stronger",
     ),
 ).facet_wrap("block", ncol=3)
 
@@ -171,10 +172,10 @@ cube unless you set `limits`.
 
 With `b=0.5`, each rolling comparison uses separate medians for the grid cell
 and center cell. The cold set contains dates when both daily minimum
-temperatures are at or below their medians. The hot set contains dates when
+temperatures are at or below their medians. The warm set contains dates when
 both daily maximum temperatures are above their medians. Spearman synchrony is
 calculated independently in each set. Positive difference values indicate
-stronger cold synchrony; negative values indicate stronger hot synchrony.
+stronger cold synchrony; negative values indicate stronger warm synchrony.
 
 The verb accepts a `(time, y, x)` `xarray.DataArray` for a single-variable
 analysis or a `Dataset` with separate lower/upper variables. To study

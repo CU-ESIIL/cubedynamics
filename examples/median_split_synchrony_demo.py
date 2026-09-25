@@ -68,7 +68,7 @@ def render_plots(synchrony: xr.Dataset, output_dir: Path) -> None:
         ax=ax,
         title="Median climate synchrony through time",
         ylabel="Spatial median Spearman synchrony",
-        labels=("below-median tmin", "above-median tmax", "cold - hot"),
+        labels=("below-median tmin", "above-median tmax", "cold - warm"),
     )
     ax.axhline(0.0, color="black", linewidth=0.8, alpha=0.6)
     fig.tight_layout()
@@ -78,8 +78,8 @@ def render_plots(synchrony: xr.Dataset, output_dir: Path) -> None:
     cube = (
         pipe(synchrony["bottom_minus_top"].clip(-2, 2))
         | v.plot(
-            title="Cold minus hot climate synchrony",
-            cmap="RdBu_r",
+            title="Cold minus warm climate synchrony · red warm / blue cold",
+            cmap="RdBu",
             clim=(-2, 2),
             thin_time_factor=1,
         )
@@ -89,7 +89,7 @@ def render_plots(synchrony: xr.Dataset, output_dir: Path) -> None:
         synchrony,
         title="Median split climate synchrony diagnostic",
         output_path=diagnostic_path,
-        cmap="RdBu_r",
+        cmap="RdBu",
     )
     plt.close(diagnostic)
     print("flat plot:", flat_path)

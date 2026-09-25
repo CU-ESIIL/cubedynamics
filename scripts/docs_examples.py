@@ -38,9 +38,9 @@ EXAMPLES = {
     "rolling_tail_dep_vs_center": 'result = (pipe(cube) | v.rolling_tail_dep_vs_center(window=7)).unwrap()\n# Signed upper-tail variance minus full-window variance; negative values are valid.\nresult.isel(time=-1).plot(cbar_kwargs={"label": result.attrs.get("units", "variance contrast")})\nplt.show()',
     "rolling_median_split_synchrony": 'result = (pipe(cube) | v.rolling_median_split_synchrony(window_days=14, min_t=3)).unwrap()\nresult["bottom_minus_top"].isel(time_window_end=-1).plot()\nplt.show()',
     "local_synchrony_pairs": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nprint(pairs[["cold_synchrony", "warm_synchrony", "delta_s"]])',
-    "local_synchrony_surface": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nsurface = (pipe(pairs) | v.local_synchrony_surface(focal_y_index=5, focal_x_index=5)).unwrap()\nsurface["delta_s"].plot(x="offset_x_index", y="offset_y_index")\nplt.show()',
+    "local_synchrony_surface": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nsurface = (pipe(pairs) | v.local_synchrony_surface(focal_y_index=5, focal_x_index=5)).unwrap()\nsurface["delta_s"].plot(x="offset_x_index", y="offset_y_index", cmap="RdBu", center=0, cbar_kwargs={"label": "Delta S · red warm / blue cold"})\nplt.show()',
     "synchrony_surface_diagnostics": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nsurface = (pipe(pairs) | v.local_synchrony_surface(focal_y_index=5, focal_x_index=5)).unwrap()\nresult = (pipe(surface) | v.synchrony_surface_diagnostics(radial_bin_width_km=5, angular_bin_width_degrees=30, min_count=2)).unwrap()\nresult["radial_profile"].plot(x="radius_km")\nplt.show()',
-    "synchrony_signature": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.synchrony_signature(radii_km=(10, 20, 30))).unwrap()\nresult["delta_median"].isel(time_window_end=0).plot(col="radius_km")\nplt.show()',
+    "synchrony_signature": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.synchrony_signature(radii_km=(10, 20, 30))).unwrap()\nresult["delta_median"].isel(time_window_end=0).plot(col="radius_km", cmap="RdBu", center=0, cbar_kwargs={"label": "Median Delta S · red warm / blue cold"})\nplt.show()',
     "empirical_synchrony_range": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.empirical_synchrony_range(bin_width_km=5, min_annulus_count=2, background_shell_count=2, persistence_bins=2, fixed_radius_km=20)).unwrap()\nprint(result[["cold_range_km", "warm_range_km", "common_range_km", "common_range_status"]])',
     "empirical_synchrony_decay": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.empirical_synchrony_decay(bin_width_km=5, min_annulus_count=2, background_shell_count=2, min_local_excess=0.01, initial_window_km=20)).unwrap()\nprint(result[["cold_d50_km", "warm_d50_km", "cold_effective_length_km", "warm_beta_initial_per_100km"]])',
     "adaptive_synchrony_experiment": 'with xr.open_dataset(path, engine="scipy") as observed:\n    temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()\npairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()\nresult = (pipe(pairs) | v.adaptive_synchrony_experiment(discovery_radius_km=30, fixed_radius_km=20, bin_width_km=5, min_annulus_count=2)).unwrap()\nprint(result[["cold_break_km", "warm_break_km", "common_break_km", "common_break_status"]])',
@@ -154,7 +154,7 @@ NOTES["stack_structure_diagnostics"] = {
 NOTES["local_synchrony_pairs"] = {
     "accepts": "A daily latitude/longitude climate Dataset containing the selected lower- and upper-tail variables, an optional focal output mask, and an optional computation mask for eligible pair endpoints.",
     "returns": "A bounded sparse relationship Dataset with one canonical undirected pair, cold and warm tail-Spearman values, pairwise Delta, signed displacement, distance, bearing, and joint-tail counts.",
-    "order": "Apply before local_synchrony_surface, baseline synchrony_signature, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo. The output mask must be a subset of the computation mask; use the latter to exclude ocean or nodata cells without dropping eligible border neighbors.",
+    "order": "Measure pairs once, then branch to local_synchrony_surface, synchrony_signature, empirical_synchrony_range, empirical_synchrony_decay, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo. The output mask must be a subset of the computation mask; use the latter to exclude ocean or nodata cells without dropping eligible border neighbors.",
     "workflow": "recipes/spatial_synchrony_signature.md",
 }
 NOTES["local_synchrony_surface"] = {
@@ -165,7 +165,7 @@ NOTES["local_synchrony_surface"] = {
 }
 NOTES["synchrony_surface_diagnostics"] = {
     "accepts": "One Dataset produced by v.local_synchrony_surface(...).",
-    "returns": "Experimental fine radial and angular profiles, harmonic, half-plane, censoring, and low-order 2-D reconstruction diagnostics.",
+    "returns": "Experimental radial spread, radially adjusted directional profiles, harmonic anisotropy, half-plane contrast, candidate-scale censoring, low-order 2-D reconstruction, and residual-complexity diagnostics.",
     "order": "Compare candidates against the full surface before adopting a compact signature. Near-limit scales remain right-censored or unresolved.",
     "workflow": "recipes/spatial_synchrony_signature.md",
 }
@@ -177,20 +177,20 @@ NOTES["synchrony_signature"] = {
 }
 NOTES["empirical_synchrony_range"] = {
     "accepts": "A sparse pair Dataset produced by v.local_synchrony_pairs(...) with a discovery radius larger than the fixed control radius.",
-    "returns": "Annular and cumulative empirical responses, three distant-background candidates, cold/warm/common range estimates and statuses, the unchanged fixed-radius control, and unweighted adaptive reductions.",
-    "order": "Build one sufficiently large discovery pair table first, then reuse it for fixed and adaptive reductions. A discovery limit is not a range; unresolved or boundary-limited estimates remain missing.",
+    "returns": "Annular and cumulative empirical responses, three distant-background candidates, cold/warm/common range estimates and statuses, the unchanged fixed-radius control, and same-neighbor range-based diagnostics.",
+    "order": "Use this branch only to ask whether a finite convergence distance resolves. A discovery limit is not a range; unresolved or boundary-limited estimates remain missing, and R_common is not a generally validated adaptive radius.",
     "workflow": "synchrony/empirical_synchrony_range.md",
 }
 NOTES["empirical_synchrony_decay"] = {
     "accepts": "A sparse pair Dataset produced by v.local_synchrony_pairs(...); saved pair checkpoints can be reused directly.",
-    "returns": "Non-monotonic annular curves, d25/d50/d75 and censoring statuses, effective synchrony length with boundary diagnostics, background-free robust slopes, 100 km interpretation, and separate cold/warm contrasts.",
-    "order": "Use after pair construction to characterize decay, not to select an adaptive radius. Keep d50, effective length, beta, and Delta_S scientifically distinct.",
+    "returns": "Annular median/IQR/count and cumulative curves; d25/d50/d75 fractional-decay coordinates; effective synchrony length; initial, near, middle, and far slopes; loss by 100 km; and valid cold-minus-warm contrasts.",
+    "order": "Use after pair construction to ask how synchrony changes continuously with distance, not to select an adaptive radius. Keep fractional decay, effective length, slopes, and pairwise Delta_S scientifically distinct.",
     "workflow": "synchrony/empirical_synchrony_decay.md",
 }
 NOTES["adaptive_synchrony_experiment"] = {
     "accepts": "A sparse pair Dataset with physical-distance support larger than the fixed comparison radius; sampled tables must retain design inclusion probabilities.",
     "returns": "Raw and smoothed annular evidence, independent cold/warm first-break estimates and statuses, a configurable common break, fixed/adaptive robust reductions, QC, direct differences, and Delta sign change.",
-    "order": "Validate the first-break estimator and any far-field sampling on exhaustive focal pixels before spatial scale-up. The discovery domain is not R*, and unresolved or ambiguous breaks remain missing.",
+    "order": "Experimental only: the current real-data gate is HOLD. Validate the first-break estimator and far-field sampling on exhaustive focal pixels before any scale-up. The discovery domain is not R*, and unresolved or ambiguous breaks remain missing.",
     "workflow": "synchrony/adaptive_synchrony_experiment.md",
 }
 NOTES["landscape_change_signature"] = {

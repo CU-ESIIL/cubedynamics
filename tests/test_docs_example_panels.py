@@ -21,7 +21,7 @@ def test_climate_synchrony_cube_panel_example_writes_html(tmp_path, monkeypatch)
     assert "cube-facet-panel" in html
     assert "block = Front Range" in html
     assert "block = San Juans" in html
-    assert "cold - hot synchrony" in html
+    assert "cold - warm synchrony" in html
 
 
 def test_fire_vase_panel_example_writes_html(tmp_path, monkeypatch):

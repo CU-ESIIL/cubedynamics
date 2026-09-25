@@ -2,7 +2,7 @@
 
 # adaptive_synchrony_experiment
 
-Discover empirical breaks and compare adaptive with fixed synchrony.
+Experimentally compare empirical first breaks with fixed synchrony.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -35,7 +35,7 @@ Raw and smoothed annular evidence, independent cold/warm first-break estimates a
 
 ## Order / grammar behavior
 
-Validate the first-break estimator and any far-field sampling on exhaustive focal pixels before spatial scale-up. The discovery domain is not R*, and unresolved or ambiguous breaks remain missing.
+Experimental only: the current real-data gate is HOLD. Validate the first-break estimator and far-field sampling on exhaustive focal pixels before any scale-up. The discovery domain is not R*, and unresolved or ambiguous breaks remain missing.
 
 ## Minimal example
 
@@ -74,6 +74,8 @@ A sparse pair Dataset with physical-distance support larger than the fixed compa
 
 ## Implementation notes
 
-No additional implementation notes in the current docstring.
+This public experiment reports unresolved and ambiguous statuses rather
+than manufacturing a radius. Its current real-data gate is on HOLD; the
+verb is not a recommended production adaptive-neighborhood method.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L228). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L303). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

@@ -12,13 +12,13 @@ from cubedynamics import pipe, verbs as v
 from cubedynamics.plotting.cube_plot import CubePlot, ScaleFillContinuous
 
 
-def _synthetic_temperature_block(seed: int, *, cold_shift: float, hot_shift: float) -> xr.Dataset:
+def _synthetic_temperature_block(seed: int, *, cold_shift: float, warm_shift: float) -> xr.Dataset:
     rng = np.random.default_rng(seed)
     time = np.datetime64("2024-01-01") + np.arange(28).astype("timedelta64[D]")
     y = np.linspace(39.45, 40.45, 5)
     x = np.linspace(-105.75, -104.75, 6)
     cold_signal = np.sin(np.linspace(0.0, 2.7 * np.pi, time.size)) * 5.0 - 4.0
-    hot_signal = np.cos(np.linspace(0.0, 2.2 * np.pi, time.size)) * 7.0 + 18.0
+    warm_signal = np.cos(np.linspace(0.0, 2.2 * np.pi, time.size)) * 7.0 + 18.0
     tmin = np.empty((time.size, y.size, x.size), dtype=np.float32)
     tmax = np.empty_like(tmin)
 
@@ -33,8 +33,8 @@ def _synthetic_temperature_block(seed: int, *, cold_shift: float, hot_shift: flo
                 + rng.normal(0.0, 0.35, time.size)
             )
             tmax[:, yi, xi] = (
-                hot_signal
-                + hot_shift * local
+                warm_signal
+                + warm_shift * local
                 + gradient
                 + rng.normal(0.0, 0.85, time.size)
             )
@@ -50,12 +50,12 @@ def _synthetic_temperature_block(seed: int, *, cold_shift: float, hot_shift: flo
 
 
 def build_panel_cube() -> xr.DataArray:
-    """Return a facetable cube with one cold-minus-hot synchrony cube per block."""
+    """Return a facetable cube with one cold-minus-warm synchrony cube per block."""
 
     blocks = {
-        "Front Range": _synthetic_temperature_block(14, cold_shift=0.5, hot_shift=1.8),
-        "San Juans": _synthetic_temperature_block(28, cold_shift=1.6, hot_shift=0.7),
-        "High Plains": _synthetic_temperature_block(42, cold_shift=1.0, hot_shift=1.0),
+        "Front Range": _synthetic_temperature_block(14, cold_shift=0.5, warm_shift=1.8),
+        "San Juans": _synthetic_temperature_block(28, cold_shift=1.6, warm_shift=0.7),
+        "High Plains": _synthetic_temperature_block(42, cold_shift=1.0, warm_shift=1.0),
     }
     cubes = []
     for label, temperature in blocks.items():
@@ -71,13 +71,13 @@ def build_panel_cube() -> xr.DataArray:
             )
         ).unwrap()
         cube = synchrony["bottom_minus_top"].clip(-2, 2)
-        cube.name = "cold_minus_hot_synchrony"
+        cube.name = "cold_minus_warm_synchrony"
         cubes.append(cube)
 
     panel_cube = xr.concat(cubes, dim=xr.IndexVariable("block", list(blocks)))
     panel_cube.attrs.update(
         {
-            "description": "Cold-minus-hot median-split synchrony for multiple climate blocks",
+            "description": "Cold-minus-warm median-split synchrony for multiple climate blocks",
             "units": "Spearman rho difference",
         }
     )
@@ -102,11 +102,11 @@ def main() -> None:
         thin_time_factor=1,
         show_progress=False,
         fill_scale=ScaleFillContinuous(
-            cmap="RdBu_r",
+            cmap="RdBu",
             palette="diverging",
             limits=(-2.0, 2.0),
             center=0.0,
-            name="cold - hot synchrony",
+            name="cold - warm synchrony · red warm / blue cold",
         ),
     ).facet_wrap("block", ncol=3)
 

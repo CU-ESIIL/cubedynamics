@@ -5,6 +5,8 @@ CubeDynamics, it is a grammar:
 
 ```text
 raw cube -> state cube -> event result -> synchrony operator -> spatial summary
+
+climate cube -> pair relationships -> local surfaces -> summaries / spatial scaling
 ```
 
 That separation matters. A threshold rule should not be tangled up with a
@@ -18,6 +20,8 @@ of synchrony.
   <span class="sync-pill">severity</span>
   <span class="sync-pill">timing</span>
   <span class="sync-pill">duration</span>
+  <span class="sync-pill">local surfaces</span>
+  <span class="sync-pill">spatial decay</span>
   <span class="sync-pill">biology coupling</span>
 </div>
 
@@ -39,6 +43,14 @@ of synchrony.
   <div class="sync-card">
     <h3><a href="biology_coupling/">Biology Coupling</a></h3>
     <p>Rasterize observations, align cubes, and compare lagged climate-biology states.</p>
+  </div>
+  <div class="sync-card">
+    <h3><a href="../recipes/spatial_synchrony_signature/">Local Climate-Tail Surfaces</a></h3>
+    <p>Measure canonical cold/warm pairs, preserve local geography, choose a reduction, and characterize distance scaling.</p>
+  </div>
+  <div class="sync-card">
+    <h3><a href="empirical_synchrony_decay/">Empirical Spatial Decay</a></h3>
+    <p>Describe annular curves, fractional-decay distances, effective length, and multiscale slopes without forcing a hard radius.</p>
   </div>
 </div>
 
@@ -85,4 +97,5 @@ occurrence = (
 ```
 
 Read next: [State and Events](state_events.md), then
-[Four Primitives](primitives.md).
+[Four Primitives](primitives.md). For the climate-tail relationship branch,
+start with [Local Climate-Tail Synchrony](../recipes/spatial_synchrony_signature.md).

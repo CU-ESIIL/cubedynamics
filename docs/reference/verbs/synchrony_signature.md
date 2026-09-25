@@ -2,7 +2,7 @@
 
 # synchrony_signature
 
-Reduce local pairs to a nested-radius baseline compression.
+Reduce local pairs within declared fixed supports.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -17,8 +17,8 @@ v.synchrony_signature(*, radii_km=(25.0, 50.0, 75.0, 100.0), include_directional
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| radii_km | See implementation docstring below; no parameter-specific description supplied. | (25.0, 50.0, 75.0, 100.0) |
-| include_directional | See implementation docstring below; no parameter-specific description supplied. | True |
+| radii_km | Positive, strictly increasing cumulative supports no larger than the pair table's observation radius. | (25.0, 50.0, 75.0, 100.0) |
+| include_directional | Include compact eight-sector Delta diagnostics. | True |
 
 ## Accepts
 
@@ -52,7 +52,7 @@ with xr.open_dataset(path, engine="scipy") as observed:
     temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()
 pairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()
 result = (pipe(pairs) | v.synchrony_signature(radii_km=(10, 20, 30))).unwrap()
-result["delta_median"].isel(time_window_end=0).plot(col="radius_km")
+result["delta_median"].isel(time_window_end=0).plot(col="radius_km", cmap="RdBu", center=0, cbar_kwargs={"label": "Median Delta S · red warm / blue cold"})
 plt.show()
 ```
 
@@ -70,6 +70,8 @@ A sparse pair Dataset produced by v.local_synchrony_pairs(...).
 
 ## Implementation notes
 
-No additional implementation notes in the current docstring.
+The output is useful for comparison, compression, mapping, compatibility,
+and sensitivity analysis. It does not define the local synchrony surface or
+infer a characteristic synchrony scale.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L78). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L119). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

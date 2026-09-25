@@ -17,9 +17,9 @@ v.local_synchrony_surface(*, focal_y_index=None, focal_x_index=None, focal_index
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| focal_y_index | See implementation docstring below; no parameter-specific description supplied. | None |
-| focal_x_index | See implementation docstring below; no parameter-specific description supplied. | None |
-| focal_index | See implementation docstring below; no parameter-specific description supplied. | None |
+| focal_y_index | Two-dimensional focal grid indices. Supply both together unless using focal_index. | None |
+| focal_x_index | Two-dimensional focal grid indices. Supply both together unless using focal_index. | None |
+| focal_index | Flattened focal grid index. | None |
 
 ## Accepts
 
@@ -53,7 +53,7 @@ with xr.open_dataset(path, engine="scipy") as observed:
     temperature = observed[["tmin", "tmax"]].isel(y=slice(0, 12), x=slice(0, 12)).load()
 pairs = (pipe(temperature) | v.local_synchrony_pairs(lower_var="tmin", upper_var="tmax", max_radius_km=30, window_days=30, min_t=3)).unwrap()
 surface = (pipe(pairs) | v.local_synchrony_surface(focal_y_index=5, focal_x_index=5)).unwrap()
-surface["delta_s"].plot(x="offset_x_index", y="offset_y_index")
+surface["delta_s"].plot(x="offset_x_index", y="offset_y_index", cmap="RdBu", center=0, cbar_kwargs={"label": "Delta S · red warm / blue cold"})
 plt.show()
 ```
 
@@ -71,6 +71,8 @@ A sparse pair Dataset produced by v.local_synchrony_pairs(...) and one selected 
 
 ## Implementation notes
 
-No additional implementation notes in the current docstring.
+The output retains cold, warm, pairwise Delta, signed displacement,
+distance, and focal-to-center bearing. It preserves local relational
+geography before reduction.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L264). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L345). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

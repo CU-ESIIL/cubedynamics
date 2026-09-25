@@ -1,9 +1,15 @@
 # Empirical local synchrony range
 
-The empirical synchrony-range experiment asks how far focal-centered climate
-synchrony remains detectably organized before its annular response approaches a
-distant, potentially nonzero background. It does not estimate dispersal,
-mechanistic correlation length, or a distance-decay kernel.
+`v.empirical_synchrony_range(...)` asks a diagnostic question: **does
+focal-centered synchrony approach an empirical background clearly and
+persistently enough that a finite range can be resolved?** It does not promise
+that such a range exists, and it is not the preferred general method for
+choosing an adaptive neighborhood.
+
+The maximum distance in the input pair table is the discovery or observation
+support: where the diagnostic looked. It is not an estimated range. The verb
+does not estimate dispersal, a mechanistic correlation length, or a
+distance-decay kernel.
 
 ## Relationship to the validated workflow
 
@@ -50,15 +56,16 @@ candidate at or beyond 80% of the discovery radius, or a response with no
 qualifying candidate, is unresolved. The discovery boundary is never assigned
 as the range.
 
-The primary adaptive Delta uses one neighbor set. When both tail ranges resolve,
+The returned same-neighbor comparison uses one neighbor set. When both tail ranges resolve,
 
 ```text
 R_common = max(R_cold, R_warm)
 Delta_adaptive = median[S_cold(i,j) - S_warm(i,j), d(i,j) <= R_common]
 ```
 
-Tail-specific adaptive cold and warm summaries are also retained, but they are
-not subtracted to construct the primary Delta.
+Tail-specific range-based cold and warm summaries are also retained, but they
+are not subtracted to construct the pairwise-Delta reduction. These fields are
+diagnostic outputs, not a production recommendation.
 
 ## Bounded real-data gate
 
@@ -78,10 +85,10 @@ The scientific scale-up gate is on **HOLD**:
   500 km primary-bin analyses.
 
 These results do not show that synchrony has no spatial structure. They show
-that this deterministic kernel-agnostic criterion does not yet identify a
-stable scalar common range for this single winter window. Full-state and CONUS
-adaptive-range maps are therefore withheld instead of filling unresolved cells
-with 500 km.
+that this deterministic kernel-agnostic criterion does not identify a stable
+scalar common range for this single winter window. `R_common` was therefore
+**not** promoted into a general adaptive-radius rule, and full-state and CONUS
+range-based maps were withheld instead of filling unresolved cells with 500 km.
 
 ## Outputs and limitations
 
@@ -97,3 +104,7 @@ validated. A future experiment should test longer discovery support or a
 different predeclared empirical criterion on independent temporal windows
 before considering a production-scale run.
 
+For the less restrictive question “how does synchrony change with distance?”,
+use [`v.empirical_synchrony_decay(...)`](empirical_synchrony_decay.md). Return
+to the [complete local synchrony workflow](../recipes/spatial_synchrony_signature.md)
+for the fixed-support, surface, decay, and landscape-change branches.

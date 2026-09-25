@@ -41,7 +41,7 @@ def local_synchrony_pairs(
     distance_sampling=None,
     sampling_seed: int = 0,
 ):
-    """Build a bounded canonical local-pair table for signature reduction.
+    """Measure bounded canonical cold/warm/Delta pair synchrony.
 
     Grammar contract
     ----------------
@@ -52,6 +52,47 @@ def local_synchrony_pairs(
     ``output_mask``. ``distance_sampling`` may cap uniformly sampled pairs in
     successive physical-distance strata before the temporal kernel executes;
     retained pairs carry their design inclusion probability.
+
+    Parameters
+    ----------
+    lower_var : str, optional
+        Variable used for lower-tail synchrony, normally daily TMIN.
+    upper_var : str, optional
+        Variable used for upper-tail synchrony, normally daily TMAX.
+    output_mask : array-like, optional
+        Spatial Boolean mask of focal cells that should receive output.
+    computation_mask : array-like, optional
+        Spatial Boolean mask of cells eligible as either pair endpoint. It must
+        contain every output cell and normally includes the full spatial halo.
+    max_radius_km : float
+        Maximum physical search/observation support. This is not an inferred
+        characteristic synchrony distance.
+    window_days : int
+        Length of the bounded trailing analysis window in coordinate days.
+    window_end : date-like, optional
+        Inclusive window end; defaults to the latest time coordinate.
+    min_t : int
+        Minimum jointly selected tail observations required for Spearman
+        synchrony.
+    split_quantile : float
+        Per-series tail split. The current climate workflow uses ``0.5``.
+    time_dim : str
+        Name of the temporal dimension.
+    pair_batch_size : int
+        Number of canonical pairs evaluated per temporal-kernel batch.
+    distance_sampling : sequence, optional
+        Experimental distance-stratified pair-sampling plan. ``None`` retains
+        all eligible pairs.
+    sampling_seed : int
+        Deterministic seed used only when distance sampling is requested.
+
+    Notes
+    -----
+    Cold is joint lower-tail TMIN Spearman, warm is strict joint upper-tail
+    TMAX Spearman, and ``delta_s = cold_synchrony - warm_synchrony``. Positive
+    Delta means cold synchrony is stronger; negative Delta means warm synchrony
+    is stronger. Pairs are canonical and symmetric; distance and direction do
+    not by themselves define a scale.
     """
 
     def _op(obj):
@@ -78,10 +119,21 @@ def local_synchrony_pairs(
 def synchrony_signature(
     *, radii_km=(25.0, 50.0, 75.0, 100.0), include_directional: bool = True
 ):
-    """Reduce local pairs to a nested-radius baseline compression.
+    """Reduce local pairs within declared fixed supports.
 
-    This diagnostic is retained for comparison. It does not define the local
-    synchrony surface or infer a characteristic synchrony scale.
+    Parameters
+    ----------
+    radii_km : sequence of float
+        Positive, strictly increasing cumulative supports no larger than the
+        pair table's observation radius.
+    include_directional : bool
+        Include compact eight-sector Delta diagnostics.
+
+    Notes
+    -----
+    The output is useful for comparison, compression, mapping, compatibility,
+    and sensitivity analysis. It does not define the local synchrony surface or
+    infer a characteristic synchrony scale.
     """
 
     def _op(obj):
@@ -105,7 +157,7 @@ def empirical_synchrony_range(
     censor_fraction: float = 0.80,
     fixed_radius_km: float = 100.0,
 ):
-    """Estimate empirical cold/warm ranges and adaptive reductions.
+    """Diagnose whether finite empirical cold/warm ranges can be resolved.
 
     Grammar contract
     ----------------
@@ -144,14 +196,16 @@ def empirical_synchrony_range(
     callable
         Pipe stage returning a summary Dataset with empirical curves,
         cold/warm/common range estimates and statuses, fixed controls, and
-        unweighted adaptive reductions.
+        same-neighbor range-based reductions.
 
     Notes
     -----
     ``R_common`` is the maximum of cold and warm ranges only when both resolve.
-    Primary adaptive Delta uses the same neighbors for both tails. Discovery
-    support, range, and kernel weighting are distinct; this verb applies no
-    parametric kernel and no distance weights.
+    The common-range Delta diagnostic uses the same neighbors for both tails.
+    Discovery support, range, and kernel weighting are distinct; this verb
+    applies no parametric kernel and no distance weights. An unresolved or
+    censored result is valid and must not be replaced by the discovery radius.
+    The verb does not establish a preferred adaptive-neighborhood rule.
     """
 
     def _op(obj):
@@ -206,6 +260,27 @@ def empirical_synchrony_decay(
     curve property, not a hard cutoff. Initial slope is background-free. None
     of these metrics is a dispersal distance, kernel bandwidth, or adaptive
     neighborhood rule.
+
+    Parameters
+    ----------
+    discovery_radius_km : float, optional
+        Physical support to analyze; defaults to all support in the pair table.
+    bin_width_km : float
+        Width of empirical annuli.
+    min_annulus_count : int
+        Minimum valid relationships required to support an annulus.
+    background_shell_count : int
+        Number of outer supported annuli used by empirical background rules.
+    background_method : str
+        ``outer_annuli``, ``smoothed_outer_annuli``, or ``distant_pairs``.
+    local_shell_count : int
+        Number of nearest supported annuli defining local synchrony.
+    crossing_persistence_bins : int
+        Consecutive supported annuli required for a fractional crossing.
+    min_local_excess : float
+        Minimum local synchrony above background required for decay metrics.
+    initial_window_km : float
+        Distance window used for the reported robust initial slope.
     """
 
     def _op(obj):
@@ -235,7 +310,7 @@ def adaptive_synchrony_experiment(
     common_rule: str = "max",
     time_window_id: str | None = None,
 ):
-    """Discover empirical breaks and compare adaptive with fixed synchrony.
+    """Experimentally compare empirical first breaks with fixed synchrony.
 
     Grammar contract
     ----------------
@@ -244,6 +319,12 @@ def adaptive_synchrony_experiment(
     and warm breaks are estimated independently; the default common radius is
     their maximum when both are valid. Primary Delta remains the median of
     pairwise cold-minus-warm values over one shared neighbor set.
+
+    Notes
+    -----
+    This public experiment reports unresolved and ambiguous statuses rather
+    than manufacturing a radius. Its current real-data gate is on HOLD; the
+    verb is not a recommended production adaptive-neighborhood method.
     """
 
     def _op(obj):
@@ -267,7 +348,22 @@ def local_synchrony_surface(
     focal_x_index: int | None = None,
     focal_index: int | None = None,
 ):
-    """Recover one complete focal ``S_p(dx, dy)`` surface from sparse pairs."""
+    """Recover one complete focal ``S_p(dx, dy)`` surface from sparse pairs.
+
+    Parameters
+    ----------
+    focal_y_index, focal_x_index : int, optional
+        Two-dimensional focal grid indices. Supply both together unless using
+        ``focal_index``.
+    focal_index : int, optional
+        Flattened focal grid index.
+
+    Notes
+    -----
+    The output retains cold, warm, pairwise Delta, signed displacement,
+    distance, and focal-to-center bearing. It preserves local relational
+    geography before reduction.
+    """
 
     def _op(obj):
         return _local_synchrony_surface(
@@ -287,7 +383,26 @@ def synchrony_surface_diagnostics(
     angular_bin_width_degrees: float = 15.0,
     min_count: int = 3,
 ):
-    """Evaluate candidate radial, directional, and low-order 2-D descriptors."""
+    """Describe structure in one local synchrony surface.
+
+    Parameters
+    ----------
+    metric : str
+        Surface variable to describe: ``cold_synchrony``, ``warm_synchrony``,
+        or ``delta_s``.
+    radial_bin_width_km : float
+        Width of fine radial-profile bins.
+    angular_bin_width_degrees : float
+        Width of bearing sectors; must divide 360 degrees.
+    min_count : int
+        Minimum valid values required for a radial or angular bin.
+
+    Notes
+    -----
+    Radial, directional, harmonic, anisotropy, half-plane, low-order
+    reconstruction, and residual-complexity outputs are experimental
+    descriptors. They are not a finalized signature or climate classification.
+    """
 
     def _op(obj):
         return _synchrony_surface_diagnostics(
@@ -308,7 +423,25 @@ def landscape_change_signature(
     near_tie_epsilon: float = 0.005,
     min_overlap: int = 25,
 ):
-    """Compare neighboring center landscapes along separate change axes."""
+    """Compare complete neighboring center landscapes along separate axes.
+
+    Parameters
+    ----------
+    metric : str
+        Pair field used to build each center landscape.
+    deadband : float
+        Absolute interval around zero treated as neutral for sign comparisons.
+    near_tie_epsilon : float
+        Tolerance used to report near-tied values in rank diagnostics.
+    min_overlap : int
+        Minimum shared comparison locations required for a landscape pair.
+
+    Notes
+    -----
+    This compares complete ``M_i(j)`` fields as the center moves. It is not
+    pair synchrony, within-surface structure, or geographic change in one
+    already-reduced focal summary.
+    """
 
     def _op(obj):
         return _landscape_change_signature(

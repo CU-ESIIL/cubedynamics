@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "79bf0d129534bffe4f8d348f07b71f056e881b5a",
+    "git_sha": "3369706f29b32adfe26725bcb91719253236d389",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -540,7 +540,7 @@
     "src/cubedynamics/fire_vase_lakehouse/qc.py": "f681ae13c452297d3328ca190aa7578610dd4aaf1f826d0ef92e2749931d89a5",
     "src/cubedynamics/fire_vase_lakehouse/query.py": "a8ae636928a85b5786bf463568b82f9dd1b3186e4ab9365d4ae9ee3019cbc765",
     "src/cubedynamics/fire_vase_lakehouse/schemas.py": "cf3357787fef499def39f765f0de0e6c161d194f5bfe58a0ec31ad689a993369",
-    "src/cubedynamics/grammar.py": "4546d2eb799fc7ee63ded7666ab7edcdeaedbc56d082b1c7a0de0068557f0135",
+    "src/cubedynamics/grammar.py": "fbd5a01f431633592a2fadaca586b6bb6967a884d08421e198b9f9e5fb25e3df",
     "src/cubedynamics/hulls.py": "236bbf4519340a089c4edb226128b9f3129f29eba37d139393701532708aea99",
     "src/cubedynamics/indices/__init__.py": "cd42fe773ca03ecc0ee920d4893d21f4bf34db70f760b3f307658ba3c2604ade",
     "src/cubedynamics/indices/vegetation.py": "5335c5fb7915561ef05b3e6ded72e35a15cfc0cb64a8d6d4c8efc758e147ec63",
@@ -635,7 +635,7 @@
     "src/cubedynamics/verbs/plot_mean.py": "551bed3b922028207d6bfad6f5f31cef6036222c3469dbae029724f1cd6ee50e",
     "src/cubedynamics/verbs/states.py": "761d4e51caf2e9c28e5a3bbb3a407e1118d30573cfe10bef0402c1b1e20b96c9",
     "src/cubedynamics/verbs/stats.py": "ac3810f376f75f1eb39ead02835c7d533f181dad01ec125aa83dc2a438eb89f1",
-    "src/cubedynamics/verbs/synchrony.py": "64d0324df8d824cd2a5fac77db2e6759a37fb2ffa22486d62c93a63bbe90b76a",
+    "src/cubedynamics/verbs/synchrony.py": "88ade6265b655576ae436e20e44c085bc0954fe95531e1cfa3c40016e92cadea",
     "src/cubedynamics/verbs/tubes.py": "148c26bf82aa8a8e71f65586bae2f417f83314cef0cb3c07f0ac9436f6282fa4",
     "src/cubedynamics/verbs/vase.py": "b9b7a1580b6774dec533daa7438f4dc54ecf8707f4f265f7809b4bba6d2d11cf",
     "src/cubedynamics/version.py": "faf89d0110fe8dd8137ff8a73c6a21439a3b39573474741982f565e418a3d103",

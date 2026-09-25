@@ -209,7 +209,7 @@ nav:
           - Sentinel-2 NDVI z-score: recipes/s2_ndvi_zcube.md
           - Fire event and climate: recipes/fire_event_vase_hull.md
           - Spatial synchrony blocks: recipes/spatial_synchrony_units.md
-          - Local synchrony signatures: recipes/spatial_synchrony_signature.md
+          - Local climate-tail synchrony: recipes/spatial_synchrony_signature.md
       - Additional examples and how-tos:
           - Example gallery: examples_gallery.md
           - Climate–NDVI correlation: examples/climate_ndvi_correlation.md

@@ -39,7 +39,7 @@ def render_outputs(synchrony, output_dir: Path) -> None:
         ax=ax,
         title="PRISM 4 km climate synchrony through the full record",
         ylabel="Spatial median Spearman synchrony",
-        labels=("below-median tmin", "above-median tmax", "cold - hot"),
+        labels=("below-median tmin", "above-median tmax", "cold - warm"),
     )
     ax.axhline(0.0, color="black", linewidth=0.8, alpha=0.6)
     fig.tight_layout()
@@ -49,8 +49,8 @@ def render_outputs(synchrony, output_dir: Path) -> None:
     viewer = (
         pipe(synchrony["bottom_minus_top"].clip(-2, 2))
         | v.plot(
-            title="PRISM 4 km cold minus hot synchrony",
-            cmap="RdBu_r",
+            title="PRISM 4 km cold minus warm synchrony · red warm / blue cold",
+            cmap="RdBu",
             clim=(-2, 2),
             thin_time_factor=1,
         )

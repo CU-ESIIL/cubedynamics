@@ -6,11 +6,26 @@ center-pixel climate recipe.
 The broader scientific and development plan is tracked in the
 [Synchrony Roadmap](../project/synchrony_roadmap.md).
 
-The pipeline is:
+The state/event branch is:
 
 ```python
 raw_cube -> state_cube -> event_result -> synchrony_operator -> spatial_summary
 ```
+
+The current climate-tail relationship branch is:
+
+```text
+climate_cube -> local_synchrony_pairs -> local surface / fixed support /
+                                           finite range / continuous decay
+```
+
+Pair construction measures `S(i,j)`. `local_synchrony_surface()` organizes the
+incident relationships as `S_p(dx,dy)`. `synchrony_signature()` reduces within
+declared supports. `empirical_synchrony_range()` diagnoses whether a finite
+convergence distance resolves, while `empirical_synchrony_decay()` describes
+continuous multiscale change without requiring a hard horizon. The branches
+answer different questions and are not a mandatory sequence. See the
+[local synchrony recipe](../recipes/spatial_synchrony_signature.md).
 
 State cubes are ordinary `xarray.Dataset` objects with:
 
@@ -63,10 +78,12 @@ The existing `v.rolling_median_split_synchrony` remains public. Treat it as a
 convenience recipe for center-reference climate tail synchrony, not as the
 general definition of synchrony.
 
-## Deferred Design Space
+## Deferred design space
 
-The roadmap also calls for diagnostic plots, bootstrap confidence intervals,
-autocorrelation-preserving null models, threshold sensitivity surfaces,
-distance-decay curves, synthetic validation datasets, event graphs,
-`followed_by`, `recurrence`, and `lagged_response`. These remain future phases
-until their statistical contracts are explicit enough to expose as public verbs.
+The roadmap also calls for bootstrap confidence intervals,
+autocorrelation-preserving null models, richer threshold sensitivity, event
+graphs, `followed_by`, `recurrence`, and `lagged_response`. Historically
+anchored climate tails are also future work: the current tail-synchrony verbs
+define tails relative to the analyzed window. Do not infer a historical-trend
+analysis, climate regime, or learned convolution from the current spatial
+relationship grammar.

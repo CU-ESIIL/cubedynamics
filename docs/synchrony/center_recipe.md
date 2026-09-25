@@ -28,7 +28,7 @@ sync = (
     )
 ).unwrap()
 
-cold_minus_hot = sync["bottom_minus_top"]
+delta_s = sync["bottom_minus_top"]  # legacy field name; ΔS = cold - warm
 ```
 
 Positive values mean below-median/cold synchrony is stronger. Negative values

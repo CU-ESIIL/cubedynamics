@@ -1,8 +1,9 @@
-<div class='cube-figure' style=font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#ffffff; padding:18px; border-radius:14px; box-shadow:0 16px 40px rgba(0,0,0,0.15); color:rgba(25, 25, 25, 0.9);'><style> .cube-figure{margin:10px auto; max-width: 1400px;} .cube-viewer{padding:10px; background:#ffffff; border-radius: 14px;} .cube-facets{display:grid;grid-template-columns: repeat(3, minmax(320px, 1fr)); gap: 18px; align-items:start;} .cube-facet-panel{position:relative; padding-top:6px;} .cube-facet-label{position:absolute; top:8px; left:12px; z-index:10; background:rgba(255,255,255,0.8); color:rgba(25, 25, 25, 0.9); font-size: 12px; font-weight:600; padding:2px 6px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.08);} .cube-legend-title{font-size: var(--cube-axis-font-size,12px); color: var(--cube-legend-color, #222); margin-bottom:6px;} .cube-caption{margin-top:14px; color: var(--cube-axis-color,#222); font-size: var(--cube-caption-font-size,12px);} .cube-caption-label{display:inline-block; margin-right:6px; color: var(--cube-axis-color,#222);} .cube-caption-title{display:inline-block; margin-right:8px; color: var(--cube-title-color,#222);} .cube-caption-text{margin-top:4px; color: var(--cube-axis-color,#222);} .cube-annotations{margin-top:8px; font-size: var(--cube-caption-font-size,12px); color: var(--cube-axis-color,#222);} .cube-annot{margin-top:2px;}</style><div class='cube-facets' style='--cube-title-font-size: 20px; --cube-title-color: cornflowerblue; --cube-axis-color: rgba(25, 25, 25, 0.9); --cube-legend-color: limegreen; --cube-axis-font-size: 12.0px; --cube-legend-font-size: 12.0px; --cube-bg-color: #ffffff; --cube-panel-color: #ffffff; --cube-shadow-strength: 0.15; --cube-caption-font-size: 9.600000000000001px; --cube-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;'><div class='cube-facet-panel'><div class='cube-facet-label'>(a) block = Front Range</div>
+<div class='cube-figure' style=font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#ffffff; padding:18px; border-radius:14px; box-shadow:0 16px 40px rgba(0,0,0,0.15); color:rgba(25, 25, 25, 0.9);'><style> .cube-figure{margin:10px auto; max-width: 1400px;} .cube-viewer{padding:10px; background:#ffffff; border-radius: 14px;} .cube-facets{display:grid;grid-template-columns: repeat(1, minmax(320px, 1fr)); gap: 18px; align-items:start;} .cube-facet-panel{position:relative; padding-top:6px;} .cube-facet-label{position:absolute; top:8px; left:12px; z-index:10; background:rgba(255,255,255,0.8); color:rgba(25, 25, 25, 0.9); font-size: 12px; font-weight:600; padding:2px 6px; border-radius:6px; box-shadow:0 2px 6px rgba(0,0,0,0.08);} .cube-legend-title{font-size: var(--cube-axis-font-size,12px); color: var(--cube-legend-color, #222); margin-bottom:6px;} .cube-caption{margin-top:14px; color: var(--cube-axis-color,#222); font-size: var(--cube-caption-font-size,12px);} .cube-caption-label{display:inline-block; margin-right:6px; color: var(--cube-axis-color,#222);} .cube-caption-title{display:inline-block; margin-right:8px; color: var(--cube-title-color,#222);} .cube-caption-text{margin-top:4px; color: var(--cube-axis-color,#222);} .cube-annotations{margin-top:8px; font-size: var(--cube-caption-font-size,12px); color: var(--cube-axis-color,#222);} .cube-annot{margin-top:2px;}</style><div class='cube-facets' style='--cube-title-font-size: 20px; --cube-title-color: cornflowerblue; --cube-axis-color: rgba(25, 25, 25, 0.9); --cube-legend-color: limegreen; --cube-axis-font-size: 12.0px; --cube-legend-font-size: 12.0px; --cube-bg-color: #ffffff; --cube-panel-color: #ffffff; --cube-shadow-strength: 0.15; --cube-caption-font-size: 9.600000000000001px; --cube-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;'><div class='cube-facet-panel'><div class='cube-facet-label'>(a) block = Front Range</div>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
     :root {
       /* Viewer override hooks:
@@ -132,11 +133,14 @@
     .cube-rotation {
       position: absolute;
       inset: 0;
+      /* The transformed faces are presentation only. Keep pointer events on
+         the dedicated drag surface so rotation works over every visible face. */
+      pointer-events: none;
       transform-style: preserve-3d;
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }
 
     .cube-drag-surface {
@@ -166,7 +170,7 @@
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }
 
     .scene-drag-surface {
@@ -199,9 +203,12 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      /* Every pixel is scientific evidence. Fit the complete rectangular
+         texture to the square physical face; `cover` cropped side data. */
+      background-size: 100% 100%;
       background-position: center;
       background-repeat: no-repeat;
+      image-rendering: pixelated;
       backface-visibility: hidden;
       border: 1px solid rgba(0,0,0,0.08);
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
@@ -220,7 +227,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      background-size: 100% 100%;
       background-position: center;
       opacity: 0.65;
       mix-blend-mode: normal;
@@ -308,7 +315,7 @@
       margin-top: 6px;
     }
     .cube-legend-card {
-      background: #ffffff;
+      background: var(--cube-panel-color);
       padding: 8px 12px;
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
@@ -362,7 +369,7 @@
       font-size: var(--cd-axis-font, var(--cube-axis-font-size, 13px));
       letter-spacing: 0.04em;
       /* Axis rig lives in cube-local coords; out-z anchors to front face, Y labels shift left for legibility. */
-      --cd-axis-color: rgba(25, 25, 25, 0.9);
+      --cd-axis-color: var(--cube-axis-color, rgba(25, 25, 25, 0.9));
       --cd-axis-out-x: 16px;
       --cd-axis-out-y: 14px;
       --cd-axis-front-z: calc(0.5 * var(--cd-cube-size, var(--cube-size)));
@@ -409,10 +416,12 @@
     .cd-axis-ticks {
       position: absolute;
       inset: 0;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick {
       position: absolute;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick-mark {
@@ -423,17 +432,24 @@
     .cd-axis-label {
       position: absolute;
       white-space: nowrap;
+      transform-style: preserve-3d;
+    }
+
+    .cd-axis-tick-label {
+      transform-style: preserve-3d;
     }
 
     .cd-axis-label-face {
       display: inline-block;
       padding: var(--cd-axis-pill-px, 0px);
       transform-style: preserve-3d;
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* Invert the camera in reverse order: (Rx Ry)^-1 = Ry^-1 Rx^-1. */
+      transform: rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     .cd-axis-label-face--time {
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* First cancel the time edge's local 90-degree rotation. */
+      transform: rotateY(-90deg) rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     /* X axis (longitude) - front bottom edge */
@@ -614,28 +630,28 @@
   </style>
 </head>
 <body>
-  <div class="cube-figure" id="cube-figure-a5d459aacecc4749878b5efce870ec22" data-axis-rig="true" data-cb-min="-2.00" data-cb-max="2.00" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Climate synchrony cube panel</div>
+  <div class="cube-figure" id="cube-figure-c295f83c540c4d7481f297937f76f22e" data-axis-rig="true" data-cb-min="-2.00" data-cb-max="2.00" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Climate synchrony cube panel</div>
     <div class="cube-main">
       <div class="cube-inner">
         <div class="cube-container">
-          <div class="cube-scene" id="cube-scene-a5d459aacecc4749878b5efce870ec22">
-            <div id="cube-wrapper-a5d459aacecc4749878b5efce870ec22" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
-              <canvas class="cube-canvas" id="cube-canvas-a5d459aacecc4749878b5efce870ec22"></canvas>
-              <div class="cube-rotation" id="cube-rotation-a5d459aacecc4749878b5efce870ec22">
+          <div class="cube-scene" id="cube-scene-c295f83c540c4d7481f297937f76f22e">
+            <div id="cube-wrapper-c295f83c540c4d7481f297937f76f22e" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
+              <canvas class="cube-canvas" id="cube-canvas-c295f83c540c4d7481f297937f76f22e"></canvas>
+              <div class="cube-rotation" id="cube-rotation-c295f83c540c4d7481f297937f76f22e">
                 
-        <div class="cd-cube" id="cube-a5d459aacecc4749878b5efce870ec22">
-          <div class="cd-face cd-front" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAAfUlEQVR4AQKM8fu3b/+ZPz5lYPj3j+GvoCwD488vDP9ZORiY/v5nYPjHKQjmgNggQQZGJgamn3//M/xnZmH4xC7MwMzIAAaMv38wMLExMzIw/v/HwMP0h4Hh/z+G/0wsDAxMTAwsf//9Z2D984uBkYWNgeHnFwZGkMT/fwwAIPUpG38O/PoAAAAASUVORK5CYII=');"></div>
+        <div class="cd-cube" id="cube-c295f83c540c4d7481f297937f76f22e">
+          <div class="cd-face cd-front" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAAgklEQVR4AQKM8du3b/9ff/vL8I/hP4M4FwvD9z//GdiYGRmYGP//Y+BlZ2JgY2JkALFBgowMDAxMjL++MTAzMjIIM3xl+M/IxAACv/79Z2D6z8rB8P//f4afbHwM//4zMLAwMjCApFkY//1h+P2fiYGViYHh+9//DMxMjAz//zMwAAA1dycVRB6W7gAAAABJRU5ErkJggg==');"></div>
           <div class="cd-face cd-back" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAADElEQVR4AQKMYSABAAB9AAEebmwqAAAAAElFTkSuQmCC');"></div>
-          <div class="cd-face cd-left" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAnElEQVR4AQKMkQEJvP309T8LEyMDMyMDw59//xnYmBkZmH59A6v4z8LGwMDEwsAC5kEJnh9vGP6zsIMl/rNyMfz6+5/hFyMHA8hUpn+MDOyMDKgaoPrA1N9//xmYQbb9ZwDbBOL//PsfrBmsAER8+/btP8g0EPvXPwaw0/4zMIAVgZ35H4cNIEUgTSB/gGhGRkaGv/8ZGP7//88AALoQLs7p9fEFAAAAAElFTkSuQmCC');"></div>
-          <div class="cd-face cd-right" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAqUlEQVR4AQKMkQEJfP/65T8DIxNY5Nc/BgZmFFkGBub/fxggsmAlDAzMn54zMP74xMD45wcDGxMDAxMjA8Off/8Z/v5nAGOQYWhmMDB8//btP8P/fww//zEysDAxgm0BGfKHnY+B5fc3BhQN3798AisGmfSHkQWiGGT7/38MjL9/MDAwMaE6ifX1HQamb+8ZGH99Y2D594uB8d8fkHIGxp9fwIoZ/v5hAAAfKjnPe3hIfgAAAABJRU5ErkJggg==');"></div>
-          <div class="cd-face cd-top" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGCAYAAAD37n+BAAAAy0lEQVR4AWJkQALfvn37DxL4z8DA8PsfA8P//yAWYAwMjIwgUQgfwkLS9PP14///mVkZ/rPzMDD+/QWR+feP4T8zCwPj7x8MKBp+vH/1/z8LGwMDIxMDAxMLVPEfBsY/vxj+s3KADWCCiEJIlufXGZi/vGZg+v6RgeH/PwaQg34xsDB8Y+aEGPLnFwOKBgY2dogEyHRGJrD1TIwMDKxMjAx/QbqZWBig9kJsYGBmY/jPyMTwH+RJkPsZmRhYmFgYGH98YmAAOfX/PwYApi08M4CA9K0AAAAASUVORK5CYII=');"></div>
-          <div class="cd-face cd-bottom" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGCAYAAAD37n+BAAAAw0lEQVR4AWJkQAJvP339z8LEyMDMyMDw599/BjZmRgbAmH59A6v4z8LGwMDEwsAC5kEJLqa/DAz//zEwMDCBJUHCf1i5GJj//2Fg/PWNgennZ1QNTN/eM/xnYQcrZmb+x8D4/x9IKwPDv38MDIxMYBrFSSATf7x78Z+BhY3hPzMbw39GJgbGf39AwhCM7qSfrx7+/w+SApnI9I+BkZGJ4T8TCwPMVMafX+BskDKG71+//AdbzcDA8OsfA9jzYAkoAfILAKVZOFK2xn+iAAAAAElFTkSuQmCC');"></div>
+          <div class="cd-face cd-left" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAn0lEQVR4AQKMkQEJ/Hj/6v9/FjYGBiYWBsa/vxj+s3AwfP/7H6yClYmRgZmRgYEFzIMSb/9zMrD9Y2RgZmBk4ARp+vODgfv3T4b/jIwMDIxMDP/ZuFA1QPWBKcZ/fxj+M7EwMDD9YfjPysEA4jP++saA4qTv3779hziAAewkkNMY/v+DmM7IBNaE4iSw0QwMcFNA/gCJ/QcpBon//8cAALH2LdBm/6IdAAAAAElFTkSuQmCC');"></div>
+          <div class="cd-face cd-right" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAt0lEQVR4AQKM8fPXb/9ZGP4xoIB/fxj+M7OBhf79Z2Dg4eZiBHMYGBhYwKx/f8B8xv//GP6zcIAV//r7n+H3v/8M337/B8vBCJZf//4zcDKxMHz5w8DAzcrEANLE9PcXAwszBwMbMyODKD/CdJAmJiYGBobv/xgZOFlALAYGBkYmhv9MLAwgc3//Y2AAORmkEIZZ/v5nYGBmZGD4/ucf2IY//xkY/jGwMPz684/h59//DJ9+ovoPAJPKPPcpn8vrAAAAAElFTkSuQmCC');"></div>
+          <div class="cd-face cd-top" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAMCAYAAABBV8wuAAAAxUlEQVR4AWKgHgCM8fu3b/85ubgY3376+v/+h58MbMxMDCxMjAyM3759+//x5z8GLlYmhg8//jIwMjIwMDEyMLAwMjAwsDBBOGzMjAzMTAwMYDGGv78YOFnYwKp42ZjA9O9/IIX//zH8+fcf7GpmkFIGkCADAxNYhIGB4S9I7u8vBsZ/fxhACpj+MzIx/GNgYPj97z8D498/YHVff/9jYAGxmBkZwar+MXMxMP7/x8DKxMjAAmL8+gfhgHQxMzEy/P/PwAAAaO46pHLb2K4AAAAASUVORK5CYII=');"></div>
+          <div class="cd-face cd-bottom" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAMCAYAAABBV8wuAAAAwUlEQVR4AWL89u3b/9ff/jL8Y/jPIM7FwvD9z38GNmZGBpa//xkYuFgZGZgYmRhAbMA4WRgZGP//Y2D6/e8/AwcLEwMjIwMKYALxWBj+MYAZDAwMMHkmTmZGBgZGiDALIwPDf5BKBgYGJsY/PxgY/v9jYGRkBNsBsofh3x8Glv/MbAx/GEAW/2f4/5+B4R8DAwMzMxsDC0j2HyMbw99//xn+Qo1hYAa58s8vBiZGBoZff/8ziPLzMILofzCLYAopowG04jot7jU7ZAAAAABJRU5ErkJggg==');"></div>
         </div>
     
                 
                 
                 
-      <div class="cd-axis-rig" id="cd-axis-rig-a5d459aacecc4749878b5efce870ec22" data-viewer-id="a5d459aacecc4749878b5efce870ec22" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
+      <div class="cd-axis-rig" id="cd-axis-rig-c295f83c540c4d7481f297937f76f22e" data-viewer-id="c295f83c540c4d7481f297937f76f22e" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
         <div class="cd-axis-group cd-axis-x" data-axis="x">
           <div class="cd-axis-line"></div>
           <div class="cd-axis-ticks"></div>
@@ -660,7 +676,7 @@
       </div>
     
               </div>
-              <div class="cube-drag-surface" id="cube-drag-a5d459aacecc4749878b5efce870ec22"></div>
+              <div class="cube-drag-surface" id="cube-drag-c295f83c540c4d7481f297937f76f22e" tabindex="0" role="img" aria-label="Interactive cube. Drag or use arrow keys to rotate; scroll or press plus and minus to zoom; Home resets the view."></div>
             </div>
 
             <div class="axis-label cube-label cube-label-x axis-x-min"></div>
@@ -676,7 +692,7 @@
         </div>
       </div>
     </div>
-    <div class="cube-js-warning hidden" id="cube-js-warning-a5d459aacecc4749878b5efce870ec22" aria-live="polite">
+    <div class="cube-js-warning hidden" id="cube-js-warning-c295f83c540c4d7481f297937f76f22e" aria-live="polite">
       <div class="dot"></div>
       <div class="cube-warning-text"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
     </div>
@@ -686,16 +702,16 @@
         <div class="cube-warning-text"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
       </div>
     </noscript>
-    <div class="cube-legend-panel">  <div class="cube-legend-card">    <div class="colorbar-title">cold - hot synchrony (Spearman rho difference)</div>    <div class="colorbar-wrapper"><img class="colorbar-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAABCAYAAAAxWXB3AAAAx0lEQVR4nI1PWxLDIAhcsL1Pr9T7nwHoAMaQRJt8MMs+XJXen68RM4jbeloi//X3jnmOwUygPkyOyH3TiSaZzIXe+TLPhEaExvfzWnp8n/N74x4kBkd4lW/vCa+/tbm+ZS685/ofCACFDzgLdB565VRy2Tfl9VzoiTAdQ45auR38kSm5c2b4pcNEABWYOup1777z1Cf7gw4TP6NQx74HnvXhSWo196jDoOL/cm4wLXt4mcn8Wdv3gxcduasaxACxOSrW3lP0jh+fT0WWhMvyVgAAAABJRU5ErkJggg==" alt="colorbar" /></div>    <div class="colorbar-labels"><span class="cb-tick" data-tick="-2.00">-2.00</span><span class="cb-tick" data-tick="-1.00">-1.00</span><span class="cb-tick" data-tick="0.00">0.00</span><span class="cb-tick" data-tick="1.00">1.00</span><span class="cb-tick" data-tick="2.00">2.00</span></div>  </div></div>
+    <div class="cube-legend-panel">  <div class="cube-legend-card">    <div class="colorbar-title">cold - warm synchrony · red warm / blue cold (Spearman rho difference)</div>    <div class="colorbar-wrapper"><img class="colorbar-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAABCAYAAAAxWXB3AAAAx0lEQVR4nJ1QWw4DIQgc8CA9Xu//X6BBcKuLZpN+TJgXxEhvvIwBNHLQ3/PpBjOBG4MagSbOrvvk7l98ZDz42nc/ON9ueC+RvPip42ZbMt706o0GsMO9yr2H7ITHlT/daA1GBBBfsImHzpz3+dLJXrkBQA2/aQaFT9c2+RsNS/++5/fs6vmOqGuDeE8Rs2tA1Q46e3132ik63iaZzfjctKiWjmx7B+R7LNG5/8vgqYMj/MyP/Xz/0lGFqSzQRStM1rz0Dvl84wsyIGGmPjSg9gAAAABJRU5ErkJggg==" alt="colorbar" /></div>    <div class="colorbar-labels"><span class="cb-tick" data-tick="-2.00">-2.00</span><span class="cb-tick" data-tick="-1.00">-1.00</span><span class="cb-tick" data-tick="0.00">0.00</span><span class="cb-tick" data-tick="1.00">1.00</span><span class="cb-tick" data-tick="2.00">2.00</span></div>  </div></div>
   </div>
 
-  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"a5d459aacecc4749878b5efce870ec22": {"x": {"name": "Longitude", "min_label": "106\u00b0W", "max_label": "105\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.20000000000000284, "label": ""}, {"frac": 0.4000000000000057, "label": ""}, {"frac": 0.5999999999999943, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Latitude", "min_label": "39\u00b0N", "max_label": "40\u00b0N", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.25, "label": ""}, {"frac": 0.5, "label": ""}, {"frac": 0.75, "label": ""}, {"frac": 1.0, "label": ""}]}, "time": {"name": "Time", "min_label": "05.01.2024", "max_label": "27.01.2024", "ticks": [{"frac": 0.0, "label": "05.01.2024"}, {"frac": 1.0, "label": "27.01.2024"}]}}});</script>
+  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"c295f83c540c4d7481f297937f76f22e": {"x": {"name": "Longitude", "min_label": "105.75\u00b0W", "max_label": "104.75\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.20000000000000284, "label": ""}, {"frac": 0.4000000000000057, "label": ""}, {"frac": 0.5999999999999943, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Latitude", "min_label": "39.45\u00b0N", "max_label": "40.45\u00b0N", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.25, "label": ""}, {"frac": 0.5, "label": ""}, {"frac": 0.75, "label": ""}, {"frac": 1.0, "label": ""}]}, "time": {"name": "Time", "min_label": "05.01.2024", "max_label": "27.01.2024", "ticks": [{"frac": 0.0, "label": "05.01.2024"}, {"frac": 1.0, "label": "27.01.2024"}]}}});</script>
   
   <script id="cd-drift-center-v1-js">
     (function() {
       // Drift centering defaults (DYNAMIC DRIFT CENTERING V1):
       // MAX_DRIFT_PX=220, ROT_RANGE_DEG=55, SCALE_IN=1.25, SCALE_OUT=0.85, SMOOTHING=0.18
-      const viewerId = "a5d459aacecc4749878b5efce870ec22";
+      const viewerId = "c295f83c540c4d7481f297937f76f22e";
       const defaults = {
         maxDriftPx: 220,
         rotRangeDeg: 55,
@@ -817,7 +833,7 @@
     
   <script>
     (function() {
-      const viewerId = "a5d459aacecc4749878b5efce870ec22";
+      const viewerId = "c295f83c540c4d7481f297937f76f22e";
       const root = document.getElementById("cube-figure-" + viewerId);
       if (!root) {
         console.warn("[CubeViewer] Root element not found for viewerId", viewerId);
@@ -853,7 +869,7 @@
       const zoomMin = 0.35;
       const zoomMax = 6.0;
       
-      const axisRig = document.getElementById("cd-axis-rig-a5d459aacecc4749878b5efce870ec22");
+      const axisRig = document.getElementById("cd-axis-rig-c295f83c540c4d7481f297937f76f22e");
       if (axisRig) {
         const target =
           (cubeRotation && cubeRotation.querySelector(".cd-cube"))
@@ -864,7 +880,7 @@
           target.appendChild(axisRig);
         }
 
-        const axisMeta = (window.__CD_AXIS_META__ || {})["a5d459aacecc4749878b5efce870ec22"] || null;
+        const axisMeta = (window.__CD_AXIS_META__ || {})["c295f83c540c4d7481f297937f76f22e"] || null;
         const labelMax = parseInt(axisRig.dataset.timeLabelMax || "10", 10);
 
         const readRotationFromMatrix = (el) => {
@@ -940,7 +956,9 @@
             mark.className = "cd-axis-tick-mark";
             tickEl.appendChild(mark);
 
-            if (tick.label && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {
+            const hasEndLabel = !axisRig.classList.contains("cd-axis-rig--hide-end-labels")
+              && (tick.frac === 0 || tick.frac === 1);
+            if (tick.label && !hasEndLabel && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {
               const label = document.createElement("div");
               label.className = "cd-axis-tick-label";
               const labelFace = document.createElement("span");
@@ -992,6 +1010,20 @@
 
         applyCubeRotation();
 
+        const controlView = (action) => {
+          if (action === "reset") {
+            rotationX = (parseFloat(data.rotX) || 0) * Math.PI / 180;
+            rotationY = (parseFloat(data.rotY) || 0) * Math.PI / 180;
+            zoom = parseFloat(data.zoom) || 1;
+          } else if (action === "in" || action === "out") {
+            zoom = Math.min(zoomMax, Math.max(zoomMin, zoom * (action === "in" ? 0.85 : 1.18)));
+          }
+          applyCubeRotation();
+        };
+        root.querySelectorAll("[data-cube-control]").forEach(button => {
+          button.addEventListener("click", () => controlView(button.dataset.cubeControl));
+        });
+
         let dragging = false;
         let activePointerId = null;
         let startX = 0, startY = 0;
@@ -1025,6 +1057,18 @@
         if (dragSurface) {
           dragSurface.style.cursor = "grab";
           dragSurface.style.touchAction = "none";
+          dragSurface.addEventListener("keydown", e => {
+            const actions = {Home: "reset", "+": "in", "=": "in", "-": "out"};
+            if (actions[e.key]) {
+              e.preventDefault();
+              controlView(actions[e.key]);
+            } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+              e.preventDefault();
+              rotationY += e.key === "ArrowLeft" ? -0.12 : e.key === "ArrowRight" ? 0.12 : 0;
+              rotationX += e.key === "ArrowUp" ? -0.12 : e.key === "ArrowDown" ? 0.12 : 0;
+              applyCubeRotation();
+            }
+          });
 
           dragSurface.addEventListener("pointerdown", e => {
             e.preventDefault();
@@ -1090,6 +1134,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
     :root {
       /* Viewer override hooks:
@@ -1219,11 +1264,14 @@
     .cube-rotation {
       position: absolute;
       inset: 0;
+      /* The transformed faces are presentation only. Keep pointer events on
+         the dedicated drag surface so rotation works over every visible face. */
+      pointer-events: none;
       transform-style: preserve-3d;
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }
 
     .cube-drag-surface {
@@ -1253,7 +1301,7 @@
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }
 
     .scene-drag-surface {
@@ -1286,9 +1334,12 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      /* Every pixel is scientific evidence. Fit the complete rectangular
+         texture to the square physical face; `cover` cropped side data. */
+      background-size: 100% 100%;
       background-position: center;
       background-repeat: no-repeat;
+      image-rendering: pixelated;
       backface-visibility: hidden;
       border: 1px solid rgba(0,0,0,0.08);
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
@@ -1307,7 +1358,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      background-size: 100% 100%;
       background-position: center;
       opacity: 0.65;
       mix-blend-mode: normal;
@@ -1395,7 +1446,7 @@
       margin-top: 6px;
     }
     .cube-legend-card {
-      background: #ffffff;
+      background: var(--cube-panel-color);
       padding: 8px 12px;
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
@@ -1449,7 +1500,7 @@
       font-size: var(--cd-axis-font, var(--cube-axis-font-size, 13px));
       letter-spacing: 0.04em;
       /* Axis rig lives in cube-local coords; out-z anchors to front face, Y labels shift left for legibility. */
-      --cd-axis-color: rgba(25, 25, 25, 0.9);
+      --cd-axis-color: var(--cube-axis-color, rgba(25, 25, 25, 0.9));
       --cd-axis-out-x: 16px;
       --cd-axis-out-y: 14px;
       --cd-axis-front-z: calc(0.5 * var(--cd-cube-size, var(--cube-size)));
@@ -1496,10 +1547,12 @@
     .cd-axis-ticks {
       position: absolute;
       inset: 0;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick {
       position: absolute;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick-mark {
@@ -1510,17 +1563,24 @@
     .cd-axis-label {
       position: absolute;
       white-space: nowrap;
+      transform-style: preserve-3d;
+    }
+
+    .cd-axis-tick-label {
+      transform-style: preserve-3d;
     }
 
     .cd-axis-label-face {
       display: inline-block;
       padding: var(--cd-axis-pill-px, 0px);
       transform-style: preserve-3d;
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* Invert the camera in reverse order: (Rx Ry)^-1 = Ry^-1 Rx^-1. */
+      transform: rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     .cd-axis-label-face--time {
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* First cancel the time edge's local 90-degree rotation. */
+      transform: rotateY(-90deg) rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     /* X axis (longitude) - front bottom edge */
@@ -1701,28 +1761,28 @@
   </style>
 </head>
 <body>
-  <div class="cube-figure" id="cube-figure-69ff18a39dd945e7882d49562ae9661e" data-axis-rig="true" data-cb-min="-2.00" data-cb-max="2.00" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Climate synchrony cube panel</div>
+  <div class="cube-figure" id="cube-figure-da21e48aaba2473d945ed25d29c0c9e9" data-axis-rig="true" data-cb-min="-2.00" data-cb-max="2.00" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Climate synchrony cube panel</div>
     <div class="cube-main">
       <div class="cube-inner">
         <div class="cube-container">
-          <div class="cube-scene" id="cube-scene-69ff18a39dd945e7882d49562ae9661e">
-            <div id="cube-wrapper-69ff18a39dd945e7882d49562ae9661e" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
-              <canvas class="cube-canvas" id="cube-canvas-69ff18a39dd945e7882d49562ae9661e"></canvas>
-              <div class="cube-rotation" id="cube-rotation-69ff18a39dd945e7882d49562ae9661e">
+          <div class="cube-scene" id="cube-scene-da21e48aaba2473d945ed25d29c0c9e9">
+            <div id="cube-wrapper-da21e48aaba2473d945ed25d29c0c9e9" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
+              <canvas class="cube-canvas" id="cube-canvas-da21e48aaba2473d945ed25d29c0c9e9"></canvas>
+              <div class="cube-rotation" id="cube-rotation-da21e48aaba2473d945ed25d29c0c9e9">
                 
-        <div class="cd-cube" id="cube-69ff18a39dd945e7882d49562ae9661e">
-          <div class="cd-face cd-front" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAAfklEQVR4AQKM8cvXb/+Z//9hYPz3h+E/EwsD68sbDH+EFBiY2D4/Z2D8/YPhNzMHA/PH5wx/RFUY/rOwMTB+//btP9OX1wwg8I9HlIHx1zeGnyxcDCwgAbAxjEwMDP/+MDD+/MzA+eMjAxNI9V8+SQYGZjaGP4xgdQz/2LgZAIJyLJz6vODZAAAAAElFTkSuQmCC');"></div>
+        <div class="cd-cube" id="cube-da21e48aaba2473d945ed25d29c0c9e9">
+          <div class="cd-face cd-front" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAAfUlEQVR4AQKM8fvXL///MDAx/P33n4GZiZHhwcdfDFI8rAxMr3/8Z/j19z8DO+Nfhjff/zDI8rIysDAxMjB++/bt//sffxlAQJCDmeHH3/8MnAy/GVhAAn//MzAwMTIwgOhvv/8xfPnPzMAEUi3CyQzWzvL/D0gdAycLIwMA04Mtodr8oZoAAAAASUVORK5CYII=');"></div>
           <div class="cd-face cd-back" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAADElEQVR4AQKMYSABAAB9AAEebmwqAAAAAElFTkSuQmCC');"></div>
-          <div class="cd-face cd-left" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAqklEQVR4AQKMkQEJvP745T8rE0To738GBhYmRgY2JgYGhv//GP4ygBgMDCxI6hl4/31j+M/ExsDAyMTAwARS8J+B4e8fsBKW//8YmL69Z4AYBxZiYPjw+et/RkZGBlYmBrDEf6g4478/DAxMELMhJFSC89srhv+snGDJ/8wsDIxMLGCnMIPo/wwMzIwQg6DKGRi+ffv2H2blr38QYZCXWH9/YwAZwPT9IwMAHAcrjwAmycMAAAAASUVORK5CYII=');"></div>
-          <div class="cd-face cd-right" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAqUlEQVR4AQKMkQEJfP/y6T8DIxMDGP//B6EZGBgYf3xi+M/GxcD4+wcDC5J6hi9/mRjYmJkYGP4zMPz/z8jAyMjAwMb4j4GBCaLsPwsbqgb+L08Z/nPwMfxnZmX4z8zC8J+JjeHvfyYGZjYuhl//QFYxoGpAto3x/z8Gxj8/GBiZ2RgYf/1gYGdgYGD68ZEBxQ/fvn37jyzwn4GB4d9/Bgbm/3/AzgL5BQBS1y67WLMcbgAAAABJRU5ErkJggg==');"></div>
-          <div class="cd-face cd-top" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGCAYAAAD37n+BAAAAtklEQVR4AWJkQALfvn37DxP49Q8iARgTIwMD6+9vDP+ZWRiYvn9kYIIIo5L/oVyQ4r///jMwMDEx/GFiY/jHI8rAApUDU0w/vzD8Z2FjYGRkYmBmZGEAaWBmZmRg+AOxhfHPTwaYC8Aavn/7BjOcAeQkkAYWhn8MDP//MTAwsTD8+c+AagNINcwENphj/zMwMP77w/CfkYmB7ctr7H4AW8fAwAAy4C8DE8N/JhYGBkYmhv+snAwALZcuxCOtCUwAAAAASUVORK5CYII=');"></div>
-          <div class="cd-face cd-bottom" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGCAYAAAD37n+BAAAAw0lEQVR4AWJkQAKvP375z8oEEfr7n4GBhYmRATA2JgYGhv//GP4ygBgMDCxI6hl4mP8xMDAyQfD/fyCVDAz//jEw/v7BwMLMwvCfiQWqDVkXlP0fqpHxzy8Gxr+/waKM//6g2vDhNxMDCxMDAxszA8Off/8Z2JgZGVhYORj+s7CBNYAIFCdxsTIxgLwA8sV/RgaGf/8ZGH7+Z2RgZ2JiYPz1jYHl3QMGkBxIIxh///LpP4ofQM5iYGBg/PGJ4T8bF9gvABLDMrCCyy/bAAAAAElFTkSuQmCC');"></div>
+          <div class="cd-face cd-left" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAApUlEQVR4AQKMkQEJ/Hj34j8DCxtE5O8fhv8sbAz/mdkY/v1nYGBm+AcWZwGTUOIrCy8DCxMjAxMjAwMjM0TwL0Qdw5//jAyffv1jQLXh07v//xmZGBiY2Rj+MzDAJf+AbICqRLHhzR9WBnZmRgZmhv8MzIyMDMyMEKcwMzIxMP7/xwAyDKoPYv33b9/+g0wG8Rj//gJRDAyMTAzf/zODDfjy6y8DAN9SLZAwaXN+AAAAAElFTkSuQmCC');"></div>
+          <div class="cd-face cd-right" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAtklEQVR4AQKM8e2nr//ZmBkZfvz5x8DNysQAAv/+MzAwMTIwgOj/DAwMvNxcjCBxEGZhAckwMDAwMzGCFTD/+8XA8v8fw39GJgZmBgYGxt8/QOrgmIXt/y8Ghv8MDMzMbAyM//8xMDCzMfz8x8Dw9/9/hj///jN8/ccFVwxisLz+xczAw8YEUsHAxsTE8OcvyBEgKeyYhZOFkYGDmZEBpI6Z4R8DMzMTyEKIamZGBl6ovyACDAwAOhsvOin7kzoAAAAASUVORK5CYII=');"></div>
+          <div class="cd-face cd-top" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAMCAYAAABBV8wuAAAAr0lEQVR4AWKgHgCM8fu3b/9Bxn3785+Bk4WRgRHEYWBgYAGLghhMECEYnwmkACQEFQdxwZiJ8e8vBoa/vxhYGP4xgNlgYQYGsA4GRiYGOGZgANvDBBJg/PcHrO4vIwvDP5Al//8xsHz/z8zAxMjMwPD3PwMzEyPD33//Gf4zMTEwMTMyMrAz/mX4x8DAwMzIwMDCxAimmb78+svwn4mF4dff/wwgIz/8/Mvw9fc/BgCeNi+4ObAAEgAAAABJRU5ErkJggg==');"></div>
+          <div class="cd-face cd-bottom" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAMCAYAAABBV8wuAAAAt0lEQVR4AWL8/vXL/z8MTAx///1nYGZiZHjw8ReDFA8rAxMDAwNYEESDMGAgQTZmRgamvyDV/xkYfvz9DxJnYGdmZPjx5x8DCxMjAwNIBSMjAwMjAwMDy98fDNysHAxMjH9/gQU4mBkZmP//YfjPCDadgYnxzy+wESDVjL9/MDD+/8fw7z8DAwsDMwsDyDiwDSxsDAxMED5YH0gFCIN0MEB1MDH8+cUAUg3CjH9/M4AkQGyw+dQhAGJ0Of6wvoQUAAAAAElFTkSuQmCC');"></div>
         </div>
     
                 
                 
                 
-      <div class="cd-axis-rig" id="cd-axis-rig-69ff18a39dd945e7882d49562ae9661e" data-viewer-id="69ff18a39dd945e7882d49562ae9661e" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
+      <div class="cd-axis-rig" id="cd-axis-rig-da21e48aaba2473d945ed25d29c0c9e9" data-viewer-id="da21e48aaba2473d945ed25d29c0c9e9" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
         <div class="cd-axis-group cd-axis-x" data-axis="x">
           <div class="cd-axis-line"></div>
           <div class="cd-axis-ticks"></div>
@@ -1747,7 +1807,7 @@
       </div>
     
               </div>
-              <div class="cube-drag-surface" id="cube-drag-69ff18a39dd945e7882d49562ae9661e"></div>
+              <div class="cube-drag-surface" id="cube-drag-da21e48aaba2473d945ed25d29c0c9e9" tabindex="0" role="img" aria-label="Interactive cube. Drag or use arrow keys to rotate; scroll or press plus and minus to zoom; Home resets the view."></div>
             </div>
 
             <div class="axis-label cube-label cube-label-x axis-x-min"></div>
@@ -1763,7 +1823,7 @@
         </div>
       </div>
     </div>
-    <div class="cube-js-warning hidden" id="cube-js-warning-69ff18a39dd945e7882d49562ae9661e" aria-live="polite">
+    <div class="cube-js-warning hidden" id="cube-js-warning-da21e48aaba2473d945ed25d29c0c9e9" aria-live="polite">
       <div class="dot"></div>
       <div class="cube-warning-text"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
     </div>
@@ -1776,13 +1836,13 @@
     
   </div>
 
-  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"69ff18a39dd945e7882d49562ae9661e": {"x": {"name": "Longitude", "min_label": "106\u00b0W", "max_label": "105\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.20000000000000284, "label": ""}, {"frac": 0.4000000000000057, "label": ""}, {"frac": 0.5999999999999943, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Latitude", "min_label": "39\u00b0N", "max_label": "40\u00b0N", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.25, "label": ""}, {"frac": 0.5, "label": ""}, {"frac": 0.75, "label": ""}, {"frac": 1.0, "label": ""}]}, "time": {"name": "Time", "min_label": "05.01.2024", "max_label": "27.01.2024", "ticks": [{"frac": 0.0, "label": "05.01.2024"}, {"frac": 1.0, "label": "27.01.2024"}]}}});</script>
+  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"da21e48aaba2473d945ed25d29c0c9e9": {"x": {"name": "Longitude", "min_label": "105.75\u00b0W", "max_label": "104.75\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.20000000000000284, "label": ""}, {"frac": 0.4000000000000057, "label": ""}, {"frac": 0.5999999999999943, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Latitude", "min_label": "39.45\u00b0N", "max_label": "40.45\u00b0N", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.25, "label": ""}, {"frac": 0.5, "label": ""}, {"frac": 0.75, "label": ""}, {"frac": 1.0, "label": ""}]}, "time": {"name": "Time", "min_label": "05.01.2024", "max_label": "27.01.2024", "ticks": [{"frac": 0.0, "label": "05.01.2024"}, {"frac": 1.0, "label": "27.01.2024"}]}}});</script>
   
   <script id="cd-drift-center-v1-js">
     (function() {
       // Drift centering defaults (DYNAMIC DRIFT CENTERING V1):
       // MAX_DRIFT_PX=220, ROT_RANGE_DEG=55, SCALE_IN=1.25, SCALE_OUT=0.85, SMOOTHING=0.18
-      const viewerId = "69ff18a39dd945e7882d49562ae9661e";
+      const viewerId = "da21e48aaba2473d945ed25d29c0c9e9";
       const defaults = {
         maxDriftPx: 220,
         rotRangeDeg: 55,
@@ -1904,7 +1964,7 @@
     
   <script>
     (function() {
-      const viewerId = "69ff18a39dd945e7882d49562ae9661e";
+      const viewerId = "da21e48aaba2473d945ed25d29c0c9e9";
       const root = document.getElementById("cube-figure-" + viewerId);
       if (!root) {
         console.warn("[CubeViewer] Root element not found for viewerId", viewerId);
@@ -1940,7 +2000,7 @@
       const zoomMin = 0.35;
       const zoomMax = 6.0;
       
-      const axisRig = document.getElementById("cd-axis-rig-69ff18a39dd945e7882d49562ae9661e");
+      const axisRig = document.getElementById("cd-axis-rig-da21e48aaba2473d945ed25d29c0c9e9");
       if (axisRig) {
         const target =
           (cubeRotation && cubeRotation.querySelector(".cd-cube"))
@@ -1951,7 +2011,7 @@
           target.appendChild(axisRig);
         }
 
-        const axisMeta = (window.__CD_AXIS_META__ || {})["69ff18a39dd945e7882d49562ae9661e"] || null;
+        const axisMeta = (window.__CD_AXIS_META__ || {})["da21e48aaba2473d945ed25d29c0c9e9"] || null;
         const labelMax = parseInt(axisRig.dataset.timeLabelMax || "10", 10);
 
         const readRotationFromMatrix = (el) => {
@@ -2027,7 +2087,9 @@
             mark.className = "cd-axis-tick-mark";
             tickEl.appendChild(mark);
 
-            if (tick.label && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {
+            const hasEndLabel = !axisRig.classList.contains("cd-axis-rig--hide-end-labels")
+              && (tick.frac === 0 || tick.frac === 1);
+            if (tick.label && !hasEndLabel && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {
               const label = document.createElement("div");
               label.className = "cd-axis-tick-label";
               const labelFace = document.createElement("span");
@@ -2079,6 +2141,20 @@
 
         applyCubeRotation();
 
+        const controlView = (action) => {
+          if (action === "reset") {
+            rotationX = (parseFloat(data.rotX) || 0) * Math.PI / 180;
+            rotationY = (parseFloat(data.rotY) || 0) * Math.PI / 180;
+            zoom = parseFloat(data.zoom) || 1;
+          } else if (action === "in" || action === "out") {
+            zoom = Math.min(zoomMax, Math.max(zoomMin, zoom * (action === "in" ? 0.85 : 1.18)));
+          }
+          applyCubeRotation();
+        };
+        root.querySelectorAll("[data-cube-control]").forEach(button => {
+          button.addEventListener("click", () => controlView(button.dataset.cubeControl));
+        });
+
         let dragging = false;
         let activePointerId = null;
         let startX = 0, startY = 0;
@@ -2112,6 +2188,18 @@
         if (dragSurface) {
           dragSurface.style.cursor = "grab";
           dragSurface.style.touchAction = "none";
+          dragSurface.addEventListener("keydown", e => {
+            const actions = {Home: "reset", "+": "in", "=": "in", "-": "out"};
+            if (actions[e.key]) {
+              e.preventDefault();
+              controlView(actions[e.key]);
+            } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+              e.preventDefault();
+              rotationY += e.key === "ArrowLeft" ? -0.12 : e.key === "ArrowRight" ? 0.12 : 0;
+              rotationX += e.key === "ArrowUp" ? -0.12 : e.key === "ArrowDown" ? 0.12 : 0;
+              applyCubeRotation();
+            }
+          });
 
           dragSurface.addEventListener("pointerdown", e => {
             e.preventDefault();
@@ -2177,6 +2265,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
     :root {
       /* Viewer override hooks:
@@ -2306,11 +2395,14 @@
     .cube-rotation {
       position: absolute;
       inset: 0;
+      /* The transformed faces are presentation only. Keep pointer events on
+         the dedicated drag surface so rotation works over every visible face. */
+      pointer-events: none;
       transform-style: preserve-3d;
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }
 
     .cube-drag-surface {
@@ -2340,7 +2432,7 @@
       transform:
         rotateX(var(--rot-x, 0rad))
         rotateY(var(--rot-y, 0rad))
-        scale(calc(1 / var(--zoom, 1)));
+        scale3d(calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)), calc(1 / var(--zoom, 1)));
     }
 
     .scene-drag-surface {
@@ -2373,9 +2465,12 @@
       position: absolute;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      /* Every pixel is scientific evidence. Fit the complete rectangular
+         texture to the square physical face; `cover` cropped side data. */
+      background-size: 100% 100%;
       background-position: center;
       background-repeat: no-repeat;
+      image-rendering: pixelated;
       backface-visibility: hidden;
       border: 1px solid rgba(0,0,0,0.08);
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
@@ -2394,7 +2489,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      background-size: cover;
+      background-size: 100% 100%;
       background-position: center;
       opacity: 0.65;
       mix-blend-mode: normal;
@@ -2482,7 +2577,7 @@
       margin-top: 6px;
     }
     .cube-legend-card {
-      background: #ffffff;
+      background: var(--cube-panel-color);
       padding: 8px 12px;
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
@@ -2536,7 +2631,7 @@
       font-size: var(--cd-axis-font, var(--cube-axis-font-size, 13px));
       letter-spacing: 0.04em;
       /* Axis rig lives in cube-local coords; out-z anchors to front face, Y labels shift left for legibility. */
-      --cd-axis-color: rgba(25, 25, 25, 0.9);
+      --cd-axis-color: var(--cube-axis-color, rgba(25, 25, 25, 0.9));
       --cd-axis-out-x: 16px;
       --cd-axis-out-y: 14px;
       --cd-axis-front-z: calc(0.5 * var(--cd-cube-size, var(--cube-size)));
@@ -2583,10 +2678,12 @@
     .cd-axis-ticks {
       position: absolute;
       inset: 0;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick {
       position: absolute;
+      transform-style: preserve-3d;
     }
 
     .cd-axis-tick-mark {
@@ -2597,17 +2694,24 @@
     .cd-axis-label {
       position: absolute;
       white-space: nowrap;
+      transform-style: preserve-3d;
+    }
+
+    .cd-axis-tick-label {
+      transform-style: preserve-3d;
     }
 
     .cd-axis-label-face {
       display: inline-block;
       padding: var(--cd-axis-pill-px, 0px);
       transform-style: preserve-3d;
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* Invert the camera in reverse order: (Rx Ry)^-1 = Ry^-1 Rx^-1. */
+      transform: rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     .cd-axis-label-face--time {
-      transform: rotateX(var(--cd-bb-rot-x)) rotateY(var(--cd-bb-rot-y));
+      /* First cancel the time edge's local 90-degree rotation. */
+      transform: rotateY(-90deg) rotateY(var(--cd-bb-rot-y)) rotateX(var(--cd-bb-rot-x));
     }
 
     /* X axis (longitude) - front bottom edge */
@@ -2788,28 +2892,28 @@
   </style>
 </head>
 <body>
-  <div class="cube-figure" id="cube-figure-68097da78c124449b4ea5f642d1cfab7" data-axis-rig="true" data-cb-min="-2.00" data-cb-max="2.00" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Climate synchrony cube panel</div>
+  <div class="cube-figure" id="cube-figure-5798e421c5df4c1d94dc9c5c6639ab0c" data-axis-rig="true" data-cb-min="-2.00" data-cb-max="2.00" data-rot-x="30.0" data-rot-y="45.0" data-zoom="1.0"><div class="cube-title">Climate synchrony cube panel</div>
     <div class="cube-main">
       <div class="cube-inner">
         <div class="cube-container">
-          <div class="cube-scene" id="cube-scene-68097da78c124449b4ea5f642d1cfab7">
-            <div id="cube-wrapper-68097da78c124449b4ea5f642d1cfab7" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
-              <canvas class="cube-canvas" id="cube-canvas-68097da78c124449b4ea5f642d1cfab7"></canvas>
-              <div class="cube-rotation" id="cube-rotation-68097da78c124449b4ea5f642d1cfab7">
+          <div class="cube-scene" id="cube-scene-5798e421c5df4c1d94dc9c5c6639ab0c">
+            <div id="cube-wrapper-5798e421c5df4c1d94dc9c5c6639ab0c" class="cube-wrapper" style="--rot-x: 0.5236rad; --rot-y: 0.7854rad; --zoom: 1.0;">
+              <canvas class="cube-canvas" id="cube-canvas-5798e421c5df4c1d94dc9c5c6639ab0c"></canvas>
+              <div class="cube-rotation" id="cube-rotation-5798e421c5df4c1d94dc9c5c6639ab0c">
                 
-        <div class="cd-cube" id="cube-68097da78c124449b4ea5f642d1cfab7">
-          <div class="cd-face cd-front" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAAgUlEQVR4AQKM8efb5///MzIyMDCxMPxn42JgfXGNgeHfHwbGn68e/mdgYGD4xyXIwPjnFwMDExPDp/9sDEz/uIXBgt/+MYN1ML97xMDL9IeB8fu3b////mdgAGljYfjHwPj7B1gBE9OX1wwsPz8xvPn+h+HnP0aG/yxsDH/+MzAAALf1MRt3jqNNAAAAAElFTkSuQmCC');"></div>
+        <div class="cd-cube" id="cube-5798e421c5df4c1d94dc9c5c6639ab0c">
+          <div class="cd-face cd-front" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAAg0lEQVR4AQKM8dXHL/8ZGRgYmJkYGTiYGRnuf/zF8PcfAwPL77//GUCAj4WJ4cff/wzSPKwMnL8+MTDxszMz8LEzM7D++gLW8eLrH4Yf7PwMjN++ffvP+P8fA8P/fwx/GVkYfv37D1bA9P7HX4YvfxgYmD8+Z2D5+4OBlYmRgfHfHwYAjIstdIdkEgcAAAAASUVORK5CYII=');"></div>
           <div class="cd-face cd-back" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAFCAYAAABmWJ3mAAAADElEQVR4AQKMYSABAAB9AAEebmwqAAAAAElFTkSuQmCC');"></div>
-          <div class="cd-face cd-left" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAsElEQVR4AQKMkQEJ/L6y7/9/AUmG/xx8DP9Z2BkY/v9jYPzzE6ziPzs3A+PvnwwoGj58/vqfkZGRgZWJgeHX3/8MMPa//2A9DKxfX6Nq+Pnm6X+Qyf+ZWRj+MLExMDMyMDD+/cXA9Os7wz82TgYGJhZUDSBzfj+68v8fOzfDf05+Boa/fxgY//4GCTP84hRkYGFkYGAB86AEWDEnP8T9UDEQxfjnBwPrry8MjL+/MwAAWJM7BDeebl4AAAAASUVORK5CYII=');"></div>
-          <div class="cd-face cd-right" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAwUlEQVR4AQKMkQEJ/Hj/6v9/FjYGBmY2hp9//zMwMkKk////z8DGzMjA9uwSA0QEqunbt2//Gf/9YWBgZGL48IuBgYWJgYEDRDAwMHz59Y+BmYmBgQWqFkz93zaVgVXNkIFBQIJBiIMXIvafm+E/MwuDABsLA8O/P6g2/Hp68/9/Dj6Gf2ycDF/+sTD8/c/AwMPKBKZ//f0HZqM46cPnr/9BbmX8/4/hLwMTAzMjAwPTl9cMDP//MfzjEmT4w8TGAADRpTtN+faY+gAAAABJRU5ErkJggg==');"></div>
-          <div class="cd-face cd-top" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGCAYAAAD37n+BAAAA5klEQVR4AWJkQAK/H135/4+Tn+E/CzsDAzMLA8PfPwyAMf79zcD45wfDP3ZeBsbf3xlYkNQz/OMSZPjPxAxW/J+RiYGBhY2B8d9fhv+sXAz/2HkYmP7/Q9XA+PMLAwMHH8P/f/8YvjGxM/z+95/h538eBk5WRoYvX/8wMDJyMaA46du3b/9hAr/+MTAwMTKAFfxnYGD4+w9EMqDawHrvBAMDnxjDPw5eBnZWTob/rBwMjL++gV3NwsHHwPDvD9gAsACI+PD56382ZkYGxv//GP4yMDEwMzIwMH15zcDw/x/Yf3+Y2BgA7RtE0/VSgbkAAAAASUVORK5CYII=');"></div>
-          <div class="cd-face cd-bottom" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAGCAYAAAD37n+BAAAA0klEQVR4AWJkQAK/r+z7/19AkuE/Bx/DfxZ2Bob//xgAY/zzE6ziPzs3A+PvnwwoGr59+/YfLvD/H1gDSBNYByMTA+OvbwwsYA6UYHt5g+EvlyDDf1ZOhv+sHAwMzGxgTX8ZmBj+/mdgYGdiQbXhx4c3//8zQ80AKf77i4Hxzy8Gxr+/Gf6xc4MNgMpCrGD8+ZmBgZWTgYGFjeH/318MDIxMDP9BbBY2Bsb//xhYXlxDddJ/Nm6wApBTfv79z8AIcgAjA8P///8Z2FgYGRj+/WEAAAMXRH3mnKWiAAAAAElFTkSuQmCC');"></div>
+          <div class="cd-face cd-left" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAAqUlEQVR4AQKMkQEJnHz49r8oFysDFysTAxszI8P//wwMv/7+B6vgZGFk+PXvPwOKhh+f3v3/z8jEwMDMxsD45wcDjM3w/x9Y07uf/xlYwCwo8eEfG9hk5n8MDGxMLAwMTCwMv/4xMPz8y8DAzszEwM/OgGoDSN/tlx//c7IyMfCwMjGAXPP7H8RJ/Cz/GP4zsaDaAFLMw8YMtgWkGYZB/vjGxMzw49dfBgA4ITVUWstcogAAAABJRU5ErkJggg==');"></div>
+          <div class="cd-face cd-right" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAFCAYAAABxeg0vAAAA1ElEQVR4AQKM8dLTD/9VBdkYGP/8YPjPyMQAAoz//zH8Y+Fg+P2PgeHPv/8MwnzcjCBxEGZS5/jOwPT1LcN/JhYGBkYmBsbfPxgYf35l+PefgYGJkYGBiwWuFqSegeUHOz8DMyMDw9//IPyf4TsDNwMDMwPDty+/Gd58+8Nw+dVnsEIYwcLKxMDA9OMTAzMrBwMDEwsD979PDP+ZmBl4uPkY+DmYGSR4WWFqwTQL478/DD/Z+Bg+//rLwMjwn0GQS5AB5AdmBgYGXlYmBj7GX2CFMAIAHjU4Qmljt+YAAAAASUVORK5CYII=');"></div>
+          <div class="cd-face cd-top" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAMCAYAAABBV8wuAAAAy0lEQVR4AWKgHgCM8fbLj/952ZkZvv/5xyDBxcJw6fV3Bn1BRgYWHjZmBmZGBgZuViaG/wwMDEIcLAz/WVgZWNiYGcES/6Cu4GJlYvj7n4GBCaSakZGRgevPVwbGv78YOFiYGJgZ/jEwgWRBihn//mZgYGRiAJnwn5GJgen3v/8MP//+Y2D8/Q0s8ePPP4b3P/4yMP2CavnPxsPA8B9iE8gRLCDXcLEwMjB+/sDAyMrOwM3KwcDGzMDABNL65fc/sDEgu0AGsDH8YQAAP0g5MhsnsgwAAAAASUVORK5CYII=');"></div>
+          <div class="cd-face cd-bottom" style="background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAMCAYAAABBV8wuAAAAyUlEQVR4AWJ89fHLf0YGBgZmJkYGDmZGhvsffzH8/cfAwPjh89f/IEGWf78YfgHGyMbw//9/BnZmRgam73/+M/z7z8DAwMTC8P3PPwZGRkYGxj8/GJgYoOAvAxMDKxPIUAaG/4xMDExsIG2MDAwgMRYmRjANUsvEyMjAAFL3+x8DAysTA9hYxv//GJh+/f0PVvXr7z8GkCTI8n8sHAxM30A8BgaGn39BLmBg+P3vP1gB0+tvv8FGffr5j+Hv//9gBX/AzgTZRBUMAOqISgrhuKijAAAAAElFTkSuQmCC');"></div>
         </div>
     
                 
                 
                 
-      <div class="cd-axis-rig" id="cd-axis-rig-68097da78c124449b4ea5f642d1cfab7" data-viewer-id="68097da78c124449b4ea5f642d1cfab7" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
+      <div class="cd-axis-rig" id="cd-axis-rig-5798e421c5df4c1d94dc9c5c6639ab0c" data-viewer-id="5798e421c5df4c1d94dc9c5c6639ab0c" data-time-label-max="10" style="--cd-axis-out-x: 6px; --cd-axis-out-y: 8px; --cd-axis-out-z: calc(var(--cd-axis-front-z) + 6px); --cd-axis-line-w: 2px; --cd-axis-tick-w: 1px; --cd-axis-tick-l: 8px; --cd-axis-end-nudge: 6px;">
         <div class="cd-axis-group cd-axis-x" data-axis="x">
           <div class="cd-axis-line"></div>
           <div class="cd-axis-ticks"></div>
@@ -2834,7 +2938,7 @@
       </div>
     
               </div>
-              <div class="cube-drag-surface" id="cube-drag-68097da78c124449b4ea5f642d1cfab7"></div>
+              <div class="cube-drag-surface" id="cube-drag-5798e421c5df4c1d94dc9c5c6639ab0c" tabindex="0" role="img" aria-label="Interactive cube. Drag or use arrow keys to rotate; scroll or press plus and minus to zoom; Home resets the view."></div>
             </div>
 
             <div class="axis-label cube-label cube-label-x axis-x-min"></div>
@@ -2850,7 +2954,7 @@
         </div>
       </div>
     </div>
-    <div class="cube-js-warning hidden" id="cube-js-warning-68097da78c124449b4ea5f642d1cfab7" aria-live="polite">
+    <div class="cube-js-warning hidden" id="cube-js-warning-5798e421c5df4c1d94dc9c5c6639ab0c" aria-live="polite">
       <div class="dot"></div>
       <div class="cube-warning-text"><strong>Interactive controls need JavaScript.</strong> Trust this notebook/output and temporarily disable script blockers to rotate and zoom the cube.</div>
     </div>
@@ -2863,13 +2967,13 @@
     
   </div>
 
-  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"68097da78c124449b4ea5f642d1cfab7": {"x": {"name": "Longitude", "min_label": "106\u00b0W", "max_label": "105\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.20000000000000284, "label": ""}, {"frac": 0.4000000000000057, "label": ""}, {"frac": 0.5999999999999943, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Latitude", "min_label": "39\u00b0N", "max_label": "40\u00b0N", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.25, "label": ""}, {"frac": 0.5, "label": ""}, {"frac": 0.75, "label": ""}, {"frac": 1.0, "label": ""}]}, "time": {"name": "Time", "min_label": "05.01.2024", "max_label": "27.01.2024", "ticks": [{"frac": 0.0, "label": "05.01.2024"}, {"frac": 1.0, "label": "27.01.2024"}]}}});</script>
+  <script>window.__CD_AXIS_META__ = Object.assign({}, window.__CD_AXIS_META__ || {}, {"5798e421c5df4c1d94dc9c5c6639ab0c": {"x": {"name": "Longitude", "min_label": "105.75\u00b0W", "max_label": "104.75\u00b0W", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.20000000000000284, "label": ""}, {"frac": 0.4000000000000057, "label": ""}, {"frac": 0.5999999999999943, "label": ""}, {"frac": 1.0, "label": ""}]}, "y": {"name": "Latitude", "min_label": "39.45\u00b0N", "max_label": "40.45\u00b0N", "ticks": [{"frac": 0.0, "label": ""}, {"frac": 0.25, "label": ""}, {"frac": 0.5, "label": ""}, {"frac": 0.75, "label": ""}, {"frac": 1.0, "label": ""}]}, "time": {"name": "Time", "min_label": "05.01.2024", "max_label": "27.01.2024", "ticks": [{"frac": 0.0, "label": "05.01.2024"}, {"frac": 1.0, "label": "27.01.2024"}]}}});</script>
   
   <script id="cd-drift-center-v1-js">
     (function() {
       // Drift centering defaults (DYNAMIC DRIFT CENTERING V1):
       // MAX_DRIFT_PX=220, ROT_RANGE_DEG=55, SCALE_IN=1.25, SCALE_OUT=0.85, SMOOTHING=0.18
-      const viewerId = "68097da78c124449b4ea5f642d1cfab7";
+      const viewerId = "5798e421c5df4c1d94dc9c5c6639ab0c";
       const defaults = {
         maxDriftPx: 220,
         rotRangeDeg: 55,
@@ -2991,7 +3095,7 @@
     
   <script>
     (function() {
-      const viewerId = "68097da78c124449b4ea5f642d1cfab7";
+      const viewerId = "5798e421c5df4c1d94dc9c5c6639ab0c";
       const root = document.getElementById("cube-figure-" + viewerId);
       if (!root) {
         console.warn("[CubeViewer] Root element not found for viewerId", viewerId);
@@ -3027,7 +3131,7 @@
       const zoomMin = 0.35;
       const zoomMax = 6.0;
       
-      const axisRig = document.getElementById("cd-axis-rig-68097da78c124449b4ea5f642d1cfab7");
+      const axisRig = document.getElementById("cd-axis-rig-5798e421c5df4c1d94dc9c5c6639ab0c");
       if (axisRig) {
         const target =
           (cubeRotation && cubeRotation.querySelector(".cd-cube"))
@@ -3038,7 +3142,7 @@
           target.appendChild(axisRig);
         }
 
-        const axisMeta = (window.__CD_AXIS_META__ || {})["68097da78c124449b4ea5f642d1cfab7"] || null;
+        const axisMeta = (window.__CD_AXIS_META__ || {})["5798e421c5df4c1d94dc9c5c6639ab0c"] || null;
         const labelMax = parseInt(axisRig.dataset.timeLabelMax || "10", 10);
 
         const readRotationFromMatrix = (el) => {
@@ -3114,7 +3218,9 @@
             mark.className = "cd-axis-tick-mark";
             tickEl.appendChild(mark);
 
-            if (tick.label && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {
+            const hasEndLabel = !axisRig.classList.contains("cd-axis-rig--hide-end-labels")
+              && (tick.frac === 0 || tick.frac === 1);
+            if (tick.label && !hasEndLabel && (!options.subsampleLabels || (idx % labelStep === 0) || idx === ticks.length - 1)) {
               const label = document.createElement("div");
               label.className = "cd-axis-tick-label";
               const labelFace = document.createElement("span");
@@ -3166,6 +3272,20 @@
 
         applyCubeRotation();
 
+        const controlView = (action) => {
+          if (action === "reset") {
+            rotationX = (parseFloat(data.rotX) || 0) * Math.PI / 180;
+            rotationY = (parseFloat(data.rotY) || 0) * Math.PI / 180;
+            zoom = parseFloat(data.zoom) || 1;
+          } else if (action === "in" || action === "out") {
+            zoom = Math.min(zoomMax, Math.max(zoomMin, zoom * (action === "in" ? 0.85 : 1.18)));
+          }
+          applyCubeRotation();
+        };
+        root.querySelectorAll("[data-cube-control]").forEach(button => {
+          button.addEventListener("click", () => controlView(button.dataset.cubeControl));
+        });
+
         let dragging = false;
         let activePointerId = null;
         let startX = 0, startY = 0;
@@ -3199,6 +3319,18 @@
         if (dragSurface) {
           dragSurface.style.cursor = "grab";
           dragSurface.style.touchAction = "none";
+          dragSurface.addEventListener("keydown", e => {
+            const actions = {Home: "reset", "+": "in", "=": "in", "-": "out"};
+            if (actions[e.key]) {
+              e.preventDefault();
+              controlView(actions[e.key]);
+            } else if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+              e.preventDefault();
+              rotationY += e.key === "ArrowLeft" ? -0.12 : e.key === "ArrowRight" ? 0.12 : 0;
+              rotationX += e.key === "ArrowUp" ? -0.12 : e.key === "ArrowDown" ? 0.12 : 0;
+              applyCubeRotation();
+            }
+          });
 
           dragSurface.addEventListener("pointerdown", e => {
             e.preventDefault();

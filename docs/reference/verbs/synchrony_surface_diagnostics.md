@@ -2,7 +2,7 @@
 
 # synchrony_surface_diagnostics
 
-Evaluate candidate radial, directional, and low-order 2-D descriptors.
+Describe structure in one local synchrony surface.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -17,10 +17,10 @@ v.synchrony_surface_diagnostics(*, metric='delta_s', radial_bin_width_km=5.0, an
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| metric | See implementation docstring below; no parameter-specific description supplied. | 'delta_s' |
-| radial_bin_width_km | See implementation docstring below; no parameter-specific description supplied. | 5.0 |
-| angular_bin_width_degrees | See implementation docstring below; no parameter-specific description supplied. | 15.0 |
-| min_count | See implementation docstring below; no parameter-specific description supplied. | 3 |
+| metric | Surface variable to describe: cold_synchrony, warm_synchrony, or delta_s. | 'delta_s' |
+| radial_bin_width_km | Width of fine radial-profile bins. | 5.0 |
+| angular_bin_width_degrees | Width of bearing sectors; must divide 360 degrees. | 15.0 |
+| min_count | Minimum valid values required for a radial or angular bin. | 3 |
 
 ## Accepts
 
@@ -28,7 +28,7 @@ One Dataset produced by v.local_synchrony_surface(...).
 
 ## Returns
 
-Experimental fine radial and angular profiles, harmonic, half-plane, censoring, and low-order 2-D reconstruction diagnostics.
+Experimental radial spread, radially adjusted directional profiles, harmonic anisotropy, half-plane contrast, candidate-scale censoring, low-order 2-D reconstruction, and residual-complexity diagnostics.
 
 ## Order / grammar behavior
 
@@ -73,6 +73,8 @@ One Dataset produced by v.local_synchrony_surface(...).
 
 ## Implementation notes
 
-No additional implementation notes in the current docstring.
+Radial, directional, harmonic, anisotropy, half-plane, low-order
+reconstruction, and residual-complexity outputs are experimental
+descriptors. They are not a finalized signature or climate classification.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L283). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L379). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

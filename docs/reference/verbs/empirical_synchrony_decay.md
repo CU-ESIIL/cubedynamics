@@ -17,15 +17,15 @@ v.empirical_synchrony_decay(*, discovery_radius_km=None, bin_width_km=20.0, min_
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| discovery_radius_km | See implementation docstring below; no parameter-specific description supplied. | None |
-| bin_width_km | See implementation docstring below; no parameter-specific description supplied. | 20.0 |
-| min_annulus_count | See implementation docstring below; no parameter-specific description supplied. | 30 |
-| background_shell_count | See implementation docstring below; no parameter-specific description supplied. | 4 |
-| background_method | See implementation docstring below; no parameter-specific description supplied. | 'outer_annuli' |
-| local_shell_count | See implementation docstring below; no parameter-specific description supplied. | 2 |
-| crossing_persistence_bins | See implementation docstring below; no parameter-specific description supplied. | 2 |
-| min_local_excess | See implementation docstring below; no parameter-specific description supplied. | 0.04 |
-| initial_window_km | See implementation docstring below; no parameter-specific description supplied. | 100.0 |
+| discovery_radius_km | Physical support to analyze; defaults to all support in the pair table. | None |
+| bin_width_km | Width of empirical annuli. | 20.0 |
+| min_annulus_count | Minimum valid relationships required to support an annulus. | 30 |
+| background_shell_count | Number of outer supported annuli used by empirical background rules. | 4 |
+| background_method | outer_annuli, smoothed_outer_annuli, or distant_pairs. | 'outer_annuli' |
+| local_shell_count | Number of nearest supported annuli defining local synchrony. | 2 |
+| crossing_persistence_bins | Consecutive supported annuli required for a fractional crossing. | 2 |
+| min_local_excess | Minimum local synchrony above background required for decay metrics. | 0.04 |
+| initial_window_km | Distance window used for the reported robust initial slope. | 100.0 |
 
 ## Accepts
 
@@ -33,11 +33,11 @@ A sparse pair Dataset produced by v.local_synchrony_pairs(...); saved pair check
 
 ## Returns
 
-Non-monotonic annular curves, d25/d50/d75 and censoring statuses, effective synchrony length with boundary diagnostics, background-free robust slopes, 100 km interpretation, and separate cold/warm contrasts.
+Annular median/IQR/count and cumulative curves; d25/d50/d75 fractional-decay coordinates; effective synchrony length; initial, near, middle, and far slopes; loss by 100 km; and valid cold-minus-warm contrasts.
 
 ## Order / grammar behavior
 
-Use after pair construction to characterize decay, not to select an adaptive radius. Keep d50, effective length, beta, and Delta_S scientifically distinct.
+Use after pair construction to ask how synchrony changes continuously with distance, not to select an adaptive radius. Keep fractional decay, effective length, slopes, and pairwise Delta_S scientifically distinct.
 
 ## Minimal example
 
@@ -82,4 +82,4 @@ curve property, not a hard cutoff. Initial slope is background-free. None
 of these metrics is a dispersal distance, kernel bandwidth, or adaptive
 neighborhood rule.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L175). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L229). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

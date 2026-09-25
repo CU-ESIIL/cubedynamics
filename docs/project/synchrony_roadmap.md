@@ -29,6 +29,9 @@ histories.
   recurrence, and links to previous events where available.
 - Synchrony outputs: maps, edge tables, block comparisons, matrices, and
   regional summaries.
+- Climate-tail relationship outputs: canonical pair tables, focal
+  `S_p(dx,dy)` surfaces, fixed-support summaries, finite-range statuses,
+  continuous decay curves, and center-landscape comparisons.
 - Legacy and response cubes: future support for time-since-event, cumulative
   exposure, response kernels, and event graphs.
 
@@ -51,7 +54,9 @@ The shared spatial comparison engine should continue to support:
 - Reference pixel or reference series comparisons.
 - Neighborhood synchrony maps.
 - All-pairs edge outputs for small problems.
-- Regional summaries and synchrony-distance curves.
+- Regional summaries and synchrony-distance curves. The current climate-tail
+  branch implements bounded empirical curves; temporal replication and richer
+  uncertainty remain future work.
 - Block comparisons and climate-network style analyses.
 
 Relational results should remain relational. All-pairs and network outputs
@@ -62,7 +67,8 @@ should not be forced into fake `(time, y, x)` cubes.
 Synchrony operators need diagnostics beyond a single score:
 
 - Event prevalence maps.
-- Synchrony-versus-distance curves.
+- Synchrony-versus-distance curves, including sensitivity to discovery support,
+  annulus width, and temporal window.
 - Local synchrony maps.
 - Threshold sensitivity surfaces.
 - Joint sample-size diagnostics.

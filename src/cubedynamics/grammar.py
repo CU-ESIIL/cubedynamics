@@ -382,18 +382,18 @@ _VERB_SPECS.update(
             category="semantic", examples=("v.local_synchrony_stack(window_days=90)",),
         ),
         "local_synchrony_pairs": _spec(
-            "local_synchrony_pairs", "calculate bounded canonical climate-tail synchrony pairs",
+            "local_synchrony_pairs", "measure bounded canonical cold/warm/Delta pair synchrony",
             _FIELD_KINDS, "relationship", requires=("time", "time_variation", "spatial"),
             category="semantic", examples=("v.local_synchrony_pairs(max_radius_km=100)",),
         ),
         "synchrony_signature": _spec(
-            "synchrony_signature", "baseline-compress local pairs across nested radii",
+            "synchrony_signature", "reduce local pairs within declared fixed supports",
             ("relationship",), "summary", requires=("spatial",), category="semantic",
             examples=("v.synchrony_signature(radii_km=(25, 50, 75, 100))",),
         ),
         "empirical_synchrony_range": _spec(
             "empirical_synchrony_range",
-            "estimate kernel-agnostic local synchrony ranges and adaptive reductions",
+            "diagnose whether a finite empirical synchrony range can be resolved",
             ("relationship",), "summary", requires=("spatial",), category="semantic",
             examples=("v.empirical_synchrony_range(bin_width_km=20)",),
         ),
@@ -405,7 +405,7 @@ _VERB_SPECS.update(
         ),
         "adaptive_synchrony_experiment": _spec(
             "adaptive_synchrony_experiment",
-            "discover empirical local breaks and compare adaptive with fixed synchrony",
+            "experimentally compare first-break and fixed-support synchrony summaries",
             ("relationship",), "summary", requires=("spatial",), category="semantic",
             examples=("v.adaptive_synchrony_experiment(discovery_radius_km=1000)",),
         ),
@@ -415,12 +415,12 @@ _VERB_SPECS.update(
             examples=("v.local_synchrony_surface(focal_y_index=10, focal_x_index=10)",),
         ),
         "synchrony_surface_diagnostics": _spec(
-            "synchrony_surface_diagnostics", "evaluate candidate local-surface descriptors",
+            "synchrony_surface_diagnostics", "describe structure in one local synchrony surface",
             (*_FIELD_KINDS, "field"), "summary", category="semantic",
             examples=("v.synchrony_surface_diagnostics(radial_bin_width_km=5)",),
         ),
         "landscape_change_signature": _spec(
-            "landscape_change_signature", "compare neighboring center landscapes along distinct axes",
+            "landscape_change_signature", "compare complete neighboring center landscapes along distinct axes",
             ("relationship",), "summary", requires=("spatial",), category="semantic",
             examples=("v.landscape_change_signature(metric='delta_s')",),
         ),

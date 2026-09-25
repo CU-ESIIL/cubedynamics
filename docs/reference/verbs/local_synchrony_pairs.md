@@ -2,7 +2,7 @@
 
 # local_synchrony_pairs
 
-Build a bounded canonical local-pair table for signature reduction.
+Measure bounded canonical cold/warm/Delta pair synchrony.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -17,19 +17,19 @@ v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, com
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| lower_var | See implementation docstring below; no parameter-specific description supplied. | None |
-| upper_var | See implementation docstring below; no parameter-specific description supplied. | None |
-| output_mask | See implementation docstring below; no parameter-specific description supplied. | None |
-| computation_mask | See implementation docstring below; no parameter-specific description supplied. | None |
-| max_radius_km | See implementation docstring below; no parameter-specific description supplied. | 100.0 |
-| window_days | See implementation docstring below; no parameter-specific description supplied. | 90 |
-| window_end | See implementation docstring below; no parameter-specific description supplied. | None |
-| min_t | See implementation docstring below; no parameter-specific description supplied. | 10 |
-| split_quantile | See implementation docstring below; no parameter-specific description supplied. | 0.5 |
-| time_dim | See implementation docstring below; no parameter-specific description supplied. | 'time' |
-| pair_batch_size | See implementation docstring below; no parameter-specific description supplied. | 16384 |
-| distance_sampling | See implementation docstring below; no parameter-specific description supplied. | None |
-| sampling_seed | See implementation docstring below; no parameter-specific description supplied. | 0 |
+| lower_var | Variable used for lower-tail synchrony, normally daily TMIN. | None |
+| upper_var | Variable used for upper-tail synchrony, normally daily TMAX. | None |
+| output_mask | Spatial Boolean mask of focal cells that should receive output. | None |
+| computation_mask | Spatial Boolean mask of cells eligible as either pair endpoint. It must contain every output cell and normally includes the full spatial halo. | None |
+| max_radius_km | Maximum physical search/observation support. This is not an inferred characteristic synchrony distance. | 100.0 |
+| window_days | Length of the bounded trailing analysis window in coordinate days. | 90 |
+| window_end | Inclusive window end; defaults to the latest time coordinate. | None |
+| min_t | Minimum jointly selected tail observations required for Spearman synchrony. | 10 |
+| split_quantile | Per-series tail split. The current climate workflow uses 0.5. | 0.5 |
+| time_dim | Name of the temporal dimension. | 'time' |
+| pair_batch_size | Number of canonical pairs evaluated per temporal-kernel batch. | 16384 |
+| distance_sampling | Experimental distance-stratified pair-sampling plan. None retains all eligible pairs. | None |
+| sampling_seed | Deterministic seed used only when distance sampling is requested. | 0 |
 
 ## Accepts
 
@@ -41,7 +41,7 @@ A bounded sparse relationship Dataset with one canonical undirected pair, cold a
 
 ## Order / grammar behavior
 
-Apply before local_synchrony_surface, baseline synchrony_signature, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo. The output mask must be a subset of the computation mask; use the latter to exclude ocean or nodata cells without dropping eligible border neighbors.
+Measure pairs once, then branch to local_synchrony_surface, synchrony_signature, empirical_synchrony_range, empirical_synchrony_decay, or landscape_change_signature. Supply the output tile plus its full observation-radius climate halo. The output mask must be a subset of the computation mask; use the latter to exclude ocean or nodata cells without dropping eligible border neighbors.
 
 ## Minimal example
 
@@ -79,6 +79,10 @@ A daily latitude/longitude climate Dataset containing the selected lower- and up
 
 ## Implementation notes
 
-No additional implementation notes in the current docstring.
+Cold is joint lower-tail TMIN Spearman, warm is strict joint upper-tail
+TMAX Spearman, and ``delta_s = cold_synchrony - warm_synchrony``. Positive
+Delta means cold synchrony is stronger; negative Delta means warm synchrony
+is stronger. Pairs are canonical and symmetric; distance and direction do
+not by themselves define a scale.
 
 [Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L28). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

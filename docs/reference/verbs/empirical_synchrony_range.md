@@ -2,7 +2,7 @@
 
 # empirical_synchrony_range
 
-Estimate empirical cold/warm ranges and adaptive reductions.
+Diagnose whether finite empirical cold/warm ranges can be resolved.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -34,11 +34,11 @@ A sparse pair Dataset produced by v.local_synchrony_pairs(...) with a discovery 
 
 ## Returns
 
-Annular and cumulative empirical responses, three distant-background candidates, cold/warm/common range estimates and statuses, the unchanged fixed-radius control, and unweighted adaptive reductions.
+Annular and cumulative empirical responses, three distant-background candidates, cold/warm/common range estimates and statuses, the unchanged fixed-radius control, and same-neighbor range-based diagnostics.
 
 ## Order / grammar behavior
 
-Build one sufficiently large discovery pair table first, then reuse it for fixed and adaptive reductions. A discovery limit is not a range; unresolved or boundary-limited estimates remain missing.
+Use this branch only to ask whether a finite convergence distance resolves. A discovery limit is not a range; unresolved or boundary-limited estimates remain missing, and R_common is not a generally validated adaptive radius.
 
 ## Minimal example
 
@@ -78,8 +78,10 @@ A sparse pair Dataset produced by v.local_synchrony_pairs(...) with a discovery 
 ## Implementation notes
 
 ``R_common`` is the maximum of cold and warm ranges only when both resolve.
-Primary adaptive Delta uses the same neighbors for both tails. Discovery
-support, range, and kernel weighting are distinct; this verb applies no
-parametric kernel and no distance weights.
+The common-range Delta diagnostic uses the same neighbors for both tails.
+Discovery support, range, and kernel weighting are distinct; this verb
+applies no parametric kernel and no distance weights. An unresolved or
+censored result is valid and must not be replaced by the discovery radius.
+The verb does not establish a preferred adaptive-neighborhood rule.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L95). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L147). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

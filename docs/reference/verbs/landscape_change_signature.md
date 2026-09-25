@@ -2,7 +2,7 @@
 
 # landscape_change_signature
 
-Compare neighboring center landscapes along separate change axes.
+Compare complete neighboring center landscapes along separate axes.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Synchrony and comparison](index.md#synchrony-and-comparison)
 
@@ -17,10 +17,10 @@ v.landscape_change_signature(*, metric='delta_s', deadband=0.02, near_tie_epsilo
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| metric | See implementation docstring below; no parameter-specific description supplied. | 'delta_s' |
-| deadband | See implementation docstring below; no parameter-specific description supplied. | 0.02 |
-| near_tie_epsilon | See implementation docstring below; no parameter-specific description supplied. | 0.005 |
-| min_overlap | See implementation docstring below; no parameter-specific description supplied. | 25 |
+| metric | Pair field used to build each center landscape. | 'delta_s' |
+| deadband | Absolute interval around zero treated as neutral for sign comparisons. | 0.02 |
+| near_tie_epsilon | Tolerance used to report near-tied values in rank diagnostics. | 0.005 |
+| min_overlap | Minimum shared comparison locations required for a landscape pair. | 25 |
 
 ## Accepts
 
@@ -72,6 +72,8 @@ A sparse pair Dataset that retains enough neighboring center landscapes for the 
 
 ## Implementation notes
 
-No additional implementation notes in the current docstring.
+This compares complete ``M_i(j)`` fields as the center moves. It is not
+pair synchrony, within-surface structure, or geographic change in one
+already-reduced focal summary.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L304). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L419). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

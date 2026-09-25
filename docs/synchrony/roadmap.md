@@ -2,18 +2,19 @@
 
 The synchrony framework is intentionally phased. The current implementation
 covers the first reviewable pass across state cubes, events, four primitive
-operators, spatial modes, biological cubes, and same-pixel coupling.
+operators, spatial modes, biological cubes, same-pixel coupling, and bounded
+climate-tail pair/surface/decay workflows.
 
 ## Current Implementation
 
 <div class="sync-card-grid">
   <div class="sync-card">
     <h3>Implemented</h3>
-    <p>State constructors, event detection, occurrence, severity, timing, duration, biological rasterization, alignment, and same-pixel coupling.</p>
+    <p>State constructors, event detection, occurrence, severity, timing, duration, biological rasterization, alignment, same-pixel coupling, canonical climate-tail pairs, local surfaces, fixed-support summaries, and empirical decay.</p>
   </div>
   <div class="sync-card">
     <h3>Partly Implemented</h3>
-    <p>Neighbor summaries, all-pairs outputs, block hooks, and event matching are usable but still early.</p>
+    <p>Neighbor summaries, all-pairs outputs, block hooks, event matching, finite-range diagnostics, and first-break experiments are usable but still early. Range-based adaptive production is not validated.</p>
   </div>
   <div class="sync-card">
     <h3>Deferred</h3>
@@ -44,7 +45,7 @@ added as the grammar matures.
 ## Diagnostics Still Needed
 
 - Event prevalence maps.
-- Synchrony-distance curves.
+- Temporal replication and uncertainty for synchrony-distance curves.
 - Threshold sensitivity surfaces.
 - Bootstrap confidence intervals with block methods.
 - Null models preserving autocorrelation and seasonality.

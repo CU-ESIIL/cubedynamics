@@ -1,5 +1,12 @@
 # Four-round adaptive synchrony experiment
 
+> **Experimental result: HOLD.** This verb is public for inspectable method
+> experiments, but it is not the preferred production neighborhood selector.
+> The current real-data gate did not support promoting a common first-break
+> radius into a general adaptive rule. Use
+> [`empirical_synchrony_decay()`](empirical_synchrony_decay.md) when the
+> question is how synchrony changes continuously with distance.
+
 `v.adaptive_synchrony_experiment(...)` separates a maximum observation domain
 from an estimated empirical synchrony scale. It consumes the reusable sparse
 relationships produced by `v.local_synchrony_pairs(...)`; it does not recompute

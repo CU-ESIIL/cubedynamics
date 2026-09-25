@@ -6,7 +6,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 
 | Name | Callable type | Availability | Meaning |
 | --- | --- | --- | --- |
-| [adaptive_synchrony_experiment](adaptive_synchrony_experiment.md) | Grammar verb / pipe stage | implemented | discover empirical local breaks and compare adaptive with fixed synchrony |
+| [adaptive_synchrony_experiment](adaptive_synchrony_experiment.md) | Grammar verb / pipe stage | implemented | experimentally compare first-break and fixed-support synchrony summaries |
 | [align_cube](align_cube.md) | Grammar verb / pipe stage | implemented | align a field to a reference cube |
 | [align_time](align_time.md) | Grammar verb / pipe stage | implemented | make a time-label or exact-support alignment decision explicit |
 | [anomaly](anomaly.md) | Grammar verb / pipe stage | implemented | express values as departures from a mean |
@@ -25,7 +25,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [diagnostic_panel](diagnostic_panel.md) | Grammar verb / pipe stage | implemented | render a diagnostic panel |
 | [duration_synchrony](duration_synchrony.md) | Grammar verb / pipe stage | implemented | compare the duration of detected events |
 | [empirical_synchrony_decay](empirical_synchrony_decay.md) | Grammar verb / pipe stage | implemented | characterize empirical synchrony decay without a hard horizon |
-| [empirical_synchrony_range](empirical_synchrony_range.md) | Grammar verb / pipe stage | implemented | estimate kernel-agnostic local synchrony ranges and adaptive reductions |
+| [empirical_synchrony_range](empirical_synchrony_range.md) | Grammar verb / pipe stage | implemented | diagnose whether a finite empirical synchrony range can be resolved |
 | [event_metrics](event_metrics.md) | Grammar verb / pipe stage | implemented | summarize events or episodes by an explicit calendar period |
 | [exceedance](exceedance.md) | Grammar verb / pipe stage | compatibility | Alias for :func:threshold_state. |
 | [extract](extract.md) | Grammar verb / pipe stage | implemented | attach fire-hull climate summaries to a cube |
@@ -39,8 +39,8 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [landsat8_mpc](landsat8_mpc.md) | Grammar verb / pipe stage | implemented | load Landsat observations through the MPC integration |
 | [landsat_ndvi_plot](landsat_ndvi_plot.md) | Visualization helper (direct call) | implemented | render a Landsat NDVI view |
 | [landsat_vis_ndvi](landsat_vis_ndvi.md) | Direct helper function | implemented | prepare a visualization-friendly Landsat NDVI cube |
-| [landscape_change_signature](landscape_change_signature.md) | Grammar verb / pipe stage | implemented | compare neighboring center landscapes along distinct axes |
-| [local_synchrony_pairs](local_synchrony_pairs.md) | Grammar verb / pipe stage | implemented | calculate bounded canonical climate-tail synchrony pairs |
+| [landscape_change_signature](landscape_change_signature.md) | Grammar verb / pipe stage | implemented | compare complete neighboring center landscapes along distinct axes |
+| [local_synchrony_pairs](local_synchrony_pairs.md) | Grammar verb / pipe stage | implemented | measure bounded canonical cold/warm/Delta pair synchrony |
 | [local_synchrony_stack](local_synchrony_stack.md) | Grammar verb / pipe stage | implemented | build moving-center synchrony landscapes and focal stacks |
 | [local_synchrony_surface](local_synchrony_surface.md) | Grammar verb / pipe stage | implemented | recover a focal S_p(dx,dy) surface |
 | [mean](mean.md) | Grammar verb / pipe stage | implemented | average values over a named dimension |
@@ -62,8 +62,8 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [stack_structure_diagnostics](stack_structure_diagnostics.md) | Grammar verb / pipe stage | implemented | describe distance, direction, and candidate stack structure |
 | [sync_with](sync_with.md) | Grammar verb / pipe stage | implemented | compare an input cube with another aligned temporal cube |
 | [synchrony_landscape_similarity](synchrony_landscape_similarity.md) | Grammar verb / pipe stage | implemented | compare adjacent synchrony landscapes as panels |
-| [synchrony_signature](synchrony_signature.md) | Grammar verb / pipe stage | implemented | baseline-compress local pairs across nested radii |
-| [synchrony_surface_diagnostics](synchrony_surface_diagnostics.md) | Grammar verb / pipe stage | implemented | evaluate candidate local-surface descriptors |
+| [synchrony_signature](synchrony_signature.md) | Grammar verb / pipe stage | implemented | reduce local pairs within declared fixed supports |
+| [synchrony_surface_diagnostics](synchrony_surface_diagnostics.md) | Grammar verb / pipe stage | implemented | describe structure in one local synchrony surface |
 | [threshold_state](threshold_state.md) | Grammar verb / pipe stage | implemented | turn continuous values or a summary into a named true/false condition |
 | [timing_synchrony](timing_synchrony.md) | Grammar verb / pipe stage | implemented | compare the timing of detected events |
 | [to_netcdf](to_netcdf.md) | Grammar verb / pipe stage | implemented | write an explicit NetCDF output |
