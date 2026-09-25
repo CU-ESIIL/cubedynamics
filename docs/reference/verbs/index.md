@@ -38,6 +38,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 
 | Operation | Callable type | Purpose |
 | --- | --- | --- |
+| [adaptive_synchrony_experiment](adaptive_synchrony_experiment.md) | Grammar verb / pipe stage | discover empirical local breaks and compare adaptive with fixed synchrony |
 | [compare_blocks](compare_blocks.md) | Grammar verb / pipe stage | compare collected spatial-block signatures |
 | [duration_synchrony](duration_synchrony.md) | Grammar verb / pipe stage | compare the duration of detected events |
 | [empirical_synchrony_decay](empirical_synchrony_decay.md) | Grammar verb / pipe stage | characterize empirical synchrony decay without a hard horizon |

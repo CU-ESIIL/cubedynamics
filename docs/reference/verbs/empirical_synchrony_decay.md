@@ -82,4 +82,4 @@ curve property, not a hard cutoff. Initial slope is background-free. None
 of these metrics is a dispersal distance, kernel bandwidth, or adaptive
 neighborhood rule.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L168). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L175). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

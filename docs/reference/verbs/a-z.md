@@ -6,6 +6,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 
 | Name | Callable type | Availability | Meaning |
 | --- | --- | --- | --- |
+| [adaptive_synchrony_experiment](adaptive_synchrony_experiment.md) | Grammar verb / pipe stage | implemented | discover empirical local breaks and compare adaptive with fixed synchrony |
 | [align_cube](align_cube.md) | Grammar verb / pipe stage | implemented | align a field to a reference cube |
 | [align_time](align_time.md) | Grammar verb / pipe stage | implemented | make a time-label or exact-support alignment decision explicit |
 | [anomaly](anomaly.md) | Grammar verb / pipe stage | implemented | express values as departures from a mean |

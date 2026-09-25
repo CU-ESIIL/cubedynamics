@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from ..synchrony.adaptive import adaptive_synchrony_experiment as _adaptive_synchrony_experiment
 from ..synchrony.coupling import sync_with as _sync_with
 from ..synchrony.diagnostics import panel_change_diagnostics as _panel_change_diagnostics
 from ..synchrony.diagnostics import stack_radius_diagnostics as _stack_radius_diagnostics
@@ -219,6 +220,42 @@ def empirical_synchrony_decay(
             crossing_persistence_bins=crossing_persistence_bins,
             min_local_excess=min_local_excess,
             initial_window_km=initial_window_km,
+        )
+
+    return _op
+
+
+def adaptive_synchrony_experiment(
+    *,
+    discovery_radius_km: float = 1000.0,
+    fixed_radius_km: float = 500.0,
+    bin_width_km: float = 25.0,
+    min_annulus_count: int = 30,
+    smoothing_bins: int = 3,
+    common_rule: str = "max",
+    time_window_id: str | None = None,
+):
+    """Discover empirical breaks and compare adaptive with fixed synchrony.
+
+    Grammar contract
+    ----------------
+    Sparse local relationship Dataset -> four-round adaptive summary Dataset.
+    The discovery radius is observation support, not an inferred scale. Cold
+    and warm breaks are estimated independently; the default common radius is
+    their maximum when both are valid. Primary Delta remains the median of
+    pairwise cold-minus-warm values over one shared neighbor set.
+    """
+
+    def _op(obj):
+        return _adaptive_synchrony_experiment(
+            obj,
+            discovery_radius_km=discovery_radius_km,
+            fixed_radius_km=fixed_radius_km,
+            bin_width_km=bin_width_km,
+            min_annulus_count=min_annulus_count,
+            smoothing_bins=smoothing_bins,
+            common_rule=common_rule,
+            time_window_id=time_window_id,
         )
 
     return _op
@@ -605,6 +642,7 @@ def sync_with(
 
 
 __all__ = [
+    "adaptive_synchrony_experiment",
     "duration_synchrony",
     "empirical_synchrony_decay",
     "landscape_change_signature",

@@ -194,6 +194,7 @@ nav:
           - Four synchrony primitives: synchrony/primitives.md
           - Empirical local synchrony range: synchrony/empirical_synchrony_range.md
           - Empirical synchrony decay: synchrony/empirical_synchrony_decay.md
+          - Four-round adaptive synchrony: synchrony/adaptive_synchrony_experiment.md
           - Biological coupling: synchrony/biology_coupling.md
           - Synchrony theory map: synchrony/theory.md
           - Synchrony roadmap: synchrony/roadmap.md

@@ -83,6 +83,7 @@ from .states import (
     threshold_state,
 )
 from .synchrony import (
+    adaptive_synchrony_experiment,
     duration_synchrony,
     empirical_synchrony_decay,
     empirical_synchrony_range,
@@ -779,6 +780,7 @@ from .fire import (  # noqa: E402
 
 
 __all__ = [
+    "adaptive_synchrony_experiment",
     "anomaly",
     "aoi_signature",
     "apply",

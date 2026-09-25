@@ -613,6 +613,87 @@ def synchrony_signature(
     return result
 
 
+def distance_stratified_pair_sample(
+    pairs: xr.Dataset,
+    *,
+    distance_sampling: Sequence[tuple[float, int | None]],
+    sampling_seed: int = 0,
+) -> xr.Dataset:
+    """Apply the production sampling design to an already-calculated pair table.
+
+    This supports exhaustive-versus-sampled validation without recalculating a
+    temporal correlation. The selected pair identities are the same as when the
+    design is supplied directly to :func:`local_synchrony_pairs`.
+    """
+
+    _validate_pairs(pairs)
+    maximum = float(pairs.attrs["max_radius_km"])
+    plan = _normalize_distance_sampling(distance_sampling, maximum)
+    assert plan is not None
+    if sampling_seed < 0:
+        raise ValueError("sampling_seed must be non-negative")
+    source = np.asarray(pairs.source_index.values, dtype=np.int64)
+    target = np.asarray(pairs.target_index.values, dtype=np.int64)
+    distance = np.asarray(pairs.distance_km.values, dtype=float)
+    output = np.asarray(pairs.output_mask.values, dtype=bool).reshape(-1)
+    retained, probability, stratum = _sample_distance_strata(
+        source,
+        target,
+        distance,
+        output,
+        plan,
+        seed=int(sampling_seed),
+    )
+    result = pairs.isel(pair=np.flatnonzero(retained)).copy()
+    result = result.assign_coords(pair=np.arange(result.sizes["pair"], dtype=np.int64))
+    result["sampling_probability"] = (
+        "pair",
+        probability[retained].astype(np.float32),
+    )
+    result["sampling_stratum"] = ("pair", stratum[retained].astype(np.int16))
+    result["sampling_probability"].attrs.update(
+        {
+            "units": "1",
+            "definition": "design inclusion probability; inverse is the pair expansion weight",
+        }
+    )
+    result["sampling_stratum"].attrs["definition"] = (
+        "zero-based distance-sampling stratum; -1 identifies self-pairs"
+    )
+    nonself = source != target
+    fingerprint_payload = {
+        "source_pair_fingerprint": pairs.attrs.get("analysis_fingerprint"),
+        "distance_sampling": plan,
+        "sampling_seed": int(sampling_seed),
+    }
+    fingerprint = sha256(
+        json.dumps(fingerprint_payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    result.attrs.update(dict(pairs.attrs))
+    result.attrs.update(
+        {
+            "analysis_fingerprint": f"sha256:{fingerprint}",
+            "source_pair_fingerprint": pairs.attrs.get("analysis_fingerprint", "unknown"),
+            "candidate_nonself_pair_count": int(np.count_nonzero(nonself)),
+            "nonself_pair_count": int(np.count_nonzero(nonself & retained)),
+            "unique_pair_count": int(np.count_nonzero(retained)),
+            "retained_nonself_pair_fraction": float(
+                np.count_nonzero(nonself & retained) / max(np.count_nonzero(nonself), 1)
+            ),
+            "distance_sampling_design": json.dumps(
+                [
+                    {"upper_km": upper, "max_pairs_per_focal": cap}
+                    for upper, cap in plan
+                ],
+                separators=(",", ":"),
+            ),
+            "distance_sampling_seed": int(sampling_seed),
+            "sampling_applied_posthoc": True,
+        }
+    )
+    return result
+
+
 def landscape_change_signature(
     pairs: xr.Dataset,
     *,
@@ -1306,9 +1387,10 @@ def _sample_distance_strata(
     stratum = np.full(left.size, -1, dtype=np.int16)
     lower_bound = 0.0
     for code, (upper_bound, cap) in enumerate(plan):
+        above_lower = distance > lower_bound if code else distance > 0
         in_band = (
             (left != right)
-            & (distance > lower_bound - 1e-7)
+            & above_lower
             & (distance <= upper_bound + 1e-7)
         )
         stratum[in_band] = code
@@ -1482,6 +1564,7 @@ def _validate_pairs(pairs: xr.Dataset) -> None:
 
 
 __all__ = [
+    "distance_stratified_pair_sample",
     "expand_spatial_domain",
     "landscape_change_signature",
     "load_signature_checkpoint",

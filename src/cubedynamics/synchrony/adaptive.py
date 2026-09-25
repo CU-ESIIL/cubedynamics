@@ -185,7 +185,8 @@ def empirical_break_curve(
     median = np.full(centers.size, np.nan)
     q75 = np.full(centers.size, np.nan)
     for index, (lower, upper) in enumerate(zip(edges[:-1], edges[1:])):
-        selected = (distance > lower - 1e-7) & (distance <= upper + 1e-7)
+        above_lower = distance > lower if index else distance > 0
+        selected = above_lower & (distance <= upper + 1e-7)
         count[index] = int(np.count_nonzero(selected))
         if count[index] < min_annulus_count:
             continue

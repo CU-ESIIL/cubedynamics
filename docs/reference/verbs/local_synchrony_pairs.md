@@ -10,7 +10,7 @@ Build a bounded canonical local-pair table for signature reduction.
 
 ```python
 from cubedynamics import verbs as v
-v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, computation_mask=None, max_radius_km=100.0, window_days=90, window_end=None, min_t=10, split_quantile=0.5, time_dim='time', pair_batch_size=16384)
+v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, computation_mask=None, max_radius_km=100.0, window_days=90, window_end=None, min_t=10, split_quantile=0.5, time_dim='time', pair_batch_size=16384, distance_sampling=None, sampling_seed=0)
 ```
 
 ## Arguments
@@ -28,6 +28,8 @@ v.local_synchrony_pairs(*, lower_var=None, upper_var=None, output_mask=None, com
 | split_quantile | See implementation docstring below; no parameter-specific description supplied. | 0.5 |
 | time_dim | See implementation docstring below; no parameter-specific description supplied. | 'time' |
 | pair_batch_size | See implementation docstring below; no parameter-specific description supplied. | 16384 |
+| distance_sampling | See implementation docstring below; no parameter-specific description supplied. | None |
+| sampling_seed | See implementation docstring below; no parameter-specific description supplied. | 0 |
 
 ## Accepts
 
@@ -79,4 +81,4 @@ A daily latitude/longitude climate Dataset containing the selected lower- and up
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L27). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L28). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

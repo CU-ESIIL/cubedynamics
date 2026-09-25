@@ -82,4 +82,4 @@ Primary adaptive Delta uses the same neighbors for both tails. Discovery
 support, range, and kernel weighting are distinct; this verb applies no
 parametric kernel and no distance weights.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L88). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L95). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

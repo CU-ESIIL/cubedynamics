@@ -16,6 +16,7 @@ from .diagnostics import (
 from .decay import DECAY_STATUS, empirical_decay_curve, empirical_synchrony_decay
 from .occurrence import occurrence_synchrony
 from .production import (
+    distance_stratified_pair_sample,
     expand_spatial_domain,
     landscape_change_signature,
     load_signature_checkpoint,
@@ -59,6 +60,7 @@ __all__ = [
     "build_spatial_pairs",
     "change_state",
     "compare_panels",
+    "distance_stratified_pair_sample",
     "duration_synchrony",
     "BREAK_STATUS",
     "DECAY_STATUS",

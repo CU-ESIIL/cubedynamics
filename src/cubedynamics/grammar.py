@@ -403,6 +403,12 @@ _VERB_SPECS.update(
             ("relationship",), "summary", requires=("spatial",), category="semantic",
             examples=("v.empirical_synchrony_decay(bin_width_km=20)",),
         ),
+        "adaptive_synchrony_experiment": _spec(
+            "adaptive_synchrony_experiment",
+            "discover empirical local breaks and compare adaptive with fixed synchrony",
+            ("relationship",), "summary", requires=("spatial",), category="semantic",
+            examples=("v.adaptive_synchrony_experiment(discovery_radius_km=1000)",),
+        ),
         "local_synchrony_surface": _spec(
             "local_synchrony_surface", "recover a focal S_p(dx,dy) surface",
             ("relationship",), "field", requires=("spatial",), category="semantic",

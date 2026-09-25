@@ -81,4 +81,4 @@ all-pairs returns edge data; regional returns time-series summaries.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L424). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/synchrony.py#L467). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

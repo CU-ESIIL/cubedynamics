@@ -4,6 +4,56 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-25 — Four-round spatially adaptive synchrony experiment
+
+- Audited the fixed 100 km/CONUS and 500 km pilot paths before implementation.
+  Preserved the validated pair-valid lower-tail TMIN (`<=`), strict upper-tail
+  TMAX (`>`), pairwise `Delta_S = cold - warm`, median pairwise reduction,
+  IQR, reduction gap, physical-distance, masking, checkpoint, provenance, and
+  plotting contracts. The earlier final-background R* and decay experiments
+  remain intact.
+- Added `synchrony/adaptive.py` and public
+  `v.adaptive_synchrony_experiment(...)`. The primary candidate is the first
+  robust two-segment steep-to-flatter local/regional transition, not final
+  background approach. Raw non-monotonic annular medians/IQR remain available;
+  segmented, knee, derivative, d50, and background-approach candidates are
+  retained separately. Cold/warm breaks and statuses remain independent;
+  `R*_common = max(R*_cold, R*_warm)` is formed only when both are valid.
+- Extended `local_synchrony_pairs` without changing its tail kernel: sparse
+  focal masks now enumerate focal-incident relationships directly, and an
+  optional deterministic distance-stratified design samples pairs before the
+  temporal kernel. Each relationship retains its inclusion probability;
+  downstream annular and fixed/adaptive quantiles use inverse-probability
+  design weights. A posthoc sampler reproduces the same identities from an
+  exhaustive table for validation.
+- Ran five exhaustive real-PRISM 1000 km representative domains containing
+  645,367 nonself relationships. The stratified design retained 169,628. Fixed
+  500 km pairwise Delta was reproduced well (sampling MAE 0.000651), but tail
+  break-status agreement was only 30%. Exhaustive common breaks resolved at
+  2/5 sites and sampled common breaks at 1/5; no site had both exhaustive and
+  sampled adaptive Delta simultaneously valid. Bin stability was 50% and
+  750-to-1000 km domain stability was 0%.
+- The predeclared representative gate therefore returned **HOLD** before the
+  25-site Colorado stage. No Colorado scale map, statewide raster, or CONUS
+  adaptive run was produced. Estimated upper work is about 550.5 million
+  sampled pair evaluations for full Colorado and 16.3 billion for CONUS. All
+  17 decision questions, exhaustive/sampled tables, sensitivity results,
+  checkpoints, figures, performance, provenance, preflight, and reproduction
+  records are under `artifacts/adaptive-synchrony-four-round/`.
+- Delivered the visually inspected 37-page walkthrough at
+  `output/pdf/four_round_adaptive_synchrony_walkthrough.pdf`. Requested
+  downstream map pages are explicitly labeled as withheld rather than filled
+  with interpolated or synthetic results. The PDF is unencrypted, all pages
+  rendered successfully, required text and 463-526 ppi embedded figures were
+  verified, and SHA-256 is
+  `b8d789ecbddf314e3e667b3d052078f581640cfff3042939448449f87b4f9fc2`.
+- Validation: 106 focused synchrony/API tests passed; 100 documentation tests
+  passed; 14 visual-documentation tests passed; generated visual and 92-page
+  reference caches are current; the complete offline suite passed with 1,003
+  passed, 5 skipped, and 425 deselected. Strict MkDocs, Python compilation,
+  PDF metadata/text/image/render checks, repository-size policy, reference
+  freshness, and `git diff --check` passed.
+
 ## 2026-09-24 — Empirical synchrony-decay follow-up
 
 - Preserved the finite-horizon Experiment 1 and added Experiment 2, which asks
