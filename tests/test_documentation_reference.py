@@ -80,7 +80,7 @@ def test_manuscript_framing_is_public_without_overstating_the_api():
         "not current capability claims",
     ):
         assert boundary in framing
-    assert "current manuscript draft" in framing
+    assert "current overview manuscript" in framing
     assert "sources of truth" in framing
 
 

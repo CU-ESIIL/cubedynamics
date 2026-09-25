@@ -4,6 +4,89 @@ This log records substantial user goals, decisions, outputs, and validation for
 CubeDynamics development sessions. Keep entries concise and factual. Do not add
 secrets, credentials, private tokens, or unrelated transcript text.
 
+## 2026-09-25 — Publish current package-wide overview manuscript
+
+- Added *CubeDynamics: An Inspectable Grammar for Environmental Data Analysis*
+  and its supplementary information to the package-wide Documents section,
+  rather than the synchrony section. The supplied 19-page and 33-page PDFs
+  were retained byte-for-byte; their SHA-256 hashes are
+  `9980f5aaa83f3e38a72ea0d350a9675b3a22a54fc15f027ca02885c6d048adbf`
+  and `ea8c3ea03ddf69c799b638f38e8f9f1b2211ab55b24db3e86decaca93831d09f`.
+- Added a dated landing page with direct downloads, reading paths, exact file
+  identities, and a clear boundary between the manuscript's scholarly claims
+  and the checkout's runtime, tests, generated references, public API, and Git
+  identity. Linked it from the Documents index, primary navigation, scientific
+  inspectability guide, and citation guidance.
+- Preserved `docs/documentation/main-17.pdf` as historical provenance while
+  removing it from the pages that identify the current manuscript.
+- Validation: all 52 supplied PDF pages rendered cleanly; 80 focused
+  documentation/asset/link tests and two focused Chromium checks passed at
+  1280 px and 390 px; strict MkDocs and built-site internal-link checks passed.
+  The built-site PDF hashes exactly match the supplied files, repository-size
+  policy passed, and both new PDFs are commit-eligible rather than ignored.
+
+## 2026-09-25 — Publish current synchrony technical report
+
+- Added the ASymClim Working Group technical report, *The Spatial Organization
+  of Cold and Warm Temperature Synchrony*, and its supplementary information
+  to the synchrony website with stable descriptive filenames. The supplied
+  22-page and 38-page PDFs were retained byte-for-byte; their SHA-256 hashes
+  are `c65743903d182627fd792055c554eba24277aba6e8f5db3072d3d816e35c32a9`
+  and `52d31187b75e15bbe67477bb5532438876a4f1c51be170820cc0183c2f421cc4`.
+- Added a dated report landing page with direct downloads, scientific scope and
+  limitation notes, checksums, and links to the current recipe and decay guide.
+  Exposed it from the synchrony overview, local climate-tail recipe, and
+  Research stories navigation without changing the homepage.
+- Added regression coverage for PDF byte identity, page links, report content,
+  navigation, desktop/mobile rendering, and the built download URLs. Both PDFs
+  are below the repository's 10 MB per-file policy limit.
+- Validation: the two PDFs rendered cleanly across all 60 pages; 11 focused
+  asset/link/guide tests, 102 documentation/reference tests, and 16 focused
+  Chromium checks passed; strict MkDocs, built-site internal links/anchors,
+  generated-reference freshness, repository-size policy, and `git diff
+  --check` passed.
+
+## 2026-09-25 — Synchrony documentation and public-grammar consolidation
+
+- Audited the synchrony implementation, public exports, grammar metadata,
+  recipes, generated references, navigation, and the Colorado/CONUS, GHCN,
+  range, decay, adaptive, and hot/cold/Delta records at the then-current HEAD.
+  The homepage and the package-wide noun/verb positioning were left unchanged.
+- Rebuilt the primary local climate-tail recipe around the branching sequence
+  **measure → organize → reduce or describe → characterize spatial scaling**.
+  It now distinguishes pair synchrony `S(i,j)`, local surfaces `S_p(dx,dy)`,
+  center landscapes `M_i(j)`, reduced focal values, and landscape change; it
+  also contrasts surface, fixed-support, finite-range, and continuous-decay
+  questions without treating them as one mandatory pipeline.
+- Documented the current contracts for `local_synchrony_pairs`,
+  `local_synchrony_surface`, `synchrony_surface_diagnostics`,
+  `synchrony_signature`, `empirical_synchrony_range`,
+  `empirical_synchrony_decay`, and `landscape_change_signature`. The range
+  result remains diagnostic/HOLD rather than a preferred adaptive-radius rule;
+  unresolved and censored outputs remain valid. The decay guide explains
+  annular/cumulative curves, d25/d50/d75, effective length, multiscale slopes,
+  100 km loss, and valid cold-minus-warm contrasts in plain language.
+- Added concise Colorado-to-CONUS scaling and GHCN observational-agreement
+  notes while preserving their limits. Stack/surface workflows are separated
+  from immediate reduction, and within-window tails are not presented as
+  historical trends or a historical-tail API.
+- Standardized current climate-tail prose and examples on lower-tail TMIN
+  cold, strict upper-tail TMAX warm, and `Delta_S = cold - warm`. Current Delta
+  examples now use blue for positive/cold-stronger and red for
+  negative/warm-stronger. Historical report builders and retained artifacts
+  were not recolored or numerically changed.
+- Updated source docstrings, grammar and docs-example metadata, regenerated 92
+  callable-reference pages and the seven-figure visual cache, refreshed the two
+  current interactive climate examples, and added focused desktop/mobile
+  browser coverage for the six major synchrony documentation routes and the
+  published climate-panel legend. Rendered evidence is under
+  `artifacts/browser/synchrony-documentation/synchrony-docs/`.
+- Validation: 80 focused synchrony/public-API tests and 100 documentation tests
+  passed; 14 focused Chromium checks passed at 1280 px and 390 px; the complete
+  offline suite passed with 1,003 passed, 5 skipped, and 439 deselected.
+  Generated-reference freshness, Python compilation, strict MkDocs, built-site
+  internal files/anchors, repository-size policy, and `git diff --check` passed.
+
 ## 2026-09-25 — Four-round spatially adaptive synchrony experiment
 
 - Audited the fixed 100 km/CONUS and 500 km pilot paths before implementation.

@@ -42,6 +42,11 @@ PAGES = (
         "Synchrony",
         "synchrony-overview",
     ),
+    (
+        "synchrony/technical_report/",
+        "Synchrony technical report",
+        "technical-report",
+    ),
 )
 
 
@@ -105,6 +110,22 @@ def test_synchrony_pages_render_and_fit(
         expect(
             article.get_by_role("link", name="Local Climate-Tail Surfaces", exact=True)
         ).to_be_visible()
+        expect(article.get_by_role("link", name="Technical Report", exact=True)).to_be_visible()
+    elif slug == "technical-report":
+        for phrase in (
+            "The Spatial Organization of Cold and Warm Temperature Synchrony",
+            "22 pages",
+            "38 pages",
+            "25 September 2026",
+            "observational agreement",
+        ):
+            assert phrase in text
+        expect(
+            article.get_by_role("link", name="Download the technical report", exact=False)
+        ).to_have_count(1)
+        expect(
+            article.get_by_role("link", name="Download the supplement", exact=False)
+        ).to_have_count(1)
 
     evidence = Path(pytestconfig.getoption("--site-report-dir")) / "synchrony-docs"
     evidence.mkdir(parents=True, exist_ok=True)

@@ -56,6 +56,7 @@ nav:
       - Source QA evidence: data/phase1_qa.md
   - Documents:
       - Reference directory: documentation/index.md
+      - CubeDynamics overview manuscript: documentation/overview_manuscript.md
       - Verbs:
           - Browse by purpose: reference/verbs/index.md
           - All public callables: reference/verbs/a-z.md
@@ -190,6 +191,7 @@ nav:
           - Vegetation analysis: workflows/vegetation_analysis.md
           - Remote sensing analysis: workflows/remote_sensing_analysis.md
           - Synchrony overview: synchrony/index.md
+          - Synchrony technical report: synchrony/technical_report.md
           - State cubes and events: synchrony/state_events.md
           - Four synchrony primitives: synchrony/primitives.md
           - Empirical local synchrony range: synchrony/empirical_synchrony_range.md

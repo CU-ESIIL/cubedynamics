@@ -145,7 +145,7 @@ two-noun composition. A complete branch-and-join language and very-large
 many-dataset synthesis remain design challenges, not current capability claims.
 
 This page adapts the conceptual framing of the
-[current manuscript draft](../documentation/main-17.pdf). The manuscript is
+[current overview manuscript](../documentation/overview_manuscript.md). The manuscript is
 editorial material and a dated snapshot; the [public API](../project/public_api.md),
 runtime, tests, and generated references remain the sources of truth for
 implemented behavior.

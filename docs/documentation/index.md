@@ -7,6 +7,14 @@ For the research argument behind the reference—why rerunnable code is not
 automatically scientifically inspectable—read
 [Scientific inspectability](../concepts/scientific_inspectability.md).
 
+## Overview manuscript
+
+Read or download the current package-wide manuscript,
+[*CubeDynamics: An Inspectable Grammar for Environmental Data
+Analysis*](overview_manuscript.md), together with its supplementary information.
+The manuscript is a dated scholarly snapshot; the runtime, tests, generated
+references, and public API contract remain authoritative for current behavior.
+
 ## Verbs
 
 [Browse verbs by purpose](../reference/verbs/index.md) or find a name in

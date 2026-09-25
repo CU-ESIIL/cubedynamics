@@ -27,7 +27,7 @@ the bounded evidence supporting its results. Fixture checks, live health,
 adapter interpretation, and scientific fitness are distinct claims.
 
 See [Scientific inspectability](concepts/scientific_inspectability.md) for the
-research framing and the [current manuscript draft](documentation/main-17.pdf)
+research framing and the [current overview manuscript](documentation/overview_manuscript.md)
 for the dated argument on which this summary is based. The draft is editorial
 material, not the source of truth for current API or release status.
 

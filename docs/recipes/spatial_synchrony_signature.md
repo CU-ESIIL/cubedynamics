@@ -316,3 +316,12 @@ does not establish long-term climate change, changing extremes, historical
 trends, universal characteristic distances, climate regimes, or dispersal
 kernels. Historically anchored tails are a future extension; the current API
 uses within-window relative tails.
+
+## Read the technical report
+
+The [current synchrony technical report and supplementary
+information](../synchrony/technical_report.md) provide the complete scientific
+narrative, figures, validation details, sensitivity analyses, computational
+provenance, and limitations behind this workflow. The PDFs are dated research
+products; this recipe and the generated verb references remain the guide to the
+current public implementation.

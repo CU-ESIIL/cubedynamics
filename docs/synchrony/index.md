@@ -52,6 +52,10 @@ of synchrony.
     <h3><a href="empirical_synchrony_decay/">Empirical Spatial Decay</a></h3>
     <p>Describe annular curves, fractional-decay distances, effective length, and multiscale slopes without forcing a hard radius.</p>
   </div>
+  <div class="sync-card">
+    <h3><a href="technical_report/">Technical Report</a></h3>
+    <p>Read or download the current scientific report and its detailed supplementary information.</p>
+  </div>
 </div>
 
 ## The First Analysis
@@ -99,3 +103,5 @@ occurrence = (
 Read next: [State and Events](state_events.md), then
 [Four Primitives](primitives.md). For the climate-tail relationship branch,
 start with [Local Climate-Tail Synchrony](../recipes/spatial_synchrony_signature.md).
+The [synchrony technical report](technical_report.md) provides the current
+scientific narrative, figures, validation record, and supplementary methods.
