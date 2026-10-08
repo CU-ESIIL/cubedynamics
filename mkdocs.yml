@@ -216,7 +216,7 @@ nav:
           - Example gallery: examples_gallery.md
           - Climate–NDVI correlation: examples/climate_ndvi_correlation.md
           - gridMET AOI variance: examples/gridmet_aoi_variance.md
-          - Landsat 8 streaming: examples/landsat8_mpc.md
+          - Landsat streaming: examples/landsat8_mpc.md
           - NDVI cube viewer: examples/ndvi_cube_viewer.md
           - PRISM JJA variance: examples/prism_jja_variance.md
           - Sentinel-2 NDVI z-score: examples/s2_ndvi_zscore.md

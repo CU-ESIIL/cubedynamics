@@ -103,6 +103,7 @@ Browse implemented operations by what they do. Grammar verbs configure pipe stag
 | Operation | Callable type | Purpose |
 | --- | --- | --- |
 | [landsat8_mpc](landsat8_mpc.md) | Grammar verb / pipe stage | load Landsat observations through the MPC integration |
+| [landsat_mpc](landsat_mpc.md) | Grammar verb / pipe stage | load Landsat observations through the MPC integration |
 | [landsat_vis_ndvi](landsat_vis_ndvi.md) | Direct helper function | prepare a visualization-friendly Landsat NDVI cube |
 
 ## Other public names

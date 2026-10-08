@@ -19,6 +19,7 @@ avoid a dependency in this distribution.
 | rioxarray | Common integration | Spatial xarray accessor and raster methods |
 | pystac-client | Common integration | STAC data discovery |
 | planetary-computer | Common integration | Satellite asset signing and source integration |
+| stackstac (>=0.5.1,<0.6) | Common integration | Lazy STAC raster stacking, reprojection and metadata scaling for Landsat |
 | pyproj | Common integration | Coordinate transforms and CRS contracts |
 | requests | Common integration | Provider HTTP and bounded candidate transport |
 | h5netcdf | Common integration | NetCDF reading/writing backend |

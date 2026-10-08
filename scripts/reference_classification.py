@@ -25,7 +25,7 @@ COMPATIBILITY = {
     "vase_demo": "Legacy demonstration using synthetic geometry, not a real-data analysis verb.",
 }
 # The lazy Landsat proxy forwards to @pipeable; exceedance forwards to a factory.
-FACTORY_OVERRIDES = {"landsat8_mpc", "exceedance"}
+FACTORY_OVERRIDES = {"landsat_mpc", "landsat8_mpc", "exceedance"}
 KIND_LABELS = {
     "stage": "Grammar verb / pipe stage",
     "helper": "Direct helper function",

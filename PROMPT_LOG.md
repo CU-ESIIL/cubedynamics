@@ -4537,3 +4537,100 @@ secrets, credentials, private tokens, or unrelated transcript text.
   links, the 1,212-file tracked repository-size policy and `git diff --check`
   passed. No source promotion, temporal/CONUS run, push or publication was
   performed after the user's `colorado sync scaling run` commit.
+
+## 2026-10-08 — Landsat MPC streaming correction and release hardening
+
+- Replaced per-COG rioxarray opening/manual outer concatenation with
+  pystac-client discovery, Planetary Computer item signing and stackstac's
+  lazy raster window/reprojection path. Search uses `landsat-c2-l2` and
+  `search.items()`, and stacking receives the WGS84 query as `bounds_latlon`.
+- Added callable `v.landsat_mpc` with factory and positional/keyword input
+  direct calls, native asset names, explicit EPSG, resolution, chunksize and
+  optional platform filtering. Namespace binding survives submodule loading;
+  semantic traces identify the source stage. Automatic CRS inference requires
+  complete, unanimous item/asset EPSG metadata (including EPSG proj:code);
+  absent/mixed metadata produces an actionable explicit-EPSG error.
+- Stackstac `rescale=True` is the only scaling path. Missing optical scale or
+  offset metadata and missing requested assets fail explicitly. Remote read
+  errors propagate rather than being silently converted to nodata. Optical
+  values are physical reflectance, while selected QA bands retain encoded
+  values. No pixel cloud mask, NDVI transform or source catalog promotion added.
+- Preserved Landsat 8 compatibility entry points without new warnings,
+  legacy `nir` labels/chunks and float32 output. Their values now correctly
+  represent physical reflectance. The exported historical BAND_MAP is retained
+  unchanged but not used for current STAC asset selection. Visualization helpers
+  accept output EPSG and intentionally materialize data. The old collection
+  argument is accepted only as a compatibility spelling, never queried.
+- Declared `stackstac>=0.5.1,<0.6` in core alongside the existing STAC SDKs;
+  updated the dependency audit, examples, grammar classification and generated
+  references while retaining existing URLs. Refreshed the hash-bound visual
+  manifest through its generator; all seven figure bytes and table bytes stayed
+  unchanged. Historical January API inventories remain dated historical records.
+- Verified live MPC asset metadata on Landsat 9 item
+  LC09_L2SR_087107_20261002_02_T2 and Landsat 7 item
+  LE07_L2SP_033032_20050726_02_T2. Both expose the six common optical assets
+  with scale 2.75e-05 and offset -0.2. QA_PIXEL/QA_RADSAT are common;
+  aerosol/cloud QA differs by sensor. This is metadata verification, not a
+  scientific harmonization or QA certification across missions.
+- Added offline service-contract tests, Dask execution guards, namespace/grammar
+  tests, explicit input/metadata failures, compatibility checks and a real
+  stackstac local-GeoTIFF regression: DN 10000/20000 become reflectance
+  0.075/0.35 exactly once, with correct NDVI, and QA code 64 stays 64.
+  Added a separately opt-in `online`, `integration`, `streaming` Boulder test.
+- Validation: 16 focused Landsat/visualization tests passed (one live test
+  deselected); 15 final generated-reference/visual-documentation checks passed.
+  `CUBEDYNAMICS_TEST_LANDSAT_MPC=1 GDAL_HTTP_TIMEOUT=30
+  MPLCONFIGDIR=/tmp/cubedynamics-mpl .venv/bin/python -m pytest
+  tests/verbs/test_landsat_mpc.py -k boulder_live -q -s` passed against real
+  MPC: 19 observations, 2 bands, 742 y by 572 x, EPSG:32613 and 30 m.
+  Three small patches across the bbox produced 9,216 finite NDVI samples with
+  median 0.302545. Grid/bbox, lazy construction, reflectance plausibility and
+  remote subset reads passed; scene count is reported, not hard-coded in tests.
+- Generated visual/reference `--check`, strict MkDocs via `.venv-docs`, built-site
+  internal links, byte compilation and tracked repository-size policy passed.
+  No formatter/linter is configured in pyproject, Makefile or CI; whitespace
+  validation uses `git diff --check`. The new generated reference was reviewed
+  separately because tracked-only size checks exclude untracked files.
+- Final full offline validation: `MPLCONFIGDIR=/tmp/cubedynamics-mpl
+  MPLBACKEND=Agg .venv/bin/python -m pytest -m "not integration and not online"
+  --maxfail=1 --disable-warnings -q` passed: 1,022 passed, 3 skipped,
+  447 deselected, 218 warnings in 73.35 s. The initial run found the stale
+  visual manifest; after regeneration, all checks passed. A subsequent
+  collection attempt overlapped the MkDocs output rebuild; the final run began
+  after the build completed and passed cleanly.
+- `.venv/bin/python -m build --no-isolation --outdir artifacts/landsat_mpc/dist`
+  successfully built the 0.1.0rc3 sdist and universal wheel. These are ignored
+  local artifacts, not release-gated or published bytes. No Landsat-specific
+  release blocker identified by this validation; the separate release gate
+  remains required before publication.
+- Limitations: no pixel-level QA mask; STAC discovery materializes item metadata;
+  signed URLs expire and later computations may require a fresh source stage;
+  antimeridian bboxes are rejected; output resolution is in CRS units. The live
+  test reads small subsets, not every scene/pixel. No browser embed changed,
+  release artifact gate, commit, push or publication performed.
+- Changed files:
+  - `docs/assets/generated/visual/manifest.json`
+  - `docs/capabilities/textbook_verbs.md`
+  - `docs/datasets/compatibility.md`
+  - `docs/datasets/index.md`
+  - `docs/datasets/landsat8_mpc.md`
+  - `docs/examples/landsat8_mpc.md`
+  - `docs/examples_gallery.md`
+  - `docs/project/dependency_audit_0_1.md`
+  - `docs/project/grammar_inventory.md`
+  - `docs/reference/verbs/a-z.md`
+  - `docs/reference/verbs/index.md`
+  - `docs/reference/verbs/landsat8_mpc.md`
+  - `docs/reference/verbs/landsat_mpc.md`
+  - `docs/reference/verbs/landsat_ndvi_plot.md`
+  - `docs/reference/verbs/landsat_vis_ndvi.md`
+  - `docs/reference/verbs/show_cube_lexcube.md`
+  - `docs/workflows/remote_sensing_analysis.md`
+  - `mkdocs.yml`
+  - `pyproject.toml`
+  - `scripts/docs_examples.py`
+  - `scripts/reference_classification.py`
+  - `src/cubedynamics/grammar.py`
+  - `src/cubedynamics/verbs/__init__.py`
+  - `src/cubedynamics/verbs/landsat_mpc.py`
+  - `tests/verbs/test_landsat_mpc.py`

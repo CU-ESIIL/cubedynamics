@@ -2,7 +2,7 @@
 
 # landsat8_mpc
 
-Lazy import wrapper for the Landsat MPC helper.
+Compatibility Landsat 8 stage; prefer landsat_mpc for new workflows.
 
 **Callable type:** Grammar verb / pipe stage · [Browse: Other helpers](index.md#other-helpers)
 
@@ -10,15 +10,23 @@ Lazy import wrapper for the Landsat MPC helper.
 
 ```python
 from cubedynamics import verbs as v
-v.landsat8_mpc(*args, **kwargs)
+v.landsat8_mpc(value, *, bbox, start, end, band_aliases=('red', 'nir'), max_cloud_cover=50, chunks_xy=None, stac_url='https://planetarycomputer.microsoft.com/api/stac/v1', epsg=None, resolution=30)
 ```
 
 ## Arguments
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| args | See implementation docstring below; no parameter-specific description supplied. | forwarded arguments |
-| kwargs | See implementation docstring below; no parameter-specific description supplied. | forwarded arguments |
+| value | See implementation docstring below; no parameter-specific description supplied. | required |
+| bbox | See implementation docstring below; no parameter-specific description supplied. | required |
+| start | See implementation docstring below; no parameter-specific description supplied. | required |
+| end | See implementation docstring below; no parameter-specific description supplied. | required |
+| band_aliases | See implementation docstring below; no parameter-specific description supplied. | ('red', 'nir') |
+| max_cloud_cover | See implementation docstring below; no parameter-specific description supplied. | 50 |
+| chunks_xy | See implementation docstring below; no parameter-specific description supplied. | None |
+| stac_url | See implementation docstring below; no parameter-specific description supplied. | 'https://planetarycomputer.microsoft.com/api/stac/v1' |
+| epsg | See implementation docstring below; no parameter-specific description supplied. | None |
+| resolution | See implementation docstring below; no parameter-specific description supplied. | 30 |
 
 ## Accepts
 
@@ -34,7 +42,7 @@ A pipe passes the preceding result to the next callable. Confirm that the previo
 
 ## Minimal example
 
-Use the [Landsat MPC workflow](../../examples/landsat8_mpc.md) with its optional dependencies and live STAC access. This legacy source helper is not a registered scientific noun.
+Use the [Landsat MPC workflow](../../examples/landsat8_mpc.md) with live STAC access. This source integration is not a registered scientific noun.
 
 ## Works with
 
@@ -52,4 +60,4 @@ Location, dates and Landsat-specific options forwarded to the source helper.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/__init__.py#L146). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/landsat_mpc.py#L199). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

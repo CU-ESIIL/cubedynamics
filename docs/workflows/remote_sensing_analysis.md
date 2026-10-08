@@ -11,4 +11,4 @@ Typical use cases include:
 Recommended starting points:
 
 - [Sentinel-2 correlation center](../recipes/s2_corr_center.md)
-- [Landsat 8 (MPC)](../datasets/landsat8_mpc.md)
+- [Landsat (MPC)](../datasets/landsat8_mpc.md)

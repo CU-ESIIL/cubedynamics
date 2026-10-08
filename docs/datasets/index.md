@@ -10,7 +10,7 @@ notes, QA figures, citation guidance and legacy adapter routes.
 | PRISM | [Acquisition and QA](prism.md) |
 | gridMET | [Acquisition and QA](gridmet.md) |
 | Sentinel-2 | [NDVI acquisition and QA](sentinel2_ndvi.md) |
-| Landsat 8 (legacy helper, not a catalog noun) | [Microsoft Planetary Computer adapter](landsat8_mpc.md) |
+| Landsat MPC (source integration, not a catalog noun) | [Microsoft Planetary Computer adapter](landsat8_mpc.md) |
 | FIRED (event geometry) | [Fire-event data](fired.md) |
 
 [Selection guidance](which_dataset.md) · [Compatibility](compatibility.md) ·

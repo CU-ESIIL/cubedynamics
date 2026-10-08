@@ -36,7 +36,7 @@ Integration verbs connect the grammar to a source, file format, or renderer.
 They can have optional dependencies, network behavior, or explicit side
 effects:
 
-- `v.ndvi_from_s2`, `v.landsat8_mpc`, and related remote-sensing adapters;
+- `v.ndvi_from_s2`, `v.landsat_mpc`, and related remote-sensing adapters;
 - `v.correlation_cube` and block-signature adapters;
 - `v.to_netcdf` for explicit materialization;
 - `v.plot`, `v.plot_mean`, `v.diagnostic_panel`, and

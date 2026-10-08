@@ -2,7 +2,7 @@
 
 # landsat_vis_ndvi
 
-Lazy import wrapper for a visualization-friendly Landsat NDVI cube.
+Return a visualization-friendly Landsat NDVI cube.
 
 **Callable type:** Direct helper function · [Browse: Other helpers](index.md#other-helpers)
 
@@ -12,15 +12,28 @@ Call this helper directly with the documented data arguments; it does not return
 
 ```python
 from cubedynamics import verbs as v
-v.landsat_vis_ndvi(*args, **kwargs)
+v.landsat_vis_ndvi(bbox, start, end, *, collection='landsat-c2-l2', max_y=256, max_x=256, max_time=16, auto_crop_valid=True, band_aliases=('red', 'nir'), max_cloud_cover=50, chunks_xy=None, stac_url='https://planetarycomputer.microsoft.com/api/stac/v1', stack_da=None, epsg=None, resolution=30)
 ```
 
 ## Arguments
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| args | See implementation docstring below; no parameter-specific description supplied. | forwarded arguments |
-| kwargs | See implementation docstring below; no parameter-specific description supplied. | forwarded arguments |
+| bbox | See implementation docstring below; no parameter-specific description supplied. | required |
+| start | See implementation docstring below; no parameter-specific description supplied. | required |
+| end | See implementation docstring below; no parameter-specific description supplied. | required |
+| collection | See implementation docstring below; no parameter-specific description supplied. | 'landsat-c2-l2' |
+| max_y | See implementation docstring below; no parameter-specific description supplied. | 256 |
+| max_x | See implementation docstring below; no parameter-specific description supplied. | 256 |
+| max_time | See implementation docstring below; no parameter-specific description supplied. | 16 |
+| auto_crop_valid | See implementation docstring below; no parameter-specific description supplied. | True |
+| band_aliases | See implementation docstring below; no parameter-specific description supplied. | ('red', 'nir') |
+| max_cloud_cover | See implementation docstring below; no parameter-specific description supplied. | 50 |
+| chunks_xy | See implementation docstring below; no parameter-specific description supplied. | None |
+| stac_url | See implementation docstring below; no parameter-specific description supplied. | 'https://planetarycomputer.microsoft.com/api/stac/v1' |
+| stack_da | See implementation docstring below; no parameter-specific description supplied. | None |
+| epsg | See implementation docstring below; no parameter-specific description supplied. | None |
+| resolution | See implementation docstring below; no parameter-specific description supplied. | 30 |
 
 ## Accepts
 
@@ -36,7 +49,7 @@ A pipe passes the preceding result to the next callable. Confirm that the previo
 
 ## Minimal example
 
-Use the [Landsat MPC workflow](../../examples/landsat8_mpc.md) with its optional dependencies and live STAC access. This legacy source helper is not a registered scientific noun.
+Use the [Landsat MPC workflow](../../examples/landsat8_mpc.md) with live STAC access. This source integration is not a registered scientific noun.
 
 ## Works with
 
@@ -54,4 +67,4 @@ Location, dates and Landsat-specific options forwarded to the source helper.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/__init__.py#L158). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/landsat_mpc.py#L271). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

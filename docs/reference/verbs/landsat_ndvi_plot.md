@@ -2,7 +2,7 @@
 
 # landsat_ndvi_plot
 
-Lazy import wrapper for Landsat NDVI plotting.
+Load Landsat NDVI, downsample for visualization, and render the cube viewer.
 
 **Callable type:** Visualization helper (direct call) · [Browse: Visualization](index.md#visualization)
 
@@ -12,15 +12,21 @@ Call this helper directly with the documented data arguments; it does not return
 
 ```python
 from cubedynamics import verbs as v
-v.landsat_ndvi_plot(*args, **kwargs)
+v.landsat_ndvi_plot(bbox, start, end, *, max_y=256, max_x=256, max_time=16, epsg=None, **plot_kwargs)
 ```
 
 ## Arguments
 
 | Argument | Meaning | Default |
 | --- | --- | --- |
-| args | See implementation docstring below; no parameter-specific description supplied. | forwarded arguments |
-| kwargs | See implementation docstring below; no parameter-specific description supplied. | forwarded arguments |
+| bbox | See implementation docstring below; no parameter-specific description supplied. | required |
+| start | See implementation docstring below; no parameter-specific description supplied. | required |
+| end | See implementation docstring below; no parameter-specific description supplied. | required |
+| max_y | See implementation docstring below; no parameter-specific description supplied. | 256 |
+| max_x | See implementation docstring below; no parameter-specific description supplied. | 256 |
+| max_time | See implementation docstring below; no parameter-specific description supplied. | 16 |
+| epsg | See implementation docstring below; no parameter-specific description supplied. | None |
+| plot_kwargs | See implementation docstring below; no parameter-specific description supplied. | forwarded arguments |
 
 ## Accepts
 
@@ -36,7 +42,7 @@ A pipe passes the preceding result to the next callable. Confirm that the previo
 
 ## Minimal example
 
-Use the [Landsat MPC workflow](../../examples/landsat8_mpc.md) with its optional dependencies and live STAC access. This legacy source helper is not a registered scientific noun.
+Use the [Landsat MPC workflow](../../examples/landsat8_mpc.md) with live STAC access. This source integration is not a registered scientific noun.
 
 ## Works with
 
@@ -54,4 +60,4 @@ Location, dates and Landsat-specific options forwarded to the source helper.
 
 No additional implementation notes in the current docstring.
 
-[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/__init__.py#L166). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.
+[Implementation source](https://github.com/CU-ESIIL/cubedynamics/blob/main/src/cubedynamics/verbs/landsat_mpc.py#L330). Signatures and descriptions on this page are generated from this checkout, not hand-maintained copies.

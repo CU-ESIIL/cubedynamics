@@ -50,7 +50,7 @@ documented and tested even though several are absent from `__all__`.
 - synchrony: `occurrence_synchrony`, `severity_synchrony`,
   `timing_synchrony`, `duration_synchrony`
 - biology: `rasterize_observations`, `align_cube`
-- remote-sensing helpers: `ndvi_from_s2`, `landsat8_mpc`,
+- remote-sensing helpers: `ndvi_from_s2`, `landsat_mpc`, `landsat8_mpc`,
   `landsat_vis_ndvi`, `landsat_ndvi_plot`
 - Fire/VASE/tubes: `extract`, `vase`, `vase_extract`, `vase_mask`,
   `vase_demo`, `fire_plot`, `fire_derivative`, `fire_panel`,

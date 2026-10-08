@@ -37,6 +37,7 @@ Complete inventory of the public `cubedynamics.verbs` namespace. [Browse impleme
 | [flatten_cube](flatten_cube.md) | Grammar verb / pipe stage | implemented | stack non-time dimensions into a sample dimension |
 | [flatten_space](flatten_space.md) | Grammar verb / pipe stage | implemented | stack spatial dimensions into a pixel dimension |
 | [landsat8_mpc](landsat8_mpc.md) | Grammar verb / pipe stage | implemented | load Landsat observations through the MPC integration |
+| [landsat_mpc](landsat_mpc.md) | Grammar verb / pipe stage | implemented | load Landsat observations through the MPC integration |
 | [landsat_ndvi_plot](landsat_ndvi_plot.md) | Visualization helper (direct call) | implemented | render a Landsat NDVI view |
 | [landsat_vis_ndvi](landsat_vis_ndvi.md) | Direct helper function | implemented | prepare a visualization-friendly Landsat NDVI cube |
 | [landscape_change_signature](landscape_change_signature.md) | Grammar verb / pipe stage | implemented | compare complete neighboring center landscapes along distinct axes |

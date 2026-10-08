@@ -526,6 +526,10 @@ _VERB_SPECS.update(
             "to_netcdf", "write an explicit NetCDF output", _ANY_KINDS, "same",
             category="integration", side_effect=True, examples=("v.to_netcdf(path)",),
         ),
+        "landsat_mpc": _spec(
+            "landsat_mpc", "load Landsat observations through the MPC integration", _ANY_KINDS,
+            "continuous_field", category="integration", examples=("v.landsat_mpc(...) ",),
+        ),
         "landsat8_mpc": _spec(
             "landsat8_mpc", "load Landsat observations through the MPC integration", _ANY_KINDS,
             "continuous_field", category="integration", examples=("v.landsat8_mpc(...) ",),

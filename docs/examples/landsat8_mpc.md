@@ -1,47 +1,22 @@
-# Landsat-8 streaming from Microsoft Planetary Computer
+# Landsat streaming and NDVI
 
-This example shows how to use the `landsat8_mpc` verb to stream Landsat-8 Collection 2 Level-2 surface reflectance from Microsoft Planetary Computer as a time–band–space cube, then compute NDVI.
+Use the [Landsat MPC workflow](../datasets/landsat8_mpc.md) for the complete
+example, scaling contract, CRS selection, QA limitations and live-test command.
 
 ```python
 from cubedynamics import pipe, verbs as v
-from cubedynamics.verbs import landsat_ndvi_plot
 
-# Boulder-ish bounding box
-bbox = [-105.35, 39.9, -105.15, 40.1]
-
-cube = (
-    pipe(None)
-    | v.landsat8_mpc(
-        bbox=bbox,
-        start="2019-07-01",
-        end="2019-08-01",
-        band_aliases=("red", "nir"),
-        max_cloud_cover=50,
-        chunks_xy={"x": 1024, "y": 1024},
-    )
-).unwrap()
-
-print(cube)
-# DataArray(time, band, y, x) with band ~ ["red", "nir"]
-
-red = cube.sel(band="red")
-nir = cube.sel(band="nir")
-ndvi = (nir - red) / (nir + red)
-ndvi.name = "NDVI"
-
-# Plot all timesteps with the CubePlot viewer
-pipe(ndvi) | v.plot(time_dim="time")
-
-# For visualization-friendly downsampling/cropping, prefer the helper:
-landsat_ndvi_plot(
-    bbox=bbox,
-    start="2019-07-01",
-    end="2019-08-01",
+cube = pipe(None) | v.landsat_mpc(
+    bbox=[-105.35, 39.90, -105.15, 40.10],
+    start="2024-07-01", end="2024-09-01",
+    bands=("red", "nir08"), max_cloud_cover=20,
+    epsg=32613, resolution=30, chunksize=1024,
 )
+da = cube.unwrap()
+red, nir = da.sel(band="red"), da.sel(band="nir08")
+ndvi = (nir - red) / (nir + red)
 ```
 
-Because the underlying arrays are dask-backed, nothing is fully loaded into memory until you compute or plot.
-
-`landsat_ndvi_plot` (and its underlying `landsat_vis_ndvi` helper) trims all-NaN borders and downsamples big scenes so the cube viewer stays responsive. Use the raw `v.landsat8_mpc` output for analysis-heavy workflows where you want the full-resolution data.
-
-Note: This verb uses Microsoft Planetary Computer’s STAC API and signed COG URLs via the planetary_computer Python SDK. No AWS credentials are needed.
+This is physical surface reflectance; do not scale it again. Both arrays remain
+Dask-backed until computation. Scene cloud filtering does not mask cloudy
+pixels. `landsat8_mpc` remains available for Landsat 8 compatibility.

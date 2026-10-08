@@ -143,32 +143,11 @@ def _unwrap_dataarray(
     raise TypeError(f"Unsupported type for extract(): {type(obj)!r}")
 
 
-def landsat8_mpc(*args, **kwargs):
-    """Lazy import wrapper for the Landsat MPC helper.
-
-    Avoids importing optional heavy dependencies (e.g., rioxarray) unless the
-    verb is actually invoked.
-    """
-
-    from .landsat_mpc import landsat8_mpc as _landsat8_mpc
-
-    return _landsat8_mpc(*args, **kwargs)
-
-
-def landsat_vis_ndvi(*args, **kwargs):
-    """Lazy import wrapper for a visualization-friendly Landsat NDVI cube."""
-
-    from .landsat_mpc import landsat_vis_ndvi as _landsat_vis_ndvi
-
-    return _landsat_vis_ndvi(*args, **kwargs)
-
-
-def landsat_ndvi_plot(*args, **kwargs):
-    """Lazy import wrapper for Landsat NDVI plotting."""
-
-    from .landsat_mpc import landsat_ndvi_plot as _landsat_ndvi_plot
-
-    return _landsat_ndvi_plot(*args, **kwargs)
+# Bind after importing the submodule to prevent the module shadowing the verb.
+# Provider SDKs are imported inside the loader, so importing verbs stays light.
+from .landsat_mpc import (
+    landsat_mpc, landsat8_mpc, landsat_vis_ndvi, landsat_ndvi_plot,
+)
 
 
 def show_cube_lexcube(**kwargs):
@@ -818,6 +797,7 @@ __all__ = [
     "synchrony_surface_diagnostics",
     "zscore",
     "ndvi_from_s2",
+    "landsat_mpc",
     "landsat8_mpc",
     "landsat_vis_ndvi",
     "landsat_ndvi_plot",

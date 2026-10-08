@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "3369706f29b32adfe26725bcb91719253236d389",
+    "git_sha": "7e0530c1d7ce5051453f65b1a43b11d4578a245e",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -540,7 +540,7 @@
     "src/cubedynamics/fire_vase_lakehouse/qc.py": "f681ae13c452297d3328ca190aa7578610dd4aaf1f826d0ef92e2749931d89a5",
     "src/cubedynamics/fire_vase_lakehouse/query.py": "a8ae636928a85b5786bf463568b82f9dd1b3186e4ab9365d4ae9ee3019cbc765",
     "src/cubedynamics/fire_vase_lakehouse/schemas.py": "cf3357787fef499def39f765f0de0e6c161d194f5bfe58a0ec31ad689a993369",
-    "src/cubedynamics/grammar.py": "fbd5a01f431633592a2fadaca586b6bb6967a884d08421e198b9f9e5fb25e3df",
+    "src/cubedynamics/grammar.py": "8983609ffe774fc5676762ed188c3764b5edcaf9b221ea245d9771d4b21db489",
     "src/cubedynamics/hulls.py": "236bbf4519340a089c4edb226128b9f3129f29eba37d139393701532708aea99",
     "src/cubedynamics/indices/__init__.py": "cd42fe773ca03ecc0ee920d4893d21f4bf34db70f760b3f307658ba3c2604ade",
     "src/cubedynamics/indices/vegetation.py": "5335c5fb7915561ef05b3e6ded72e35a15cfc0cb64a8d6d4c8efc758e147ec63",
@@ -621,7 +621,7 @@
     "src/cubedynamics/variables.py": "c439c85eca32c8642c7f6d0737482c469654f52049e506b0f5d58f5ca7a70c23",
     "src/cubedynamics/vase.py": "aaf5586602aa43673767253428b2768ccc2f0cfcdca2f89fb3bf327749e21a19",
     "src/cubedynamics/vase_viz.py": "57fc4d7a0f160fbb7bc99bbf0eda90b91c70717136bfcbef80b6f13a92ce2e99",
-    "src/cubedynamics/verbs/__init__.py": "4e8d30ee5812dfc9953930a855f9635ef7bc92ccbdd2c9f508d1ed9e6bd9daa2",
+    "src/cubedynamics/verbs/__init__.py": "a6233606fa6652ef380b82736f1712896e0400663f69e5302ee11b4b9e109413",
     "src/cubedynamics/verbs/biology.py": "42ea84cc706f7c059dfa71a01de38f103f5332c50d8587b8871a4bbeaa40e109",
     "src/cubedynamics/verbs/combine.py": "85ee2b56ff924e19d6f0b5f17568867481aca28ab65eb1c277dc1080fb09df7f",
     "src/cubedynamics/verbs/custom.py": "63633b70eef925fe3e970e686605bb6b59c633ea2cb234846b6848f14d99629e",
@@ -629,7 +629,7 @@
     "src/cubedynamics/verbs/events.py": "0397b3b719ca15ab657f9882b5b7fd302f62f22a01dbb5c483809cf7d24eec79",
     "src/cubedynamics/verbs/fire.py": "34fc19d999002b519badd68e2edf19c3ac83f489d023bf659e6876b04089ea1e",
     "src/cubedynamics/verbs/flatten.py": "9d2b60deed812b1ce892364b94fe4a56c91b4d186ce0e4d125461f8f362bcda4",
-    "src/cubedynamics/verbs/landsat_mpc.py": "5d7a1fb6fd22711f7e76d6ff7399fe72dd4fe73516949cebbd9559ae75f43446",
+    "src/cubedynamics/verbs/landsat_mpc.py": "1eb016d27acdd8348f3d0afda5b7ddec1675e6891a178ad174c35ea8a199d8e9",
     "src/cubedynamics/verbs/models.py": "1b7308169df32ba6357019a15dab46b6d2dc636b8ad0e08a4ba92e0dbe1644f9",
     "src/cubedynamics/verbs/plot.py": "70941f809f6d675d41a953fbc46968b2cda9d99ad48bad08f8cc7ef3aa2c361b",
     "src/cubedynamics/verbs/plot_mean.py": "551bed3b922028207d6bfad6f5f31cef6036222c3469dbae029724f1cd6ee50e",
