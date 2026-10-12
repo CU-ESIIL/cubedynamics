@@ -4634,3 +4634,58 @@ secrets, credentials, private tokens, or unrelated transcript text.
   - `src/cubedynamics/verbs/__init__.py`
   - `src/cubedynamics/verbs/landsat_mpc.py`
   - `tests/verbs/test_landsat_mpc.py`
+## 2026-10-12 — Manuscript intake JOSS collaborator copy and documentation homes
+
+- Retained the supplied `main-39.pdf` (22 pages), `supplement-11.pdf` (35 pages),
+  JOSS `paper.md`, and `paper.bib` unchanged in dated collections under
+  `paper/drafts/2026-10-12/` and `paper/joss/2026-10-12/`. Intake JSON binds
+  all four original hashes and byte lengths. Earlier drafts and website PDFs
+  remain intact. Website copies of the current PDFs are under
+  `docs/assets/manuscripts/2026-10-12/`; all source/copy bytes were compared.
+- Created the editable five-page JOSS collaborator DOCX with bundled
+  `python-docx`, preserving all eight source sections and prose. Resolved all
+  14 citation keys into numbered references using the supplied bibliography.
+  Recovered the missing referenced PNG by rendering/cropping the supplied
+  main PDF's conceptual Figure 1 (page 2); no empirical figure was invented.
+  Retained a conversion script and collaborator review notes beside the draft.
+- Ran the documents skill's deterministic Google Docs title sanitizer
+  (`style_borders_removed=1`; final check passed), rendered with the bundled
+  LibreOffice/Poppler via `render_docx.py`, and visually inspected every page.
+  Confirmed eight source headings, one embedded figure, and 14 resolved
+  citations structurally. The DOCX is for user upload; no Google Docs import
+  or messages to collaborators were performed.
+- Added six documentation companions: condition/missing-value contracts;
+  local trace/branch/callable provenance; Working Lands protocol; source
+  comparison and bounded QA; manuscript evidence/archival requirements; and
+  design origins/related systems. Added a seventh page mapping every numbered
+  main/SI section, all main tables and figures, SI Tables S1–S25, Figures
+  S1–S2, equation 1, references, and author declarations to documentation or
+  retained originals. Updated Documents/developer hubs, related work,
+  semantic grammar, manuscript landing page, `paper/README.md`, and navigation
+  within the existing five top-level jobs. No generated API page was edited.
+- Kept September 25 evidence boundaries distinct from October 12 intake.
+  Preserved the supplied JOSS directions as editorial content, not commands
+  to publish, remove exports, change release guidance, or alter scientific
+  assumptions. Noted the earlier GPT-5 disclosure versus this GPT-6 session,
+  differing human-review statements, rc1/rc3 installation wording, and the
+  distinction between a repository fixture and a frozen submission archive.
+- Validation: `scripts/build_reference_docs.py --check` checked 93 pages;
+  `.venv/bin/python -m pytest tests/test_documentation_reference.py
+  tests/test_reference_usability.py tests/test_documentation_links.py
+  tests/test_repository_guides.py tests/test_overview_manuscript_assets.py -q`
+  passed (102 tests, 54 warnings); `.venv-docs/bin/python -m mkdocs build
+  --strict` passed (new uncommitted-page revision-date notices);
+  `scripts/check_site_links.py site` passed; tracked repository size policy
+  passed for 1,339 files, and the same path checker passed for 1,357 tracked
+  plus commit-eligible files; `git diff --check` passed. Desktop (1440 px) and
+  narrow (390 px) screenshots of the content map and condition companion
+  were visually inspected. Full built-site Chromium browser suite passed:
+  `.venv/bin/python -m pytest tests/browser -m browser --site-dir site
+  --browser chromium --tracing retain-on-failure
+  --output artifacts/browser/playwright -q` (440 tests). The initial
+  sandboxed attempt could not start Chromium/localhost; the authorized rerun
+  completed successfully. No external-link availability audit was performed.
+- Caveats: this is source intake, conversion, and editorial migration, not
+  new source certification, empirical reanalysis, a literature audit, a JOSS
+  compliance review, or a unified submission evidence bundle. No runtime
+  change, release metadata change, commit, push, publication, or submission.

@@ -215,6 +215,13 @@ compound unit such as `m s-1` becomes `(m s-1)^2`. Dimensionless variance stays
 
 ## Statement boundary
 
+The [condition contract companion](condition_contracts.md) documents inclusive
+comparisons, missing-as-false behavior, indexed denominators, quantile defaults,
+and conditional order equivalence. The
+[local trace companion](trace_and_workflow_provenance.md) explains why branch
+records, callable revisions, and the wider environment must be retained
+separately from the final pipe.
+
 The adoption path is deliberately reversible:
 
 ```text

@@ -15,6 +15,10 @@ Analysis*](overview_manuscript.md), together with its supplementary information.
 The manuscript is a dated scholarly snapshot; the runtime, tests, generated
 references, and public API contract remain authoritative for current behavior.
 
+The [manuscript and SI content map](manuscript_content_map.md) links every
+numbered section, table, and figure to its documentation home. Read the
+[Working Lands protocol](working_lands_protocol.md) for the detailed example.
+
 ## Verbs
 
 [Browse verbs by purpose](../reference/verbs/index.md) or find a name in

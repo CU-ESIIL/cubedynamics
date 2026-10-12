@@ -6,7 +6,28 @@ description: "Download the current CubeDynamics overview manuscript and suppleme
 
 ## CubeDynamics: An Inspectable Grammar for Environmental Data Analysis
 
-The current package-wide manuscript explains the motivation, design, evidence,
+## Current collection received 12 October 2026
+
+| Document | Contents | Download |
+| --- | --- | --- |
+| Current main manuscript | 22 pages, including conceptual figures and full references | [Download main manuscript](../assets/manuscripts/2026-10-12/main-39.pdf) |
+| Current supplementary information | 35 pages of contracts, source records, protocol, evidence boundaries and references | [Download SI](../assets/manuscripts/2026-10-12/supplement-11.pdf) |
+
+These originals are preserved exactly as supplied. Their evidence boundary
+remains September 25, 2026; the intake date does not update their validation.
+The [section-by-section content map](manuscript_content_map.md) links all
+numbered sections, tables, and figures to website documentation homes.
+The supplied JOSS Markdown, bibliography, and collaborator Word copy are
+retained in the [dated repository collection](https://github.com/CU-ESIIL/cubedynamics/tree/main/paper/joss/2026-10-12).
+
+```text
+097fee854d610328201b0d186121f1fd435326a4a69de6920e8bd51c078f35b4  main-39.pdf
+384cb4bf605d7d48b45cd8b67dfcc67aacb0f2f26bcafc2cda4ced246352d0b1  supplement-11.pdf
+```
+
+## Earlier collection retained for history
+
+The earlier package-wide manuscript explains the motivation, design, evidence,
 and limits of CubeDynamics as an inspectable grammar for environmental data
 analysis. It describes source-qualified nouns, named transformations, authored
 order, semantic state and trace, ordinary scientific Python objects, validation,

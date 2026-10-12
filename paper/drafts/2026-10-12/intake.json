@@ -1,0 +1,26 @@
+{
+  "received": "2026-10-12",
+  "scope": "Supplied source identity only; not a release or scientific evidence bundle",
+  "files": [
+    {
+      "path": "paper/drafts/2026-10-12/main-39.pdf",
+      "bytes": 262749,
+      "sha256": "097fee854d610328201b0d186121f1fd435326a4a69de6920e8bd51c078f35b4"
+    },
+    {
+      "path": "paper/drafts/2026-10-12/supplement-11.pdf",
+      "bytes": 344293,
+      "sha256": "384cb4bf605d7d48b45cd8b67dfcc67aacb0f2f26bcafc2cda4ced246352d0b1"
+    },
+    {
+      "path": "paper/joss/2026-10-12/paper.md",
+      "bytes": 11151,
+      "sha256": "f2844fc2a448744f89977989baeb34296689757c13cbf4bf05517579ae90bade"
+    },
+    {
+      "path": "paper/joss/2026-10-12/paper.bib",
+      "bytes": 6085,
+      "sha256": "3d5926d737608ee10b3a255628a2f1e9d1d5f4917da758d8a7ed9f58c5fa43be"
+    }
+  ]
+}

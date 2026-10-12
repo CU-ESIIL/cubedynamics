@@ -21,6 +21,8 @@ selection, return to [Documents](../documentation/index.md).
 
 ## Plans and audits
 
+- [Manuscript evidence and archival requirements](../project/manuscript_evidence_2026_10.md)
+
 - [Publication audit and plan](../project/publication_plan.md)
 - [Documentation structure](../project/documentation_refactor.md)
 - [Scientific vocabulary plan](../project/data_vocabulary_plan.md) and [grammar inventory](../project/grammar_inventory.md)

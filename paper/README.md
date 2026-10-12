@@ -4,6 +4,19 @@ Working manuscript material, separate from the maintained software reference.
 Draft claims, examples, and citation markers are not a completed scientific
 or release audit.
 
+## Current supplied collection received 12 October 2026
+
+- [Main manuscript PDF](drafts/2026-10-12/main-39.pdf), 22 pages.
+- [Supplementary information PDF](drafts/2026-10-12/supplement-11.pdf), 35 pages.
+- [JOSS draft and collaboration copy](joss/2026-10-12/README.md), with the
+  supplied Markdown, bibliography, and editable Word document.
+- [Website content map](../docs/documentation/manuscript_content_map.md),
+  with homes for every numbered source section, table, and figure.
+
+Original files are retained byte-for-byte. The PDFs report evidence accessed
+September 25, 2026; October 12 is the intake date, not a new certification date.
+The earlier materials below remain historical drafts.
+
 ## Citation-map working draft - 27 August 2026
 
 [Read the supplied PDF](drafts/CubeDynamics_manuscript_citation_markers.pdf)

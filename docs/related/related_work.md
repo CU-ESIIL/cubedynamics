@@ -19,3 +19,9 @@ Lexcube offers interactive 3D visualization for `(time, y, x)` arrays. CubeDynam
 > CubeDynamics builds on the Earth System Data Cube paradigm: spatiotemporal grids stored as `xarray` cubes for analysis and AI. It differs from frameworks like Open Data Cube or Earth System Data Lab by focusing on a *grammar of analysis* (pipe + verbs) rather than on data storage or infrastructure. We treat any `xarray` cube—whether it comes from PRISM, gridMET, Sentinel-2 via Cubo, or ESDC—as a first-class citizen in the same `pipe(cube) | verbs` interface.
 
 Future updates will add explicit citations and links once the corresponding publications are finalized.
+
+## Longer manuscript context
+
+The [design origins and related systems companion](manuscript_context.md)
+retains the manuscript's personal design history, technical precedents,
+contribution pathways, and explicitly prospective synthesis and agent ideas.

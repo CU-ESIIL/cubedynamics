@@ -57,6 +57,8 @@ nav:
   - Documents:
       - Reference directory: documentation/index.md
       - CubeDynamics overview manuscript: documentation/overview_manuscript.md
+      - Manuscript and SI content map: documentation/manuscript_content_map.md
+      - Working Lands protocol: documentation/working_lands_protocol.md
       - Verbs:
           - Browse by purpose: reference/verbs/index.md
           - All public callables: reference/verbs/a-z.md
@@ -65,12 +67,15 @@ nav:
       - Data:
           - Nouns and source configuration: api/data.md
           - Source QA evidence: data/phase1_qa.md
+          - Source comparison and evidence: data/manuscript_source_comparison.md
           - Custom nouns: extending/custom_nouns.md
       - Pipe and grammar:
           - Pipe: api/pipe.md
           - Grammar reference: grammar/index.md
           - Scientific inspectability: concepts/scientific_inspectability.md
           - Semantic grammar: concepts/semantic_grammar.md
+          - Condition contracts and missing observations: concepts/condition_contracts.md
+          - Local traces and provenance: concepts/trace_and_workflow_provenance.md
           - Temporal alignment: concepts/temporal_alignment.md
           - Local events and regional episodes: concepts/events_and_episodes.md
           - Long-record analysis: concepts/long_record_analysis.md
@@ -124,6 +129,7 @@ nav:
                   - Cloud sources: streaming/cloud_sources.md
                   - STAC sources: streaming/stac_sources.md
           - Plans and audits:
+              - Manuscript evidence and archival requirements: project/manuscript_evidence_2026_10.md
               - RC1 validation triage: project/rc1_validation_triage.md
               - Public documentation generation audit: project/public_docs_generation_audit.md
               - Documentation structure: project/documentation_refactor.md
@@ -150,6 +156,7 @@ nav:
               - Pipe and verbs: concepts/pipe_and_verbs.md
               - Rolling statistics: concepts/rolling_stats.md
               - Related work: related/related_work.md
+              - Manuscript design origins and context: related/manuscript_context.md
               - Full developer symbol inventory: api/inventory_full.md
               - Deprecated shims: api/reference.md
               - Deprecation inventory: project/deprecation_inventory.md
