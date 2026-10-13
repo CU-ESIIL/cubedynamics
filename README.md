@@ -27,7 +27,8 @@ that an installed PyPI release contains every change on `main`.
 
 For the first public alpha release candidate, see the [0.1 support contract](docs/project/api_support_0_1.md),
 [release notes](docs/project/release_0_1_0.md), and [non-publishing release checklist](RELEASING.md).
-PyPI contains `0.1.0rc1`; changes on `main` may be newer than that artifact.
+PyPI publishes `0.1.0rc3` from tag commit `f777eb07d3ada8bd407b027f560727c90f6d3731`;
+changes on `main` may be newer than that artifact. See [release identity](docs/project/release_status.md).
 
 ## Start here
 
@@ -42,12 +43,16 @@ The [website](https://cu-esiil.github.io/cubedynamics/) has five entry points:
 [Developer documentation](https://cu-esiil.github.io/cubedynamics/developer/)
 separates architecture, CI, source maintenance, and audits from user reference.
 
+[For JOSS reviewers](docs/joss_review.md): follow the canonical contracts, evidence,
+reproduction commands, and exact release identity. The JOSS note is a draft,
+not an accepted publication.
+
 ## Install
 
 The public prerelease is available from PyPI:
 
 ```bash
-python -m pip install cubedynamics==0.1.0rc1
+python -m pip install cubedynamics==0.1.0rc3
 ```
 
 Pin the version because it is a prerelease. Plain `pip install cubedynamics`

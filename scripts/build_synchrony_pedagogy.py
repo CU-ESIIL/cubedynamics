@@ -1448,7 +1448,7 @@ network access. Cold/warm pair values are recomputed with the installed
 ## Validate
 
 ```bash
-.venv/bin/python -m pytest tests/test_synchrony_pedagogy.py -q
+.venv/bin/python -m pytest tests/test_synchrony_pedagogy.py -m integration -q
 pdfinfo {output.relative_to(ROOT)}
 ```
 

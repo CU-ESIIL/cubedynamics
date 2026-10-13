@@ -44,6 +44,21 @@ CubeDynamics preserves the written order and records an
 other. Reducing a condition labels the result and its `state` variable as a
 summary proportion rather than leaving stale Boolean-condition metadata.
 
+## Conditional equivalence
+
+Subtracting a fixed climatology and taking a linear spatial mean commute only
+when both paths use the same climatology, weights and mask:
+`mean(T - C) = mean(T) - mean(C)`. Different missingness, interpolation or
+weights can break that relationship. The order registry records assumptions;
+it never uses them to rewrite the expression. Python stages run when composed;
+the underlying Dask graph may evaluate later or again when explicitly consumed.
+
+Order messages and `validate()` describe the authored sequence. Known invalid
+state transitions can fail before a stage executes; other sequences are
+meaning-changing rather than invalid. The grammar cannot identify the
+scientifically correct order for every analysis. See
+[order regressions](https://github.com/CU-ESIIL/cubedynamics/blob/main/tests/test_grammar_semantics.py).
+
 ## What to learn next
 
 [5. Compose a question](compose.md) · [mean](../reference/verbs/mean.md) ·

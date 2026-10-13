@@ -1,7 +1,17 @@
 # Spatial & CRS Dataset Contract
 
 ## Purpose and scope
-This document defines the canonical spatial and coordinate reference system (CRS) contract for cube-based verbs. It is an internal, normative spec that every spatial verb (e.g., `v.clip`, `v.mask`, `v.zonal_stats`, `v.fire_plot`) must follow to ensure consistent behavior across datasets and to enable shared tests.
+This document records the legacy raster/fire spatial helper contract. Its
+time requirement and CRS fallbacks are not universal requirements for static
+terrain, vector roads, station observations or every public spatial verb.
+The current user-facing boundary is the
+[scientific data contract](../concepts/scientific_data_contract.md); inspect
+each operation's implementation and reference before relying on a fallback.
+
+The coordinate-range heuristics below are implemented legacy assumptions,
+not independent CRS validation. Ambiguous or missing metadata should be
+resolved explicitly before scientific use; the package does not universally
+reject every missing-CRS object.
 
 ## Cube invariants
 - **Time dimension required**: A `time` dimension must exist and be parseable to pandas `DatetimeIndex` via `normalize_dates`.

@@ -6,30 +6,12 @@ nouns, configured transformations, state, trace, source queries, provenance,
 fixtures, QA, and tests. Decision context remains outside software authority.
 These layers let a reviewer descend into the evidence beneath the expression.
 
-## What the local record covers
+## Local record boundary
 
-Semantic state describes the software's declared or metadata-inferred
-interpretation, including role, dimensions, shape, units, CRS, source,
-spatial and temporal status, ordered time, remaining temporal variation, and
-whether provenance is present. It is a software claim available for review,
-not independent confirmation of environmental truth.
-
-The nine roles are observation, continuous field, categorical field, condition,
-event, feature, relationship, summary, and network. The
-[semantic grammar](semantic_grammar.md) and [glossary](glossary.md) give current
-definitions. An observation can be interpolated, modeled, remotely retrieved,
-or derived; the term does not imply direct instrumental measurement.
-
-Each stage executes during composition. The pipe records completed operations,
-parameters, messages, and state transitions. `explain()`, `semantic_state`,
-`semantic_trace`, and `validate()` expose that record without adding stages,
-reordering the expression, or computing arrays solely for semantic inference.
-`unwrap()` returns the value without forcing computation.
-
-A trace summarizes local execution events; provenance describes inputs,
-processing, and outputs; a workflow describes a wider reusable method. Work
-before `pipe()` and after `unwrap()` is outside the local trace. Save source
-snapshots, environments, revisions, and external processing separately.
+The [semantic model](semantic_grammar.md) owns the state vocabulary and
+inspection methods. A trace covers completed stages in one pipe. Provenance
+also identifies source inputs, derivations, environment and work before
+`pipe()` or after `unwrap()`. Those wider records need explicit retention.
 
 ## Branches require separate records
 

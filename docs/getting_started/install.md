@@ -2,7 +2,7 @@
 
 ## Public release candidate
 
-CubeDynamics **0.1.0rc1** is published on PyPI. It is an alpha prerelease, not
+CubeDynamics **0.1.0rc3** is published on PyPI. It is an alpha prerelease, not
 a final stable release. Do not interpret a green source checkout as evidence
 that the public artifact contains later changes. Python **3.9–3.12** remains
 the supported test matrix.
@@ -14,7 +14,7 @@ outside any source checkout:
 python3.11 -m venv cube-env
 source cube-env/bin/activate
 python -m pip install --upgrade pip
-python -m pip install cubedynamics==0.1.0rc1
+python -m pip install cubedynamics==0.1.0rc3
 python -m pip check
 ```
 
@@ -23,13 +23,16 @@ declared dependencies; neither Git nor an editable installation is needed.
 If you have not received an artifact, wait for publication rather than
 silently switching to a source clone.
 
+See [release/review identity](../project/release_status.md) for artifact hashes
+and the distinction from later same-version checkouts.
+
 ## Artifact-specific install
 
 When reproducing a maintainer-supplied candidate artifact rather than the
-public rc1, compare its SHA256 record and install that exact local wheel:
+public rc3, compare its SHA256 record and install that exact local wheel:
 
 ```bash
-python -m pip install ./cubedynamics-0.1.0rc1-py3-none-any.whl
+python -m pip install ./cubedynamics-0.1.0rc3-py3-none-any.whl
 python -m pip check
 ```
 
@@ -40,12 +43,12 @@ wheel and sdist.
 ## PyPI prerelease
 
 ```bash
-python -m pip install cubedynamics==0.1.0rc1
+python -m pip install cubedynamics==0.1.0rc3
 # Or opt into the newest prerelease:
 python -m pip install --pre cubedynamics
 ```
 
-Pin `==0.1.0rc1` to reproduce this RC. `--pre` can select a later prerelease.
+Pin `==0.1.0rc3` to reproduce this RC. `--pre` can select a later prerelease.
 The [PyPA prerelease specification](https://packaging.python.org/en/latest/specifications/version-specifiers/#handling-of-pre-releases)
 explains selection. Package-name availability and trusted publishing must be
 confirmed by the maintainer; a missing public project is not a reservation.
@@ -62,7 +65,7 @@ prerelease explicitly.
 import cubedynamics
 from cubedynamics import data, pipe, verbs as v
 
-print(cubedynamics.__version__)  # 0.1.0rc1
+print(cubedynamics.__version__)  # 0.1.0rc3
 print(cubedynamics.version_info())
 print(data.describe("temperature", "prism"))
 help(v.mean)
@@ -77,7 +80,7 @@ live noun request explains network and provider limitations.
 
 The `vignettes` extra adds execution tooling and a kernel; JupyterLab is a
 separate frontend. To add the extra to a supplied wheel, use
-`python -m pip install './cubedynamics-0.1.0rc1-py3-none-any.whl[vignettes]'`.
+`python -m pip install './cubedynamics-0.1.0rc3-py3-none-any.whl[vignettes]'`.
 The canonical HTML viewer does not require Lexcube. Complete supported
 notebooks use external reviewed inputs, not bundled package data.
 
@@ -85,7 +88,7 @@ Lexcube is a separate optional notebook widget. Add it only when you need
 `v.show_cube_lexcube()`:
 
 ```bash
-python -m pip install "cubedynamics[viz]"
+python -m pip install "cubedynamics[viz]==0.1.0rc3"
 ```
 
 Restart the notebook kernel after installation. Without the extra,
@@ -102,8 +105,8 @@ candidate adapters, known limitations, and problem reporting.
 
 ## Testing current `main` in a notebook
 
-The current checkout declares `0.1.0rc3`, while PyPI still contains the
-published `0.1.0rc1` until a separately authorized publication succeeds. A
+The current checkout declares `0.1.0rc3`, and the public rc3 artifact is already published. Later changes on `main`
+are not part of those immutable release bytes. A
 version string identifies the candidate, but `version_info()` is still the
 reliable way to distinguish an installed distribution from a development
 checkout and to record the exact source revision.

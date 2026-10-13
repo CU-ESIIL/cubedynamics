@@ -16,7 +16,7 @@ def test_outside_user_installation_journey(page, site_base):
     page.get_by_role("link", name="Installation status and release instructions").click()
     expect(page.locator("article h1")).to_have_text("Installation & setup")
     expect(page.get_by_role("heading", name="Public release candidate")).to_be_visible()
-    assert "cubedynamics==0.1.0rc1" in page.locator("article").inner_text()
+    assert "cubedynamics==0.1.0rc3" in page.locator("article").inner_text()
     page.locator("article").get_by_role("link", name="Quickstart", exact=True).click()
     expect(page.get_by_role("heading", name="First executable example — public reviewed observations")).to_be_visible()
     assert "hashlib.sha256(payload)" in page.locator("article").inner_text()

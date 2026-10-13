@@ -19,14 +19,18 @@ tests, laziness behavior, and a justification for cross-project ownership.
 
 Thanks for your interest in improving CubeDynamics!
 
+Use [GitHub Issues](https://github.com/CU-ESIIL/cubedynamics/issues) to report
+bugs or seek support. Include runtime identity, Python/platform, a minimal
+example and the traceback; omit credentials. Scientific assumptions and
+requests for new shared vocabulary should identify their owning project.
+
 - Read the full guidelines in [docs/dev/contributing.md](docs/dev/contributing.md).
-- Set up a development environment with:
-- `python -m pip install -e ".[dev]"`
-  - `pytest -m "not integration and not online" -q`
+- Set up a development environment with `python -m pip install -e ".[dev]"`.
+- Run `pytest -m "not integration and not online" -q`.
 - Build docs locally with `mkdocs serve` to preview changes.
 - Open issues or pull requests on GitHub for discussion and review.
 
-We follow the Contributor Covenant Code of Conduct (see `CODE_OF_CONDUCT.md`).
+We follow the Contributor Covenant Code of Conduct (see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)).
 
 ## Releasing
 

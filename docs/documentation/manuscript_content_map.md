@@ -1,5 +1,8 @@
 # Manuscript and supplementary content map
 
+**Historical intake index, October 12, 2026.** Companion source/protocol/context
+URLs now route to consolidated canonical pages; use [the reviewer guide](../joss_review.md).
+
 The short JOSS draft carries the software contribution. The longer manuscript
 and SI carry design history, contracts, source distinctions, protocol details,
 and dated evidence. This map gives every numbered section, table, and figure

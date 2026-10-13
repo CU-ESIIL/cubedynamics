@@ -9,6 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import xarray as xr
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,7 +44,9 @@ def test_page_plan_is_complete_and_each_empirical_page_has_artifact_keys() -> No
         raise AssertionError("missing empirical provenance was accepted")
 
 
+@pytest.mark.integration
 def test_pair_values_are_recomputed_and_match_current_stack() -> None:
+    """Explicit research-artifact check: missing retained inputs must fail."""
     module = _module()
     evidence = module.load_empirical_evidence()
     pair = evidence["pair"]
@@ -57,7 +60,9 @@ def test_pair_values_are_recomputed_and_match_current_stack() -> None:
         assert pair["warm_n"] == int(stack.warm_joint_count[center, cy, cx])
 
 
+@pytest.mark.integration
 def test_alignment_representation_window_and_station_numbers_are_live() -> None:
+    """Requires the complete ignored feasibility bundle, not a clone fixture."""
     module = _module()
     evidence = module.load_empirical_evidence()
     base = module.DEFAULT_FEASIBILITY
@@ -80,3 +85,82 @@ def test_alignment_representation_window_and_station_numbers_are_live() -> None:
     assert evidence["stations"]["cold_r"] == station["cold"]["correlation"]
     assert evidence["stations"]["warm_r"] == station["warm"]["correlation"]
     assert evidence["stations"]["delta_r"] == station["delta"]["correlation"]
+
+
+@pytest.fixture
+def controlled_evidence(tmp_path, monkeypatch):
+    """Deterministic unit controls; never substitute for empirical deck inputs."""
+    module = _module()
+    monkeypatch.setattr(module, "ROOT", tmp_path)
+    axis = np.arange(20)
+    t = np.arange(60, dtype=float)
+    offsets = axis[:, None] + axis[None, :]
+    # Every cell is an affine transform of the same sequence: rank r=1,
+    # thirty jointly selected observations in each half, cold-minus-warm=0.
+    cube = xr.Dataset(
+        {"tmin": (("time", "y", "x"), t[:, None, None] + offsets),
+         "tmax": (("time", "y", "x"), 2 * t[:, None, None] + offsets + 5)},
+        coords={"time": pd.date_range("2000-01-01", periods=60), "y": axis, "x": axis},
+        attrs={"data_class": "SYNTHETIC UNIT CONTROL"},
+    )
+    shape = (400, 20, 20)
+    stack = xr.Dataset(
+        {"cold_synchrony": (("center", "y", "x"), np.ones(shape)),
+         "warm_synchrony": (("center", "y", "x"), np.ones(shape)),
+         "delta_s": (("center", "y", "x"), np.zeros(shape)),
+         "cold_joint_count": (("center", "y", "x"), np.full(shape, 30)),
+         "warm_joint_count": (("center", "y", "x"), np.full(shape, 30)),
+         "distance_km": (("center", "y", "x"), np.full(shape, 3.)),
+         "center_y": ("center", np.repeat(axis, 20)),
+         "center_x": ("center", np.tile(axis, 20))},
+        coords={"center": np.arange(400), "y": axis, "x": axis},
+        attrs={"window_start": "2000-01-01", "window_end": "2000-02-29",
+               "window_days": 60, "split_quantile": .5,
+               "min_time_points_per_tail": 10, "data_class": "SYNTHETIC UNIT CONTROL"},
+    )
+    cube_path, stack_path, colorado_path = [tmp_path / name for name in ("cube.nc", "stack.nc", "colorado.nc")]
+    cube.to_netcdf(cube_path, engine="scipy")
+    stack.to_netcdf(stack_path, engine="scipy")
+    cube.isel(time=0).to_netcdf(colorado_path, engine="scipy")
+    pd.DataFrame({"metric": ["delta_s", "delta_s"], "radius_km": [40, 40],
+                  "pearson_relative": [.2, .6], "pearson_absolute": [.1, .3],
+                  "gradient_similarity_relative": [.4, .8],
+                  "gradient_similarity_absolute": [.2, .4]}).to_csv(tmp_path / "relative_vs_absolute_similarity.csv", index=False)
+    pd.DataFrame({"representation": ["radial_plus_directional"],
+                  "median_normalized_rmse": [.25], "surface_count": [400]}).to_csv(tmp_path / "baseline_representation_comparison.csv", index=False)
+    pd.DataFrame({"window": [60], "value": [.5]}).to_csv(tmp_path / "observation_window_sensitivity.csv", index=False)
+    pd.DataFrame({"station_i": ["CONTROL_A"], "station_j": ["CONTROL_B"],
+                  "station_cold": [.8], "station_warm": [.6],
+                  "station_delta": [.2]}).to_csv(tmp_path / "station_prism_pair_synchrony.csv", index=False)
+    pd.DataFrame({"station": ["CONTROL_A", "CONTROL_B"]}).to_csv(tmp_path / "station_manifest.csv", index=False)
+    (tmp_path / "station_qc_provenance.json").write_text(json.dumps({
+        "pair_summary": {"station_count": 2, "pair_count": 1,
+                         "cold": {"correlation": .8}, "warm": {"correlation": .6},
+                         "delta": {"correlation": .2}},
+        "prism_contribution_status": "SYNTHETIC UNIT CONTROL"}))
+    (tmp_path / "feasibility_summary.json").write_text(json.dumps({
+        "directed_relationship_count": 160000, "canonical_pair_count": 79800}))
+    return module.load_empirical_evidence(tmp_path, stack_path, cube_path, colorado_path)
+
+
+def test_controlled_pair_recomputation_has_known_rank_truth(controlled_evidence):
+    pair = controlled_evidence["pair"]
+    assert pair["cold"] == pytest.approx(1)
+    assert pair["warm"] == pytest.approx(1)
+    assert pair["delta"] == pytest.approx(0)
+    assert (pair["cold_n"], pair["warm_n"]) == (30, 30)
+
+
+def test_controlled_report_values_and_source_hashes(controlled_evidence):
+    assert controlled_evidence["alignment"]["pearson_relative"] == pytest.approx(.4)
+    assert controlled_evidence["alignment"]["gradient_absolute"] == pytest.approx(.3)
+    assert controlled_evidence["representations"] == {"radial_plus_directional": .25}
+    assert controlled_evidence["windows"] == [{"window": 60, "value": .5}]
+    assert controlled_evidence["stations"]["contribution_status"] == "SYNTHETIC UNIT CONTROL"
+    assert all(len(record["sha256"]) == 64 for record in controlled_evidence["sources"].values())
+
+
+def test_missing_empirical_artifacts_are_errors(tmp_path):
+    module = _module()
+    with pytest.raises(FileNotFoundError):
+        module.load_empirical_evidence(tmp_path, tmp_path / "missing.nc")

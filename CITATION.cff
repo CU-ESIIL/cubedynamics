@@ -5,6 +5,7 @@ type: software
 authors:
   - family-names: Tuff
     given-names: Ty
+    orcid: "https://orcid.org/0000-0001-5249-5197"
 version: 0.1.0rc3
 repository-code: "https://github.com/CU-ESIIL/cubedynamics"
 url: "https://cu-esiil.github.io/cubedynamics/"

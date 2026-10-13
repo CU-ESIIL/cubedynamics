@@ -6,6 +6,9 @@ description: "Download the current CubeDynamics overview manuscript and suppleme
 
 ## CubeDynamics: An Inspectable Grammar for Environmental Data Analysis
 
+These are manuscript archive snapshots, not the canonical software reference.
+Follow [the reviewer path](../joss_review.md) for current behavior and evidence.
+
 ## Current collection received 12 October 2026
 
 | Document | Contents | Download |

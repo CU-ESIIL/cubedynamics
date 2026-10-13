@@ -1,15 +1,19 @@
 # Quickstart
 
 Install an external wheel, read actual observations, and apply two verbs.
-No source clone or editable installation is needed for this page.
+No source clone or editable installation is needed for this page. The public
+rc3 wheel and its pinned observational example were exercised in a fresh
+Python 3.11 environment during [the readiness check](JOSS_READINESS_REPORT.md).
+Download failures stop the example; typical setup time depends on dependencies
+and network access.
 
 ## Install
 
-CubeDynamics 0.1.0rc1 is published on PyPI. Install that public prerelease in a
+CubeDynamics 0.1.0rc3 is published on PyPI. Install that public prerelease in a
 fresh environment:
 
 ```bash
-python -m pip install cubedynamics==0.1.0rc1
+python -m pip install cubedynamics==0.1.0rc3
 ```
 
 Follow the [installation and release instructions](getting_started/install.md)
@@ -30,7 +34,10 @@ from io import BytesIO
 from urllib.request import urlopen
 import hashlib
 import xarray as xr
+import cubedynamics as cd
 from cubedynamics import data, pipe, verbs as v
+
+print(cd.version_info())
 
 url = (
     "https://raw.githubusercontent.com/CU-ESIIL/cubedynamics/"
@@ -63,7 +70,8 @@ analysis = (
 )
 print(analysis.explain())
 print(analysis.validate())
-print(analysis.semantic_trace)
+print(analysis.semantic_state.as_dict())
+print([step.as_dict() for step in analysis.semantic_trace])
 spatial_anomaly = analysis.unwrap()
 spatial_anomaly.plot()
 plt.title("Boulder · daily departure from January 1–30, 2024 mean")

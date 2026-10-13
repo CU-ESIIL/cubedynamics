@@ -36,5 +36,5 @@ that option can replace unrelated dependency versions. Prefer the dedicated,
 commit-pinned kernel in [Installation](install.md#testing-current-main-in-a-notebook).
 
 Every maintained vignette begins by printing `cd.version_info()`. That makes a
-rendered lesson auditable and distinguishes the public `0.1.0rc1` wheel from an
+rendered lesson auditable and distinguishes the public `0.1.0rc3` wheel from an
 installed candidate, a VCS installation, or a development checkout.

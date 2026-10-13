@@ -7,7 +7,12 @@ For the research argument behind the reference—why rerunnable code is not
 automatically scientifically inspectable—read
 [Scientific inspectability](../concepts/scientific_inspectability.md).
 
-## Overview manuscript
+## Reviewer and reproduction paths
+
+[For JOSS reviewers](../joss_review.md) · [Exact version](../project/release_status.md) ·
+[Reproducibility](../reproducibility.md) · [Scientific data contract](../concepts/scientific_data_contract.md)
+
+## Manuscript archive
 
 Read or download the current package-wide manuscript,
 [*CubeDynamics: An Inspectable Grammar for Environmental Data

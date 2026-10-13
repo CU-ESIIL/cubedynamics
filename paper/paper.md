@@ -1,5 +1,9 @@
 # CubeDynamics: Composable, streaming-first workflows for spatiotemporal environmental data cubes
 
+> Historical software-paper draft. This is not the current JOSS note and may
+> describe superseded architecture. See the [current supplied draft](joss/2026-10-12/paper.md)
+> and [reviewer documentation](../docs/joss_review.md).
+
 ## Summary
 
 Environmental data science increasingly relies on large, gridded, spatiotemporal datasets describing climate, ecosystems, and Earth system processes. While the past decade has seen major advances in array-oriented data models and scalable computation, researchers still face substantial friction when expressing, reusing, and communicating analysis workflows that operate across space and time. *CubeDynamics* is a Python library that addresses this gap by providing a lightweight, streaming-first framework for constructing composable workflows over spatiotemporal data cubes. Built on top of established array and parallel computing libraries, CubeDynamics introduces a *VirtualCube* abstraction and a small grammar of operations that allow users to express environmental analyses as transparent, inspectable pipelines rather than monolithic scripts. The goal is not to replace existing data models or platforms, but to provide a reusable methods layer that standardizes common spatiotemporal operations and lowers the barrier to reproducible, scalable analysis.

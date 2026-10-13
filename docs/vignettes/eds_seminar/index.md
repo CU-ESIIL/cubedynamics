@@ -39,7 +39,8 @@ requests, so an internet connection and provider availability are required.
 | PDF | Follow the completed run without Python | <a href="eds_seminar_supershowcase.pdf" download>Download the 43-page PDF</a> |
 
 The install cell is pinned to the public `v0.1.0rc3` Git commit rather than
-PyPI, where rc3 is not currently available. Start in a fresh Python 3 kernel.
+PyPI to retain explicit source identity. The same rc3 version is published on
+PyPI; see [release status](../../project/release_status.md). Start in a fresh Python 3 kernel.
 The initial install and the observational data requests require network access;
 the saved outputs in the complete version are a seminar snapshot, not a live
 source-health or scientific-certification claim.

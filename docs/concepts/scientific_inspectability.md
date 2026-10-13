@@ -133,6 +133,28 @@ certification, and a trace is not complete workflow provenance: work before
 
 [See the validation evidence →](../validation/index.md)
 
+## Why a fluent expression is not enough
+
+A chain of readable function names can still hide whether a daily value is a
+maximum or a total, which interval a date denotes, which cells were excluded,
+and which observations counted in a proportion. Environmental products also
+have different grids, masks, measurement procedures and revisions. These are
+choices about the scientific question, not incidental software settings.
+
+CubeDynamics treats the analysis as a sequence of changes in interpretation:
+field to condition, condition to event, or condition to proportion. Syntax can
+be valid and execution successful while a threshold uses the wrong unit or a
+within-month rank is described as drought. The software records selected
+choices and checks cataloged contracts; it cannot decide whether the question
+or interpretation is appropriate.
+
+Provenance is part of the scientific result because an identical number from
+a different product, time support, mask or denominator can support a different
+claim. A local execution log is only one part of that record. See
+[the data contract](scientific_data_contract.md),
+[condition denominators](condition_contracts.md), and
+[branch provenance](trace_and_workflow_provenance.md).
+
 ## Scope of the claim
 
 CubeDynamics aims to compress implementation complexity without compressing

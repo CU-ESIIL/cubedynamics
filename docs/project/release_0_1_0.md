@@ -1,5 +1,8 @@
 # 0.1.0rc1 release notes
 
+**Historical release record.** Current public candidate: [rc3 release identity](release_status.md).
+The details below describe the rc1 artifact and its later acceptance findings.
+
 **First public alpha / early scientific software release candidate.** PyPI
 published `0.1.0rc1` on August 31, 2026. The package version is actually
 `0.1.0rc1`; it is not a relabeled `0.1.0` wheel. Publication did not assign a

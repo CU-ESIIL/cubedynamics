@@ -77,6 +77,17 @@ and the [vignette contract](../vignettes/structure.md) explain the workflow.
 The first code cell prints `cd.version_info()` so a rendered result can be tied
 to a package path and, for development checkouts, a Git commit.
 
+## Order and interpretation boundaries
+
+Read the [authored-order contract](../learn/order.md),
+[condition denominators](../concepts/condition_contracts.md), and
+[scientific data contract](../concepts/scientific_data_contract.md) alongside
+this lesson. The question and interpretation above justify the selected order;
+execution alone does not establish scientific suitability. The
+[claim-to-evidence matrix](../validation/methods.md#claim-to-evidence-matrix)
+links maintained behavior to actual tests. [Reproducibility](../reproducibility.md)
+separates offline fixture replay from public-wheel and archival evaluation.
+
 ## See also
 
 {related_nouns} ·

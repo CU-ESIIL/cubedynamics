@@ -33,6 +33,13 @@ material, not the source of truth for current API or release status.
 
 ## Citing this project
 
+The JOSS note is a draft, not a published article. Cite the software version
+and exact revision rather than inventing an accepted-paper citation.
+[Release identity](project/release_status.md) supplies the verified rc3 source
+commit and artifact hashes; [reproducibility](reproducibility.md) explains the
+separate development evidence. The root and downloadable CFF metadata agree
+on author Ty Tuff, ORCID, repository, license, and rc3 version. No DOI is assigned.
+
 When publishing results derived from CubeDynamics:
 
 - Reference the package by name: **CubeDynamics**

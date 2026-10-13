@@ -1,5 +1,8 @@
 # RC1 comprehensive validation triage
 
+**Historical rc1 audit.** Repairs described here do not change its published bytes.
+Use [current release identity](release_status.md) and [current evidence](../validation/methods.md).
+
 This table classifies the apparent failures recorded by the external
 `cubedynamics==0.1.0rc1` black-box validation. It separates defects from
 scientifically useful rejection and from problems in the validation design.

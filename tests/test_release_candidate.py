@@ -36,9 +36,10 @@ def test_docs_gate_uses_inline_outputs_without_changing_script_backend():
                                   "docs/getting_started/install.md", "docs/project/release_0_1_0.md"])
 def test_install_entry_points_disclose_published_rc(page):
     text = (ROOT / page).read_text()
-    assert "0.1.0rc1" in text
-    assert re.search(r"(?:is|was|contains) published|published .*0\.1\.0rc1|PyPI contains", text, re.I)
-    assert not re.search(r"0\.1\.0rc1[^\n.]*not (yet )?published", text, re.I)
+    version = "0.1.0rc1" if page.endswith("release_0_1_0.md") else "0.1.0rc3"
+    assert version in text
+    assert re.search(r"(?:is|was|contains) published|published .*0\.1\.0rc[13]|PyPI (?:contains|publishes)", text, re.I)
+    assert not re.search(r"0\.1\.0rc[13][^\n.]*not (yet )?published", text, re.I)
     if "releases/download/" in text:
         assert re.search(r"[Ff]uture|[Aa]fter.*[Pp]ublication|[Aa]fter.*published", text)
 

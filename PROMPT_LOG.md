@@ -4689,3 +4689,59 @@ secrets, credentials, private tokens, or unrelated transcript text.
   new source certification, empirical reanalysis, a literature audit, a JOSS
   compliance review, or a unified submission evidence bundle. No runtime
   change, release metadata change, commit, push, publication, or submission.
+## 2026-10-13 — JOSS readiness audit canonical documentation and clean-clone QA
+
+- Audited current guides, runtime/grammar/state/reduction/export contracts,
+  generated library/reference ownership, fixtures and notebook builders,
+  validation assets, manuscript collections, citation/license/contribution
+  metadata, release tags/workflows and public PyPI/GitHub metadata. Internal
+  pre-edit audit and raw checks are under ignored `artifacts/joss_readiness/`.
+- Verified public rc3 from PyPI metadata and both downloaded artifact hashes;
+  tag `v0.1.0rc3` and source attestation identify
+  `f777eb07d3ada8bd407b027f560727c90f6d3731`. Corrected active rc1 install/status
+  claims while preserving historical notes and supplied manuscripts. Current
+  development remains a separate same-version checkout, based on
+  `72d862952a78d8c79d259c4b4cd576d0b12e0e9e` plus this uncommitted patch.
+- Added the requested `docs/JOSS_READINESS_REPORT.md`, a homepage/Document
+  reviewer route, canonical reproducibility guide, release identity and
+  scientific data contract. Strengthened existing motivation, semantic status,
+  order, missing-value/denominator, branch and serialization boundaries.
+  Consolidated repeated source/protocol/context prose into their canonical
+  owners while keeping old URLs as route pages. Rewrote misleading glossary
+  equivalences; scoped legacy raster/fire CRS heuristics rather than promising
+  universal missing-CRS rejection. No scientific runtime behavior changed.
+- Linked actual tests, fixtures, notebooks and evidence in the validation
+  matrix; dated the retained August QA baseline. Updated the shared vignette
+  shell and regenerated twelve notebooks. All scientific code cells and figure
+  bytes stayed unchanged; only narrative and the generated noun manifest's
+  shell input hash changed. No new figure review was auto-approved.
+- Added executable condition-denominator checks, including direct numeric NaN
+  Boolean casting and the pipe preflight rejection of continuous input.
+  Updated active-release/browser assertions and mirrored the supplied ORCID
+  in both CFF files. Added fenced-code highlighting using bundled extensions.
+- Clean-checkout validation exposed two default tests depending on ignored
+  synchrony research artifacts. Retained their empirical assertions as explicit
+  integration checks, added labeled deterministic loader controls with known
+  rank truth and a missing-input failure check, and documented the independent
+  artifact reproduction route. No missing real fixture was replaced or skipped.
+- Validation: full clean-checkout offline suite passed, 1,029 tests, 3 optional
+  renderer skips (Lexcube, PyVista, Trimesh). Four controlled pedagogy checks
+  and both original empirical integration checks passed separately. All five
+  publication modules and twelve notebooks passed, as did source/decision QA,
+  93 generated references, source-lesson/project checks, strict MkDocs, built
+  internal links, diff whitespace and tracked-plus-new repository policy.
+  Final browser suite passed 445 cases in independent 223/222 groups; desktop
+  and 390 px contract/reviewer pages were inspected. External retry checked
+  81 URLs, all available. Fresh PyPI-wheel Python 3.11 installation, dependency
+  compatibility and actual pinned-public-data quickstart passed on macOS arm64.
+- Existing hosted Tests jobs at base 72d8629 failed on Python 3.9–3.12; package,
+  clean slim import, streaming/docs and Pages jobs passed. Public raw logs
+  require authentication. The reproduced artifact-test defect is evidence,
+  not proof of the inaccessible hosted traceback. An earlier USGS live job
+  also failed independently. No hosted CI rerun or broad live certification.
+- Remaining author decisions: exact review revision/evidence selection,
+  authorship/funding/impact and AI disclosure verification, final concise paper
+  edits and data redistribution terms. The old supplied Markdown/DOCX/PDF
+  files remain archival drafts. A final DOI follows the journal's archive
+  process and was not invented. No commit, push, new release, deployment,
+  collaborator/editor message or JOSS submission was performed.

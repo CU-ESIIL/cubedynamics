@@ -1,7 +1,9 @@
 # Preparing and publishing a CubeDynamics release
 
-CubeDynamics `0.1.0rc1` is public on PyPI. The current release candidate is
-`0.1.0rc3`; it must not be described as public until publication is separately
+CubeDynamics `0.1.0rc3` is public on PyPI, published September 2, 2026 from
+`f777eb07d3ada8bd407b027f560727c90f6d3731`. Historical `0.1.0rc1` is public on PyPI
+as well. See [verified release identity](docs/project/release_status.md).
+A new candidate must not be described as public until publication is separately
 authorized and confirmed. PyPI files are immutable, so every new candidate or
 stable release needs a new committed version and matching tag.
 
@@ -52,8 +54,10 @@ whose artifact hashes are checked after installed-wheel validation.
 When the reviewed release commit and CI are green, create and push the tag:
 
 ```bash
-git tag -a v0.1.0rc3 -m "CubeDynamics 0.1.0rc3"
-git push origin v0.1.0rc3
+# For a future, separately authorized version; rc3 already exists.
+NEW_TAG=$(python -c 'from scripts.release_metadata import release_identity; print(release_identity().expected_tag)')
+git tag -a "$NEW_TAG" -m "CubeDynamics $NEW_TAG"
+git push origin "$NEW_TAG"
 ```
 
 The tag push automatically runs the complete non-publishing gate and the Python

@@ -1,6 +1,9 @@
 # Changelog
 
-## 0.1.0rc3 — prepared, not yet released
+## 0.1.0rc3 — published 2026-09-02
+
+Published wheel and sdist identity is recorded in [release status](project/release_status.md).
+Later development changes remain outside that immutable artifact.
 
 - Carries the release-workflow ordering fix that validates an exact tagged
   checkout before same-run artifacts are downloaded into it.
@@ -35,7 +38,7 @@
 - Added exact-wheel installation, canonical README and notebook validation.
 - Synchronized citation metadata and documented the [0.1 API support contract](project/api_support_0_1.md).
 
-## Unreleased
+## Earlier development notes (historical)
 
 - Rebranded the project as CubeDynamics with a pipe-first API.
 - Added docs for `pipe`, `anomaly`, `month_filter`, `variance`, and `to_netcdf`; `correlation_cube` remains reserved, not implemented.

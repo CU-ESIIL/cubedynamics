@@ -1,10 +1,10 @@
-# Conditions reductions and missing observations
+# Conditions and missing observations
 
-This page carries the detailed interpretation from the retained October 12
-manuscript collection, SI S6–S8 (Tables S4–S9). It complements the current
-[semantic grammar](semantic_grammar.md) and generated verb references. The SI
-reports evidence accessed September 25, 2026; its historical statements do not
-extend the public rc3 artifact to later development code.
+This is the canonical condition and denominator contract for current
+development behavior. It complements the [semantic model](semantic_grammar.md)
+and [data contract](scientific_data_contract.md). Tests, rather than the
+retained manuscript prose, establish behavior; see
+[claim-to-evidence](../validation/methods.md#claim-to-evidence-matrix).
 
 ## Canonical objects
 
@@ -48,43 +48,57 @@ chunk for quantile calculation while spatial chunks are retained.
 
 ## Order and retained information
 
-The four documented order categories distinguish required order,
-meaning-changing order, removal of required information, and conditional
-equivalence. On the field `{0, 2, 4, 6}` with cutoff `T <= 3`, threshold then
-spatial mean gives `0.5`; spatial mean then threshold gives `TRUE`. Both are
-valid authored statements. See [the order lesson](../learn/order.md).
+[The order lesson](../learn/order.md) owns the threshold/mean example and
+conditional equivalence. [Events and episodes](events_and_episodes.md) owns
+local detection, explicit consolidation, connectivity and metric scope. A
+reduction that erases temporal variation cannot be repaired by retaining a
+length-one coordinate.
 
-Subtracting a fixed climatology and spatial averaging can commute when both
-paths use identical linear weights and masks: `mean(T - C) = mean(T) -
-mean(C)`. Changed masks, missingness, interpolation, weights, or climatology
-break those assumptions. The grammar explains such rules without rewriting
-the expression.
+## Numeric masks need a separate validity decision
 
-Event detection requires an ordered temporal condition with remaining
-variation. A length-one time coordinate left after reduction does not restore
-that variation. Detection yields local-cell events; consolidation into regional
-episodes requires declared temporal gaps and spatial connectivity. Metrics
-retain that scope. See [events and episodes](events_and_episodes.md).
+The callable returned by `binary_state()` currently uses Boolean casting when
+called directly on a numeric array. Finite zero becomes false, a
+nonzero value becomes true, and **numeric NaN also becomes true**. This differs
+from threshold comparison. It does not provide an invalid or unknown state.
+Supply a reviewed Boolean mask rather than assuming every numeric mask is
+missing-aware. The pipe preflight rejects an inferred continuous field for
+`binary_state`; direct invocation does not perform that pipe-level check.
 
-## Contract status and rendering
+This deterministic example illustrates the contract; it is not environmental
+measurement or scientific evidence.
 
-| Status used in the SI | Meaning |
-| --- | --- |
-| Machine-enforced | Execution checks a rule and fails on violation |
-| Diagnosed | A maintained message exposes a semantic distinction |
-| Metadata-inferred | State derives from dimensions, coordinates, dtype, or attributes |
-| Documentary | Interpretation or evidence scope is explained but not independently verified |
+<!-- condition-contract-example -->
+```python
+import numpy as np
+import xarray as xr
+from cubedynamics import pipe, verbs as v
 
-These labels are a reporting framework; a submission needs exact test
-identifiers to establish which individual rules were exercised. Incorrect or
-stale input metadata remain possible in every interpretation.
+values = xr.DataArray([2., np.nan, 4.], dims="time",
+                      coords={"time": [0, 1, 2]})
+condition = (pipe(values) | v.threshold_state(
+    threshold=3, direction="above"
+)).unwrap()
+indexed = (pipe(condition) | v.mean(dim="time", keep_dim=False)).unwrap()["state"]
+valid = values.notnull()  # This analytical choice is outside the condition.
+valid_only = condition["state"].where(valid).mean("time")
+cast_mask = v.binary_state()(values)["state"]  # Direct callable, without pipe preflight.
+print(condition["state"].values.tolist())  # [False, False, True]
+print(float(indexed), float(valid_only))   # 1/3 versus 1/2
+print(cast_mask.values.tolist())          # [True, True, True]
+```
 
-The SI plotting matrix maps a three-dimensional spatiotemporal field to a cube,
-a two-dimensional spatial summary to a map, and a one-dimensional temporal
-summary to a line plot. Conditions select `state`; appropriate event views
-select `event_active`. An ambiguous general Dataset needs explicit variable
-selection. Plotting retains the wrapped value but may materialize data.
-Optional Lexcube availability is an environment issue. See
-[visualization reference](../api/viz.md) for current dispatch and limitations.
+| Term | What the implementation records | Scientific consequence |
+| --- | --- | --- |
+| False | Boolean non-occurrence | Threshold comparison cannot tell a failed criterion from a missing numerical input |
+| Missing | May survive in magnitude; not a third state | Retain validity from the input if needed |
+| Excluded | Analyst explicitly masks/drops positions before a valid-observation calculation | Record the changed support and denominator; not an automatic package policy |
+| Invalid | No general quality-invalid state distinct from missing/false | Apply and document source QA masks yourself |
 
-Source: [retained SI, pp. 9–14](../assets/manuscripts/2026-10-12/supplement-11.pdf#page=9).
+The optional magnitude/threshold fields describe a condition; they are not
+general validity flags. The occurrence summary retains its definition metadata,
+but it does not add a valid-observation count or prove finiteness. Metadata
+alone cannot resolve which denominator is scientifically appropriate.
+
+Rendering and export are owned by [visualization](../api/viz.md) and
+[serialization](scientific_data_contract.md#serialization). Exact current
+signatures belong in the generated verb reference.

@@ -61,6 +61,22 @@ compute array values.
 
 ## Verb contracts
 
+This is the canonical semantic-model overview. The focused
+[condition](condition_contracts.md), [data](scientific_data_contract.md), and
+[branch provenance](trace_and_workflow_provenance.md) contracts explain their
+own scientific boundaries rather than defining competing models.
+
+| Status | Current scope |
+| --- | --- |
+| Implemented/enforced | Cataloged state/input preflight, required dimensions/variation, operation-specific coordinate and known-support checks; ordinary callables compose |
+| Advisory/inferred | State inferred from public metadata; `explain`, `suggest`, `validate`, and order messages expose selected interpretation without changing values or authored intent |
+| Planned | Order-library entries marked `implemented=False`, reserved verbs, complete merged branch lineage, and general unknown-condition handling |
+
+An enforced check is still a software contract, not independent scientific
+validation. Direct-call and piped conventions differ across public helpers;
+use the generated reference for each callable. Plain user callables do not
+inherit maintained scientific contracts merely by appearing in a pipe.
+
 The registry in `cubedynamics.grammar` describes a maintained starter set of
 verbs. A `VerbSpec` names accepted and returned states, required information,
 preserved or removed information, ownership category, and runnable examples.

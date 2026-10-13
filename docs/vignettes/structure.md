@@ -24,8 +24,8 @@ Scientific code and interpretation remain in the existing notebook builders.
 ## Types of educational material
 
 - **Executable vignette:** a supported notebook using a reviewed real fixture;
-  execution and static-plot output are checked. Eight core notebooks and the
-  Working Lands notebook currently meet this contract.
+  execution and static-plot output are checked. Eight core, three source lessons, and the
+  Working Lands notebook currently meet this contract (twelve total).
 - **Live-data recipe:** code requiring provider access or optional dependencies.
   It is not an offline-certified result. Record the query and source revision
   when rerunning it; absence of live checks is not evidence of availability.

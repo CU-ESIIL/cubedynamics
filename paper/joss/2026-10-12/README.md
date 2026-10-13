@@ -20,6 +20,12 @@ Google Docs will need deliberate reconciliation into it.
 
 ## Items for collaborator and author review
 
+These are dated intake notes. The October 13 readiness pass corrected the
+repository's rc1 installation text and added a canonical
+[release identity](../../../docs/project/release_status.md) and
+[readiness report](../../../docs/JOSS_READINESS_REPORT.md). The supplied
+Markdown and Word copy remain unchanged historical drafts.
+
 These are observations about the supplied draft, not instructions to change
 software, publish, or submit anything.
 

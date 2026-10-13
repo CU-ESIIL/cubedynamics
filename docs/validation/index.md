@@ -8,7 +8,10 @@ CubeDynamics treats examples as scientific outputs. The publication gate runs
 five independent modules covering checksum-controlled real inputs, grammar,
 cube rendering, notebook execution, and deliberate failure controls.
 
-**Published PRISM baseline: PASS — 5 of 5 modules.** New source candidates have
+**Retained PRISM baseline (August 25, 2026): PASS — 5 of 5 modules.**
+The linked manifest predates rc3 and lacks an exact tested Git revision; it is
+a dated bounded record, not certification of the current release. Fresh local
+runs write separate evidence and do not overwrite these retained assets. New source candidates have
 [separate production review gates](../data/source_projects/production.md);
 successful fixture checks do not make them production-certified.
 
@@ -25,6 +28,9 @@ successful fixture checks do not make them production-certified.
 The default suite is offline: CI validates the checked-in fixtures rather than
 silently substituting generated data when a service is unavailable. Rebuilding
 the fixture is a separate, explicit, checksum-verified acquisition step.
+
+See the [claim-to-evidence matrix](methods.md#claim-to-evidence-matrix) and
+[reproducibility guide](../reproducibility.md) for tested revisions and scope.
 
 ## Run it
 

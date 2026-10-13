@@ -1,5 +1,11 @@
 # Manuscript evidence and archival requirements
 
+**Historical manuscript evidence boundary.** The current executable
+[claim matrix](../validation/methods.md#claim-to-evidence-matrix),
+[release identity](release_status.md), and [reproducibility](../reproducibility.md)
+own present behavior and commands. This dated SI record remains useful
+for archive requirements, not as a second current validation report.
+
 This is the developer evidence companion to the October 12, 2026 manuscript
 intake. Main §§5–8 and SI S1, S13–S18 report evidence accessed September 25,
 2026. Their release, repository, and submission states are distinct.

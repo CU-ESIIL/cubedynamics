@@ -13,7 +13,7 @@ PRISM extract that runs without a repository checkout, use the
 ## Install
 
 ```bash
-python -m pip install cubedynamics==0.1.0rc1
+python -m pip install cubedynamics==0.1.0rc3
 ```
 
 The core import does not require optional compiled Sentinel-2/Rasterio
