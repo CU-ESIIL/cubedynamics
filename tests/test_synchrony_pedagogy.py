@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util
+import builtins
 import json
 from pathlib import Path
 
@@ -22,6 +23,27 @@ def _module():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def test_evidence_checks_import_without_optional_pdf_renderer(monkeypatch, tmp_path):
+    original_import = builtins.__import__
+    attempted = []
+
+    def without_reportlab(name, *args, **kwargs):
+        if name == "reportlab" or name.startswith("reportlab."):
+            attempted.append(name)
+            raise ModuleNotFoundError("ReportLab deliberately unavailable", name="reportlab")
+        return original_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", without_reportlab)
+    module = _module()
+    assert len(module.PAGE_GUIDE) == 55
+    assert attempted == [], "Import-only checks must not request a PDF renderer"
+    output = tmp_path / "deck.pdf"
+    with pytest.raises(RuntimeError, match="pip install reportlab"):
+        module.assemble_pdf([], output)
+    assert not output.exists()
+    assert not output.with_suffix(".partial.pdf").exists()
 
 
 def test_page_plan_is_complete_and_each_empirical_page_has_artifact_keys() -> None:

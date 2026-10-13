@@ -94,6 +94,10 @@ generate substitute research data. Default offline tests exercise its loader
 with labeled deterministic controls; they do not reproduce empirical deck
 numbers or certify the research bundle.
 
+PDF assembly for that deck additionally needs ReportLab in the deck-building
+environment (`python -m pip install reportlab`). The offline loader and
+provenance checks do not import or require the optional PDF renderer.
+
 ## Archival and JOSS reproduction
 
 Public artifact reproduction installs the exact hashed wheel outside a source

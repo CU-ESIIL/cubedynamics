@@ -4745,3 +4745,20 @@ secrets, credentials, private tokens, or unrelated transcript text.
   files remain archival drafts. A final DOI follows the journal's archive
   process and was not invented. No commit, push, new release, deployment,
   collaborator/editor message or JOSS submission was performed.
+## 2026-10-13 — Remove optional ReportLab import from offline deck checks
+
+- User supplied the hosted offline failure: importing the synchrony pedagogy
+  builder required undeclared ReportLab and then attempted a hard-coded local
+  Codex Python 3.12 fallback. Local ReportLab availability had masked this.
+- Moved ReportLab imports into `assemble_pdf`, removed the runtime-specific
+  path fallback, and added an actionable rendering-only missing-dependency
+  error. No core/dev dependency or empirical calculation changed. Documented
+  the optional renderer in the builder's README template and reproducibility.
+- Added a regression that blocks ReportLab imports: the page/evidence module
+  remains importable; actual PDF assembly fails with install guidance and
+  creates no partial output. Focused offline pedagogy checks: 5 passed,
+  2 empirical integration checks deselected.
+- Validation on base `3280bc1`: full `pytest -m "not integration and not online"
+  --maxfail=1 --disable-warnings -q` passed, 1,030 tests, 3 optional renderer
+  skips, 461 deselected; strict MkDocs passed; `git diff --check` passed.
+  This is local validation, not a hosted CI rerun. No commit or push performed.

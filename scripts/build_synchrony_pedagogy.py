@@ -29,20 +29,6 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-try:
-    from reportlab.lib.pagesizes import landscape, letter
-    from reportlab.pdfgen import canvas
-except ImportError:  # pragma: no cover - local fallback for the bundled runtime
-    bundled = (
-        Path.home()
-        / ".cache/codex-runtimes/codex-primary-runtime/dependencies/python/"
-        "lib/python3.12/site-packages"
-    )
-    sys.path.append(str(bundled))
-    from reportlab.lib.pagesizes import landscape, letter
-    from reportlab.pdfgen import canvas
-
-
 ROOT = Path(__file__).resolve().parents[1]
 SRC = ROOT / "src"
 if str(SRC) not in sys.path:
@@ -1323,6 +1309,18 @@ def build_pages(evidence: dict[str, object], figures_dir: Path, boundary_path: P
 
 
 def assemble_pdf(pages: list[Path], output: Path) -> None:
+    """Render with the optional ReportLab dependency, leaving checks importable."""
+    try:
+        from reportlab.lib.pagesizes import landscape, letter
+        from reportlab.pdfgen import canvas
+    except ModuleNotFoundError as exc:
+        if exc.name != "reportlab" and not (exc.name or "").startswith("reportlab."):
+            raise
+        raise RuntimeError(
+            "Synchrony deck PDF rendering requires ReportLab. "
+            "Install it in the deck-building environment with "
+            "`python -m pip install reportlab`."
+        ) from exc
     output.parent.mkdir(parents=True, exist_ok=True)
     partial = output.with_suffix(".partial.pdf")
     width, height = landscape(letter)
@@ -1442,7 +1440,9 @@ From the repository root:
 
 The build requires the current PRISM stack, Colorado signature, and bounded
 feasibility artifacts already present under `artifacts/`. It performs no live
-network access. Cold/warm pair values are recomputed with the installed
+network access. PDF assembly additionally requires ReportLab installed in the
+deck-building environment (`python -m pip install reportlab`); import and
+evidence checks do not require that renderer. Cold/warm pair values are recomputed with the installed
 `one_tail_spearman` implementation and asserted against the stored stack.
 
 ## Validate
