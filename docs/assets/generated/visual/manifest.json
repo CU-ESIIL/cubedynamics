@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "7e0530c1d7ce5051453f65b1a43b11d4578a245e",
+    "git_sha": "c9a57233b62327e81cd0df4e5d74e3f4d1829e07",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -579,7 +579,7 @@
     "src/cubedynamics/stats/rolling.py": "4ce88c43c417d7bb00cb234fe368f1334078563735606449068099d0e00dfe0a",
     "src/cubedynamics/stats/spatial.py": "29e12dc866a331edf74e86fbbed4609e6dc3904e4e754e535ce37678a912c51c",
     "src/cubedynamics/stats/spatial_units.py": "369309e6f26cfefe36d43c1b79542f97ae7f3df306bc73c1dad374a3856e96a5",
-    "src/cubedynamics/stats/tails.py": "534775e204d9a75efeefde026a2274e4606e3a2e5e285b5b1a15ee41c47682fe",
+    "src/cubedynamics/stats/tails.py": "ae54f0c551d876f77dc7bac7dd297d81cfbfcc7f1e75a4533b8b9ebcc0748939",
     "src/cubedynamics/streaming/__init__.py": "6258819d8698f2dfd7273a9b886ec2d276c76d5ca7652f8caec94e0d5e6fbe4a",
     "src/cubedynamics/streaming/global_climate.py": "f2cb2e056d34e7082424bca8146c45c2bbdba3733fb84c9dd86f22d06f545852",
     "src/cubedynamics/streaming/gridmet.py": "f5122cc9d263dd9fe0e44ba06f60a015671f34ad030019ad5b9ea01852d8d804",

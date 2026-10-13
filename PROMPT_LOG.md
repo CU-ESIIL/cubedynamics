@@ -4762,3 +4762,25 @@ secrets, credentials, private tokens, or unrelated transcript text.
   --maxfail=1 --disable-warnings -q` passed, 1,030 tests, 3 optional renderer
   skips, 461 deselected; strict MkDocs passed; `git diff --check` passed.
   This is local validation, not a hosted CI rerun. No commit or push performed.
+
+## 2026-10-13 — Preserve synchrony coordinate metadata on Python 3.9
+
+- Reproduced the supplied failure with Python 3.9.21 and xarray 2024.7.0:
+  the rolling center-reference calculation cleared latitude/longitude attrs
+  on its input before `local_synchrony_stack` checked the geographic contract.
+- Shallow-copy metadata in `rolling_tail_dep_vs_center` and explicitly retain
+  coordinate attrs through `apply_ufunc`. Clear inherited measurement attrs
+  before assigning correlation-specific units/ranges. Array data remains
+  shared/deferred; geographic metadata requirements and statistics are unchanged.
+- Extended the pixel comparison regression to assert unchanged input, retained
+  output coordinates, dimensionless units, and no inherited temperature bounds.
+  Final focused synchrony suites passed: 20 tests on each of Python 3.9/3.11.
+- Regenerated eight visual results offline after the runtime source change;
+  figure/table bytes were unchanged, only manifest source hash/Git context
+  changed. Visual freshness, 93 reference pages, repository size policy and
+  diff whitespace checks passed.
+- Final full `pytest -m "not integration and not online" --maxfail=1
+  --disable-warnings -q`: Python 3.9.21 passed 1,029 tests, 10 skipped,
+  16 deselected; Python 3.11.11 passed 1,030 tests, 3 skipped, 461 deselected.
+  Both ran locally on macOS with the final runtime/test/manifest changes;
+  no hosted CI rerun, commit or push performed.

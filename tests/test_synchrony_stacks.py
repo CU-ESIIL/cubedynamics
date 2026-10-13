@@ -74,6 +74,8 @@ def test_single_tail_kernel_matches_existing_two_tail_source_of_truth() -> None:
 
 def test_stack_matches_center_reference_verb_pixel_by_pixel() -> None:
     cube = _cube()
+    cube["tmin"].attrs.update({"units": "K", "valid_min": 0.0})
+    original = cube.copy(deep=True)
     center_result = v.rolling_median_split_synchrony(
         lower_var="tmin",
         upper_var="tmax",
@@ -81,6 +83,12 @@ def test_stack_matches_center_reference_verb_pixel_by_pixel() -> None:
         min_t=4,
         output_times=[cube.time.values[-1]],
     )(cube)
+    xr.testing.assert_identical(cube, original)
+    for dim in ("y", "x"):
+        xr.testing.assert_identical(center_result[dim], original[dim])
+    for variable in center_result.data_vars.values():
+        assert variable.attrs["units"] == "1"
+        assert "valid_min" not in variable.attrs
     stack = v.local_synchrony_stack(
         lower_var="tmin",
         upper_var="tmax",

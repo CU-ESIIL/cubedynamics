@@ -147,6 +147,9 @@ def rolling_tail_dep_vs_center(
     if output_stride < 1:
         raise ValueError("output_stride must be at least 1")
 
+    # Older xarray coordinate merges can replace attrs on shared Variables.
+    # Isolate metadata without copying or materializing the underlying data.
+    zcube = zcube.copy(deep=False)
     ref = center_pixel_series(zcube, time_dim=time_dim)
     end_dim = f"{time_dim}_window_end"
     bottoms: list[xr.DataArray] = []
@@ -176,9 +179,14 @@ def rolling_tail_dep_vs_center(
             output_core_dims=[[], [], []],
             vectorize=True,
             dask="parallelized",
+            keep_attrs=True,
             output_dtypes=[np.float32, np.float32, np.float32],
             kwargs={"b": b, "min_t": min_t},
         )
+        # Keep coordinate metadata, but correlations need their own units and
+        # ranges rather than the source variable's measurement attributes.
+        for result in (bottom, top, diff):
+            result.attrs = {}
         bottoms.append(bottom.expand_dims({end_dim: [t_end]}))
         tops.append(top.expand_dims({end_dim: [t_end]}))
         diffs.append(diff.expand_dims({end_dim: [t_end]}))
