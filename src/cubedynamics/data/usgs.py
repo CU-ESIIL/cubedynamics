@@ -41,6 +41,10 @@ def _scope(site, start, end, series_id):
 def _pages(client, params):
     """Follow bounded cursor/offset pagination for the identical scoped query."""
     endpoint = BASE + "/continuous/items"
+    # The provider's v0 compatibility route now emits canonical v1 links.
+    # Keep v0 initial requests replayable from retained snapshots; allow only
+    # this exact collection alias, with the same query checks below.
+    pagination_endpoints = {endpoint, "https://api.waterdata.usgs.gov/ogcapi/v1/collections/continuous/items"}
     url, query = endpoint, params
     seen, features, matched = set(), [], None
     for _ in range(10):
@@ -69,7 +73,7 @@ def _pages(client, params):
             raise SourceSchemaError("Ambiguous or empty pagination")
         next_url = urljoin(endpoint, following[0])
         parts = urlsplit(next_url)
-        if (f"{parts.scheme}://{parts.netloc}{parts.path}" != endpoint
+        if (f"{parts.scheme}://{parts.netloc}{parts.path}" not in pagination_endpoints
                 or parts.fragment or next_url in seen):
             raise SourceSchemaError("Unsafe or repeating pagination link")
         next_params = parse_qs(parts.query, keep_blank_values=True)

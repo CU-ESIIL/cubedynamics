@@ -11,6 +11,15 @@ Signatures and descriptions below come from the runtime docstrings.
       members: [list_sources, sources, describe]
       show_docstring_examples: false
 
+## Private and local storage
+
+Read project-owned NetCDF and Zarr datasets through the filesystem without
+public catalog registration. See [Private data on HPC scratch](../getting_started/private_data.md).
+
+::: cubedynamics.data.local.open_local_cube
+    options:
+      show_docstring_examples: false
+
 ## Temporal support
 
 Time labels and physical observation intervals are separate metadata. See the

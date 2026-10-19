@@ -4784,3 +4784,29 @@ secrets, credentials, private tokens, or unrelated transcript text.
   16 deselected; Python 3.11.11 passed 1,030 tests, 3 skipped, 461 deselected.
   Both ran locally on macOS with the final runtime/test/manifest changes;
   no hosted CI rerun, commit or push performed.
+
+## 2026-10-19 — Accept USGS canonical pagination route
+
+- Investigated supplied candidate CI failures. A bounded live request confirmed
+  that USGS accepts the v0 continuous query but emits v1 next-page links.
+  Permit only that exact HTTPS collection alias; retain identical query-scope,
+  cursor/offset, repetition, row, request, byte and deadline checks. Keep v0
+  initial requests so retained real snapshots remain replayable.
+- Changed `src/cubedynamics/data/usgs.py` and pagination regressions in
+  `tests/test_source_candidates_usgs.py`; reject other versions and collections.
+- Focused transport/candidate/promotion suites: 89 passed. Generated reference
+  freshness: 93 pages passed. Live USGS check and exact offline replay both
+  PASS_WITH_CAVEATS, including three stations, two-page pagination and eight-day
+  batching. Evidence: `artifacts/source_qa/candidates/usgs-20261019-pagination-fix/`.
+- Independently reran OSM into
+  `artifacts/source_qa/candidates/osm-20261019-diagnosis/`: BLOCKED after three
+  attempts (64.134 s), reproducing the supplied transport availability failure.
+  No endpoint substitution, budget increase, synthetic result or promotion.
+  Provisional USGS status remains retained and warned; figures remain unreviewed.
+- Initial full offline run stopped at the expected stale visual source-hash
+  check (1004 passed). Regenerated eight visual results offline: figure/table
+  bytes unchanged; only source hash and Git context in the manifest changed.
+  Final full offline command: `.venv/bin/python -m pytest -m 'not integration
+  and not online' --maxfail=1 --disable-warnings -q`: 1033 passed, 3 skipped,
+  461 deselected. Rechecked 93 reference pages, tracked repository size policy
+  and `git diff --check`. No hosted CI rerun, commit or push performed.

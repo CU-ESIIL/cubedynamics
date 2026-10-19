@@ -12,6 +12,10 @@ tests, and documentation are ready together.
 
 ## Wrap a trusted loader
 
+For proprietary NetCDF or Zarr files, a project noun can wrap
+`data.open_local_cube` and add project-specific scientific validation. See
+[private data on HPC scratch](../getting_started/private_data.md).
+
 This pattern keeps provider-specific access behind a scientific name. The
 example assumes `load_soil_product` is your project's tested loader for a real
 observational product.

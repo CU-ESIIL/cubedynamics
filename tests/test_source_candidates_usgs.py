@@ -80,12 +80,13 @@ def test_pagination_follows_exact_scope(payload):
     assert len(client.calls)==2
 
 
-def test_modern_usgs_cursor_pagination(payload):
+@pytest.mark.parametrize("version", ["v0", "v1"])
+def test_modern_usgs_cursor_pagination(payload, version):
     features=payload[0]["features"]
     query=params()
     # Real endpoint uses opaque cursor tokens rather than the offset shown in
     # older prose documentation. Never decode/reinterpret the provider token.
-    url=usgs.BASE+"/continuous/items?"+urlencode({**query,"cursor":"YTM2Yjk1ZWY4ZjcxNDBh"})
+    url=usgs.BASE.replace("/v0/", f"/{version}/")+"/continuous/items?"+urlencode({**query,"cursor":"YTM2Yjk1ZWY4ZjcxNDBh"})
     client=Pages([{"features":features[:1],"links":[{"rel":"next","href":url}]},
                   {"features":features[1:]}])
     assert usgs._pages(client,query)==features
@@ -99,7 +100,7 @@ def test_repeating_cursor_cannot_loop(payload):
         usgs._pages(Pages([page,page]),query)
 
 
-@pytest.mark.parametrize("kind",["origin","station","limit","offset","partial","empty","changed_count"])
+@pytest.mark.parametrize("kind",["origin","version","collection","station","limit","offset","partial","empty","changed_count"])
 def test_pagination_never_returns_partial_or_changes_scope(payload,kind):
     query=params(); second={"features":payload[0]["features"][1:],"numberMatched":2}
     changed={**query,"offset":1}
@@ -108,6 +109,8 @@ def test_pagination_never_returns_partial_or_changes_scope(payload,kind):
     if kind=="offset": changed["offset"]=0
     url=usgs.BASE+"/continuous/items?"+urlencode(changed)
     if kind=="origin": url=url.replace("api.waterdata.usgs.gov","evil.test")
+    if kind=="version": url=url.replace("/v0/", "/v2/")
+    if kind=="collection": url=url.replace("/continuous/", "/daily/")
     page={"features":payload[0]["features"][:1],"numberMatched":2,"links":[{"rel":"next","href":url}]}
     if kind=="partial": page["links"]=[]
     if kind=="empty": page["features"]=[]

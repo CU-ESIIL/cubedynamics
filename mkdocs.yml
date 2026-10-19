@@ -65,6 +65,7 @@ nav:
           - Reserved / planned API: reference/verbs/planned.md
       - Data:
           - Nouns and source configuration: api/data.md
+          - Private data on HPC scratch: getting_started/private_data.md
           - Source QA evidence: data/phase1_qa.md
           - Custom nouns: extending/custom_nouns.md
       - Pipe and grammar:

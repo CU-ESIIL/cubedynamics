@@ -44,6 +44,11 @@ See [Semantic grammar and analysis coaching](../concepts/semantic_grammar.md).
 
 ## Maintained integrations: dataset loaders
 
+`data.open_local_cube` opens project-owned NetCDF files and Zarr directories
+from local or mounted storage with deferred measurement reads. See
+[private data on HPC scratch](../getting_started/private_data.md). It preserves
+native metadata and does not register a public source.
+
 These helpers create xarray-backed cubes or streaming-friendly structures. Network access may be required depending on the data source.
 
 The preferred public entry point is the scientific noun namespace:

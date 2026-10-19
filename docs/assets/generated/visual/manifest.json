@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "c9a57233b62327e81cd0df4e5d74e3f4d1829e07",
+    "git_sha": "53210f452c43dab58e762eae196f554db5b1591a",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -522,7 +522,7 @@
     "src/cubedynamics/data/schema.py": "974433cbe117be5cd9a9cf9c01b21233a83387bdd23924e8bb2e26156908da3e",
     "src/cubedynamics/data/sentinel2.py": "ac4399a61e4e393838d2398d5dfb4113eb1cef977ebc63e874fdb171d2cc88f7",
     "src/cubedynamics/data/three_dep.py": "837cf313ca16d090da55b1aada6bed6c313b81b8a1827cbe051902d8417ae4e5",
-    "src/cubedynamics/data/usgs.py": "9b28fb73b811d5d9f593ae97ec85f6955204264840959199b3375c18cce445da",
+    "src/cubedynamics/data/usgs.py": "d81286cfdc15bfc34ec27b1a5a87347bf90fad4299a8dd563c1863ba62e79eec",
     "src/cubedynamics/demo.py": "fc89868940cf325272c22f48fcd8210d50d55dab07b9ddd84bd57e1757163098",
     "src/cubedynamics/demo_vase.py": "8abe54a5b9db507b8a47f9bcaf24b1281c9c0c35355fbe7ce2ac10929d221fb8",
     "src/cubedynamics/deprecations.py": "bfdaa6a22ccf9f2cf3273ec5a769e83946cc4aa65340b90a95a018498e2f6661",

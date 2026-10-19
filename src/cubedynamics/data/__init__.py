@@ -12,6 +12,7 @@ from .certification import (
     write_live_certification,
 )
 from .gridmet import load_gridmet_cube
+from .local import open_local_cube
 from .lifecycle import (
     CertificationOutcome,
     CertificationRecord,
@@ -66,6 +67,7 @@ __all__ = [
     "list_qa_profiles",
     "LiveHealth",
     "load_gridmet_cube",
+    "open_local_cube",
     "load_prism_cube",
     "load_s2_cube",
     "load_s2_ndvi_cube",

@@ -52,6 +52,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+local = [
+    "zarr>=2.18,<3",
+]
 roads = [
     "pyarrow>=17,<22",
 ]
