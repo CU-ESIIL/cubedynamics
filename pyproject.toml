@@ -53,6 +53,9 @@ dependencies = [
 
 [project.optional-dependencies]
 local = [
+    # xarray 2026.4 raised its supported Zarr minimum to 3; keep this
+    # NumPy-1 / Zarr-2 extra on the officially compatible backend series.
+    "xarray<2026.4",
     "zarr>=2.18,<3",
     "pyarrow>=17,<22",
     "pandas>=1.5",

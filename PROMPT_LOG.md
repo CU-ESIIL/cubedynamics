@@ -4899,3 +4899,28 @@ secrets, credentials, private tokens, or unrelated transcript text.
   These results apply to pending files, not the older committed CI revision.
   Include README, runtime sources and manifest together when committing the
   private-loader changes; no commit, push or hosted rerun performed here.
+
+## 2026-10-19 — Resolve incompatible xarray/Zarr dependency pair
+
+- Reproduced the supplied `open_group(... zarr_format=...)` TypeError in an
+  isolated Python 3.11 environment with xarray 2026.9.0 and Zarr 2.18.7. This
+  fails in the upstream writer before the CubeDynamics reader is invoked.
+- Constrained xarray<2026.4 only within the existing optional `local` extra,
+  alongside Zarr>=2.18,<3 and the existing core NumPy<2 policy. Xarray 2026.4
+  raised its supported Zarr minimum to 3 and 2026.9 removed the compatibility
+  code (https://docs.xarray.dev/en/stable/whats-new.html). Core-only installs
+  retain their existing xarray requirement. No test skip, runtime monkeypatch,
+  data change or Zarr/NumPy major migration was introduced.
+- Re-resolving `.[dev,local]` selected xarray 2026.2.0 with Zarr 2.18.7. Focused
+  local-data/feature/table/repository-guide tests passed (40). The current
+  visual freshness check passed eight results/seven figures without regeneration.
+- Also installed `.[test,local]` into a new isolated virtual environment under
+  /private/tmp; resolver independently chose the same xarray/Zarr pair. Both
+  environments passed dependency consistency checks. Further results below.
+- Fresh-environment local cube/feature/table tests: 33 passed, including the
+  formerly failing Zarr roundtrip. Final development offline suite:
+  `pytest -m 'not integration and not online' --maxfail=1 --disable-warnings -q`
+  passed 1067 tests, 2 skipped, 462 deselected. Installing the declared dev extra
+  also enabled the formerly optional Lexcube test. Diff whitespace passed.
+  Only pyproject.toml and this log changed. Results are local; changes remain
+  uncommitted and no hosted rerun or push was performed.
