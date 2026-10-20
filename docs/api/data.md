@@ -13,11 +13,12 @@ Signatures and descriptions below come from the runtime docstrings.
 
 ## Private and local storage
 
-Read project-owned NetCDF and Zarr datasets through the filesystem without
+Read project-owned cubes, geometry layers and batched tables through the filesystem without
 public catalog registration. See [Private data on HPC scratch](../getting_started/private_data.md).
 
-::: cubedynamics.data.local.open_local_cube
+::: cubedynamics.data.local
     options:
+      members: [open_local_cube, open_local_features, open_local_table]
       show_docstring_examples: false
 
 ## Temporal support

@@ -1,6 +1,6 @@
 {
   "generation_context": {
-    "git_sha": "53210f452c43dab58e762eae196f554db5b1591a",
+    "git_sha": "318aaebbd43047c03b9e4cbb37f2b568123f45ec",
     "matplotlib": "3.11.0",
     "python": "3.11.11"
   },
@@ -506,7 +506,7 @@
     "src/cubedynamics/biology/rasterize.py": "430a7ce9f49831c8bcb184b944063365b7d208b0a19827313849ed567bc041e8",
     "src/cubedynamics/config.py": "8c9c4a012ec2932565a56ed05cb77eb35d3dc61f0cb3412e366bed7e95424a6e",
     "src/cubedynamics/correlation_cubes.py": "d5a920f75c1335a91da6d98ef2bf8399278f95d35246466cf1867befd166df47",
-    "src/cubedynamics/data/__init__.py": "7da8994c9413fe7c3a25f29bbef12cdc9e65d55b23666baeb942eb239fbc6f21",
+    "src/cubedynamics/data/__init__.py": "13e7f8a8eeb6bc146bac552328dea4fb75f67ff3714dc4b3ba071b4989530954",
     "src/cubedynamics/data/_ranges.py": "9ed50ae66d7d2920c1e19fa290589070d0cf61ff58e243b0456e9eedc7fe3cf6",
     "src/cubedynamics/data/_transport.py": "3af9b2855a382f358e0a28e0ef07173231c433ab98897bc8db018c4eb3170b6a",
     "src/cubedynamics/data/catalog.py": "b73cbf4a5da4e1d0fd8b3c7deac9419378a478535c15ace226c9d7ca45fed9b1",
@@ -514,6 +514,7 @@
     "src/cubedynamics/data/daymet.py": "6885044dea0426539a4fe760d4b3eb248148a95ba0fe21a59466cbb2dda4ec5a",
     "src/cubedynamics/data/gridmet.py": "8734dd184843acad5c7dc6a6f7118e2cc2e852e12f10f23f60d1b43c9464b2f0",
     "src/cubedynamics/data/lifecycle.py": "62af966c0361d6a476217554d1daa632e097166511c2e288f7905ededf94fe23",
+    "src/cubedynamics/data/local.py": "64111cd479b1a7ba996e3c8248340e146804b27c9aeebd5e145deba7c9e539df",
     "src/cubedynamics/data/nouns.py": "4d7c15fa8f1ecc18d43a144a9a729a36b306bada78f8769ffc575c8157a5bbe1",
     "src/cubedynamics/data/prism.py": "2bf674dc64f2dd7c5d2ca0c9d649d84f4744f2bf72d08d45b48016d4f10dce7c",
     "src/cubedynamics/data/qa.py": "dc97efc1f985d820719ce7c93b58e66dd72ea712c427d586f9cd00adabf15d63",

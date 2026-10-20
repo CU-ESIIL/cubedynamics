@@ -12,8 +12,9 @@ tests, and documentation are ready together.
 
 ## Wrap a trusted loader
 
-For proprietary NetCDF or Zarr files, a project noun can wrap
-`data.open_local_cube` and add project-specific scientific validation. See
+For proprietary cubes, geometry layers or tables, a project noun can wrap
+`data.open_local_cube`, `data.open_local_features` or `data.open_local_table`
+and add project-specific scientific validation. See
 [private data on HPC scratch](../getting_started/private_data.md).
 
 This pattern keeps provider-specific access behind a scientific name. The

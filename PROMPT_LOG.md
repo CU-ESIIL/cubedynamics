@@ -4810,3 +4810,92 @@ secrets, credentials, private tokens, or unrelated transcript text.
   and not online' --maxfail=1 --disable-warnings -q`: 1033 passed, 3 skipped,
   461 deselected. Rechecked 93 reference pages, tracked repository size policy
   and `git diff --check`. No hosted CI rerun, commit or push performed.
+
+## 2026-10-19 — Project-owned data on HPC scratch
+
+- Added public `data.open_local_cube` in `data/local.py` for proprietary or
+  unpublished NetCDF files (single path, list or glob) and one filesystem Zarr
+  store. Python and workers must already see the local/mounted paths; no SSH,
+  transfer, publication, catalog registration or credential handling is added.
+- Data stays Dask-backed; metadata/index reads happen on open. Native variable
+  names, dimensions, scientific attrs, units, CRS and synthetic flags remain
+  intact. Multiple NetCDFs combine by coordinates with exact non-concat grid
+  alignment. Invalid/missing paths and variables fail explicitly. Selected
+  datasets retain backend closure; failures close an opened dataset.
+- Require a project-owned dataset ID; optional declared revision and resolved
+  path/size/mtime records live in `local_source_provenance`. These are not
+  content hashes, immutable snapshots, scientific QA or serving revisions.
+  Scratch purge, worker visibility and private metadata sharing are documented.
+- Added optional `local` extra (`zarr>=2.18,<3`), API docs, private HPC guide,
+  custom-noun and public-API links, and an entry in the existing Data navigation.
+  No proprietary data was acquired or placed in the repository. Synthetic
+  temporary files are confined to offline contract tests.
+- Focused local/public API/pipe tests passed (15), including actual Zarr 2.18.7
+  reads, multifile combination, laziness, metadata, failure and close behavior.
+  Regenerated references and visual cache offline; scientific figure/table
+  bytes unchanged, only source-hash/Git metadata changed in the manifest.
+- Initial full offline run exposed the README extras inventory omission; added
+  the `local` row and scratch-guide link. Final full offline suite passed:
+  1043 passed, 3 skipped, 462 deselected. Strict MkDocs build, built internal
+  links, 93 reference pages, tracked repository size and diff checks passed.
+  Desktop (1440 px) and narrow (390 px) guide screenshots were inspected.
+  No actual HPC/proprietary dataset access was available for validation.
+- Full built-site Chromium suite passed: 446 tests with four workers. Stopped
+  the initial serial crawl to run the same suite in parallel. Installed
+  pytest-xdist only in the local validation environment, not package metadata.
+  Added the `local` extra to the existing offline CI dependency install so
+  Python 3.9–3.12 jobs exercise the actual Zarr test rather than skip it.
+  Final local/repository-guide regressions: 17 passed; diff whitespace clean.
+  Hosted CI and actual HPC execution remain unverified; no publication or
+  push was performed by this work.
+
+## 2026-10-19 — Private vector layers and batched tables
+
+- Extended the private filesystem entry points with `data.open_local_features`
+  (GeoJSON, named GeoPackage layer, GeoParquet) and `data.open_local_table`
+  (CSV, TSV, Parquet row batches). Cubes/features/tables now share identity
+  validation and path/stat JSON provenance. No private source is registered,
+  published, rasterized, joined or silently converted to a scientific noun.
+- Geometry reads are eager and require a known CRS, valid nonempty geometry
+  and an explicit positive feature limit (default 100000). Missing CRS can be
+  assigned explicitly; conflicting CRS fails without coordinate changes.
+  GeoPackage requires a layer name; GeoParquet row counts are checked before
+  loading. Limits count rows, not bytes or geometry complexity.
+- Table iteration uses pandas chunks or Arrow record batches with requested
+  column projection. CSV/TSV accepts explicit dtype mappings for identifiers;
+  Parquet retains stored types. GeoParquet cannot silently become a plain table.
+  Iterator exhaustion/explicit closure releases the reader; early close tested.
+- Added PyArrow to the existing optional `local` extra, exports, API docs and
+  HPC guide examples/limitations; README/custom-noun/public-API guidance updated.
+  Existing offline CI installs the local extra to cover Zarr/Parquet backends.
+- Focused tests: 42 passed using synthetic temporary files, including actual
+  point/polygon GeoJSON/GeoPackage/GeoParquet and CSV/TSV/Parquet batch reads,
+  metadata/CRS/identifier preservation and meaningful failure cases. No private
+  data, acquisition or HPC credentials used. Regenerated visual evidence
+  offline; no scientific figure/table bytes changed.
+- Added Arrow-backed pandas dtypes for Parquet batches and a regression for
+  nullable integer IDs above 2**53; default float conversion must not round
+  private identifiers. The local extra requires pandas>=1.5 for ArrowDtype.
+  Local cube/feature/table tests: 33 passed after this change. Full browser
+  suite: 446 passed; updated guide sections inspected at 1440/390 px.
+- Final full offline suite after nullable-ID protection: 1066 passed, 3 skipped,
+  462 deselected. Final strict MkDocs build, internal links, 93 generated
+  references, tracked repository size and diff checks passed. Both changed
+  pages passed browser rechecks after the final dtype documentation update;
+  the earlier full 446-case browser pass covered the guide expansion. Reviewed
+  the new untracked regression source as well as tracked diffs. No actual HPC
+  or proprietary dataset was available; no hosted CI rerun or push performed.
+
+## 2026-10-19 — Reconcile hosted private-loader CI failures with checkout
+
+- Compared committed HEAD `318aaeb` with the supplied CI failures. Its README
+  omits the declared `local` extra; its committed visual manifest mismatches
+  `data/__init__.py` and does not include committed `data/local.py`. Existing
+  working-tree fixes contain the README entry and regenerated manifest for
+  the complete pending runtime changes. No test or freshness check was weakened.
+- Rechecked current working tree: `scripts/build_visual_docs.py --check`
+  passed eight visual results/seven figures; all seven repository-guide tests
+  passed. Independently verified every current manifest input hash matches.
+  These results apply to pending files, not the older committed CI revision.
+  Include README, runtime sources and manifest together when committing the
+  private-loader changes; no commit, push or hosted rerun performed here.

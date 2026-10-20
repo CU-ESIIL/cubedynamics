@@ -1,7 +1,8 @@
 # Use proprietary data on HPC scratch
 
-Use `data.open_local_cube` to supplement public sources with a project-owned
-NetCDF dataset or Zarr store. Run Python on the HPC, or mount scratch where
+Use project-owned cubes, geometry layers and tables to supplement public
+sources without registering them in the public catalog. `data.open_local_cube`
+reads NetCDF datasets and Zarr stores. Run Python on the HPC, or mount scratch where
 Python and its Dask workers can read it. The loader uses filesystem access;
 your existing HPC account and filesystem permissions control access.
 
@@ -71,5 +72,80 @@ private datasets to `data.list_sources()` or claim a public serving revision.
 Review path and scientific metadata before sharing outputs: private paths are
 included in this provenance attribute. Dataset access permissions and any
 restrictions on derived results remain project responsibilities.
+
+## Point and polygon layers
+
+`data.open_local_features` returns a GeoPandas GeoDataFrame with native geometry,
+attribute columns and CRS. It accepts GeoJSON, a named GeoPackage layer, and
+GeoParquet. Point, polygon and multipart geometry remain vector features.
+
+```python
+points = data.open_local_features(
+    "/scratch/my_lab/project/stations.geojson",
+    dataset_id="my_lab/stations",
+    revision="survey-42",
+)
+plots = data.open_local_features(
+    "/scratch/my_lab/project/boundaries.gpkg",
+    layer="study_plots",
+    dataset_id="my_lab/study_plots",
+    revision="boundaries-v2",
+    max_features=20_000,
+)
+```
+
+Feature reads are **eager**, with a default limit of 100,000 features. Exceeding
+the limit raises an error rather than returning a partial layer. This limits
+rows, not geometry complexity or bytes. Partition very large layers into
+smaller files; GeoParquet requires the `local` extra. A GeoPackage always needs
+an explicit layer name. Missing, empty or invalid geometry fails explicitly.
+
+A missing CRS requires `crs=` supplied from your dataset contract. An explicit
+CRS must agree with any stored CRS; it never silently overrides or reprojects.
+Use GeoPandas `to_crs` explicitly when comparing spatial sources. A point table
+with longitude/latitude columns remains a table until you explicitly construct
+geometry and assign its known CRS. The loader does not guess coordinate fields.
+
+## Batched attribute and observation tables
+
+`data.open_local_table` yields pandas DataFrames from CSV, TSV or Parquet files.
+It reads measurements during iteration, with at most `batch_size` rows per
+batch. Parquet supports column projection and requires the `local` extra.
+GeoParquet uses the feature loader to preserve geometry and CRS.
+
+```python
+from contextlib import closing
+
+with closing(data.open_local_table(
+    "/scratch/my_lab/project/station_attributes.csv",
+    dataset_id="my_lab/station_attributes",
+    revision="survey-42",
+    columns=["site_id", "land_use"],
+    dtype={"site_id": "string"},
+    batch_size=10_000,
+)) as batches:
+    for batch in batches:
+        print(batch.dtypes)  # Apply your project analysis to each batch.
+```
+
+Explicit CSV/TSV dtypes preserve identifiers such as `001`; otherwise pandas
+performs its usual inference separately in each batch. Parquet uses Arrow-backed
+pandas dtypes to preserve nullable types and does not accept `dtype=`. This keeps
+large integer identifiers exact even alongside missing values. Header-only delimited files yield no data
+batches. Use `closing` when stopping early; exhausting the iterator also closes
+the file. Row batches are not a strict memory/byte budget for large strings or
+nested values, and are not distributed Dask DataFrames.
+
+To augment a cube, choose an explicit relationship: station or plot ID for an
+attribute join, spatial membership for geometry, and known observation support
+for time alignment. Check key uniqueness and join cardinality. Rasterization,
+spatial joins, geometry construction, unit conversion and missing-value policies
+remain authored analysis steps. These loaders do not assume that vector rows,
+table records and raster cells share the same scientific meaning. Plain project
+callables can operate on tables and GeoDataFrames through `pipe`; individual
+verbs still require their documented input types.
+
+All three loaders use the same `local_source_provenance` policy described
+above; tables carry it in each batch's `.attrs` and features in `.attrs`.
 
 See the [loader reference](../api/data.md#private-and-local-storage).

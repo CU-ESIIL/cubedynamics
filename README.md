@@ -88,9 +88,14 @@ Optional extras in [pyproject.toml](pyproject.toml):
 | `dev` | Test, docs, vignette, and Lexcube tooling |
 | `browser` | Playwright and its pytest plugin, Python 3.10+; install Chromium separately |
 | `roads` | Optional PyArrow reader for the bounded Overture roads candidate |
+| `local` | Zarr and Parquet readers for private datasets on local or mounted HPC storage |
 
 The former `climate_cube_math` namespace remains a deprecated compatibility
 path. Use `cubedynamics` for new code.
+
+For proprietary or unpublished cubes, point/polygon layers and batched tables,
+use the [private data loaders](docs/getting_started/private_data.md) on storage
+visible to Python and its workers, including HPC scratch.
 
 ## A short pipe, a visible result
 

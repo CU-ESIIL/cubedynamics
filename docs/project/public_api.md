@@ -47,7 +47,10 @@ See [Semantic grammar and analysis coaching](../concepts/semantic_grammar.md).
 `data.open_local_cube` opens project-owned NetCDF files and Zarr directories
 from local or mounted storage with deferred measurement reads. See
 [private data on HPC scratch](../getting_started/private_data.md). It preserves
-native metadata and does not register a public source.
+native metadata and does not register a public source. `data.open_local_features`
+reads vector geometry layers with explicit CRS checks; `data.open_local_table`
+yields CSV/TSV/Parquet row batches. Features are eager, while table measurements
+are read during iteration. Neither implies a spatial or attribute join.
 
 These helpers create xarray-backed cubes or streaming-friendly structures. Network access may be required depending on the data source.
 
