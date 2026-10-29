@@ -4924,3 +4924,55 @@ secrets, credentials, private tokens, or unrelated transcript text.
   also enabled the formerly optional Lexcube test. Diff whitespace passed.
   Only pyproject.toml and this log changed. Results are local; changes remain
   uncommitted and no hosted rerun or push was performed.
+
+## 2026-10-27 — Export a high-resolution datacube poster
+
+- Created ignored `artifacts/poster/` with an editable HTML composition, local
+  Playwright builder, four rendered homepage scenes, SHA-256 source inventory,
+  preview JPEG and 7200 × 10800 PNG with 300 dpi metadata (24 × 36 inches).
+- Used existing PRISM minimum temperature, Working Lands precipitation,
+  Sentinel-2 NDVI and PRISM local anomaly HTML scenes. Preserved original axes,
+  scales and source notes; no new measurements or provider acquisition.
+- Inspected the complete preview. Replaced the maximum-temperature panel after
+  a Chromium rendering glitch; final minimum-temperature panel renders cleanly.
+  Final export dimensions asserted; no JavaScript page errors. Existing viewer
+  sources and homepage unchanged. Print enlargement adds no data resolution.
+- Poster follow-up: changed the composition, scene and label backgrounds to
+  white and enlarged each cube uniformly by 40%. Re-exported at the same
+  7200 × 10800 / 300 dpi size; visually checked all faces, axes and legends.
+  Changes affect only the ignored poster builder/exports, not website scenes.
+- Large-format follow-up: added ignored `build_large_poster.py` and exported
+  `cubedynamics-poster-48x72.png`, 14,400 × 21,600 pixels, 300 dpi metadata.
+  Final page rendered in six tiles to avoid large Chromium capture defects;
+  retained clean 4× scene rasters because 8× scene captures damaged axis text.
+  Typography rendered at 8×. Reviewed final full preview; dimension assertion
+  passed and no JavaScript page errors. Source measurement resolution unchanged.
+- PDF follow-up: exported `artifacts/poster/cubedynamics-poster-48x72.pdf`
+  with lossless RGB image tiles retaining all 14,400 × 21,600 input pixels.
+  Reopened with pypdf: one page, 3456 × 5184 points (48 × 72 inches), six
+  14,400 × 3,600 image tiles at 300 dpi. Rendered with Poppler and inspected
+  the complete page; layout and cube labels preserved. PDF is 17.8 MiB and
+  remains in ignored artifacts under repository data-placement policy.
+
+## 2026-10-27 — Create synchrony maps poster
+
+- Created ignored `artifacts/synchrony-poster/` with a reproducible ReportLab /
+  pypdf builder, source SHA-256 inventory, preview and a 48 × 72 inch PDF,
+  `cubedynamics-synchrony-poster-48x72.pdf` (3.6 MiB).
+- Preserved the three original CONUS high-resolution map layers and vector
+  labels from `output/pdf/conus_synchrony_maps_high_resolution.pdf`; cropped
+  only surrounding original page headings/footers for the new composition.
+- Text and statistics are bound to retained CONUS baseline findings/report:
+  PRISM 2023-11-01–2024-01-30, 100 km neighborhoods, 481,630 focal cells,
+  cold median 0.911, warm median 0.928, negative pairwise Delta at 70.5% of
+  cells. Kept paired-difference reduction, joint-tail definitions, clipped
+  product boundaries and single-winter interpretation limits explicit.
+- Reopened PDF, checked one page / 3456 × 5184 points, extracted and asserted
+  key numerical/method labels, rendered with Poppler and inspected full-page
+  preview. Existing scientific reports, analyses and website unchanged;
+  no new acquisition or certification claimed. No publication or push.
+- Attribution follow-up: relabeled the synchrony poster as a PopClimVar Working
+  Group product in its header, footer and PDF title/author metadata. Exported
+  `artifacts/synchrony-poster/popclimvar-synchrony-poster-48x72.pdf` and checked
+  the complete Poppler preview. The methods link still points to the existing
+  synchrony documentation; scientific maps/statistics remain unchanged.
